@@ -600,3 +600,63 @@ input, textarea, select {
   z-index: 15;
 }
 .floating-fab:hover { background: var(--green-700); }
+
+/* Reminder banner */
+.reminder-banner {
+  background: #fff3cd;
+  color: #7a4800;
+  border-bottom: 2px solid #f5c518;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.reminder-banner.overdue {
+  background: #ffe0db;
+  color: #8b1a0e;
+  border-bottom-color: #e55039;
+}
+.reminder-banner .reminder-link {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.reminder-banner .reminder-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: inherit;
+  opacity: 0.6;
+  padding: 2px 6px;
+  min-height: unset;
+  flex-shrink: 0;
+}
+.reminder-banner .reminder-close:hover { opacity: 1; }
+
+/* Nav badge */
+.nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

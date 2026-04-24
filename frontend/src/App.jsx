@@ -7,6 +7,7 @@ import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import Toast from './components/Toast.jsx';
+import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -18,12 +19,21 @@ export function toast(message) {
 
 export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
+  const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const location = useLocation();
 
   toastHandler = (m) => {
     setToastMsg(m);
     setTimeout(() => setToastMsg(null), 3000);
   };
+
+  // Load stats for reminder banner and nav badge
+  useEffect(() => {
+    const loadStats = () => api.stats().then((s) => setPendingStats(s)).catch(() => {});
+    loadStats();
+    const interval = setInterval(loadStats, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
@@ -74,12 +84,14 @@ export default function App() {
         </div>
       </header>
 
+      <ReminderBanner overdue={pendingStats.overdue} dueToday={pendingStats.dueToday} />
+
       <main className="main">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
           <Route path="/zahrady" element={<GardensPage />} />
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
-          <Route path="/ukoly" element={<TasksPage />} />
+          <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
@@ -95,7 +107,16 @@ export default function App() {
           <span>Zahrady</span>
         </NavLink>
         <NavLink to="/ukoly">
-          <span className="icon">✅</span>
+          <span className="nav-icon-wrap">
+            <span className="icon">✅</span>
+            {pendingStats.overdue + pendingStats.dueToday > 0 && (
+              <span className="nav-badge">
+                {pendingStats.overdue + pendingStats.dueToday > 99
+                  ? '99+'
+                  : pendingStats.overdue + pendingStats.dueToday}
+              </span>
+            )}
+          </span>
           <span>Úkoly</span>
         </NavLink>
         <NavLink to="/nastaveni">

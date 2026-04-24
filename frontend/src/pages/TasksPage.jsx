@@ -6,7 +6,7 @@ import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import { daysFromToday } from '../utils.js';
 
-export default function TasksPage() {
+export default function TasksPage({ onTaskComplete }) {
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +33,7 @@ export default function TasksPage() {
       await api.completeTask(t.id);
       toast('✅ Hotovo');
       load();
+      onTaskComplete?.();
     } catch (e) {
       toast('Chyba: ' + e.message);
     }

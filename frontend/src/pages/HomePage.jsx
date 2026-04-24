@@ -5,7 +5,7 @@ import { api } from '../api.js';
 import TaskItem from '../components/TaskItem.jsx';
 import { toast } from '../App.jsx';
 
-export default function HomePage() {
+export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [week, setWeek] = useState([]);
   const [stats, setStats] = useState(null);
@@ -33,6 +33,7 @@ export default function HomePage() {
       await api.completeTask(t.id);
       toast('✅ Úkol označen jako hotový');
       load();
+      onTaskComplete?.();
     } catch (e) {
       toast('Chyba: ' + e.message);
     }
