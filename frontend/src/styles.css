@@ -15,17 +15,22 @@
   --earth-300: #c7a878;
   --earth-500: #8b6a3d;
   --earth-700: #5c4422;
-  --bg: #f7f9f3;
+  --bg: #ffffff;
   --card: #ffffff;
-  --text: #1f2d1a;
-  --text-dim: #56665a;
-  --border: #dce5d5;
-  --shadow: 0 2px 8px rgba(31, 62, 26, 0.08);
-  --shadow-lg: 0 4px 24px rgba(31, 62, 26, 0.15);
+  --sand: #f5f0e8;
+  --sand-dark: #e5e0d8;
+  --charcoal: #1a1a1a;
+  --muted: #6b7280;
+  --text: #1a1a1a;
+  --text-dim: #6b7280;
+  --border: #e5e0d8;
+  --shadow: 0 2px 8px rgba(31, 62, 26, 0.06);
+  --shadow-lg: 0 8px 24px rgba(31, 62, 26, 0.12);
   --danger: #c0392b;
   --warning: #d97a1b;
-  --success: #4a7c3a;
-  --radius: 12px;
+  --success: #2d5a27;
+  --radius: 16px;
+  --primary: #2d5a27;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -76,7 +81,7 @@ input, textarea, select {
 }
 
 .topbar {
-  background: linear-gradient(135deg, var(--green-700), var(--green-600));
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
   color: #fff;
   padding: calc(12px + var(--safe-top)) 16px 12px;
   position: sticky;
@@ -134,8 +139,8 @@ input, textarea, select {
   transition: color 0.15s;
 }
 .bottom-nav a.active {
-  color: var(--green-700);
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 700;
 }
 .bottom-nav a .icon {
   font-size: 1.35rem;
@@ -145,7 +150,7 @@ input, textarea, select {
 /* Cards */
 .card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 16px;
   padding: 14px;
   box-shadow: var(--shadow);
   margin-bottom: 12px;
@@ -158,7 +163,7 @@ input, textarea, select {
 .section-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--green-800);
+  color: var(--primary);
   margin: 16px 4px 8px;
   display: flex;
   align-items: center;
@@ -173,19 +178,19 @@ input, textarea, select {
   gap: 6px;
   padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   min-height: 44px; /* Apple's tap target */
-  background: var(--green-600);
+  background: var(--primary);
   color: #fff;
   transition: background 0.15s, transform 0.05s;
 }
-.btn:hover { background: var(--green-700); }
+.btn:hover { background: var(--green-900); }
 .btn:active { transform: scale(0.97); }
-.btn.secondary { background: var(--green-100); color: var(--green-800); }
-.btn.secondary:hover { background: var(--green-200); }
-.btn.ghost { background: transparent; color: var(--green-700); }
-.btn.ghost:hover { background: var(--green-50); }
+.btn.secondary { background: var(--sand); color: var(--charcoal); border: 1px solid var(--border); }
+.btn.secondary:hover { background: var(--sand-dark); }
+.btn.ghost { background: transparent; color: var(--primary); }
+.btn.ghost:hover { background: var(--sand); }
 .btn.danger { background: var(--danger); }
 .btn.warning { background: var(--warning); }
 .btn.small { padding: 6px 10px; min-height: 36px; font-size: 0.85rem; }
@@ -245,17 +250,19 @@ input, textarea, select {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--green-100);
-  color: var(--green-800);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--sand);
+  color: var(--charcoal);
 }
 .badge.overdue { background: #ffe0db; color: var(--danger); }
 .badge.today { background: #fff3cd; color: #805200; }
-.badge.week { background: var(--green-100); color: var(--green-800); }
-.badge.done { background: #d8f0d0; color: var(--green-800); }
+.badge.week { background: var(--primary); color: #fff; }
+.badge.done { background: var(--primary); color: #fff; }
 
 /* Map / garden view */
 .map-container {
@@ -398,12 +405,13 @@ input, textarea, select {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  padding: 12px;
+  padding: 14px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 14px;
   margin-bottom: 8px;
   transition: background 0.15s;
+  box-shadow: var(--shadow);
 }
 .task-item.overdue { border-left: 4px solid var(--danger); }
 .task-item.today { border-left: 4px solid var(--warning); }
@@ -411,7 +419,7 @@ input, textarea, select {
 .task-item .info .title { font-weight: 600; margin-bottom: 2px; }
 .task-item .info .meta { font-size: 0.8rem; color: var(--text-dim); }
 .task-complete-btn {
-  background: var(--green-500);
+  background: var(--primary);
   color: #fff;
   border: none;
   width: 36px;
@@ -424,20 +432,21 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
 }
-.task-complete-btn:hover { background: var(--green-600); }
+.task-complete-btn:hover { background: var(--green-900); }
 
 /* Gardens list */
 .garden-card {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 12px;
+  padding: 14px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
   margin-bottom: 10px;
   cursor: pointer;
   transition: box-shadow 0.15s, transform 0.05s;
+  box-shadow: var(--shadow);
 }
 .garden-card:hover { box-shadow: var(--shadow-lg); }
 .garden-card:active { transform: scale(0.99); }
@@ -501,7 +510,7 @@ input, textarea, select {
 .stat-card .value {
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--green-700);
+  color: var(--primary);
   line-height: 1.1;
 }
 .stat-card .label {
@@ -572,8 +581,8 @@ input, textarea, select {
   min-height: 40px;
 }
 .tabs button.active {
-  background: var(--green-100);
-  color: var(--green-800);
+  background: var(--primary);
+  color: #fff;
 }
 
 /* Utility */
@@ -592,14 +601,14 @@ input, textarea, select {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--green-600);
+  background: var(--primary);
   color: #fff;
   border: none;
   font-size: 1.6rem;
   box-shadow: var(--shadow-lg);
   z-index: 15;
 }
-.floating-fab:hover { background: var(--green-700); }
+.floating-fab:hover { background: var(--green-900); }
 
 /* Reminder banner */
 .reminder-banner {
