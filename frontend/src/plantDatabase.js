@@ -4428,16 +4428,32 @@ export function enrichPlant(plant) {
   };
 }
 
-// Vyhledávání v databázi (case-insensitive, hledá v nameCz i nameLat)
-export function searchPlants(query) {
-  if (!query || query.length < 1) return [];
-  const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+// Filtrování pro browseable dropdown — query (volitelný) + categoryKey (volitelný, 'all' = vše).
+// Vrací všechny shody bez sliceu, seřazené česky podle nameCz. Diakritika tolerována.
+export function filterPlants(query, categoryKey) {
+  const hasQuery = query && query.length >= 1;
+  const stripDiacritics = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const q = hasQuery ? stripDiacritics(query) : '';
+  const wantCategory = categoryKey && categoryKey !== 'all';
   return PLANT_DATABASE.filter((p) => {
-    const cz = p.nameCz.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const lat = p.nameLat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    return cz.includes(q) || lat.includes(q);
-  }).slice(0, 8).map(enrichPlant);
+    if (wantCategory && getPlantCategory(p.id).key !== categoryKey) return false;
+    if (!hasQuery) return true;
+    return stripDiacritics(p.nameCz).includes(q) || stripDiacritics(p.nameLat).includes(q);
+  })
+    .sort((a, b) => a.nameCz.localeCompare(b.nameCz, 'cs'))
+    .map(enrichPlant);
 }
+
+// Pořadí kategorií pro filtrovací chipy v UI
+export const PLANT_CATEGORIES = [
+  { key: 'zelenina', label: 'Zelenina', icon: '🥕', color: '#5a9a4d' },
+  { key: 'ovoce', label: 'Ovoce', icon: '🍓', color: '#c0392b' },
+  { key: 'bylinky', label: 'Bylinky', icon: '🌿', color: '#4a7c3a' },
+  { key: 'okrasne', label: 'Okrasné', icon: '🌸', color: '#c2185b' },
+  { key: 'cibuloviny', label: 'Cibuloviny', icon: '🌷', color: '#8e44ad' },
+  { key: 'kere', label: 'Keře a stromy', icon: '🌳', color: '#2d5a27' },
+  { key: 'trvalky', label: 'Trvalky', icon: '🌼', color: '#d97a1b' },
+];
 
 // Najdi rostlinu podle přesného jména
 export function findPlantByName(name) {
