@@ -1,50 +1,101 @@
-# Zahradní tracker — STATUS
+# GardenPin — Status
 
-## 2026-04-27 — GardenPin redesign aplikován na detail rostliny
+## Poslední aktualizace
+2026-04-27
 
-### Co se změnilo
+---
 
-**Plant DB (`frontend/src/plantDatabase.js`)**
-- Přidána funkce `getPlantCategory(id)` — mapuje ID rostliny na kategorii (zelenina / ovoce / bylinky / okrasné / cibuloviny / keře / trvalky) s ikonou a barvou.
-- Přidán objekt `PLANT_META` s rozšířenými údaji (`zone`, `light`, `water`, `height`, `careActions`) pro 28 nejčastějších rostlin (rajče, paprika, okurka, salát, mrkev, jahodník, malina, borůvka, bazalka, tymián, rozmarýn, máta, levandule, růže, hortenzie, šeřík, pelargónie, slunečnice, tulipán, lilie, buxus, magnólie, bambus, hortenzie latnatá, flox, astilba, miscanthus, kosatec, echinacea).
-- Pro plant ID, která meta nemají, se `light` a `water` odvodí ze stávajícího pole `sun`/`watering` (heuristika přes klíčová slova).
-- `searchPlants()` a `findPlantByName()` nyní vrací rostliny obohacené o nová pole přes nový export `enrichPlant()`.
-- Žádný plant entry není přepsán — meta žije v samostatném mapě, takže existující struktura zůstává netknutá.
+## Nedávné změny
 
-**Komponenta `PlantAutocomplete.jsx` (přepsaná)**
-- Nový design dropdown řádku: thumbnail s kategorickou ikonou, český název tučně, latinský name kurzívou, kategorie badge (forest green pill).
-- `PlantInfoCard` přepsán dle GardenPin design specu:
-  - Hero sekce 4:5 — fotka pinu pokud je, jinak placeholder s emoji a barvou kategorie.
-  - Pillové badges nad názvem: kategorie (forest #2d5a27) + zóna (sand #f5f0e8).
-  - Český název 22px/700 + latinský 14px/italic muted.
-  - Statistický pruh na sand pozadí: Světlo / Zálivka / Výška, každá hodnota s ikonou + 10px uppercase labelem.
-  - „Sezónní péče" sekce s interaktivními chips (checkbox + emoji + text + měsíc badge). Zaškrtnuté chips dostanou forest border + světle zelené pozadí.
-  - Sticky CTA „+ Přidat do zahrady" — full width, forest, radius 12, badge `+N` ukazující součet pravidelných úkolů z DB + zaškrtnutých sezónních chips.
-  - Nová sbalitelná sekce „Detaily pěstování" pro původní pole (půda, hnojení, řez, výsadba, poznámky) — méně dominantní, ale uchovává původní info.
-- Při kliku na CTA se vytvoří POST `/api/tasks` jak pro pravidelné úkoly z `plant.tasks`, tak pro vybrané `careActions` (každá care action → jednorázový úkol s `specific_date` na 15. dne odpovídajícího měsíce, posunuto na příští rok pokud měsíc už uplynul).
-- Existující kontrakt prop `pinId` + `onTasksCreated` zachován, takže `PinDetail.jsx` (volá kartu z `EditPinForm`) funguje bez změny.
+### 2026-04-27 — Plant card redesign mergován do master ✅
+- Větev `claude/practical-greider-895d5f` (commit `ae0cabe`) fast-forward mergována do `master`.
+- Push do remote vynechán — projekt nemá GitHub remote.
+- Build artefakty (`backend/public/index.html`, `assets/index-BJ26TSBy.css`, `assets/index-DaKG5c83.js`) zkopírovány z worktree do hlavního repa, aby Express server na localhost:3000 servoval nový design. (`backend/public/` je gitignored, takže merge sám o sobě artefakty nepřinesl.)
+- Server je Express servující skompilovaný frontend — NENÍ to Vite HMR. Pro projevení změn je nutné zastavit + spustit `Spustit Zahradní tracker.bat`.
 
-**Globální téma (`frontend/src/styles.css`)**
-- Nová tokenová sada doplněna ke stávající paletě: `--primary: #2d5a27`, `--sand: #f5f0e8`, `--sand-dark`, `--charcoal`, `--muted`.
-- `--bg` změněno z `#f7f9f3` na čistou bílou.
-- `--radius` zvětšen z 12 na 16 px (sjednocuje cards).
-- `.btn` primární používá `var(--primary)` a radius 12; `.btn.secondary` přepnuto na sand pozadí.
-- `.topbar` gradient lehce ztmaven (green-800 → green-700).
-- `.bottom-nav a.active`, `.section-title`, `.stat-card .value`, `.task-complete-btn`, `.floating-fab` přepnuty na `var(--primary)`.
-- `.tabs button.active` má teď solid forest pozadí + bílý text.
-- `.badge` má větší typografii (uppercase, letter-spacing 0.5).
-- `.task-item` a `.garden-card` zvětšen radius (14/16 px) + box-shadow.
+#### Co redesign přinesl
+- **`frontend/src/plantDatabase.js`**: `getPlantCategory(id)` + `PLANT_META` objekt s rozšířenou meta (zone/light/water/height/careActions) pro 28 nejčastějších rostlin. Heuristika dopočítává light/water pro zbylých 57.
+- **`frontend/src/components/PlantAutocomplete.jsx`** přepsán: dropdown s thumbnail+kategorií, hero plant card 4:5, sand-pozadí stat pruh (světlo/zálivka/výška), interaktivní sezónní chips, sticky CTA „+ Přidat do zahrady" se součtem úkolů.
+- **`frontend/src/styles.css`**: nová tokenová sada (`--primary: #2d5a27`, `--sand: #f5f0e8`, `--charcoal`, `--muted`), `--bg` na bílou, `--radius` 12→16, `.btn`/`.tabs`/`.bottom-nav` přepnuto na forest green primary.
+- Build prošel již na větvi (48 modulů, 11.82 kB CSS, 276 kB JS).
 
-### Build
-- `npm run build` prošlo: 48 modulů, 11.82 kB CSS, 276 kB JS, 1.42 s.
-- Build artefakty uloženy v `backend/public/` (existující workflow).
+#### Známé limity redesignu
+- Care chips se ukládají jako jednorázové úkoly s `task_type: 'jine'` na 15. dne měsíce — ideálně by měly být roční opakování (vyžadovalo by úpravu serveru).
+- Rozšířená `PLANT_META` jen pro 28 z 85 rostlin.
+- Nový design zatím jen na detailu rostliny; HomePage / GardensPage / TasksPage zachovány v původním renderu.
 
-### Co NENÍ změněno
-- Backend (`backend/server.js`, schema DB, iCal export, upscale).
-- Logika map a draggable pinů (`GardenDetailPage.jsx`).
-- API kontrakt — používají se existující endpointy `/api/tasks`.
+---
 
-### Známé limity / další kroky
-- Care chips se zatím ukládají jako jednorázové úkoly s `task_type: 'jine'` na 15. dne měsíce — ideálně by měly být roční opakování (`frequency_days: 365` se startem v daném měsíci), aby se připomínaly i následující rok. To by ale vyžadovalo úpravu serveru, kterou jsem zámerně neprováděl.
-- Rozšířená meta je pouze pro 28 rostlin; zbývajících 57 dostává odvozené hodnoty z heuristik. Pokud chceš, doplním další.
-- Ostatní stránky (HomePage, GardensPage, TasksPage) si stále drží stávající rendr — nový design se týká primárně detailu rostliny a celkového barevného laděnání.
+## VIZE PRODUKTU (ultimátní cíl)
+
+**GardenPin** je super moderní mobilní aplikace pro středoevropské zahrádkáře.
+
+### Co to dělá
+- Uživatel přidá rostlinu na mapu zahrady (pin na reálné fotce/plánu)
+- Při přidání app navrhne sezónní akce specifické pro danou rostlinu
+- Uživatel jen zaškrtne, které chce → exportuje do kalendáře (iCal/Apple Calendar/Google)
+- Výsledek: chytré připomenutí velkých ročních akcí, ne otravné denní úkoly
+
+### Filosofie připomínek
+- **POUZE velké roční akce**: střih stromů, zastřižení trav, hnojení keřů, zimní zábal
+- **ŽÁDNÉ** každodenní akce (zalévání, přihnojování apod.) — to si člověk pohlídá sám
+- Styl: "Do března zastřihni okrasné trávy" — informační, ne otravné
+- Frekvence: 1–3x ročně na rostlinu, max
+
+### Rostliny — zaměření
+- **Primárně**: středoevropské venkovní trvalky, okrasné trávy, keře, keříky, stromy, popínavé rostliny
+- Cultivary a variety (např. Hydrangea macrophylla 'Annabelle', Miscanthus sinensis 'Gracillimus')
+- Sekundárně: ovocné stromy, zelenina, pokojové rostliny
+- Databáze: minimum 200 rostlin, fotky, česká + latinská jména, stručný popis
+
+### Onboarding flow při přidání rostliny
+1. Uživatel vybere rostlinu z databáze
+2. App navrhne: "Pro tuto rostlinu doporučujeme:"
+   - ☑ Zastřihnout do konce března (roční)
+   - ☑ Přihnojit na jaře — duben (roční)
+   - ☐ Zimní zábal — říjen (volitelné)
+3. Uživatel zaškrtne co chce
+4. Uloží → přidá se pin na mapu + akce do exportní fronty
+5. Kdykoliv může exportovat vše zaškrtnuté do iCal
+
+### Design
+- **Super moderní mobilní-first UI**: čistý, vzdušný, hodně bílé + zemité zelené tóny
+- Plant cards: fotka rostliny, česky + latinsky, badge kategorie
+- Mapa: foto zahrady s piny, plynulé zoom + drag
+- Žádný retro/zahradní kýč — Apple-level design quality
+- Dark mode ready (do budoucna)
+
+### Distribuce (roadmapa)
+1. Web app (PWA) — rodinné testování bez nákladů ✅ (cloudflare tunnel)
+2. Backend cloud (Fly.io/Railway) — přístup bez tunnelu, sdílení
+3. iOS (Capacitor.js + TestFlight) — beta s rodinou
+4. App Store — případný komerční launch
+
+---
+
+## Co je hotovo
+- Databáze 85 rostlin s fotkami, českými popisy (commit f89484d)
+- Pinch-to-zoom na mapě
+- Drag & drop pinů
+- iCal export úkolů (základní, nutno přepracovat dle vize výše)
+- PWA manifest, přejmenování na GardenPin (commit d27c323)
+- Thumbnail v autocomplete dropdownu
+- Mobile-first design, hero banner, stat karty
+- **Plant card redesign dle GardenPin design systému** (commit ae0cabe, merged 2026-04-27)
+
+## Co je rozjednáno / čeká
+- **Přepracovat iCal logiku**: care chips → roční opakování (vyžaduje úpravu serveru: `frequency_days: 365` se startem v daném měsíci)
+- **Rozšířit DB**: okrasné trávy, keře (šeřík, hortenzie, pámelník...), stromy (jabloň, třešeň, magnólie...) — min 200 rostlin, cultivary
+- Doplnit `PLANT_META` pro zbývajících 57 z 85 rostlin
+- Aplikovat redesign i na HomePage / GardensPage / TasksPage (zatím jen detail rostliny)
+- Backend deploy na fly.io/Railway (nutný pro mobilní přístup bez tunnelu)
+- iOS Capacitor.js integrace (po cloud backendu)
+- Touch eventy pro drag & drop (mouse-only, iOS breaking)
+
+## Priorita pro příští session
+1. Backend deploy na fly.io — přístup bez tunnelu (základ pro vše)
+2. Care chips → roční opakování (úprava serveru)
+3. Aplikovat redesign na HomePage / GardensPage / TasksPage
+4. Rozšířit databázi: středoevropské keře, stromy, okrasné trávy + cultivary
+5. Doplnit `PLANT_META` pro zbývajících 57 rostlin
+6. Přidat GardenPin do patrikprikryl.com/projects sekce
