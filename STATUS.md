@@ -7,6 +7,13 @@
 
 ## Nedávné změny
 
+### 2026-04-27 — Polish fix mergován + push na gardenpin remote ✅
+- Větev `claude/pedantic-solomon-5ee10d` (commit `438a961`) fast-forward mergována do `master`.
+- Care chips nyní fakticky ukládají úkoly do DB při vytváření pinu (dříve toggle bez efektu — opravil submit handler v `NewPinModal` přes nový helper `buildSeasonalTaskPayloads()`, sdílený s CTA v `PlantInfoCard`).
+- `careActions` doplněny pro dalších 19 rostlin (cibule, česnek, dýně, cuketa, fazole, hrášek, špenát, brokolice, kedlubna, zelí, ředkev, rybíz, angrešt, šalvěj, pažitka, levandule, růže, petúnie, tulipán) — celkem nyní 47/85.
+- Build artefakty z pedantic-solomon worktree zkopírovány do `backend/public/` (`index.html` + `assets/index-sBk2U1dp.js` + `assets/index-BJ26TSBy.css`); stará `index-DaKG5c83.js` smazána.
+- **První push `master` do remote `gardenpin`** (`github.com/RubbySource/gardenpin.git`) — předtím byl prázdný.
+
 ### 2026-04-27 — Plant card redesign mergován do master ✅
 - Větev `claude/practical-greider-895d5f` (commit `ae0cabe`) fast-forward mergována do `master`.
 - Push do remote vynechán — projekt nemá GitHub remote.
