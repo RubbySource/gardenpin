@@ -6,6 +6,7 @@ import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import WeatherWidget from '../components/WeatherWidget.jsx';
 
 export default function GardenDetailPage() {
   const { id } = useParams();
@@ -193,6 +194,8 @@ export default function GardenDetailPage() {
           </button>
         </div>
       </div>
+
+      <WeatherWidget />
 
       {!garden.image_path ? (
         <div className="card">
