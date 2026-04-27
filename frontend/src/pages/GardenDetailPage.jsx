@@ -25,7 +25,10 @@ export default function GardenDetailPage() {
   // P4: Drag & drop state
   const [draggingPin, setDraggingPin] = useState(null); // { pin, startX, startY }
   const [dragPos, setDragPos] = useState(null); // { x%, y% }
+  const [uploadingPhotoFor, setUploadingPhotoFor] = useState(null);
   const mapRef = useRef();
+  const pinPhotoInputRef = useRef();
+  const pinPhotoTargetRef = useRef(null);
 
   const load = async () => {
     try {
@@ -127,6 +130,36 @@ export default function GardenDetailPage() {
     }
   }, [draggingPin, dragPos]);
 
+  // 📷 Camera photo on pin
+  const triggerPinPhotoUpload = (e, pin) => {
+    e.preventDefault();
+    e.stopPropagation();
+    pinPhotoTargetRef.current = pin;
+    if (pinPhotoInputRef.current) {
+      pinPhotoInputRef.current.value = '';
+      pinPhotoInputRef.current.click();
+    }
+  };
+
+  const handlePinPhotoSelected = async (e) => {
+    const file = e.target.files?.[0];
+    const pin = pinPhotoTargetRef.current;
+    if (!file || !pin) return;
+    setUploadingPhotoFor(pin.id);
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const res = await api.uploadPinPhoto(pin.id, fd);
+      setPins((prev) => prev.map((p) => (p.id === pin.id ? { ...p, photo_url: res.photo_url } : p)));
+      toast('📷 Fotka uložena');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setUploadingPhotoFor(null);
+      pinPhotoTargetRef.current = null;
+    }
+  };
+
   const handleMapClick = (e) => {
     if (draggingPin) return; // Ignorovat click při drag
     if (!garden || !garden.image_path) return;
@@ -176,6 +209,14 @@ export default function GardenDetailPage() {
 
   return (
     <>
+      <input
+        ref={pinPhotoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={handlePinPhotoSelected}
+      />
       <div className="row spread mb-2">
         <div>
           <div style={{ fontSize: '0.85rem' }}>
@@ -341,6 +382,7 @@ export default function GardenDetailPage() {
               {pins.map((p) => {
                 const isDragging = draggingPin?.id === p.id;
                 const pos = isDragging && dragPos ? dragPos : { x: p.x, y: p.y };
+                const uploading = uploadingPhotoFor === p.id;
                 return (
                   <div
                     key={p.id}
@@ -357,6 +399,19 @@ export default function GardenDetailPage() {
                     title={p.name}
                   >
                     <div className="pin-body" style={{ background: p.color || '#4a7c3a' }} />
+                    {p.photo_url && (
+                      <img src={p.photo_url} alt="" className="pin-avatar" draggable={false} />
+                    )}
+                    <button
+                      type="button"
+                      className="pin-camera-btn"
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => triggerPinPhotoUpload(e, p)}
+                      title="Vyfotit místo"
+                      disabled={uploading}
+                    >
+                      {uploading ? '⏳' : '📷'}
+                    </button>
                     <div className="pin-label">{p.name}</div>
                   </div>
                 );

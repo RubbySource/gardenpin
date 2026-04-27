@@ -339,6 +339,43 @@ input, textarea, select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.pin .pin-avatar {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  object-fit: cover;
+  background: #fff;
+  top: -22px;
+  left: 22px;
+  pointer-events: none;
+  z-index: 3;
+}
+.pin .pin-camera-btn {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgba(31, 62, 26, 0.92);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  top: -10px;
+  left: -16px;
+  z-index: 4;
+  transition: transform 0.12s;
+}
+.pin .pin-camera-btn:hover { transform: scale(1.15); }
+.pin .pin-camera-btn:disabled { opacity: 0.6; cursor: wait; }
 .pin.new .pin-body { background: var(--warning); animation: pulse 1.2s infinite; }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 2px 6px rgba(217,122,27,0.6); }

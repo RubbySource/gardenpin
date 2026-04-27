@@ -25,6 +25,8 @@ export const api = {
   updatePin: (id, formData) =>
     fetch(`/api/pins/${id}`, { method: 'PUT', body: formData }).then(handle),
   deletePin: (id) => jsonFetch(`/api/pins/${id}`, { method: 'DELETE' }),
+  uploadPinPhoto: (id, formData) =>
+    fetch(`/api/pins/${id}/photo`, { method: 'POST', body: formData }).then(handle),
 
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),

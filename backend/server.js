@@ -16,6 +16,8 @@ const PORT = process.env.PORT || 3000;
 // Uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+const pinsUploadDir = path.join(uploadsDir, 'pins');
+if (!fs.existsSync(pinsUploadDir)) fs.mkdirSync(pinsUploadDir, { recursive: true });
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
@@ -29,6 +31,23 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
+  fileFilter: (req, file, cb) => {
+    if (/image\/(jpeg|jpg|png|gif|webp|heic|heif)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Pouze obrázky jsou povolené'));
+  },
+});
+
+// Dedicated multer storage for pin camera-captured photos
+const pinPhotoStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, pinsUploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, `pin-${req.params.id}-${Date.now()}${ext}`);
+  },
+});
+const pinPhotoUpload = multer({
+  storage: pinPhotoStorage,
+  limits: { fileSize: 25 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (/image\/(jpeg|jpg|png|gif|webp|heic|heif)/.test(file.mimetype)) cb(null, true);
     else cb(new Error('Pouze obrázky jsou povolené'));
@@ -109,7 +128,7 @@ app.delete('/api/gardens/:id', (req, res) => {
   const g = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
   if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
   // Collect all photo paths to delete
-  const pins = db.prepare('SELECT photo_path FROM pins WHERE garden_id = ?').all(id);
+  const pins = db.prepare('SELECT photo_path, photo_url FROM pins WHERE garden_id = ?').all(id);
   db.prepare('DELETE FROM gardens WHERE id = ?').run(id);
   if (g.image_path) {
     const p = path.join(__dirname, g.image_path);
@@ -118,6 +137,10 @@ app.delete('/api/gardens/:id', (req, res) => {
   for (const pin of pins) {
     if (pin.photo_path) {
       const p = path.join(__dirname, pin.photo_path);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+    if (pin.photo_url) {
+      const p = path.join(__dirname, pin.photo_url);
       if (fs.existsSync(p)) fs.unlinkSync(p);
     }
   }
@@ -210,7 +233,27 @@ app.delete('/api/pins/:id', (req, res) => {
     const p = path.join(__dirname, pin.photo_path);
     if (fs.existsSync(p)) fs.unlinkSync(p);
   }
+  if (pin.photo_url) {
+    const p = path.join(__dirname, pin.photo_url);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  }
   res.json({ ok: true });
+});
+
+// Camera-captured pin photo (mobile camera button on map)
+app.post('/api/pins/:id/photo', pinPhotoUpload.single('photo'), (req, res) => {
+  const id = req.params.id;
+  const pin = db.prepare('SELECT * FROM pins WHERE id = ?').get(id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  if (!req.file) return res.status(400).json({ error: 'Žádný soubor' });
+  // Replace previous camera photo if any
+  if (pin.photo_url) {
+    const old = path.join(__dirname, pin.photo_url);
+    if (fs.existsSync(old)) fs.unlinkSync(old);
+  }
+  const photoUrl = '/uploads/pins/' + req.file.filename;
+  db.prepare('UPDATE pins SET photo_url=? WHERE id=?').run(photoUrl, id);
+  res.json({ ok: true, photo_url: photoUrl });
 });
 
 // ======================= TASKS =======================

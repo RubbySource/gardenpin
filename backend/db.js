@@ -32,6 +32,7 @@ db.exec(`
     planting_date TEXT,
     notes TEXT,
     photo_path TEXT,
+    photo_url TEXT,
     color TEXT DEFAULT '#4a7c3a',
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
@@ -65,5 +66,6 @@ db.exec(`
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE pins ADD COLUMN photo_url TEXT'); } catch {}
 
 module.exports = db;
