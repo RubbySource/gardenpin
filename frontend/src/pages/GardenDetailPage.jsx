@@ -1,30 +1,31 @@
-// Garden detail: interactive map with pins + pin detail modal
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+// Garden detail: interactive map with pins + pin detail modal — GardenPin design
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import { findPlantByName } from '../plantDatabase.js';
 
 export default function GardenDetailPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const [garden, setGarden] = useState(null);
   const [pins, setPins] = useState([]);
+  const [taskCounts, setTaskCounts] = useState({}); // { pinId: count }
   const [loading, setLoading] = useState(true);
-  const [addingPinAt, setAddingPinAt] = useState(null); // { x, y } in percentages
+  const [addingPinAt, setAddingPinAt] = useState(null);
   const [editingPinId, setEditingPinId] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
-  // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
   const [gridSize, setGridSize] = useState(50);
   const [upscaling, setUpscaling] = useState(false);
-  // P4: Drag & drop state
-  const [draggingPin, setDraggingPin] = useState(null); // { pin, startX, startY }
-  const [dragPos, setDragPos] = useState(null); // { x%, y% }
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [draggingPin, setDraggingPin] = useState(null);
+  const [dragPos, setDragPos] = useState(null);
   const mapRef = useRef();
 
   const load = async () => {
@@ -40,6 +41,13 @@ export default function GardenDetailPage() {
       setRotation(g.rotation || 0);
       const ps = await api.listPins(id);
       setPins(ps);
+      // Spočítej úkoly per pin (paralelní jeden fetch /api/tasks)
+      try {
+        const allTasks = await api.listTasks();
+        const counts = {};
+        for (const t of allTasks) counts[t.pin_id] = (counts[t.pin_id] || 0) + 1;
+        setTaskCounts(counts);
+      } catch {}
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -51,7 +59,6 @@ export default function GardenDetailPage() {
     load();
   }, [id]);
 
-  // P3: Upscale 4×
   const handleUpscale = async () => {
     if (!confirm('Upscale 4× – zpracuje obrázek serverstranně (bicubic). Pokračovat?')) return;
     setUpscaling(true);
@@ -68,7 +75,6 @@ export default function GardenDetailPage() {
     }
   };
 
-  // P3: Uložit rotaci
   const handleRotationChange = async (newRot) => {
     setRotation(newRot);
     try {
@@ -121,7 +127,6 @@ export default function GardenDetailPage() {
     const pos = dragPos;
     setDraggingPin(null);
     setDragPos(null);
-    // Pokud se pin téměř nepohnul, otevřeme detail
     const dx = Math.abs(pos.x - pin.x);
     const dy = Math.abs(pos.y - pin.y);
     if (dx < 0.5 && dy < 0.5) {
@@ -165,7 +170,7 @@ export default function GardenDetailPage() {
   }, [draggingPin, updateDragPosFromPoint, finishDrag]);
 
   const handleMapClick = (e) => {
-    if (draggingPin) return; // Ignorovat click při drag
+    if (draggingPin) return;
     if (!garden || !garden.image_path) return;
     const rect = mapRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -180,7 +185,6 @@ export default function GardenDetailPage() {
     try {
       const fd = new FormData();
       fd.append('image', file);
-      // Need dimensions for aspect ratio preservation
       const img = new Image();
       img.src = URL.createObjectURL(file);
       await new Promise((res) => (img.onload = res));
@@ -213,16 +217,21 @@ export default function GardenDetailPage() {
 
   return (
     <>
-      <div className="row spread mb-2">
-        <div>
-          <div style={{ fontSize: '0.85rem' }}>
-            <button className="btn ghost small" onClick={() => nav('/zahrady')}>
-              ← Zpět
-            </button>
+      <div className="page-header" style={{ marginBottom: 12 }}>
+        <div className="heading">
+          <button
+            className="btn ghost small"
+            onClick={() => nav('/zahrady')}
+            style={{ padding: '4px 8px', minHeight: 'auto', marginBottom: 6 }}
+          >
+            ← Zahrady
+          </button>
+          <h1 style={{ fontSize: '1.5rem' }}>{garden.name}</h1>
+          <div className="subtitle">
+            {pins.length} {pins.length === 1 ? 'rostlina' : pins.length < 5 ? 'rostliny' : 'rostlin'}
+            {' · '}
+            Vytvořeno {new Date(garden.created_at + 'Z').toLocaleDateString('cs-CZ')}
           </div>
-          <h2 className="section-title" style={{ margin: '4px 0 0' }}>
-            🗺️ {garden.name}
-          </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
           <a
@@ -232,104 +241,157 @@ export default function GardenDetailPage() {
           >
             📅 Exportovat do kalendáře
           </a>
-          <button className="btn ghost small" onClick={() => setShowEdit(true)}>
-            ✏️ Upravit
+          <button
+            className="btn ghost small"
+            onClick={() => setShowEdit(true)}
+            title="Upravit zahradu"
+          >
+            ✏️
           </button>
+          {garden.image_path && (
+            <button
+              className="btn-cta"
+              style={{ padding: '10px 14px', minHeight: 44 }}
+              onClick={() => {
+                if (mapRef.current) mapRef.current.scrollIntoView({ behavior: 'smooth' });
+                toast('💡 Klikněte na mapu pro přidání rostliny');
+              }}
+            >
+              + Rostlina
+            </button>
+          )}
         </div>
       </div>
 
       {!garden.image_path ? (
-        <div className="card">
-          <div className="empty">
-            <div className="icon">🖼️</div>
-            <div className="mb-2">Nahrajte fotku zahrady z leteckého pohledu</div>
-            <label className="btn">
-              📷 Nahrát fotku
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleUploadMap}
-              />
-            </label>
+        <div className="gp-empty">
+          <span className="gp-empty-icon">🖼️</span>
+          <div className="gp-empty-title">Nahrajte fotku zahrady</div>
+          <div className="gp-empty-text">
+            Letecký pohled, screenshot z Map.cz, ručně nakreslený plánek — cokoliv, co vám pomůže
+            orientovat se v zahradě.
           </div>
+          <label className="btn-cta">
+            📷 Nahrát fotku
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleUploadMap}
+            />
+          </label>
         </div>
       ) : (
         <>
-          {/* P3: Toolbar nad mapou */}
-          <div className="card" style={{ padding: '10px 14px' }}>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Rotace */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 200px' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>🔄 {rotation}°</span>
-                <input
-                  type="range"
-                  min="-180"
-                  max="180"
-                  step="1"
-                  value={rotation}
-                  onChange={(e) => handleRotationChange(Number(e.target.value))}
-                  style={{ flex: 1 }}
-                />
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange((rotation - 90 + 360) % 360)}
-                  title="-90°"
-                >
-                  ↺
-                </button>
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange((rotation + 90) % 360)}
-                  title="+90°"
-                >
-                  ↻
-                </button>
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange(0)}
-                  title="Reset"
-                >
-                  ⊙
-                </button>
-              </div>
-              {/* Mřížka */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <button
-                  className={`btn ghost small${showGrid ? ' active' : ''}`}
-                  onClick={() => setShowGrid((v) => !v)}
-                  style={showGrid ? { background: 'rgba(74,124,58,0.15)', border: '1px solid #4a7c3a' } : {}}
-                >
-                  ⊞ Mřížka
-                </button>
-                {showGrid && (
+          {/* Toolbar nad mapou — sbalitelný */}
+          <div className="gp-toolbar">
+            <button
+              type="button"
+              onClick={() => setShowToolbar((v) => !v)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 0,
+                cursor: 'pointer',
+                color: 'var(--charcoal)',
+                fontWeight: 700,
+                fontSize: '0.88rem',
+              }}
+            >
+              <span>🛠️ Nástroje mapy</span>
+              <span style={{ color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 500 }}>
+                {showToolbar ? 'Skrýt ▴' : `Rotace ${rotation}° · ${showGrid ? 'mřížka' : 'bez mřížky'} ▾`}
+              </span>
+            </button>
+            {showToolbar && (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  marginTop: 10,
+                  paddingTop: 10,
+                  borderTop: '1px solid var(--sand-dark)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 200px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>🔄 {rotation}°</span>
                   <input
                     type="range"
-                    min="20"
-                    max="150"
-                    step="5"
-                    value={gridSize}
-                    onChange={(e) => setGridSize(Number(e.target.value))}
-                    style={{ width: 70 }}
-                    title={`${gridSize}px`}
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value={rotation}
+                    onChange={(e) => handleRotationChange(Number(e.target.value))}
+                    style={{ flex: 1 }}
                   />
-                )}
+                  <button
+                    className="btn ghost small"
+                    onClick={() => handleRotationChange((rotation - 90 + 360) % 360)}
+                    title="-90°"
+                  >
+                    ↺
+                  </button>
+                  <button
+                    className="btn ghost small"
+                    onClick={() => handleRotationChange((rotation + 90) % 360)}
+                    title="+90°"
+                  >
+                    ↻
+                  </button>
+                  <button
+                    className="btn ghost small"
+                    onClick={() => handleRotationChange(0)}
+                    title="Reset"
+                  >
+                    ⊙
+                  </button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    className="btn ghost small"
+                    onClick={() => setShowGrid((v) => !v)}
+                    style={
+                      showGrid
+                        ? { background: 'rgba(45,90,39,0.12)', border: '1px solid var(--primary)' }
+                        : {}
+                    }
+                  >
+                    ⊞ Mřížka
+                  </button>
+                  {showGrid && (
+                    <input
+                      type="range"
+                      min="20"
+                      max="150"
+                      step="5"
+                      value={gridSize}
+                      onChange={(e) => setGridSize(Number(e.target.value))}
+                      style={{ width: 70 }}
+                      title={`${gridSize}px`}
+                    />
+                  )}
+                </div>
+                <button
+                  className="btn ghost small"
+                  onClick={handleUpscale}
+                  disabled={upscaling}
+                  title="Zvětšit rozlišení 4× (bicubic)"
+                >
+                  {upscaling ? '⏳' : '🔍'} Upscale 4×
+                </button>
               </div>
-              {/* Upscale */}
-              <button
-                className="btn ghost small"
-                onClick={handleUpscale}
-                disabled={upscaling}
-                title="Zvětšit rozlišení 4× (bicubic)"
-              >
-                {upscaling ? '⏳' : '🔍'} Upscale 4×
-              </button>
-            </div>
+            )}
           </div>
 
-          <div className="card">
-            <div className="small muted mb-2">
-              💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.
+          <div className="gp-map-frame">
+            <div className="map-hint">
+              💡 Klikněte na mapu pro přidání rostliny · přetáhněte pin pro přesun
             </div>
             <div
               className="map-container"
@@ -353,7 +415,6 @@ export default function GardenDetailPage() {
                 draggable={false}
                 style={{ transform: `rotate(${rotation}deg)` }}
               />
-              {/* P3: SVG mřížka overlay */}
               {showGrid && (
                 <svg
                   style={{
@@ -419,41 +480,26 @@ export default function GardenDetailPage() {
             </div>
           </div>
 
-          <h3 className="section-title">
-            📍 Místa v zahradě ({pins.length})
-          </h3>
+          <div className="gp-section">
+            <div className="gp-section-title">📍 Rostliny v zahradě</div>
+            <span className="gp-section-count">{pins.length}</span>
+          </div>
           {pins.length === 0 ? (
-            <div className="card empty small">
-              Zatím žádná místa. Klikněte na mapu výše pro přidání.
+            <div className="gp-empty" style={{ padding: '24px 16px' }}>
+              <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🌱</span>
+              <div className="gp-empty-title">Zatím žádná rostlina</div>
+              <div className="gp-empty-text">
+                Klikněte na mapu výše a přidejte první rostlinu.
+              </div>
             </div>
           ) : (
             pins.map((p) => (
-              <div
+              <PinRow
                 key={p.id}
-                className="garden-card"
+                pin={p}
+                taskCount={taskCounts[p.id] || 0}
                 onClick={() => setEditingPinId(p.id)}
-              >
-                {p.photo_path ? (
-                  <img src={p.photo_path} alt="" className="thumb" />
-                ) : (
-                  <div
-                    className="thumb thumb-placeholder"
-                    style={{ background: (p.color || '#4a7c3a') + '33', color: p.color || '#4a7c3a' }}
-                  >
-                    🌱
-                  </div>
-                )}
-                <div className="details">
-                  <div className="name">{p.name}</div>
-                  {p.plant_name && <div className="meta">🌿 {p.plant_name}</div>}
-                  {p.planting_date && (
-                    <div className="meta">
-                      📅 Vysazeno {new Date(p.planting_date).toLocaleDateString('cs-CZ')}
-                    </div>
-                  )}
-                </div>
-                <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
-              </div>
+              />
             ))
           )}
         </>
@@ -500,6 +546,57 @@ export default function GardenDetailPage() {
   );
 }
 
+// Karta pinu v listu pod mapou — GardenPin styl: thumb, jméno, kategorie, počet úkolů
+function PinRow({ pin, taskCount, onClick }) {
+  // Najdi rostlinu v databázi pro kategorii badge
+  const plant = useMemo(
+    () => (pin.plant_name ? findPlantByName(pin.plant_name) : null),
+    [pin.plant_name],
+  );
+  const cat = plant?.category;
+  const color = pin.color || '#4a7c3a';
+
+  return (
+    <div className="gp-pin-row" onClick={onClick}>
+      {pin.photo_path ? (
+        <img src={pin.photo_path} alt="" className="gp-pin-thumb" />
+      ) : (
+        <div
+          className="gp-pin-thumb"
+          style={{ background: (cat?.color || color) + '22', color: cat?.color || color }}
+        >
+          {cat?.icon || '🌱'}
+        </div>
+      )}
+      <div className="gp-pin-info">
+        <div className="gp-pin-name">{pin.name}</div>
+        <div className="gp-pin-meta">
+          {pin.plant_name && <span>🌿 {pin.plant_name}</span>}
+          {pin.planting_date && (
+            <span>📅 {new Date(pin.planting_date).toLocaleDateString('cs-CZ')}</span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+          {cat && (
+            <span
+              className="gp-chip"
+              style={{ background: cat.color + '22', color: cat.color, borderColor: 'transparent' }}
+            >
+              {cat.icon} {cat.label}
+            </span>
+          )}
+          {taskCount > 0 && (
+            <span className="gp-chip week">
+              ✓ {taskCount} {taskCount === 1 ? 'úkol' : taskCount < 5 ? 'úkoly' : 'úkolů'}
+            </span>
+          )}
+        </div>
+      </div>
+      <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
+    </div>
+  );
+}
+
 function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
   const [name, setName] = useState('');
   const [plantName, setPlantName] = useState('');
@@ -529,7 +626,6 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
       if (file) fd.append('photo', file);
       const pin = await api.createPin(fd);
 
-      // Auto-vytvoř úkoly z databáze rostlin (pravidelné) + sezónní úkoly z vybraných chipů
       const promises = [];
       let dbCount = 0;
       let seasonalCount = 0;
@@ -583,7 +679,7 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
   };
 
   return (
-    <Modal title="Nové místo v zahradě" onClose={onClose}>
+    <Modal title="Nová rostlina v zahradě" onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
           <label>Název místa *</label>
@@ -659,7 +755,7 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
           <button type="button" className="btn ghost" onClick={onClose}>
             Zrušit
           </button>
-          <button type="submit" className="btn" disabled={saving}>
+          <button type="submit" className="btn-cta" disabled={saving}>
             {saving ? 'Ukládám...' : 'Vytvořit místo'}
           </button>
         </div>
@@ -711,7 +807,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
           <button type="button" className="btn danger" onClick={onDelete}>
             🗑️ Smazat zahradu
           </button>
-          <button type="submit" className="btn" disabled={saving}>
+          <button type="submit" className="btn-cta" disabled={saving}>
             {saving ? 'Ukládám...' : 'Uložit'}
           </button>
         </div>
