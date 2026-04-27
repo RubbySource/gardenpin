@@ -62,6 +62,12 @@ db.exec(`
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL,
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subscription_json TEXT NOT NULL UNIQUE,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují

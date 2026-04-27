@@ -6,9 +6,36 @@ const path = require('path');
 const fs = require('fs');
 const db = require('./db');
 
+// Minimal .env loader (no external dependency) — only sets vars not already in env
+(function loadEnv() {
+  const envPath = path.join(__dirname, '.env');
+  if (!fs.existsSync(envPath)) return;
+  const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/i);
+    if (!m) continue;
+    const key = m[1];
+    let val = m[2];
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    if (!(key in process.env)) process.env[key] = val;
+  }
+})();
+
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
 try { sharp = require('sharp'); } catch { sharp = null; }
+
+// Web Push — optional, ale doporučené
+let webpush;
+try { webpush = require('web-push'); } catch { webpush = null; }
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:zahradni-tracker@example.com';
+if (webpush && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -554,6 +581,97 @@ app.get('/api/export/ical', (req, res) => {
   res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker.ics"');
   res.send(lines.join('\r\n'));
 });
+
+// ======================= WEB PUSH =======================
+app.get('/api/push/vapid-public-key', (req, res) => {
+  res.json({ key: VAPID_PUBLIC_KEY });
+});
+
+app.post('/api/push/subscribe', (req, res) => {
+  const sub = req.body;
+  if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Neplatná subscription' });
+  const json = JSON.stringify(sub);
+  try {
+    db.prepare('INSERT OR IGNORE INTO push_subscriptions (subscription_json) VALUES (?)').run(json);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/push/unsubscribe', (req, res) => {
+  const sub = req.body;
+  if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Neplatná subscription' });
+  // Find subscription by endpoint substring (compare endpoints, not full JSON)
+  const all = db.prepare('SELECT id, subscription_json FROM push_subscriptions').all();
+  for (const row of all) {
+    try {
+      const s = JSON.parse(row.subscription_json);
+      if (s.endpoint === sub.endpoint) {
+        db.prepare('DELETE FROM push_subscriptions WHERE id = ?').run(row.id);
+      }
+    } catch {}
+  }
+  res.json({ ok: true });
+});
+
+async function sendPushToAll(payload) {
+  if (!webpush || !VAPID_PUBLIC_KEY) return { sent: 0, removed: 0, skipped: true };
+  const subs = db.prepare('SELECT id, subscription_json FROM push_subscriptions').all();
+  let sent = 0;
+  let removed = 0;
+  const data = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  for (const row of subs) {
+    try {
+      const sub = JSON.parse(row.subscription_json);
+      await webpush.sendNotification(sub, data);
+      sent++;
+    } catch (e) {
+      // 404/410 = subscription expired — remove it
+      if (e && (e.statusCode === 404 || e.statusCode === 410)) {
+        db.prepare('DELETE FROM push_subscriptions WHERE id = ?').run(row.id);
+        removed++;
+      } else {
+        console.error('push error', e?.statusCode, e?.body || e?.message);
+      }
+    }
+  }
+  return { sent, removed };
+}
+
+app.post('/api/push/send', async (req, res) => {
+  const { title, body, url } = req.body || {};
+  if (!title) return res.status(400).json({ error: 'title je povinný' });
+  const result = await sendPushToAll({ title, body: body || '', url: url || '/' });
+  res.json(result);
+});
+
+// Cron — každých 60 minut zkontroluj úkoly s due_date = zítřek a pošli push
+function runDueTomorrowCheck() {
+  if (!webpush || !VAPID_PUBLIC_KEY) return;
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomStr = tomorrow.toISOString().slice(0, 10);
+  const tasks = db.prepare(
+    `SELECT t.*, p.name AS pin_name, p.plant_name, g.name AS garden_name
+     FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     JOIN gardens g ON g.id = p.garden_id
+     WHERE t.next_due = ?`,
+  ).all(tomStr);
+  if (!tasks.length) return;
+  const summary = tasks.length === 1
+    ? `${tasks[0].title} — ${tasks[0].pin_name}`
+    : `${tasks.length} úkolů: ${tasks.slice(0, 3).map((t) => t.title).join(', ')}${tasks.length > 3 ? '…' : ''}`;
+  sendPushToAll({
+    title: '🌿 Zítra v zahradě',
+    body: summary,
+    url: '/ukoly',
+  }).catch((e) => console.error('cron push error', e));
+}
+setInterval(runDueTomorrowCheck, 60 * 60 * 1000); // každých 60 minut
+// Spustit jednou krátce po startu (po 30s, ať backend dojede inicializaci)
+setTimeout(runDueTomorrowCheck, 30 * 1000);
 
 // ======================= EXPORT =======================
 app.get('/api/export', (req, res) => {

@@ -10,6 +10,7 @@ import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
+import { registerPushNotifications } from './push.js';
 
 // Simple context-free toast system
 let toastHandler = null;
@@ -33,6 +34,11 @@ export default function App() {
     loadStats();
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Web Push — register service worker and subscribe (only if user already granted notifications)
+  useEffect(() => {
+    registerPushNotifications().catch(() => {});
   }, []);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
