@@ -170,6 +170,74 @@ input, textarea, select {
   gap: 6px;
 }
 
+/* Season page */
+.season-header {
+  background: linear-gradient(135deg, var(--green-800), var(--green-600));
+  color: #fff;
+  padding: 24px 20px 22px;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.season-header::after {
+  content: '🌿';
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  font-size: 6rem;
+  opacity: 0.12;
+  transform: rotate(15deg);
+  pointer-events: none;
+}
+.season-month {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  opacity: 0.85;
+  font-weight: 600;
+}
+.season-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-top: 4px;
+  line-height: 1.15;
+}
+.season-sub {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.season-tip {
+  border-left: 4px solid var(--green-500);
+  background: linear-gradient(180deg, var(--green-50), #fff);
+}
+.season-tip-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--green-700);
+  margin-bottom: 6px;
+}
+.season-tip-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.season-progress {
+  height: 8px;
+  background: var(--sand-dark);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.season-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-500), var(--green-700));
+  transition: width 0.3s ease;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

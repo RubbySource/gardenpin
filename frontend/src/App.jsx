@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
+import SeasonPage from './pages/SeasonPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
@@ -98,6 +99,7 @@ export default function App() {
           <Route path="/zahrady" element={<GardensPage />} />
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
+          <Route path="/sezona" element={<SeasonPage />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
@@ -124,6 +126,10 @@ export default function App() {
             )}
           </span>
           <span>Úkoly</span>
+        </NavLink>
+        <NavLink to="/sezona">
+          <span className="icon">🗓️</span>
+          <span>Sezóna</span>
         </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
