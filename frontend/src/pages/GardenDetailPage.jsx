@@ -188,6 +188,13 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <a
+            className="btn ghost small"
+            href={`/api/ical/${garden.id}`}
+            title="Stáhnout .ics s ročně se opakujícími úkoly"
+          >
+            📅 Exportovat do kalendáře
+          </a>
           <button className="btn ghost small" onClick={() => setShowEdit(true)}>
             ✏️ Upravit
           </button>
