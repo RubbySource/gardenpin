@@ -61,6 +61,11 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+
+  // Sdílení
+  shareGarden: (id) =>
+    jsonFetch(`/api/gardens/${id}/share`, { method: 'POST' }),
+  getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
 };
 
 async function handle(res) {

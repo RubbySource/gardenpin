@@ -161,6 +161,21 @@ export default function GardenDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const { shareUrl } = await api.shareGarden(garden.id);
+      const fullUrl = window.location.origin + shareUrl;
+      try {
+        await navigator.clipboard.writeText(fullUrl);
+        toast('🔗 Odkaz zkopírován!');
+      } catch {
+        toast('🔗 ' + fullUrl);
+      }
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('Opravdu smazat tuto zahradu se všemi piny a úkoly?')) return;
     try {
@@ -189,6 +204,9 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button className="btn ghost small" onClick={handleShare} title="Sdílet zahradu veřejným odkazem">
+            🔗 Sdílet
+          </button>
           <button className="btn ghost small" onClick={() => setShowEdit(true)}>
             ✏️ Upravit
           </button>

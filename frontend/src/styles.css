@@ -730,3 +730,29 @@ input, textarea, select {
 }
 .weather-max { font-weight: 600; }
 .weather-min { opacity: 0.7; }
+
+/* Sdílená zahrada (veřejný read-only pohled) */
+.shared-app .main {
+  padding-bottom: 24px;
+}
+.shared-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.shared-header {
+  text-align: center;
+  padding: 20px 12px 12px;
+  background: linear-gradient(180deg, var(--green-100), transparent);
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 16px;
+}
+.shared-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  color: var(--green-800);
+}
+.shared-footer {
+  text-align: center;
+  padding: 24px 12px;
+  margin-top: 16px;
+}
