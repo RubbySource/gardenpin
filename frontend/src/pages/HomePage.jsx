@@ -91,6 +91,9 @@ export default function HomePage({ onTaskComplete }) {
         </Link>{' '}
         <Link to="/ukoly" className="btn secondary">
           📋 Všechny úkoly
+        </Link>{' '}
+        <Link to="/premium" className="btn secondary">
+          🌟 Premium
         </Link>
       </div>
     </>

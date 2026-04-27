@@ -61,6 +61,17 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+
+  // Premium (mock Stripe)
+  premiumStatus: () => jsonFetch('/api/premium/status'),
+  premiumCheckout: () =>
+    jsonFetch('/api/premium/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    }),
+  premiumActivate: () => jsonFetch('/api/premium/success?mock=true'),
+  premiumCancel: () => jsonFetch('/api/premium/cancel', { method: 'POST' }),
 };
 
 async function handle(res) {

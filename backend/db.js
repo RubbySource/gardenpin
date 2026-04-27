@@ -61,9 +61,23 @@ db.exec(`
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL,
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    plan TEXT NOT NULL DEFAULT 'free',
+    stripe_customer_id TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+
+// Seed single default user (app je zatím jednouživatelská)
+const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+if (userCount === 0) {
+  db.prepare("INSERT INTO users (id, email, plan) VALUES (1, NULL, 'free')").run();
+}
 
 module.exports = db;

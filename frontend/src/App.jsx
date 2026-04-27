@@ -6,6 +6,7 @@ import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import PremiumPage from './pages/PremiumPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
@@ -93,6 +94,8 @@ export default function App() {
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
+          <Route path="/premium" element={<PremiumPage />} />
+          <Route path="/premium/success" element={<PremiumPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>

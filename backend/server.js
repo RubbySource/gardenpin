@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
+const premiumRouter = require('./routes/premium');
 
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
@@ -56,6 +57,9 @@ function computeNextDue(task) {
   }
   return null;
 }
+
+// ======================= PREMIUM (mock Stripe) =======================
+app.use('/api/premium', premiumRouter);
 
 // ======================= GARDENS =======================
 app.get('/api/gardens', (req, res) => {
