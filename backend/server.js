@@ -404,11 +404,24 @@ app.get('/api/stats', (req, res) => {
   const gardens = db.prepare('SELECT COUNT(*) AS c FROM gardens').get().c;
   const pins = db.prepare('SELECT COUNT(*) AS c FROM pins').get().c;
   const tasks = db.prepare('SELECT COUNT(*) AS c FROM tasks').get().c;
-  const today = new Date().toISOString().slice(0, 10);
-  const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(today).c;
-  const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(today).c;
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  // Aktuální týden: pondělí–neděle
+  const dayOfWeek = today.getDay(); // 0=Ne, 1=Po, …
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const weekStart = monday.toISOString().slice(0, 10);
+  const weekEnd = sunday.toISOString().slice(0, 10);
+  const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(todayStr).c;
+  const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(todayStr).c;
+  const tasksThisWeek = db
+    .prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due BETWEEN ? AND ?')
+    .get(weekStart, weekEnd).c;
   const historyCount = db.prepare('SELECT COUNT(*) AS c FROM care_history').get().c;
-  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount });
+  res.json({ gardens, pins, tasks, overdue, dueToday, tasksThisWeek, historyCount });
 });
 
 // ======================= UPSCALE =======================

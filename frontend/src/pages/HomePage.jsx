@@ -1,6 +1,6 @@
 // Home / dashboard: today + week tasks + stats
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import TaskItem from '../components/TaskItem.jsx';
 import { toast } from '../App.jsx';
@@ -10,6 +10,7 @@ export default function HomePage({ onTaskComplete }) {
   const [week, setWeek] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const nav = useNavigate();
 
   const load = async () => {
     try {
@@ -45,24 +46,42 @@ export default function HomePage({ onTaskComplete }) {
     <>
       {stats && (
         <div className="stats-grid">
-          <div className="stat-card">
-            <div className="value">{stats.gardens}</div>
-            <div className="label">Zahrady</div>
-          </div>
-          <div className="stat-card">
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-plants"
+            onClick={() => nav('/zahrady')}
+          >
+            <div className="stat-icon">🌱</div>
             <div className="value">{stats.pins}</div>
-            <div className="label">Místa</div>
-          </div>
-          <div className="stat-card">
-            <div className="value" style={{ color: stats.overdue > 0 ? '#c0392b' : undefined }}>
-              {stats.dueToday + stats.overdue}
-            </div>
-            <div className="label">Dnes ({stats.overdue > 0 ? `${stats.overdue} po termínu` : 'ok'})</div>
-          </div>
-          <div className="stat-card">
-            <div className="value">{stats.historyCount}</div>
-            <div className="label">Zápisů péče</div>
-          </div>
+            <div className="label">Rostlin celkem</div>
+          </button>
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-week"
+            onClick={() => nav('/ukoly')}
+          >
+            <div className="stat-icon">📅</div>
+            <div className="value">{stats.tasksThisWeek ?? 0}</div>
+            <div className="label">Úkolů tento týden</div>
+          </button>
+          <button
+            type="button"
+            className={`stat-card stat-card-clickable stat-overdue${stats.overdue > 0 ? ' has-overdue' : ''}`}
+            onClick={() => nav('/ukoly')}
+          >
+            <div className="stat-icon">⚠️</div>
+            <div className="value">{stats.overdue}</div>
+            <div className="label">Po termínu</div>
+          </button>
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-gardens"
+            onClick={() => nav('/zahrady')}
+          >
+            <div className="stat-icon">🗺️</div>
+            <div className="value">{stats.gardens}</div>
+            <div className="label">Zahrad</div>
+          </button>
         </div>
       )}
 
