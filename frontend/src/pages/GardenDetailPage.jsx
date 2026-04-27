@@ -5,7 +5,7 @@ import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
-import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
+import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 
 export default function GardenDetailPage() {
   const { id } = useParams();
@@ -457,6 +457,7 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
   const [name, setName] = useState('');
   const [plantName, setPlantName] = useState('');
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [selectedCare, setSelectedCare] = useState(() => new Set());
   const [plantingDate, setPlantingDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
   const [color, setColor] = useState('#4a7c3a');
@@ -481,24 +482,48 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
       if (file) fd.append('photo', file);
       const pin = await api.createPin(fd);
 
-      // Auto-vytvoř úkoly z databáze rostlin
-      if (selectedPlant && selectedPlant.tasks?.length && pin?.id) {
-        const promises = selectedPlant.tasks.map((t) =>
-          fetch('/api/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              pin_id: pin.id,
-              title: t.title,
-              task_type: t.task_type,
-              frequency_days: t.frequency_days ?? null,
-              specific_date: t.specific_date ?? null,
-              notes: t.notes ?? null,
+      // Auto-vytvoř úkoly z databáze rostlin (pravidelné) + sezónní úkoly z vybraných chipů
+      const promises = [];
+      let dbCount = 0;
+      let seasonalCount = 0;
+      if (selectedPlant && pin?.id) {
+        if (selectedPlant.tasks?.length) {
+          dbCount = selectedPlant.tasks.length;
+          selectedPlant.tasks.forEach((t) => {
+            promises.push(
+              fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  pin_id: pin.id,
+                  title: t.title,
+                  task_type: t.task_type,
+                  frequency_days: t.frequency_days ?? null,
+                  specific_date: t.specific_date ?? null,
+                  notes: t.notes ?? null,
+                }),
+              }),
+            );
+          });
+        }
+        const seasonal = buildSeasonalTaskPayloads(selectedPlant, selectedCare, pin.id);
+        seasonalCount = seasonal.length;
+        seasonal.forEach((payload) => {
+          promises.push(
+            fetch('/api/tasks', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
             }),
-          }),
-        );
+          );
+        });
+      }
+      if (promises.length) {
         await Promise.all(promises);
-        toast(`✅ Místo přidáno + ${selectedPlant.tasks.length} úkolů z databáze`);
+        const parts = [];
+        if (dbCount) parts.push(`${dbCount} pravidelných`);
+        if (seasonalCount) parts.push(`${seasonalCount} sezónních`);
+        toast(`✅ Místo přidáno + ${parts.join(' + ')} úkolů`);
       } else {
         toast('✅ Místo přidáno');
       }
@@ -538,7 +563,10 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
             placeholder="Začněte psát název rostliny…"
           />
           {selectedPlant && (
-            <PlantInfoCard plant={selectedPlant} />
+            <PlantInfoCard
+              plant={selectedPlant}
+              onSelectionChange={setSelectedCare}
+            />
           )}
         </div>
         <div className="field">

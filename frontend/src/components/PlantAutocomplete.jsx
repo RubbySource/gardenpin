@@ -19,6 +19,30 @@ const MONTH_NAMES_CZ = [
   'črc', 'srp', 'zář', 'říj', 'lis', 'pro',
 ];
 
+// Convert selected care chips into POST /api/tasks payloads (sezónní úkoly s konkrétním datem 15. v měsíci).
+// Reused by PlantInfoCard's CTA i NewPinModal submit, aby se chovaly stejně.
+export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
+  if (!plant?.careActions?.length || !selectedCareSet?.size) return [];
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthNow = now.getMonth() + 1;
+  const out = [];
+  plant.careActions.forEach((care, idx) => {
+    if (!selectedCareSet.has(idx)) return;
+    const targetYear = care.month >= monthNow ? year : year + 1;
+    const m = String(care.month).padStart(2, '0');
+    out.push({
+      pin_id: pinId,
+      title: `${care.emoji} ${care.text}`,
+      task_type: 'jine',
+      frequency_days: null,
+      specific_date: `${targetYear}-${m}-15`,
+      notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
+    });
+  });
+  return out;
+}
+
 /**
  * PlantAutocomplete
  * Props:
@@ -179,7 +203,7 @@ function PlantSearchRow({ plant, onPick }) {
  * - Sezónní péče: care chips s checkboxem
  * - Sticky CTA "+ Přidat do zahrady" s počítadlem zaškrtnutých chips
  */
-export function PlantInfoCard({ plant, pinId, onTasksCreated }) {
+export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange }) {
   const [creating, setCreating] = useState(false);
   const [done, setDone] = useState(false);
   const [selectedCare, setSelectedCare] = useState(() => new Set());
@@ -188,6 +212,7 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated }) {
   useEffect(() => {
     setSelectedCare(new Set());
     setDone(false);
+    onSelectionChange?.(new Set());
   }, [plant?.id]);
 
   if (!plant) return null;
@@ -197,6 +222,7 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated }) {
       const next = new Set(prev);
       if (next.has(idx)) next.delete(idx);
       else next.add(idx);
+      onSelectionChange?.(next);
       return next;
     });
   };
@@ -233,31 +259,15 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated }) {
       }
 
       // 2. Vybrané sezónní úkoly z care chips → konkrétní datum letošního roku (nebo příští rok pokud měsíc už uplynul)
-      if (selectedCount > 0) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const monthNow = now.getMonth() + 1;
-        plant.careActions.forEach((care, idx) => {
-          if (!selectedCare.has(idx)) return;
-          const targetYear = care.month >= monthNow ? year : year + 1;
-          const m = String(care.month).padStart(2, '0');
-          const specific = `${targetYear}-${m}-15`;
-          promises.push(
-            fetch('/api/tasks', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                pin_id: pinId,
-                title: `${care.emoji} ${care.text}`,
-                task_type: 'jine',
-                frequency_days: null,
-                specific_date: specific,
-                notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
-              }),
-            }),
-          );
-        });
-      }
+      buildSeasonalTaskPayloads(plant, selectedCare, pinId).forEach((payload) => {
+        promises.push(
+          fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }),
+        );
+      });
 
       await Promise.all(promises);
       setDone(true);
