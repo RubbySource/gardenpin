@@ -84,25 +84,40 @@ export default function GardenDetailPage() {
     } catch {}
   };
 
-  const handlePinMouseDown = (e, pin) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // P4: Drag & drop
+  const handlePinPointerDown = (pin) => {
     setDraggingPin(pin);
     setDragPos({ x: pin.x, y: pin.y });
   };
 
+  const handlePinMouseDown = (e, pin) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handlePinPointerDown(pin);
+  };
+
+  const handlePinTouchStart = (e, pin) => {
+    e.stopPropagation();
+    handlePinPointerDown(pin);
+  };
+
+  const updateDragPosFromPoint = useCallback((clientX, clientY) => {
+    if (!mapRef.current) return;
+    const rect = mapRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+    setDragPos({ x, y });
+  }, []);
+
   const handleMouseMove = useCallback(
     (e) => {
-      if (!draggingPin || !mapRef.current) return;
-      const rect = mapRef.current.getBoundingClientRect();
-      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
-      setDragPos({ x, y });
+      if (!draggingPin) return;
+      updateDragPosFromPoint(e.clientX, e.clientY);
     },
-    [draggingPin],
+    [draggingPin, updateDragPosFromPoint],
   );
 
-  const handleMouseUp = useCallback(async () => {
+  const finishDrag = useCallback(async () => {
     if (!draggingPin || !dragPos) {
       setDraggingPin(null);
       setDragPos(null);
@@ -130,6 +145,29 @@ export default function GardenDetailPage() {
       load();
     }
   }, [draggingPin, dragPos]);
+
+  // Touch drag: nativní listener s passive:false, aby preventDefault zablokoval scroll na iOS/Androidu
+  useEffect(() => {
+    if (!draggingPin) return;
+    const el = mapRef.current;
+    if (!el) return;
+    const onTouchMove = (e) => {
+      if (e.touches.length === 0) return;
+      e.preventDefault();
+      updateDragPosFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const onTouchEnd = () => {
+      finishDrag();
+    };
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    el.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [draggingPin, updateDragPosFromPoint, finishDrag]);
 
   const handleMapClick = (e) => {
     if (draggingPin) return;
@@ -196,6 +234,13 @@ export default function GardenDetailPage() {
           </div>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <a
+            className="btn ghost small"
+            href={`/api/ical/${garden.id}`}
+            title="Stáhnout .ics s ročně se opakujícími úkoly"
+          >
+            📅 Exportovat do kalendáře
+          </a>
           <button
             className="btn ghost small"
             onClick={() => setShowEdit(true)}
@@ -353,13 +398,14 @@ export default function GardenDetailPage() {
               ref={mapRef}
               onClick={handleMapClick}
               onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
+              onMouseUp={finishDrag}
+              onMouseLeave={finishDrag}
               style={{
                 aspectRatio: garden.image_width && garden.image_height
                   ? `${garden.image_width} / ${garden.image_height}`
                   : undefined,
                 cursor: draggingPin ? 'grabbing' : 'crosshair',
+                touchAction: draggingPin ? 'none' : 'auto',
               }}
             >
               <img
@@ -411,8 +457,10 @@ export default function GardenDetailPage() {
                       cursor: isDragging ? 'grabbing' : 'grab',
                       zIndex: isDragging ? 50 : 10,
                       userSelect: 'none',
+                      touchAction: 'none',
                     }}
                     onMouseDown={(e) => handlePinMouseDown(e, p)}
+                    onTouchStart={(e) => handlePinTouchStart(e, p)}
                     onClick={(e) => e.stopPropagation()}
                     title={p.name}
                   >
