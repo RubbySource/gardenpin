@@ -21,6 +21,7 @@ const MONTH_NAMES_CZ = [
 
 // Convert selected care chips into POST /api/tasks payloads (sezónní úkoly s konkrétním datem 15. v měsíci).
 // Reused by PlantInfoCard's CTA i NewPinModal submit, aby se chovaly stejně.
+// Care chips se ukládají jako roční opakující se úkoly (recurring + recurrence='yearly').
 export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
   if (!plant?.careActions?.length || !selectedCareSet?.size) return [];
   const now = new Date();
@@ -37,6 +38,8 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
       task_type: 'jine',
       frequency_days: null,
       specific_date: `${targetYear}-${m}-15`,
+      recurring: true,
+      recurrence: 'yearly',
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
     });
   });
