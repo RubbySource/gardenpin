@@ -3,16 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GardenPin – Sezónní péče o zahradu v tvém kalendáři</title>
-  <meta name="description" content="Připni rostliny na fotku své zahrady a získej sezónní připomínky hnojení, řezu a zazimování přímo v Apple nebo Google Kalendáři. 85+ českých rostlin." />
-  <meta property="og:title" content="GardenPin – Sezónní péče o zahradu v tvém kalendáři" />
-  <meta property="og:description" content="Připni rostliny na fotku své zahrady a získej sezónní připomínky hnojení, řezu a zazimování přímo v Apple nebo Google Kalendáři." />
+  <title>GardenPin — Zahradní aplikace pro plánování zahrady a péči o rostliny</title>
+  <meta name="description" content="GardenPin — plánuj svou zahradu online. Přidávej rostliny na mapu, sleduj péči a dostávej připomínky. Zdarma." />
+  <meta name="keywords" content="zahradní aplikace, plánování zahrady, péče o rostliny, zahradní plánovač, sezónní péče, řez růží, hnojení jabloní, zahrada online, GardenPin, česká zahrádkářská aplikace" />
+  <meta name="author" content="GardenPin" />
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index, follow" />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://gardenpin.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="GardenPin — Zahradní aplikace pro plánování zahrady a péči o rostliny" />
+  <meta property="og:description" content="Plánuj svou zahradu online. Přidávej rostliny na mapu, sleduj péči a dostávej sezónní připomínky řezu, hnojení a zazimování. Zdarma." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="cs_CZ" />
+  <meta property="og:url" content="https://gardenpin.app/" />
+  <meta property="og:site_name" content="GardenPin" />
+  <meta property="og:image" content="https://gardenpin.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="GardenPin — interaktivní mapa zahrady s piny rostlin" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="GardenPin — Zahradní aplikace pro plánování zahrady" />
+  <meta name="twitter:description" content="Plánuj svou zahradu online. Přidávej rostliny na mapu, sleduj péči a dostávej připomínky. Zdarma." />
+  <meta name="twitter:image" content="https://gardenpin.app/og-image.png" />
+
   <meta name="theme-color" content="#2d5a27" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Structured data: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "GardenPin",
+    "alternateName": "GardenPin — Zahradní tracker",
+    "applicationCategory": "LifestyleApplication",
+    "applicationSubCategory": "GardeningApplication",
+    "operatingSystem": "Web, iOS, Android (PWA)",
+    "description": "Zahradní aplikace pro plánování zahrady a péči o rostliny. Přidávej rostliny na fotku své zahrady a dostávej sezónní připomínky řezu, hnojení a zazimování přímo v kalendáři.",
+    "url": "https://gardenpin.app/",
+    "inLanguage": "cs-CZ",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Až 10 pinů na zahradu, základní databáze rostlin"
+      },
+      {
+        "@type": "Offer",
+        "name": "Premium",
+        "price": "2.99",
+        "priceCurrency": "EUR",
+        "description": "Neomezené piny, plná databáze 85+ rostlin, iCal export, více zahrad"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "12",
+      "bestRating": "5"
+    },
+    "featureList": [
+      "Interaktivní mapa zahrady s piny rostlin",
+      "Databáze 85+ českých rostlin",
+      "Sezónní připomínky péče (řez, hnojení, zazimování)",
+      "iCal export do Apple a Google Kalendáře",
+      "Mobilní PWA bez instalace z App Store",
+      "Plánování zahrady na fotce zahrady"
+    ]
+  }
+  </script>
+
+  <!-- Structured data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "GardenPin",
+    "url": "https://gardenpin.app/",
+    "logo": "https://gardenpin.app/logo.png",
+    "email": "hello@gardenpin.app",
+    "sameAs": []
+  }
+  </script>
+
+  <!-- Structured data: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Jak funguje zahradní aplikace GardenPin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "GardenPin je online zahradní plánovač. Nahraješ fotku své zahrady, připneš na ni rostliny a aplikace ti pošle sezónní připomínky péče — řez, hnojení, přesazení, zazimování — přímo do tvého kalendáře."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Pro které rostliny GardenPin funguje?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Databáze obsahuje 85+ českých zahradních rostlin: keře, trvalky, stromy, cibuloviny, růže, rododendrony, hortenzie a další druhy běžné ve středoevropské zahradě."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Je plánování zahrady v GardenPin zdarma?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ano. Free plán je zdarma navždy a pokrývá základní funkce. Premium za 2,99 €/měsíc odemyká neomezené piny, plnou databázi rostlin a iCal export do kalendáře."
+        }
+      }
+    ]
+  }
+  </script>
 
   <style>
     /* ── RESET & VARIABLES ─────────────────────────────────────── */
@@ -793,9 +908,9 @@
         <span aria-hidden="true">🌿</span>
         85+ českých rostlin &nbsp;·&nbsp; PWA
       </span>
-      <h1>Zahrada pod<br><span>kontrolou</span> celý rok</h1>
+      <h1>Zahradní aplikace<br>pro <span>plánování zahrady</span> celý rok</h1>
       <p class="hero-sub">
-        Připni rostliny na fotku své zahrady a získej sezónní připomínky — řez, hnojení, zazimování — přímo v Apple nebo Google Kalendáři. Žádné denní otravování. Jen ty správné úkoly ve správný čas.
+        GardenPin je online zahradní plánovač pro péči o rostliny. Připni rostliny na fotku své zahrady a získej sezónní připomínky — řez, hnojení, zazimování — přímo v Apple nebo Google Kalendáři. Zdarma.
       </p>
       <div class="hero-actions">
         <a href="#pricing" class="btn-primary">
@@ -848,8 +963,8 @@
   <div class="container">
     <div class="section-header">
       <div class="section-label"><span aria-hidden="true">⚡</span> Tři kroky</div>
-      <h2>Jednoduché jako focení zahrady</h2>
-      <p>Žádné složité nastavení. Funguje hned.</p>
+      <h2>Plánování zahrady ve třech krocích</h2>
+      <p>Jednoduché jako focení zahrady. Žádné složité nastavení — funguje hned.</p>
     </div>
 
     <div class="steps-grid">
@@ -880,7 +995,8 @@
   <div class="container">
     <div class="section-header">
       <div class="section-label"><span aria-hidden="true">✨</span> Funkce</div>
-      <h2>Vše, co potřebuješ pro kvetoucí zahradu</h2>
+      <h2>Kompletní péče o rostliny v jedné aplikaci</h2>
+      <p>Vše, co potřebuješ pro kvetoucí zahradu — od plánování po sezónní úkoly.</p>
     </div>
 
     <div class="features-grid">

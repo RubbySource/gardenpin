@@ -65,6 +65,14 @@ db.exec(`
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    plan TEXT NOT NULL DEFAULT 'free',
+    stripe_customer_id TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS push_subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     subscription_json TEXT NOT NULL UNIQUE,
@@ -78,5 +86,11 @@ try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
 try { db.exec('ALTER TABLE pins ADD COLUMN photo_url TEXT'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence TEXT'); } catch {}
+
+// Seed single default user (app je zatím jednouživatelská)
+const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+if (userCount === 0) {
+  db.prepare("INSERT INTO users (id, email, plan) VALUES (1, NULL, 'free')").run();
+}
 
 module.exports = db;

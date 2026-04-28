@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./db');
+const premiumRouter = require('./routes/premium');
 
 // Minimal .env loader (no external dependency) — only sets vars not already in env
 (function loadEnv() {
@@ -112,6 +113,9 @@ function computeNextDue(task) {
   }
   return null;
 }
+
+// ======================= PREMIUM (mock Stripe) =======================
+app.use('/api/premium', premiumRouter);
 
 // ======================= GARDENS =======================
 app.get('/api/gardens', (req, res) => {

@@ -6,6 +6,7 @@ import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import { getCompatibilityWarnings } from '../data/plantCompatibility.js';
 import WeatherWidget from '../components/WeatherWidget.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 
@@ -557,6 +558,8 @@ export default function GardenDetailPage() {
             </div>
           </div>
 
+          <CompatibilityPanel pins={pins} />
+
           <div className="gp-section">
             <div className="gp-section-title">📍 Rostliny v zahradě</div>
             <span className="gp-section-count">{pins.length}</span>
@@ -619,6 +622,83 @@ export default function GardenDetailPage() {
           uploading={uploadingMap}
         />
       )}
+    </>
+  );
+}
+
+function CompatibilityPanel({ pins }) {
+  const plantedPins = pins.filter((p) => p.plant_name && p.plant_name.trim());
+  if (plantedPins.length < 2) return null;
+
+  const { conflicts, goods } = getCompatibilityWarnings(plantedPins);
+  const hasAny = conflicts.length > 0 || goods.length > 0;
+
+  return (
+    <>
+      <h3 className="section-title">🤝 Kompatibilita rostlin</h3>
+      <div className="card">
+        {!hasAny && (
+          <div className="small" style={{ color: 'var(--text-dim)' }}>
+            ✅ Mezi rostlinami v této zahradě nejsou žádné známé konflikty ani výrazně dobré kombinace.
+          </div>
+        )}
+
+        {conflicts.length > 0 && (
+          <div className="mb-2">
+            <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>
+              ⚠️ Konflikty ({conflicts.length})
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {conflicts.map((c, i) => (
+                <li
+                  key={i}
+                  className="small"
+                  style={{
+                    background: 'rgba(220, 80, 60, 0.08)',
+                    border: '1px solid rgba(220, 80, 60, 0.25)',
+                    borderRadius: 8,
+                    padding: '8px 10px',
+                  }}
+                >
+                  <strong>{c.a.plant_name}</strong> a <strong>{c.b.plant_name}</strong>
+                  <span style={{ color: 'var(--text-dim)' }}> — tyto rostliny se navzájem potlačují</span>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                    📍 {c.a.name} ↔ {c.b.name}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {goods.length > 0 && (
+          <div>
+            <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>
+              ✅ Dobrá sousedství ({goods.length})
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {goods.map((g, i) => (
+                <li
+                  key={i}
+                  className="small"
+                  style={{
+                    background: 'rgba(74, 124, 58, 0.08)',
+                    border: '1px solid rgba(74, 124, 58, 0.25)',
+                    borderRadius: 8,
+                    padding: '8px 10px',
+                  }}
+                >
+                  <strong>{g.a.plant_name}</strong> a <strong>{g.b.plant_name}</strong>
+                  <span style={{ color: 'var(--text-dim)' }}> — skvělá kombinace, podporují se</span>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                    📍 {g.a.name} ↔ {g.b.name}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </>
   );
 }

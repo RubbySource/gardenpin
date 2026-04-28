@@ -200,6 +200,25 @@ export default function HomePage({ onTaskComplete }) {
         >
           📋 Úkoly
         </Link>
+        <Link
+          to="/premium"
+          className="btn secondary"
+          style={{
+            padding: '14px 12px',
+            borderRadius: 14,
+            background: 'var(--sand)',
+            color: 'var(--primary)',
+            fontWeight: 700,
+            border: '1px solid var(--sand-dark)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            gridColumn: '1 / -1',
+          }}
+        >
+          🌟 Premium
+        </Link>
       </div>
     </>
   );
