@@ -1,6 +1,6 @@
 // Home / dashboard — GardenPin design: welcome banner, stats, upcoming tasks
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
@@ -33,6 +33,7 @@ export default function HomePage({ onTaskComplete }) {
   const [upcoming, setUpcoming] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const nav = useNavigate();
 
   const load = async () => {
     try {
@@ -84,29 +85,43 @@ export default function HomePage({ onTaskComplete }) {
       </div>
 
       {stats && (
-        <div className="gp-stats">
-          <div className="gp-stat">
-            <div className="gp-stat-icon">🗺️</div>
-            <div className="gp-stat-value">{stats.gardens}</div>
-            <div className="gp-stat-label">Zahrady</div>
-          </div>
-          <div className="gp-stat">
-            <div className="gp-stat-icon">📍</div>
-            <div className="gp-stat-value">{stats.pins}</div>
-            <div className="gp-stat-label">Rostliny</div>
-          </div>
-          <div className={`gp-stat${stats.overdue > 0 ? ' alert' : ''}`}>
-            <div className="gp-stat-icon">⏰</div>
-            <div className="gp-stat-value">{stats.dueToday + stats.overdue}</div>
-            <div className="gp-stat-label">
-              {stats.overdue > 0 ? `${stats.overdue} po termínu` : 'Dnes'}
-            </div>
-          </div>
-          <div className="gp-stat">
-            <div className="gp-stat-icon">📖</div>
-            <div className="gp-stat-value">{stats.historyCount}</div>
-            <div className="gp-stat-label">Zápisů péče</div>
-          </div>
+        <div className="stats-grid">
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-plants"
+            onClick={() => nav('/zahrady')}
+          >
+            <div className="stat-icon">🌱</div>
+            <div className="value">{stats.pins}</div>
+            <div className="label">Rostlin celkem</div>
+          </button>
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-week"
+            onClick={() => nav('/ukoly')}
+          >
+            <div className="stat-icon">📅</div>
+            <div className="value">{stats.tasksThisWeek ?? 0}</div>
+            <div className="label">Úkolů tento týden</div>
+          </button>
+          <button
+            type="button"
+            className={`stat-card stat-card-clickable stat-overdue${stats.overdue > 0 ? ' has-overdue' : ''}`}
+            onClick={() => nav('/ukoly')}
+          >
+            <div className="stat-icon">⚠️</div>
+            <div className="value">{stats.overdue}</div>
+            <div className="label">Po termínu</div>
+          </button>
+          <button
+            type="button"
+            className="stat-card stat-card-clickable stat-gardens"
+            onClick={() => nav('/zahrady')}
+          >
+            <div className="stat-icon">🗺️</div>
+            <div className="value">{stats.gardens}</div>
+            <div className="label">Zahrad</div>
+          </button>
         </div>
       )}
 

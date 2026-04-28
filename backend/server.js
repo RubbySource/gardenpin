@@ -4,7 +4,17 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const db = require('./db');
+
+// nanoid-style URL-safe token generator (avoids adding nanoid dep)
+const TOKEN_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+function makeShareToken(len = 10) {
+  const bytes = crypto.randomBytes(len);
+  let out = '';
+  for (let i = 0; i < len; i++) out += TOKEN_ALPHABET[bytes[i] & 63];
+  return out;
+}
 
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
@@ -122,6 +132,38 @@ app.delete('/api/gardens/:id', (req, res) => {
     }
   }
   res.json({ ok: true });
+});
+
+// ======================= SHARE =======================
+app.post('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  let token = garden.share_token;
+  if (!token) {
+    token = makeShareToken(10);
+    db.prepare('UPDATE gardens SET share_token = ? WHERE id = ?').run(token, id);
+  }
+  res.json({ token, shareUrl: '/share/' + token });
+});
+
+app.get('/api/share/:token', (req, res) => {
+  const garden = db.prepare('SELECT * FROM gardens WHERE share_token = ?').get(req.params.token);
+  if (!garden) return res.status(404).json({ error: 'Sdílená zahrada nenalezena' });
+  const pins = db
+    .prepare('SELECT id, name, x, y, plant_name, planting_date, notes, photo_path, color FROM pins WHERE garden_id = ? ORDER BY created_at DESC')
+    .all(garden.id);
+  res.json({
+    garden: {
+      id: garden.id,
+      name: garden.name,
+      image_path: garden.image_path,
+      image_width: garden.image_width,
+      image_height: garden.image_height,
+      rotation: garden.rotation || 0,
+    },
+    pins,
+  });
 });
 
 // ======================= PINS =======================
@@ -378,11 +420,24 @@ app.get('/api/stats', (req, res) => {
   const gardens = db.prepare('SELECT COUNT(*) AS c FROM gardens').get().c;
   const pins = db.prepare('SELECT COUNT(*) AS c FROM pins').get().c;
   const tasks = db.prepare('SELECT COUNT(*) AS c FROM tasks').get().c;
-  const today = new Date().toISOString().slice(0, 10);
-  const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(today).c;
-  const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(today).c;
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  // Aktuální týden: pondělí–neděle
+  const dayOfWeek = today.getDay(); // 0=Ne, 1=Po, …
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const weekStart = monday.toISOString().slice(0, 10);
+  const weekEnd = sunday.toISOString().slice(0, 10);
+  const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(todayStr).c;
+  const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(todayStr).c;
+  const tasksThisWeek = db
+    .prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due BETWEEN ? AND ?')
+    .get(weekStart, weekEnd).c;
   const historyCount = db.prepare('SELECT COUNT(*) AS c FROM care_history').get().c;
-  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount });
+  res.json({ gardens, pins, tasks, overdue, dueToday, tasksThisWeek, historyCount });
 });
 
 // ======================= UPSCALE =======================

@@ -6,6 +6,7 @@ import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import WeatherWidget from '../components/WeatherWidget.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 
 export default function GardenDetailPage() {
@@ -201,6 +202,21 @@ export default function GardenDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const { shareUrl } = await api.shareGarden(garden.id);
+      const fullUrl = window.location.origin + shareUrl;
+      try {
+        await navigator.clipboard.writeText(fullUrl);
+        toast('🔗 Odkaz zkopírován!');
+      } catch {
+        toast('🔗 ' + fullUrl);
+      }
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('Opravdu smazat tuto zahradu se všemi piny a úkoly?')) return;
     try {
@@ -234,6 +250,9 @@ export default function GardenDetailPage() {
           </div>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button className="btn ghost small" onClick={handleShare} title="Sdílet zahradu veřejným odkazem">
+            🔗 Sdílet
+          </button>
           <a
             className="btn ghost small"
             href={`/api/ical/${garden.id}`}
@@ -246,7 +265,7 @@ export default function GardenDetailPage() {
             onClick={() => setShowEdit(true)}
             title="Upravit zahradu"
           >
-            ✏️
+            ✏️ Upravit
           </button>
           {garden.image_path && (
             <button
@@ -262,6 +281,8 @@ export default function GardenDetailPage() {
           )}
         </div>
       </div>
+
+      <WeatherWidget />
 
       {!garden.image_path ? (
         <div className="gp-empty">

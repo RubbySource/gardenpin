@@ -1171,3 +1171,124 @@ input, textarea, select {
   justify-content: center;
   line-height: 1;
 }
+
+/* Weather widget */
+.weather-widget {
+  background: var(--green-800);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.weather-widget-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  letter-spacing: 0.2px;
+}
+.weather-widget-loading,
+.weather-widget-error {
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 18px 12px;
+  opacity: 0.85;
+}
+.weather-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.weather-strip::-webkit-scrollbar { height: 4px; }
+.weather-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
+.weather-day {
+  flex: 0 0 auto;
+  min-width: 64px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.weather-day-label {
+  font-size: 0.72rem;
+  text-transform: capitalize;
+  opacity: 0.85;
+}
+.weather-day-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.weather-day-temps {
+  display: flex;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.weather-max { font-weight: 600; }
+.weather-min { opacity: 0.7; }
+
+/* Sdílená zahrada (veřejný read-only pohled) */
+.shared-app .main {
+  padding-bottom: 24px;
+}
+.shared-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.shared-header {
+  text-align: center;
+  padding: 20px 12px 12px;
+  background: linear-gradient(180deg, var(--green-100), transparent);
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 16px;
+}
+.shared-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  color: var(--green-800);
+}
+.shared-footer {
+  text-align: center;
+  padding: 24px 12px;
+  margin-top: 16px;
+}
+
+/* Clickable stat cards (Krok 4 dashboard) */
+.stat-card-clickable {
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.stat-card-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: var(--green-300);
+}
+.stat-card-clickable:active { transform: translateY(0); }
+.stat-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-plants .value { color: var(--green-600); }
+.stat-week .value { color: var(--earth-500); }
+.stat-overdue .value { color: var(--text-dim); }
+.stat-overdue.has-overdue {
+  background: #fdf3f1;
+  border-color: #f0c6bf;
+}
+.stat-overdue.has-overdue .value { color: var(--danger); }
+.stat-gardens .value { color: var(--green-800); }
