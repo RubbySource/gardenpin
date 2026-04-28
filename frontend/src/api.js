@@ -25,6 +25,8 @@ export const api = {
   updatePin: (id, formData) =>
     fetch(`/api/pins/${id}`, { method: 'PUT', body: formData }).then(handle),
   deletePin: (id) => jsonFetch(`/api/pins/${id}`, { method: 'DELETE' }),
+  uploadPinPhoto: (id, formData) =>
+    fetch(`/api/pins/${id}/photo`, { method: 'POST', body: formData }).then(handle),
 
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),
@@ -72,6 +74,21 @@ export const api = {
     }),
   premiumActivate: () => jsonFetch('/api/premium/success?mock=true'),
   premiumCancel: () => jsonFetch('/api/premium/cancel', { method: 'POST' }),
+
+  // Push notifications
+  pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
+  pushSubscribe: (subscription) =>
+    jsonFetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription),
+    }),
+  pushUnsubscribe: (subscription) =>
+    jsonFetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription),
+    }),
 
   // Sdílení
   shareGarden: (id) =>

@@ -175,6 +175,74 @@ input, textarea, select {
   gap: 6px;
 }
 
+/* Season page */
+.season-header {
+  background: linear-gradient(135deg, var(--green-800), var(--green-600));
+  color: #fff;
+  padding: 24px 20px 22px;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.season-header::after {
+  content: '🌿';
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  font-size: 6rem;
+  opacity: 0.12;
+  transform: rotate(15deg);
+  pointer-events: none;
+}
+.season-month {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  opacity: 0.85;
+  font-weight: 600;
+}
+.season-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-top: 4px;
+  line-height: 1.15;
+}
+.season-sub {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.season-tip {
+  border-left: 4px solid var(--green-500);
+  background: linear-gradient(180deg, var(--green-50), #fff);
+}
+.season-tip-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--green-700);
+  margin-bottom: 6px;
+}
+.season-tip-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.season-progress {
+  height: 8px;
+  background: var(--sand-dark);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.season-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-500), var(--green-700));
+  transition: width 0.3s ease;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -344,6 +412,43 @@ input, textarea, select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.pin .pin-avatar {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  object-fit: cover;
+  background: #fff;
+  top: -22px;
+  left: 22px;
+  pointer-events: none;
+  z-index: 3;
+}
+.pin .pin-camera-btn {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgba(31, 62, 26, 0.92);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  top: -10px;
+  left: -16px;
+  z-index: 4;
+  transition: transform 0.12s;
+}
+.pin .pin-camera-btn:hover { transform: scale(1.15); }
+.pin .pin-camera-btn:disabled { opacity: 0.6; cursor: wait; }
 .pin.new .pin-body { background: var(--warning); animation: pulse 1.2s infinite; }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 2px 6px rgba(217,122,27,0.6); }

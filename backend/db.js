@@ -32,6 +32,7 @@ db.exec(`
     planting_date TEXT,
     notes TEXT,
     photo_path TEXT,
+    photo_url TEXT,
     color TEXT DEFAULT '#4a7c3a',
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
@@ -71,11 +72,18 @@ db.exec(`
     stripe_customer_id TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subscription_json TEXT NOT NULL UNIQUE,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
+try { db.exec('ALTER TABLE pins ADD COLUMN photo_url TEXT'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence TEXT'); } catch {}
 

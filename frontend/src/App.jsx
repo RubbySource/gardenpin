@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
+import SeasonPage from './pages/SeasonPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
 import SharedGardenPage from './pages/SharedGardenPage.jsx';
@@ -12,6 +13,7 @@ import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
+import { registerPushNotifications } from './push.js';
 
 // Simple context-free toast system
 let toastHandler = null;
@@ -38,6 +40,11 @@ export default function App() {
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, [isPublic]);
+
+  // Web Push — register service worker and subscribe (only if user already granted notifications)
+  useEffect(() => {
+    registerPushNotifications().catch(() => {});
+  }, []);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
@@ -110,6 +117,7 @@ export default function App() {
           <Route path="/zahrady" element={<GardensPage />} />
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
+          <Route path="/sezona" element={<SeasonPage />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
           <Route path="/premium" element={<PremiumPage />} />
           <Route path="/premium/success" element={<PremiumPage />} />
@@ -138,6 +146,10 @@ export default function App() {
             )}
           </span>
           <span>Úkoly</span>
+        </NavLink>
+        <NavLink to="/sezona">
+          <span className="icon">🗓️</span>
+          <span>Sezóna</span>
         </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
