@@ -1,6 +1,6 @@
-// GardenPin Premium — pricing & mock Stripe checkout
+// GardenPin Premium — pricing & Stripe Checkout
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 
@@ -14,6 +14,7 @@ const FEATURE_LABELS = {
 
 export default function PremiumPage() {
   const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -33,26 +34,25 @@ export default function PremiumPage() {
     load();
   }, []);
 
+  // Po návratu ze Stripe checkout (success_url / cancel_url) zobrazíme toast a uklidíme query.
+  useEffect(() => {
+    if (searchParams.get('success') === '1') {
+      toast('🌟 Premium aktivován — díky za podporu!');
+      setSearchParams({}, { replace: true });
+    } else if (searchParams.get('canceled') === '1') {
+      toast('Platba zrušena');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   const handleBuy = async () => {
     setBusy(true);
     try {
-      const { checkoutUrl, mock } = await api.premiumCheckout();
-      if (mock) {
-        // Mock flow — simulujeme návrat ze Stripe success URL
-        if (!confirm('Mock platba (Stripe není zatím připojený). Aktivovat Premium?')) {
-          setBusy(false);
-          return;
-        }
-        await api.premiumActivate();
-        toast('🌟 Premium aktivován');
-        await load();
-      } else {
-        // Skutečný Stripe — redirect na hosted checkout
-        window.location.href = checkoutUrl;
-      }
+      // Redirectne na Stripe hosted checkout. Po úspěchu se uživatel vrátí
+      // na /premium?success=1 (success_url v backendu).
+      await api.checkoutPremium();
     } catch (e) {
       toast('Chyba: ' + e.message);
-    } finally {
       setBusy(false);
     }
   };
@@ -222,9 +222,9 @@ export default function PremiumPage() {
 
       <div className="card mt-3">
         <div className="small muted">
-          💡 <strong>Stripe zatím není připojený.</strong> Tlačítko „Koupit Premium"
-          spustí mock platbu, která nastaví váš účet na Premium plán bez skutečné
-          platby. Slouží pro testování UI a feature gatingu.
+          💳 Platby zpracovává <strong>Stripe</strong>. Po kliknutí na „Koupit Premium"
+          budete přesměrováni na zabezpečený Stripe Checkout. Předplatné lze
+          kdykoli zrušit.
         </div>
       </div>
     </>

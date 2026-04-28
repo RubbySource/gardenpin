@@ -93,6 +93,8 @@ const pinPhotoUpload = multer({
 });
 
 app.use(cors());
+// Stripe webhook potřebuje RAW body pro ověření podpisu — musí být PŘED express.json().
+app.use('/api/premium/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
@@ -114,7 +116,7 @@ function computeNextDue(task) {
   return null;
 }
 
-// ======================= PREMIUM (mock Stripe) =======================
+// ======================= PREMIUM (Stripe Checkout) =======================
 app.use('/api/premium', premiumRouter);
 
 // ======================= GARDENS =======================

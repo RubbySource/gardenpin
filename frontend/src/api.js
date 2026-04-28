@@ -64,16 +64,21 @@ export const api = {
   // Stats
   stats: () => jsonFetch('/api/stats'),
 
-  // Premium (mock Stripe)
+  // Premium (Stripe Checkout)
   premiumStatus: () => jsonFetch('/api/premium/status'),
-  premiumCheckout: () =>
-    jsonFetch('/api/premium/checkout', {
+  // Vytvoří Stripe Checkout Session a přesměruje uživatele na hosted checkout.
+  // Backend vrací { url } — tady jen redirectneme.
+  checkoutPremium: async () => {
+    const { url } = await jsonFetch('/api/premium/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{}',
-    }),
-  premiumActivate: () => jsonFetch('/api/premium/success?mock=true'),
-  premiumCancel: () => jsonFetch('/api/premium/cancel', { method: 'POST' }),
+    });
+    if (!url) throw new Error('Stripe nevrátil checkout URL');
+    window.location.href = url;
+  },
+  premiumCancel: () =>
+    jsonFetch('/api/premium/cancel-subscription', { method: 'POST' }),
 
   // Push notifications
   pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
