@@ -72,6 +72,11 @@ export const api = {
     }),
   premiumActivate: () => jsonFetch('/api/premium/success?mock=true'),
   premiumCancel: () => jsonFetch('/api/premium/cancel', { method: 'POST' }),
+
+  // Sdílení
+  shareGarden: (id) =>
+    jsonFetch(`/api/gardens/${id}/share`, { method: 'POST' }),
+  getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
 };
 
 async function handle(res) {

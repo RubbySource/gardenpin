@@ -7,6 +7,7 @@ import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
+import SharedGardenPage from './pages/SharedGardenPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
@@ -22,6 +23,7 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const location = useLocation();
+  const isPublic = location.pathname.startsWith('/share/');
 
   toastHandler = (m) => {
     setToastMsg(m);
@@ -30,14 +32,16 @@ export default function App() {
 
   // Load stats for reminder banner and nav badge
   useEffect(() => {
+    if (isPublic) return;
     const loadStats = () => api.stats().then((s) => setPendingStats(s)).catch(() => {});
     loadStats();
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPublic]);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
+    if (isPublic) return;
     let lastNotified = JSON.parse(localStorage.getItem('lastNotified') || '{}');
     const check = async () => {
       try {
@@ -71,7 +75,20 @@ export default function App() {
     check();
     const interval = setInterval(check, 60 * 60 * 1000); // every hour
     return () => clearInterval(interval);
-  }, []);
+  }, [isPublic]);
+
+  if (isPublic) {
+    return (
+      <div className="app shared-app">
+        <main className="main">
+          <Routes>
+            <Route path="/share/:token" element={<SharedGardenPage />} />
+          </Routes>
+        </main>
+        {toastMsg && <Toast message={toastMsg} />}
+      </div>
+    );
+  }
 
   return (
     <div className="app">
