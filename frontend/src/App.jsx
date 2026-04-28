@@ -11,6 +11,7 @@ import PremiumPage from './pages/PremiumPage.jsx';
 import SharedGardenPage from './pages/SharedGardenPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
+import InstallPrompt from './components/InstallPrompt.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 import { registerPushNotifications } from './push.js';
@@ -156,6 +157,8 @@ export default function App() {
           <span>Nastavení</span>
         </NavLink>
       </nav>
+
+      <InstallPrompt />
 
       {toastMsg && <Toast message={toastMsg} />}
     </div>
