@@ -8,6 +8,7 @@ import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
+import InstallPrompt from './components/InstallPrompt.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -124,6 +125,8 @@ export default function App() {
           <span>Nastavení</span>
         </NavLink>
       </nav>
+
+      <InstallPrompt />
 
       {toastMsg && <Toast message={toastMsg} />}
     </div>
