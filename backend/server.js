@@ -305,13 +305,13 @@ app.get('/api/tasks/week', (req, res) => {
 });
 
 app.post('/api/tasks', (req, res) => {
-  const { pin_id, title, task_type, frequency_days, specific_date, notes } = req.body;
+  const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence } = req.body;
   const tmp = { specific_date, frequency_days, last_done: null };
   const next_due = computeNextDue(tmp);
   const info = db
     .prepare(
-      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       pin_id,
@@ -321,6 +321,8 @@ app.post('/api/tasks', (req, res) => {
       specific_date || null,
       next_due,
       notes || null,
+      recurring ? 1 : 0,
+      recurrence || null,
     );
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(info.lastInsertRowid);
   res.json(task);
@@ -341,10 +343,14 @@ app.put('/api/tasks/:id', (req, res) => {
   const specific_date =
     req.body.specific_date !== undefined ? req.body.specific_date || null : current.specific_date;
   const notes = req.body.notes ?? current.notes;
+  const recurring =
+    req.body.recurring !== undefined ? (req.body.recurring ? 1 : 0) : (current.recurring || 0);
+  const recurrence =
+    req.body.recurrence !== undefined ? req.body.recurrence || null : current.recurrence;
   const next_due = computeNextDue({ specific_date, frequency_days, last_done: current.last_done });
   db.prepare(
-    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=? WHERE id=?`,
-  ).run(title, task_type, frequency_days, specific_date, next_due, notes, id);
+    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=?, recurring=?, recurrence=? WHERE id=?`,
+  ).run(title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence, id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
 });
 
@@ -366,6 +372,16 @@ app.post('/api/tasks/:id/done', (req, res) => {
   ).run(id, task.pin_id, task.title, req.body?.notes || null);
 
   if (task.specific_date) {
+    // Yearly recurring: posuň specific_date o rok dopředu místo smazání
+    if (task.recurring && task.recurrence === 'yearly') {
+      const d = new Date(task.specific_date);
+      d.setFullYear(d.getFullYear() + 1);
+      const newDate = d.toISOString().slice(0, 10);
+      db.prepare('UPDATE tasks SET specific_date=?, next_due=?, last_done=? WHERE id=?').run(
+        newDate, newDate, today, id,
+      );
+      return res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+    }
     // One-time task: delete after completion
     db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
     return res.json({ ok: true, removed: true });
@@ -564,6 +580,91 @@ app.get('/api/export/ical', (req, res) => {
 
   res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker.ics"');
+  res.send(lines.join('\r\n'));
+});
+
+// ======================= GARDEN ICAL (recurring tasks) =======================
+// GET /api/ical/:gardenId — vrátí .ics soubor s VEVENT pro každý recurring task v dané zahradě.
+// Použito tlačítkem "Exportovat do kalendáře" na detailu zahrady.
+app.get('/api/ical/:gardenId', (req, res) => {
+  const gardenId = req.params.gardenId;
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(gardenId);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+
+  const tasks = db.prepare(
+    `SELECT t.*, p.name AS pin_name, p.plant_name
+     FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     WHERE p.garden_id = ? AND t.recurring = 1
+     ORDER BY t.specific_date ASC`,
+  ).all(gardenId);
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const now = new Date();
+  const dtstamp =
+    now.getUTCFullYear().toString() +
+    pad(now.getUTCMonth() + 1) +
+    pad(now.getUTCDate()) +
+    'T' +
+    pad(now.getUTCHours()) +
+    pad(now.getUTCMinutes()) +
+    pad(now.getUTCSeconds()) +
+    'Z';
+  const currentYear = now.getFullYear();
+
+  const escape = (s) =>
+    (s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  const foldLine = (line) => {
+    const out = [];
+    while (line.length > 75) {
+      out.push(line.slice(0, 75));
+      line = ' ' + line.slice(75);
+    }
+    out.push(line);
+    return out.join('\r\n');
+  };
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//GardenPin//CZ',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    foldLine(`X-WR-CALNAME:${escape(garden.name)} – GardenPin`),
+  ];
+
+  for (const t of tasks) {
+    if (!t.specific_date) continue;
+    // DTSTART = příslušný měsíc/den ve aktuálním roce (RRULE replikuje yearly)
+    const parts = t.specific_date.split('-');
+    if (parts.length !== 3) continue;
+    const month = parts[1];
+    const day = parts[2];
+    const dtstart = `${currentYear}${month}${day}`;
+    const summary = `${t.plant_name || t.pin_name}: ${t.title}`;
+    const description = [
+      `Místo: ${escape(t.pin_name)}`,
+      t.plant_name ? `Rostlina: ${escape(t.plant_name)}` : '',
+      t.notes ? escape(t.notes) : '',
+    ].filter(Boolean).join('\\n');
+
+    lines.push('BEGIN:VEVENT');
+    lines.push(foldLine(`UID:gardenpin-${t.id}-${gardenId}@gardenpin`));
+    lines.push(`DTSTAMP:${dtstamp}`);
+    lines.push(`DTSTART;VALUE=DATE:${dtstart}`);
+    lines.push(foldLine(`SUMMARY:${escape(summary)}`));
+    if (description) lines.push(foldLine(`DESCRIPTION:${description}`));
+    if (t.recurrence === 'yearly') {
+      lines.push('RRULE:FREQ=YEARLY');
+    }
+    lines.push('END:VEVENT');
+  }
+
+  lines.push('END:VCALENDAR');
+
+  const safeName = (garden.name || 'gardenpin').replace(/[^a-z0-9_-]+/gi, '_').toLowerCase();
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${safeName}.ics"`);
   res.send(lines.join('\r\n'));
 });
 
