@@ -39,28 +39,28 @@ export default function TasksPage({ onTaskComplete }) {
     }
   };
 
-  if (loading) return <div className="empty">Načítám...</div>;
+  if (loading) return <div className="empty">🌱 Načítám...</div>;
 
   const overdue = tasks.filter((t) => daysFromToday(t.next_due) < 0);
   const today = tasks.filter((t) => daysFromToday(t.next_due) === 0);
-  const thisWeek = tasks.filter((t) => {
-    const d = daysFromToday(t.next_due);
-    return d > 0 && d <= 7;
-  });
-  const later = tasks.filter((t) => {
-    const d = daysFromToday(t.next_due);
-    return d > 7;
-  });
+  const thisWeek = tasks.filter((t) => { const d = daysFromToday(t.next_due); return d > 0 && d <= 7; });
+  const later = tasks.filter((t) => { const d = daysFromToday(t.next_due); return d > 7; });
+
+  const urgentCount = overdue.length + today.length;
 
   return (
     <>
-      <h2 className="section-title">📋 Úkoly</h2>
+      <div className="section-header" style={{ marginTop: 4 }}>
+        <div className="title">📋 Úkoly</div>
+        {urgentCount > 0 && <span className="count-badge danger">{urgentCount} urgentních</span>}
+      </div>
+
       <div className="tabs">
         <button className={tab === 'upcoming' ? 'active' : ''} onClick={() => setTab('upcoming')}>
-          Nadcházející ({tasks.length})
+          Naplánované {tasks.length > 0 && `(${tasks.length})`}
         </button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
-          Historie ({history.length})
+          Historie {history.length > 0 && `(${history.length})`}
         </button>
       </div>
 
@@ -69,64 +69,51 @@ export default function TasksPage({ onTaskComplete }) {
           {tasks.length === 0 && (
             <div className="card empty">
               <div className="icon">🌼</div>
-              Žádné úkoly. Přidejte je v detailu místa v zahradě.
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>Žádné úkoly</div>
+              <div className="small muted">Přidejte je v detailu místa v zahradě.</div>
             </div>
           )}
           {overdue.length > 0 && (
             <>
-              <h3 className="section-title" style={{ color: 'var(--danger)' }}>
-                ⚠️ Po termínu ({overdue.length})
-              </h3>
+              <div className="section-header">
+                <div className="title" style={{ color: 'var(--danger)' }}>⚠️ Po termínu</div>
+                <span className="count-badge danger">{overdue.length}</span>
+              </div>
               {overdue.map((t) => (
-                <TaskItem
-                  key={t.id}
-                  task={t}
-                  onComplete={completeTask}
-                  onClick={() => setOpenPin(t.pin_id)}
-                  showGarden
-                />
+                <TaskItem key={t.id} task={t} onComplete={completeTask} onClick={() => setOpenPin(t.pin_id)} showGarden />
               ))}
             </>
           )}
           {today.length > 0 && (
             <>
-              <h3 className="section-title">🌞 Dnes ({today.length})</h3>
+              <div className="section-header">
+                <div className="title">🌞 Dnes</div>
+                <span className="count-badge">{today.length}</span>
+              </div>
               {today.map((t) => (
-                <TaskItem
-                  key={t.id}
-                  task={t}
-                  onComplete={completeTask}
-                  onClick={() => setOpenPin(t.pin_id)}
-                  showGarden
-                />
+                <TaskItem key={t.id} task={t} onComplete={completeTask} onClick={() => setOpenPin(t.pin_id)} showGarden />
               ))}
             </>
           )}
           {thisWeek.length > 0 && (
             <>
-              <h3 className="section-title">📅 Tento týden ({thisWeek.length})</h3>
+              <div className="section-header">
+                <div className="title">📅 Tento týden</div>
+                <span className="count-badge">{thisWeek.length}</span>
+              </div>
               {thisWeek.map((t) => (
-                <TaskItem
-                  key={t.id}
-                  task={t}
-                  onComplete={completeTask}
-                  onClick={() => setOpenPin(t.pin_id)}
-                  showGarden
-                />
+                <TaskItem key={t.id} task={t} onComplete={completeTask} onClick={() => setOpenPin(t.pin_id)} showGarden />
               ))}
             </>
           )}
           {later.length > 0 && (
             <>
-              <h3 className="section-title">🗓️ Později ({later.length})</h3>
+              <div className="section-header">
+                <div className="title">🗓️ Plánované</div>
+                <span className="count-badge">{later.length}</span>
+              </div>
               {later.map((t) => (
-                <TaskItem
-                  key={t.id}
-                  task={t}
-                  onComplete={completeTask}
-                  onClick={() => setOpenPin(t.pin_id)}
-                  showGarden
-                />
+                <TaskItem key={t.id} task={t} onComplete={completeTask} onClick={() => setOpenPin(t.pin_id)} showGarden />
               ))}
             </>
           )}

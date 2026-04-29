@@ -76,11 +76,11 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>
-          <span className="leaf">🌿</span>
-          Zahradní tracker
+          <span className="leaf">📍</span>
+          GardenPin
         </h1>
-        <div className="small" style={{ opacity: 0.85 }}>
-          {new Date().toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long' })}
+        <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
+          {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
         </div>
       </header>
 

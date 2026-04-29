@@ -669,3 +669,246 @@ input, textarea, select {
   justify-content: center;
   line-height: 1;
 }
+
+/* ── HOMEPAGE HERO ─────────────────────────────────────────── */
+.home-hero {
+  background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
+  border-radius: 20px;
+  padding: 20px 18px 18px;
+  margin-bottom: 14px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.home-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 30px;
+  width: 90px; height: 90px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+.home-hero .greeting {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+.home-hero .hero-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 14px;
+  line-height: 1.2;
+}
+.home-hero .hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  position: relative; z-index: 1;
+}
+.home-hero .hero-stat {
+  background: rgba(255,255,255,0.13);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+.home-hero .hero-stat .val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.home-hero .hero-stat .lbl {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+.home-hero .hero-stat .val.danger { color: #ff9999; }
+.home-hero .hero-stat .val.warning { color: #ffe5a0; }
+
+/* Improved stat cards */
+.stat-card-v2 {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
+.stat-card-v2 .icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.stat-card-v2 .info .val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+.stat-card-v2 .info .lbl {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* Quick actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.quick-action-btn {
+  background: var(--sand);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  text-align: left;
+  min-height: 60px;
+}
+.quick-action-btn:hover { background: var(--sand-dark); box-shadow: var(--shadow); }
+.quick-action-btn .qa-icon { font-size: 1.4rem; }
+.quick-action-btn .qa-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 10px;
+}
+.section-header .title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-header .count-badge {
+  background: var(--green-100);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.section-header .count-badge.danger {
+  background: #ffe0db;
+  color: var(--danger);
+}
+
+/* Garden grid (2 columns on wider screens) */
+.gardens-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 560px) {
+  .gardens-grid { grid-template-columns: 1fr 1fr; }
+}
+.garden-card-v2 {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.05s;
+  box-shadow: var(--shadow);
+}
+.garden-card-v2:hover { box-shadow: var(--shadow-lg); }
+.garden-card-v2:active { transform: scale(0.99); }
+.garden-card-v2 .img-wrap {
+  height: 130px;
+  background: linear-gradient(135deg, var(--green-100), var(--green-200));
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  position: relative;
+}
+.garden-card-v2 .img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.garden-card-v2 .card-body {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.garden-card-v2 .g-name {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.garden-card-v2 .g-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+/* Task section label */
+.tasks-day-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 4px 4px;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: var(--sand);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* About card — tester info */
+.tester-card {
+  background: linear-gradient(135deg, var(--green-50), #fff);
+  border: 1px solid var(--green-200);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.tester-card h3 { margin-top: 0; color: var(--primary); }
+.tester-card .url-box {
+  background: var(--charcoal);
+  color: #7eed7a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+  margin: 8px 0;
+}

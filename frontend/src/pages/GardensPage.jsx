@@ -26,42 +26,48 @@ export default function GardensPage() {
 
   return (
     <>
-      <div className="row spread mb-2">
-        <h2 className="section-title" style={{ margin: 0 }}>
-          🗺️ Vaše zahrady
-        </h2>
-        <button className="btn small" onClick={() => setShowNew(true)}>
-          + Nová
-        </button>
+      <div className="section-header" style={{ marginTop: 4 }}>
+        <div className="title">🗺️ Moje zahrady
+          {gardens.length > 0 && <span className="count-badge" style={{ marginLeft: 6 }}>{gardens.length}</span>}
+        </div>
+        <button className="btn small" onClick={() => setShowNew(true)}>+ Nová</button>
       </div>
 
       {loading ? (
-        <div className="empty">Načítám...</div>
+        <div className="empty">🌱 Načítám...</div>
       ) : gardens.length === 0 ? (
         <div className="card empty">
           <div className="icon">🌻</div>
-          <div className="mb-2">Ještě nemáte žádnou zahradu</div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>Zatím žádná zahrada</div>
+          <div className="small muted" style={{ marginBottom: 14 }}>
+            Přidejte fotografii z leteckého pohledu a začněte mapovat.
+          </div>
           <button className="btn" onClick={() => setShowNew(true)}>
             + Vytvořit první zahradu
           </button>
         </div>
       ) : (
-        gardens.map((g) => (
-          <div key={g.id} className="garden-card" onClick={() => nav(`/zahrada/${g.id}`)}>
-            {g.image_path ? (
-              <img src={g.image_path} alt="" className="thumb" />
-            ) : (
-              <div className="thumb thumb-placeholder">🌱</div>
-            )}
-            <div className="details">
-              <div className="name">{g.name}</div>
-              <div className="meta">
-                Vytvořeno {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ')}
+        <div className="gardens-grid">
+          {gardens.map((g) => (
+            <div key={g.id} className="garden-card-v2" onClick={() => nav(`/zahrada/${g.id}`)}>
+              <div className="img-wrap">
+                {g.image_path
+                  ? <img src={g.image_path} alt={g.name} />
+                  : <span>🌱</span>
+                }
+              </div>
+              <div className="card-body">
+                <div>
+                  <div className="g-name">{g.name}</div>
+                  <div className="g-meta">
+                    {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                </div>
+                <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
               </div>
             </div>
-            <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
-          </div>
-        ))
+          ))}
+        </div>
       )}
 
       {showNew && (
