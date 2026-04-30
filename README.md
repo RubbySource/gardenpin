@@ -146,6 +146,25 @@ zahradni-tracker/
 - Jednorázové úkoly se po dokončení smažou, ale zůstávají v historii.
 - Export vytvoří úplnou zálohu — ukládejte si ji pravidelně.
 
+## ☁️ Deploy na Railway
+
+Aplikaci je možné nasadit na [Railway.app](https://railway.app/) bez další konfigurace — v repu jsou připraveny soubory `railway.toml`, `Procfile` a `.env.example`.
+
+### Postup ve třech krocích
+
+1. **Forkněte repo** na svůj GitHub účet (nebo si ho naklonujte do vlastního).
+2. **Připojte Railway k GitHubu** — v dashboardu zvolte *New Project → Deploy from GitHub repo* a vyberte fork. Railway si automaticky přečte `railway.toml`, spustí `npm install` + build frontendu a nastartuje server.
+3. **Nastavte proměnné prostředí** podle `.env.example` (záložka *Variables*) a počkejte na první deploy. Veřejnou URL pak najdete v *Settings → Networking → Generate Domain*.
+
+### ⚠️ Pozor na ephemeral filesystem
+
+Railway kontejnery mají **dočasný souborový systém** — při každém restartu / redeployi se smaže `backend/data/` (SQLite databáze) i `backend/uploads/` (fotografie). Pro produkční použití zvolte jednu ze dvou variant:
+
+- **Railway Volume** (jednodušší) — v *Settings → Volumes* připojte persistent volume na `/data` a nastavte `DATABASE_PATH=/data/gardenpin.db`. Stejně přesměrujte i `uploads/` (vyžaduje drobnou úpravu v `server.js`).
+- **Migrace na PostgreSQL** (robustnější) — Railway nabízí managed Postgres jedním klikem. Vyžaduje přepsání `backend/db.js` z `better-sqlite3` na `pg` a přepis SQL dotazů do PostgreSQL syntaxe.
+
+Pro osobní/testovací nasazení stačí Volume; pokud plánujete sdílet aplikaci s více lidmi, vyplatí se rovnou Postgres.
+
 ## 🪴 Licence
 
 Osobní použití — aplikace běží lokálně, vaše data nikam neodcházejí.
