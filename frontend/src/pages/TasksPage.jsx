@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
+import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
 
 const MONTH_NAMES_CZ = [
   'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
@@ -103,11 +104,11 @@ export default function TasksPage({ onTaskComplete }) {
         <>
           {tasks.length === 0 ? (
             <div className="gp-empty">
-              <span className="gp-empty-icon">🌼</span>
-              <div className="gp-empty-title">Žádné úkoly</div>
+              <span className="gp-empty-icon">🌱</span>
+              <div className="gp-empty-title">Žádné úkoly na dnešek 🌱</div>
               <div className="gp-empty-text">
-                Přidejte úkoly v detailu rostliny v zahradě nebo vyberte rostlinu z databáze
-                a nechte si automaticky naplánovat sezónní péči.
+                Užijte si den! Když budete mít chvilku, projděte se po zahradě a podívejte se,
+                jestli se někde něco nezměnilo.
               </div>
             </div>
           ) : (
@@ -243,42 +244,53 @@ function GpTaskCard({ task, onComplete, onClick }) {
   // Title typically already has emoji prefix from buildSeasonalTaskPayloads, but if not — fallback
   const cleanTitle = task.title;
   const fallbackEmoji = taskIcon(task.task_type);
+  const { handlers, itemStyle, triggered } = useSwipeToComplete(() => onComplete?.(task));
 
   return (
-    <div className={`gp-task ${stateClass}`}>
-      <button
-        className="gp-task-check"
-        onClick={(e) => {
-          e.stopPropagation();
-          onComplete?.(task);
-        }}
-        aria-label="Označit jako hotové"
-        title="Označit jako hotové"
-      >
-        ✓
-      </button>
+    <div className="gp-task-wrap">
+      <div className={`gp-task-swipe-bg ${triggered ? 'triggered' : ''}`} aria-hidden="true">
+        <span className="swipe-icon">{triggered ? '✅' : '✓'}</span>
+        <span className="swipe-label">{triggered ? 'Pustit pro hotovo' : 'Posuňte →'}</span>
+      </div>
       <div
-        className="gp-task-body"
-        onClick={onClick}
-        style={{ cursor: onClick ? 'pointer' : 'default' }}
+        className={`gp-task ${stateClass} ${triggered ? 'is-triggered' : ''}`}
+        style={itemStyle}
+        {...handlers}
       >
-        <div className="gp-task-title">
-          {!/^[^\w\s]/u.test(cleanTitle) && <span>{fallbackEmoji}</span>}
-          <span>{cleanTitle}</span>
-        </div>
-        <div className="gp-task-meta">
-          🌿 {task.pin_name}
-          {task.plant_name ? ` · ${task.plant_name}` : ''}
-          {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
-        </div>
-        <div className="gp-task-chips">
-          {badge && <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>}
-          {task.frequency_days ? (
-            <span className="gp-chip">🔁 {task.frequency_days} dní</span>
-          ) : null}
-          {task.specific_date && !task.frequency_days ? (
-            <span className="gp-chip">📌 Jednorázově</span>
-          ) : null}
+        <button
+          className="gp-task-check"
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete?.(task);
+          }}
+          aria-label="Označit jako hotové"
+          title="Označit jako hotové"
+        >
+          ✓
+        </button>
+        <div
+          className="gp-task-body"
+          onClick={onClick}
+          style={{ cursor: onClick ? 'pointer' : 'default' }}
+        >
+          <div className="gp-task-title">
+            {!/^[^\w\s]/u.test(cleanTitle) && <span>{fallbackEmoji}</span>}
+            <span>{cleanTitle}</span>
+          </div>
+          <div className="gp-task-meta">
+            🌿 {task.pin_name}
+            {task.plant_name ? ` · ${task.plant_name}` : ''}
+            {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
+          </div>
+          <div className="gp-task-chips">
+            {badge && <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>}
+            {task.frequency_days ? (
+              <span className="gp-chip">🔁 {task.frequency_days} dní</span>
+            ) : null}
+            {task.specific_date && !task.frequency_days ? (
+              <span className="gp-chip">📌 Jednorázově</span>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
+import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -85,7 +86,7 @@ export default function HomePage({ onTaskComplete }) {
         </div>
         <div className="greeting" style={{ marginBottom: 14 }}>{monthTip}</div>
         {stats && (
-          <div className="hero-stats">
+          <div className="hero-stats hero-stats-4">
             <div className="hero-stat">
               <div className="val">{stats.gardens}</div>
               <div className="lbl">Zahrady</div>
@@ -97,6 +98,12 @@ export default function HomePage({ onTaskComplete }) {
             <div className="hero-stat">
               <div className={`val ${urgentClass}`}>{urgentCount}</div>
               <div className="lbl">{stats.overdue > 0 ? 'Po termínu' : 'Dnes'}</div>
+            </div>
+            <div className="hero-stat">
+              <div className={`val ${stats.weeklyDone > 0 ? 'success' : ''}`}>
+                {stats.weeklyDone ?? 0}
+              </div>
+              <div className="lbl">Tento týden</div>
             </div>
           </div>
         )}
@@ -182,35 +189,46 @@ function HomeTaskCard({ task, onComplete }) {
       : '';
   const cleanTitle = task.title;
   const fallbackEmoji = taskIcon(task.task_type);
+  const { handlers, itemStyle, triggered } = useSwipeToComplete(() => onComplete?.(task));
 
   return (
-    <div className={`gp-task ${stateClass}`}>
-      <button
-        className="gp-task-check"
-        onClick={(e) => {
-          e.stopPropagation();
-          onComplete?.(task);
-        }}
-        aria-label="Označit jako hotové"
-        title="Označit jako hotové"
+    <div className="gp-task-wrap">
+      <div className={`gp-task-swipe-bg ${triggered ? 'triggered' : ''}`} aria-hidden="true">
+        <span className="swipe-icon">{triggered ? '✅' : '✓'}</span>
+        <span className="swipe-label">{triggered ? 'Pustit pro hotovo' : 'Posuňte →'}</span>
+      </div>
+      <div
+        className={`gp-task ${stateClass} ${triggered ? 'is-triggered' : ''}`}
+        style={itemStyle}
+        {...handlers}
       >
-        ✓
-      </button>
-      <div className="gp-task-body">
-        <div className="gp-task-title">
-          {!/^[^\w\s]/u.test(cleanTitle) && <span>{fallbackEmoji}</span>}
-          <span>{cleanTitle}</span>
-        </div>
-        <div className="gp-task-meta">
-          🌿 {task.pin_name}
-          {task.plant_name ? ` · ${task.plant_name}` : ''}
-          {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
-        </div>
-        {badge && (
-          <div className="gp-task-chips">
-            <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>
+        <button
+          className="gp-task-check"
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete?.(task);
+          }}
+          aria-label="Označit jako hotové"
+          title="Označit jako hotové"
+        >
+          ✓
+        </button>
+        <div className="gp-task-body">
+          <div className="gp-task-title">
+            {!/^[^\w\s]/u.test(cleanTitle) && <span>{fallbackEmoji}</span>}
+            <span>{cleanTitle}</span>
           </div>
-        )}
+          <div className="gp-task-meta">
+            🌿 {task.pin_name}
+            {task.plant_name ? ` · ${task.plant_name}` : ''}
+            {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
+          </div>
+          {badge && (
+            <div className="gp-task-chips">
+              <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

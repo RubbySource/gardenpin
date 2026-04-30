@@ -1701,3 +1701,61 @@ input, textarea, select {
   word-break: break-all;
   margin: 8px 0;
 }
+
+/* === Hero stats: 4-column variant for "Tento týden" === */
+.home-hero .hero-stats-4 {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.home-hero .hero-stats-4 .hero-stat .val { font-size: 1.25rem; }
+.home-hero .hero-stats-4 .hero-stat .lbl { font-size: 0.62rem; }
+.home-hero .hero-stat .val.success { color: #b8f0a0; }
+
+/* === Swipe-to-complete on .gp-task (mobile) === */
+.gp-task-wrap {
+  position: relative;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.gp-task-wrap > .gp-task { margin-bottom: 0; will-change: transform; }
+.gp-task.is-triggered { background: #e8f5e9; }
+.gp-task-swipe-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #4a7c3a 0%, #6aa356 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 22px;
+  gap: 10px;
+  font-weight: 700;
+  border-radius: 14px;
+  pointer-events: none;
+  opacity: 0.95;
+}
+.gp-task-swipe-bg .swipe-icon {
+  font-size: 1.2rem;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.18);
+  border-radius: 50%;
+}
+.gp-task-swipe-bg .swipe-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+}
+.gp-task-swipe-bg.triggered {
+  background: linear-gradient(90deg, #2e7d32 0%, #4caf50 100%);
+}
+
+/* === Empty state: SVG-friendly tweaks for GardensPage === */
+.gp-empty svg {
+  margin: 0 auto 12px;
+  display: block;
+}

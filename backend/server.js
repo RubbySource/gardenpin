@@ -366,7 +366,11 @@ app.get('/api/stats', (req, res) => {
   const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(today).c;
   const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(today).c;
   const historyCount = db.prepare('SELECT COUNT(*) AS c FROM care_history').get().c;
-  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount });
+  // care_history.done_at is stored as UTC text via SQLite CURRENT_TIMESTAMP
+  const weeklyDone = db
+    .prepare("SELECT COUNT(*) AS c FROM care_history WHERE done_at >= datetime('now', '-7 days')")
+    .get().c;
+  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount, weeklyDone });
 });
 
 // ======================= UPSCALE =======================
