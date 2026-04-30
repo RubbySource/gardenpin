@@ -1,6 +1,6 @@
 // Autocomplete input pro výběr rostliny + plant info card v GardenPin designu
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { filterPlants, PLANT_CATEGORIES } from '../plantDatabase.js';
+import { searchPlants } from '../plantDatabase.js';
 
 // Design tokeny — GardenPin paleta
 const PALETTE = {
@@ -21,7 +21,6 @@ const MONTH_NAMES_CZ = [
 
 // Convert selected care chips into POST /api/tasks payloads (sezónní úkoly s konkrétním datem 15. v měsíci).
 // Reused by PlantInfoCard's CTA i NewPinModal submit, aby se chovaly stejně.
-// Care chips se ukládají jako roční opakující se úkoly (recurring + recurrence='yearly').
 export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
   if (!plant?.careActions?.length || !selectedCareSet?.size) return [];
   const now = new Date();
@@ -38,8 +37,6 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
       task_type: 'jine',
       frequency_days: null,
       specific_date: `${targetYear}-${m}-15`,
-      recurring: true,
-      recurrence: 'yearly',
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
     });
   });
@@ -56,10 +53,14 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
  */
 export default function PlantAutocomplete({ value, onChange, onSelect, placeholder }) {
   const [open, setOpen] = useState(false);
-  const [category, setCategory] = useState('all');
+  const [results, setResults] = useState([]);
   const wrapRef = useRef();
 
-  const results = useMemo(() => filterPlants(value, category), [value, category]);
+  useEffect(() => {
+    const r = searchPlants(value);
+    setResults(r);
+    setOpen(r.length > 0 && value.length >= 1);
+  }, [value]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -80,12 +81,11 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
       <input
         type="text"
         value={value}
-        onChange={(e) => {
-          onChange(e.target.value, null);
-          setOpen(true);
-        }}
+        onChange={(e) => onChange(e.target.value, null)}
         placeholder={placeholder || 'Název rostliny…'}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          if (results.length > 0) setOpen(true);
+        }}
         autoComplete="off"
       />
       {open && (
@@ -100,133 +100,16 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
             border: `1px solid ${PALETTE.border}`,
             borderRadius: 12,
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-            maxHeight: 420,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
+            maxHeight: 320,
+            overflowY: 'auto',
             marginTop: 4,
           }}
         >
-          <CategoryFilterBar selected={category} onSelect={setCategory} />
-          <div
-            style={{
-              padding: '6px 12px',
-              fontSize: 11,
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-              color: PALETTE.muted,
-              background: PALETTE.sand,
-              borderBottom: `1px solid ${PALETTE.border}`,
-            }}
-          >
-            {results.length === 0
-              ? 'Žádné výsledky'
-              : `${results.length} ${plantCountLabel(results.length)}`}
-          </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
-            {results.length === 0 ? (
-              <EmptyState query={value} />
-            ) : (
-              results.map((p) => (
-                <PlantSearchRow key={p.id} plant={p} onPick={() => handleSelect(p)} />
-              ))
-            )}
-          </div>
+          {results.map((p) => (
+            <PlantSearchRow key={p.id} plant={p} onPick={() => handleSelect(p)} />
+          ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function plantCountLabel(n) {
-  if (n === 1) return 'rostlina';
-  if (n >= 2 && n <= 4) return 'rostliny';
-  return 'rostlin';
-}
-
-// Horizontálně skrolovatelná lišta s kategorickými chipy + "Vše"
-function CategoryFilterBar({ selected, onSelect }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 6,
-        padding: '10px 10px 8px',
-        overflowX: 'auto',
-        borderBottom: `1px solid ${PALETTE.border}`,
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
-      <CategoryChip
-        active={selected === 'all'}
-        onClick={() => onSelect('all')}
-        icon="🌐"
-        label="Vše"
-        color={PALETTE.forest}
-      />
-      {PLANT_CATEGORIES.map((c) => (
-        <CategoryChip
-          key={c.key}
-          active={selected === c.key}
-          onClick={() => onSelect(c.key)}
-          icon={c.icon}
-          label={c.label}
-          color={c.color}
-        />
-      ))}
-    </div>
-  );
-}
-
-function CategoryChip({ active, onClick, icon, label, color }) {
-  return (
-    <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      style={{
-        flex: '0 0 auto',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        padding: '6px 10px',
-        background: active ? color : PALETTE.sand,
-        color: active ? '#fff' : PALETTE.charcoal,
-        border: `1.5px solid ${active ? color : 'transparent'}`,
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 700,
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-        transition: 'background 0.15s, color 0.15s',
-      }}
-    >
-      <span>{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function EmptyState({ query }) {
-  return (
-    <div
-      style={{
-        padding: '24px 16px',
-        textAlign: 'center',
-        color: PALETTE.muted,
-        fontSize: 13,
-      }}
-    >
-      <div style={{ fontSize: 32, marginBottom: 6 }}>🪴</div>
-      <div style={{ fontWeight: 600, color: PALETTE.charcoal, marginBottom: 4 }}>
-        Nic nenalezeno
-      </div>
-      <div>
-        {query
-          ? `Pro „${query}" v této kategorii nic není — zkus jiný název nebo kategorii.`
-          : 'V této kategorii zatím žádné rostliny.'}
-      </div>
     </div>
   );
 }

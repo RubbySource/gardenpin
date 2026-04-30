@@ -5,16 +5,11 @@ import HomePage from './pages/HomePage.jsx';
 import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
-import SeasonPage from './pages/SeasonPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
-import PremiumPage from './pages/PremiumPage.jsx';
-import SharedGardenPage from './pages/SharedGardenPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
-import InstallPrompt from './components/InstallPrompt.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
-import { registerPushNotifications } from './push.js';
 
 // Simple context-free toast system
 let toastHandler = null;
@@ -26,7 +21,6 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const location = useLocation();
-  const isPublic = location.pathname.startsWith('/share/');
 
   toastHandler = (m) => {
     setToastMsg(m);
@@ -35,21 +29,14 @@ export default function App() {
 
   // Load stats for reminder banner and nav badge
   useEffect(() => {
-    if (isPublic) return;
     const loadStats = () => api.stats().then((s) => setPendingStats(s)).catch(() => {});
     loadStats();
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [isPublic]);
-
-  // Web Push — register service worker and subscribe (only if user already granted notifications)
-  useEffect(() => {
-    registerPushNotifications().catch(() => {});
   }, []);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
-    if (isPublic) return;
     let lastNotified = JSON.parse(localStorage.getItem('lastNotified') || '{}');
     const check = async () => {
       try {
@@ -83,30 +70,17 @@ export default function App() {
     check();
     const interval = setInterval(check, 60 * 60 * 1000); // every hour
     return () => clearInterval(interval);
-  }, [isPublic]);
-
-  if (isPublic) {
-    return (
-      <div className="app shared-app">
-        <main className="main">
-          <Routes>
-            <Route path="/share/:token" element={<SharedGardenPage />} />
-          </Routes>
-        </main>
-        {toastMsg && <Toast message={toastMsg} />}
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="app">
       <header className="topbar">
         <h1>
-          <span className="leaf">🌿</span>
-          Zahradní tracker
+          <span className="leaf">📍</span>
+          GardenPin
         </h1>
-        <div className="small" style={{ opacity: 0.85 }}>
-          {new Date().toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long' })}
+        <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
+          {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
         </div>
       </header>
 
@@ -118,10 +92,7 @@ export default function App() {
           <Route path="/zahrady" element={<GardensPage />} />
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
-          <Route path="/sezona" element={<SeasonPage />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
-          <Route path="/premium" element={<PremiumPage />} />
-          <Route path="/premium/success" element={<PremiumPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
@@ -148,17 +119,11 @@ export default function App() {
           </span>
           <span>Úkoly</span>
         </NavLink>
-        <NavLink to="/sezona">
-          <span className="icon">🗓️</span>
-          <span>Sezóna</span>
-        </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
           <span>Nastavení</span>
         </NavLink>
       </nav>
-
-      <InstallPrompt />
 
       {toastMsg && <Toast message={toastMsg} />}
     </div>

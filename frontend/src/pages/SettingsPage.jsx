@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { toast } from '../App.jsx';
 import { requestNotificationPermission, showNotification } from '../utils.js';
 import { api } from '../api.js';
-import { registerPushNotifications } from '../push.js';
 
 export default function SettingsPage() {
   const [notifStatus, setNotifStatus] = useState(
@@ -24,7 +23,6 @@ export default function SettingsPage() {
     if (r === 'granted') {
       showNotification('🌿 Zahradní tracker', 'Notifikace jsou aktivní. Budeme vás informovat o nadcházejících úkolech.');
       toast('✅ Notifikace povoleny');
-      registerPushNotifications().catch(() => {});
     } else if (r === 'denied') {
       toast('Notifikace zamítnuty. Povolte je v nastavení prohlížeče.');
     }

@@ -1,12 +1,12 @@
-// SQLite database setup — using Node.js built-in node:sqlite (Node >= 22.5)
-const { DatabaseSync } = require('node:sqlite');
+// SQLite database setup — using better-sqlite3 (Node >= 14, works with Node 20)
+const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new DatabaseSync(path.join(dataDir, 'zahrada.db'));
+const db = new Database(path.join(dataDir, 'zahrada.db'));
 db.exec('PRAGMA journal_mode = WAL');
 db.exec('PRAGMA foreign_keys = ON');
 
@@ -32,7 +32,6 @@ db.exec(`
     planting_date TEXT,
     notes TEXT,
     photo_path TEXT,
-    photo_url TEXT,
     color TEXT DEFAULT '#4a7c3a',
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
@@ -48,8 +47,6 @@ db.exec(`
     next_due TEXT,
     last_done TEXT,
     notes TEXT,
-    recurring INTEGER DEFAULT 0,
-    recurrence TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
@@ -64,33 +61,9 @@ db.exec(`
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL,
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
-
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    plan TEXT NOT NULL DEFAULT 'free',
-    stripe_customer_id TEXT,
-    created_at TEXT DEFAULT (datetime('now'))
-  );
-
-  CREATE TABLE IF NOT EXISTS push_subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subscription_json TEXT NOT NULL UNIQUE,
-    created_at TEXT DEFAULT (datetime('now'))
-  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
-try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
-try { db.exec('ALTER TABLE pins ADD COLUMN photo_url TEXT'); } catch {}
-try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
-try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence TEXT'); } catch {}
-
-// Seed single default user (app je zatím jednouživatelská)
-const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
-if (userCount === 0) {
-  db.prepare("INSERT INTO users (id, email, plan) VALUES (1, NULL, 'free')").run();
-}
 
 module.exports = db;
