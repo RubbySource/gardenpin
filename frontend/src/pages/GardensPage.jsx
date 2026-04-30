@@ -1,4 +1,4 @@
-// List of gardens + create new
+// List of gardens + create new — GardenPin design
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
@@ -7,13 +7,20 @@ import { toast } from '../App.jsx';
 
 export default function GardensPage() {
   const [gardens, setGardens] = useState([]);
+  const [pinCounts, setPinCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
 
   const load = async () => {
     try {
-      setGardens(await api.listGardens());
+      const gs = await api.listGardens();
+      setGardens(gs);
+      // Načti počty pinů paralelně pro každou zahradu
+      const counts = await Promise.all(
+        gs.map((g) => api.listPins(g.id).then((ps) => [g.id, ps.length]).catch(() => [g.id, 0])),
+      );
+      setPinCounts(Object.fromEntries(counts));
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -26,48 +33,64 @@ export default function GardensPage() {
 
   return (
     <>
-      <div className="section-header" style={{ marginTop: 4 }}>
-        <div className="title">🗺️ Moje zahrady
-          {gardens.length > 0 && <span className="count-badge" style={{ marginLeft: 6 }}>{gardens.length}</span>}
+      <div className="page-header">
+        <div className="heading">
+          <div className="eyebrow">🌿 GardenPin</div>
+          <h1>Vaše zahrady</h1>
+          <div className="subtitle">
+            {gardens.length === 0
+              ? 'Začněte vytvořením první zahrady'
+              : `${gardens.length} ${gardens.length === 1 ? 'zahrada' : gardens.length < 5 ? 'zahrady' : 'zahrad'}`}
+          </div>
         </div>
-        <button className="btn small" onClick={() => setShowNew(true)}>+ Nová</button>
+        {gardens.length > 0 && (
+          <button className="btn-cta" onClick={() => setShowNew(true)}>
+            + Nová
+          </button>
+        )}
       </div>
 
       {loading ? (
-        <div className="empty">🌱 Načítám...</div>
+        <div className="empty">Načítám...</div>
       ) : gardens.length === 0 ? (
-        <div className="card empty">
-          <div className="icon">🌻</div>
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Zatím žádná zahrada</div>
-          <div className="small muted" style={{ marginBottom: 14 }}>
-            Přidejte fotografii z leteckého pohledu a začněte mapovat.
+        <div className="gp-empty">
+          <span className="gp-empty-icon">🌻</span>
+          <div className="gp-empty-title">Ještě žádná zahrada</div>
+          <div className="gp-empty-text">
+            Vytvořte zahradu, nahrajte fotku z leteckého pohledu a začněte zaznamenávat své rostliny pomocí pinů.
           </div>
-          <button className="btn" onClick={() => setShowNew(true)}>
+          <button className="btn-cta" onClick={() => setShowNew(true)}>
             + Vytvořit první zahradu
           </button>
         </div>
       ) : (
-        <div className="gardens-grid">
-          {gardens.map((g) => (
-            <div key={g.id} className="garden-card-v2" onClick={() => nav(`/zahrada/${g.id}`)}>
-              <div className="img-wrap">
-                {g.image_path
-                  ? <img src={g.image_path} alt={g.name} />
-                  : <span>🌱</span>
-                }
-              </div>
-              <div className="card-body">
-                <div>
-                  <div className="g-name">{g.name}</div>
-                  <div className="g-meta">
-                    {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </div>
+        gardens.map((g) => (
+          <div key={g.id} className="gp-garden-card" onClick={() => nav(`/zahrada/${g.id}`)}>
+            <div className="hero">
+              {g.image_path ? (
+                <img src={g.image_path} alt={g.name} />
+              ) : (
+                <div className="hero-placeholder">🌱</div>
+              )}
+              <div className="hero-overlay" />
+              <div className="hero-meta">
+                <div className="name">{g.name}</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <span className="gp-pill glass">
+                    📍 {pinCounts[g.id] ?? 0}{' '}
+                    {pinCounts[g.id] === 1 ? 'pin' : 'pinů'}
+                  </span>
                 </div>
-                <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
               </div>
             </div>
-          ))}
-        </div>
+            <div className="body">
+              <div className="meta">
+                Vytvořeno {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ')}
+              </div>
+              <span className="chevron">›</span>
+            </div>
+          </div>
+        ))
       )}
 
       {showNew && (
@@ -110,7 +133,6 @@ function NewGardenModal({ onClose, onCreated }) {
       const fd = new FormData();
       fd.append('name', name);
       if (file) {
-        // Get image dimensions
         const img = new Image();
         img.src = preview;
         await new Promise((res) => (img.onload = res));
@@ -176,7 +198,7 @@ function NewGardenModal({ onClose, onCreated }) {
           <button type="button" className="btn ghost" onClick={onClose}>
             Zrušit
           </button>
-          <button type="submit" className="btn" disabled={saving}>
+          <button type="submit" className="btn-cta" disabled={saving}>
             {saving ? 'Ukládám...' : 'Vytvořit zahradu'}
           </button>
         </div>

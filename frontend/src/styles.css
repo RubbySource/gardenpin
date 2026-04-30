@@ -45,11 +45,16 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.45;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 body {
@@ -168,6 +173,74 @@ input, textarea, select {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Season page */
+.season-header {
+  background: linear-gradient(135deg, var(--green-800), var(--green-600));
+  color: #fff;
+  padding: 24px 20px 22px;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.season-header::after {
+  content: '🌿';
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  font-size: 6rem;
+  opacity: 0.12;
+  transform: rotate(15deg);
+  pointer-events: none;
+}
+.season-month {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  opacity: 0.85;
+  font-weight: 600;
+}
+.season-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-top: 4px;
+  line-height: 1.15;
+}
+.season-sub {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.season-tip {
+  border-left: 4px solid var(--green-500);
+  background: linear-gradient(180deg, var(--green-50), #fff);
+}
+.season-tip-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--green-700);
+  margin-bottom: 6px;
+}
+.season-tip-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.season-progress {
+  height: 8px;
+  background: var(--sand-dark);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.season-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-500), var(--green-700));
+  transition: width 0.3s ease;
 }
 
 /* Buttons */
@@ -339,6 +412,43 @@ input, textarea, select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.pin .pin-avatar {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  object-fit: cover;
+  background: #fff;
+  top: -22px;
+  left: 22px;
+  pointer-events: none;
+  z-index: 3;
+}
+.pin .pin-camera-btn {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgba(31, 62, 26, 0.92);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  top: -10px;
+  left: -16px;
+  z-index: 4;
+  transition: transform 0.12s;
+}
+.pin .pin-camera-btn:hover { transform: scale(1.15); }
+.pin .pin-camera-btn:disabled { opacity: 0.6; cursor: wait; }
 .pin.new .pin-body { background: var(--warning); animation: pulse 1.2s infinite; }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 2px 6px rgba(217,122,27,0.6); }
@@ -645,6 +755,503 @@ input, textarea, select {
 }
 .reminder-banner .reminder-close:hover { opacity: 1; }
 
+/* ====================================================================
+   GardenPin design language — forest green + sand
+   ==================================================================== */
+
+/* Page header — used on top of each page (welcome, title + subtitle) */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 4px 16px;
+}
+.page-header .heading {
+  flex: 1;
+  min-width: 0;
+}
+.page-header .eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+.page-header h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--charcoal);
+  margin: 0;
+  line-height: 1.15;
+}
+.page-header .subtitle {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Primary CTA — bigger, softer shadow, GardenPin style */
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: var(--primary);
+  color: #fff;
+  min-height: 48px;
+  box-shadow: 0 6px 16px rgba(45, 90, 39, 0.25);
+  transition: transform 0.05s, box-shadow 0.15s, background 0.15s;
+  cursor: pointer;
+}
+.btn-cta:hover { background: var(--green-900); box-shadow: 0 8px 22px rgba(45, 90, 39, 0.32); }
+.btn-cta:active { transform: scale(0.98); }
+.btn-cta.block { width: 100%; }
+.btn-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Hero garden card — large photo, name + counts */
+.gp-garden-card {
+  position: relative;
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 16px rgba(31, 62, 26, 0.08);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.18s;
+}
+.gp-garden-card:hover { box-shadow: 0 10px 28px rgba(31, 62, 26, 0.14); transform: translateY(-2px); }
+.gp-garden-card:active { transform: translateY(0); }
+.gp-garden-card .hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, var(--green-100), var(--green-200));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.gp-garden-card .hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gp-garden-card .hero-placeholder {
+  font-size: 4rem;
+  color: var(--green-700);
+  opacity: 0.55;
+}
+.gp-garden-card .hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+}
+.gp-garden-card .hero-meta {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  color: #fff;
+}
+.gp-garden-card .hero-meta .name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.gp-garden-card .body {
+  padding: 12px 14px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.gp-garden-card .body .meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.gp-garden-card .chevron {
+  font-size: 1.4rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* Pill badges on hero cards */
+.gp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--sand);
+  color: var(--charcoal);
+  border: 1px solid var(--border);
+}
+.gp-pill.solid { background: var(--primary); color: #fff; border-color: transparent; }
+.gp-pill.glass { background: rgba(255,255,255,0.92); color: var(--primary); border-color: transparent; backdrop-filter: blur(6px); }
+.gp-pill.warning { background: #fff3cd; color: #805200; border-color: #f5e0a3; }
+.gp-pill.danger { background: #ffe0db; color: var(--danger); border-color: #f5c8c0; }
+
+/* Empty state — illustrative */
+.gp-empty {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--sand);
+  border-radius: 20px;
+  border: 1px dashed var(--sand-dark);
+}
+.gp-empty .gp-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 12px;
+  display: block;
+}
+.gp-empty .gp-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+}
+.gp-empty .gp-empty-text {
+  color: var(--muted);
+  font-size: 0.92rem;
+  max-width: 320px;
+  margin: 0 auto 16px;
+}
+
+/* GardenPin pin row — used in detail page list */
+.gp-pin-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.05s;
+}
+.gp-pin-row:hover { box-shadow: 0 6px 16px rgba(31, 62, 26, 0.08); }
+.gp-pin-row:active { transform: scale(0.99); }
+.gp-pin-row .gp-pin-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+.gp-pin-row .gp-pin-info { flex: 1; min-width: 0; }
+.gp-pin-row .gp-pin-info .gp-pin-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--charcoal);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gp-pin-row .gp-pin-info .gp-pin-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+/* Map frame — refined wrap around the existing map-container */
+.gp-map-frame {
+  background: #fff;
+  border-radius: 20px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 20px rgba(31, 62, 26, 0.10);
+  margin-bottom: 16px;
+}
+.gp-map-frame .map-container {
+  border-radius: 14px;
+  border: none;
+}
+.gp-map-frame .map-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 8px 6px 4px;
+}
+
+/* Toolbar above map */
+.gp-toolbar {
+  background: var(--sand);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--sand-dark);
+}
+
+/* Stats row used on home dashboard */
+.gp-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+@media (min-width: 480px) {
+  .gp-stats { grid-template-columns: repeat(4, 1fr); }
+}
+.gp-stat {
+  background: var(--sand);
+  border-radius: 16px;
+  padding: 14px 12px;
+  border: 1px solid var(--sand-dark);
+}
+.gp-stat .gp-stat-icon {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+.gp-stat .gp-stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.1;
+}
+.gp-stat .gp-stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 600;
+}
+.gp-stat.alert .gp-stat-value { color: var(--danger); }
+
+/* Section heading — GardenPin style (forest, larger, w/ count chip) */
+.gp-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 22px 4px 10px;
+}
+.gp-section .gp-section-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--charcoal);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gp-section .gp-section-count {
+  background: var(--sand);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.gp-section .gp-section-link {
+  font-size: 0.85rem;
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Month group — used on TasksPage */
+.gp-month-group { margin-bottom: 18px; }
+.gp-month-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px 8px;
+  position: sticky;
+  top: calc(var(--safe-top) + 56px);
+  background: var(--bg);
+  z-index: 5;
+}
+.gp-month-header .gp-month-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.gp-month-header .gp-month-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.gp-month-header .gp-month-count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* GardenPin task card — emoji + title + chip */
+.gp-task {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: box-shadow 0.15s;
+}
+.gp-task:hover { box-shadow: 0 4px 14px rgba(31, 62, 26, 0.07); }
+.gp-task.is-overdue { border-left: 4px solid var(--danger); padding-left: 12px; }
+.gp-task.is-today { border-left: 4px solid var(--warning); padding-left: 12px; }
+.gp-task.is-done { background: var(--sand); opacity: 0.7; }
+.gp-task.is-done .gp-task-title { text-decoration: line-through; color: var(--muted); }
+.gp-task .gp-task-check {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: background 0.15s, transform 0.05s;
+}
+.gp-task .gp-task-check:hover { background: var(--green-900); }
+.gp-task .gp-task-check:active { transform: scale(0.92); }
+.gp-task .gp-task-body { flex: 1; min-width: 0; }
+.gp-task .gp-task-title {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--charcoal);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.gp-task .gp-task-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.gp-task .gp-task-chips {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Date chip — small, GardenPin style */
+.gp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--sand);
+  color: var(--charcoal);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border: 1px solid var(--sand-dark);
+}
+.gp-chip.overdue { background: #ffe0db; color: var(--danger); border-color: transparent; }
+.gp-chip.today { background: #fff3cd; color: #805200; border-color: transparent; }
+.gp-chip.week { background: var(--primary); color: #fff; border-color: transparent; }
+.gp-chip.muted { color: var(--muted); background: #fff; }
+
+/* Welcome banner — forest gradient on home */
+.gp-welcome {
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
+  color: #fff;
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.gp-welcome::after {
+  content: '🌿';
+  position: absolute;
+  right: -6px;
+  bottom: -10px;
+  font-size: 5.5rem;
+  opacity: 0.18;
+  pointer-events: none;
+}
+.gp-welcome .gp-welcome-greet {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+.gp-welcome .gp-welcome-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+.gp-welcome .gp-welcome-text {
+  font-size: 0.9rem;
+  opacity: 0.92;
+  margin-top: 6px;
+  max-width: 80%;
+}
+
+/* Tabs — slightly refined GardenPin look */
+.gp-tabs {
+  display: flex;
+  background: var(--sand);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.gp-tabs button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 10px 8px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+  min-height: 40px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.gp-tabs button.active {
+  background: #fff;
+  color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
 /* Nav badge */
 .nav-icon-wrap {
   position: relative;
@@ -667,10 +1274,203 @@ input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* PWA install prompt — banner above bottom-nav */
+.install-prompt {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(72px + var(--safe-bottom));
+  z-index: 25;
+  background: var(--green-800);
+  color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(31, 62, 26, 0.35);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+  animation: slide-up 0.28s ease-out;
+}
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.install-prompt-text { flex: 1; min-width: 0; }
+.install-prompt-title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.install-prompt-sub {
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+.ios-share-icon {
+  display: inline-block;
+  font-size: 0.95rem;
+  padding: 0 2px;
+}
+.install-prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.install-prompt-install {
+  background: #fff;
+  color: var(--green-800);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-height: unset;
+}
+.install-prompt-dismiss {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  min-height: unset;
   line-height: 1;
 }
 
-/* ── HOMEPAGE HERO ─────────────────────────────────────────── */
+/* Weather widget */
+.weather-widget {
+  background: var(--green-800);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.weather-widget-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  letter-spacing: 0.2px;
+}
+.weather-widget-loading,
+.weather-widget-error {
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 18px 12px;
+  opacity: 0.85;
+}
+.weather-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.weather-strip::-webkit-scrollbar { height: 4px; }
+.weather-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
+.weather-day {
+  flex: 0 0 auto;
+  min-width: 64px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.weather-day-label {
+  font-size: 0.72rem;
+  text-transform: capitalize;
+  opacity: 0.85;
+}
+.weather-day-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.weather-day-temps {
+  display: flex;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.weather-max { font-weight: 600; }
+.weather-min { opacity: 0.7; }
+
+/* Sdílená zahrada (veřejný read-only pohled) */
+.shared-app .main {
+  padding-bottom: 24px;
+}
+.shared-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.shared-header {
+  text-align: center;
+  padding: 20px 12px 12px;
+  background: linear-gradient(180deg, var(--green-100), transparent);
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 16px;
+}
+.shared-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  color: var(--green-800);
+}
+.shared-footer {
+  text-align: center;
+  padding: 24px 12px;
+  margin-top: 16px;
+}
+
+/* Clickable stat cards (Krok 4 dashboard) */
+.stat-card-clickable {
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.stat-card-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: var(--green-300);
+}
+.stat-card-clickable:active { transform: translateY(0); }
+.stat-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-plants .value { color: var(--green-600); }
+.stat-week .value { color: var(--earth-500); }
+.stat-overdue .value { color: var(--text-dim); }
+.stat-overdue.has-overdue {
+  background: #fdf3f1;
+  border-color: #f0c6bf;
+}
+.stat-overdue.has-overdue .value { color: var(--danger); }
+.stat-gardens .value { color: var(--green-800); }
+
+
+/* === GardenPin Design Polish additions === */
+
 .home-hero {
   background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
   border-radius: 20px;
@@ -680,6 +1480,7 @@ input, textarea, select {
   position: relative;
   overflow: hidden;
 }
+
 .home-hero::before {
   content: '';
   position: absolute;
@@ -688,6 +1489,7 @@ input, textarea, select {
   background: rgba(255,255,255,0.06);
   border-radius: 50%;
 }
+
 .home-hero::after {
   content: '';
   position: absolute;
@@ -696,24 +1498,28 @@ input, textarea, select {
   background: rgba(255,255,255,0.04);
   border-radius: 50%;
 }
+
 .home-hero .greeting {
   font-size: 0.85rem;
   opacity: 0.8;
   margin-bottom: 2px;
   font-weight: 500;
 }
+
 .home-hero .hero-title {
   font-size: 1.4rem;
   font-weight: 800;
   margin: 0 0 14px;
   line-height: 1.2;
 }
+
 .home-hero .hero-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   position: relative; z-index: 1;
 }
+
 .home-hero .hero-stat {
   background: rgba(255,255,255,0.13);
   border-radius: 12px;
@@ -721,50 +1527,29 @@ input, textarea, select {
   text-align: center;
   backdrop-filter: blur(4px);
 }
+
 .home-hero .hero-stat .val {
   font-size: 1.5rem;
   font-weight: 800;
   line-height: 1;
 }
+
 .home-hero .hero-stat .lbl {
   font-size: 0.7rem;
   opacity: 0.8;
   margin-top: 2px;
 }
-.home-hero .hero-stat .val.danger { color: #ff9999; }
+
 .home-hero .hero-stat .val.warning { color: #ffe5a0; }
 
-/* Improved stat cards */
-.stat-card-v2 {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--shadow);
-}
-.stat-card-v2 .icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
-.stat-card-v2 .info .val {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--primary);
-  line-height: 1;
-}
-.stat-card-v2 .info .lbl {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
 
-/* Quick actions */
 .quick-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 14px;
 }
+
 .quick-action-btn {
   background: var(--sand);
   border: 1px solid var(--border);
@@ -779,21 +1564,20 @@ input, textarea, select {
   text-align: left;
   min-height: 60px;
 }
-.quick-action-btn:hover { background: var(--sand-dark); box-shadow: var(--shadow); }
-.quick-action-btn .qa-icon { font-size: 1.4rem; }
+
 .quick-action-btn .qa-label {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--charcoal);
 }
 
-/* Section header */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 18px 0 10px;
 }
+
 .section-header .title {
   font-size: 1rem;
   font-weight: 700;
@@ -802,6 +1586,7 @@ input, textarea, select {
   align-items: center;
   gap: 6px;
 }
+
 .section-header .count-badge {
   background: var(--green-100);
   color: var(--primary);
@@ -810,20 +1595,21 @@ input, textarea, select {
   padding: 2px 8px;
   border-radius: 99px;
 }
+
 .section-header .count-badge.danger {
   background: #ffe0db;
   color: var(--danger);
 }
 
-/* Garden grid (2 columns on wider screens) */
 .gardens-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
-@media (min-width: 560px) {
+
   .gardens-grid { grid-template-columns: 1fr 1fr; }
 }
+
 .garden-card-v2 {
   display: flex;
   flex-direction: column;
@@ -835,8 +1621,7 @@ input, textarea, select {
   transition: box-shadow 0.15s, transform 0.05s;
   box-shadow: var(--shadow);
 }
-.garden-card-v2:hover { box-shadow: var(--shadow-lg); }
-.garden-card-v2:active { transform: scale(0.99); }
+
 .garden-card-v2 .img-wrap {
   height: 130px;
   background: linear-gradient(135deg, var(--green-100), var(--green-200));
@@ -847,28 +1632,31 @@ input, textarea, select {
   font-size: 3.5rem;
   position: relative;
 }
+
 .garden-card-v2 .img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .garden-card-v2 .card-body {
   padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .garden-card-v2 .g-name {
   font-weight: 700;
   font-size: 1rem;
   margin-bottom: 2px;
 }
+
 .garden-card-v2 .g-meta {
   font-size: 0.78rem;
   color: var(--text-dim);
 }
 
-/* Task section label */
 .tasks-day-label {
   font-size: 0.8rem;
   font-weight: 700;
@@ -878,7 +1666,6 @@ input, textarea, select {
   padding: 8px 4px 4px;
 }
 
-/* Progress bar */
 .progress-bar-wrap {
   background: var(--sand);
   border-radius: 999px;
@@ -886,6 +1673,7 @@ input, textarea, select {
   overflow: hidden;
   margin-top: 8px;
 }
+
 .progress-bar-fill {
   height: 100%;
   background: var(--primary);
@@ -893,7 +1681,6 @@ input, textarea, select {
   transition: width 0.4s ease;
 }
 
-/* About card — tester info */
 .tester-card {
   background: linear-gradient(135deg, var(--green-50), #fff);
   border: 1px solid var(--green-200);
@@ -901,7 +1688,7 @@ input, textarea, select {
   padding: 16px;
   margin-bottom: 12px;
 }
-.tester-card h3 { margin-top: 0; color: var(--primary); }
+
 .tester-card .url-box {
   background: var(--charcoal);
   color: #7eed7a;

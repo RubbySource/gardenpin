@@ -3,5 +3,7 @@ frontend/node_modules/
 backend/data/
 backend/uploads/
 backend/public/
-*.timestamp-*.mjs
+backend/.env
+.env
 .claude/
+*.timestamp-*.mjs
