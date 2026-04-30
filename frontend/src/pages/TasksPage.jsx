@@ -114,15 +114,11 @@ export default function TasksPage({ onTaskComplete }) {
             <>
               {grouped.overdue.length > 0 && (
                 <div className="gp-month-group">
-                  <div className="gp-month-header">
-                    <div
-                      className="gp-month-name"
-                      style={{ color: 'var(--danger)' }}
-                    >
+                  <div className="section-header">
+                    <div className="title" style={{ color: 'var(--danger)' }}>
                       ⚠️ Po termínu
                     </div>
-                    <div className="gp-month-line" />
-                    <div className="gp-month-count">{grouped.overdue.length}</div>
+                    <span className="count-badge danger">{grouped.overdue.length}</span>
                   </div>
                   {grouped.overdue.map((t) => (
                     <GpTaskCard
@@ -136,10 +132,9 @@ export default function TasksPage({ onTaskComplete }) {
               )}
               {grouped.months.map((g) => (
                 <div key={g.key} className="gp-month-group">
-                  <div className="gp-month-header">
-                    <div className="gp-month-name">{g.label}</div>
-                    <div className="gp-month-line" />
-                    <div className="gp-month-count">{g.items.length}</div>
+                  <div className="section-header">
+                    <div className="title">{g.label}</div>
+                    <span className="count-badge">{g.items.length}</span>
                   </div>
                   {g.items.map((t) => (
                     <GpTaskCard

@@ -69,65 +69,55 @@ export default function HomePage({ onTaskComplete }) {
 
   const monthIdx = new Date().getMonth();
   const monthTip = MONTH_TIPS[monthIdx];
+  const urgentCount = stats ? stats.overdue + stats.dueToday : 0;
+  const urgentClass = stats && stats.overdue > 0 ? 'danger' : urgentCount > 0 ? 'warning' : '';
 
   return (
     <>
-      <div className="gp-welcome">
-        <div className="gp-welcome-greet">{getGreeting()}, zahradníku</div>
-        <div className="gp-welcome-title">
+      <div className="home-hero">
+        <div className="greeting">{getGreeting()}, zahradníku</div>
+        <div className="hero-title">
           {today.length === 0
             ? 'Vše je vyřízené 🌿'
             : `Máte ${today.length} ${
                 today.length === 1 ? 'úkol dnes' : today.length < 5 ? 'úkoly dnes' : 'úkolů dnes'
               }`}
         </div>
-        <div className="gp-welcome-text">{monthTip}</div>
+        <div className="greeting" style={{ marginBottom: 14 }}>{monthTip}</div>
+        {stats && (
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <div className="val">{stats.gardens}</div>
+              <div className="lbl">Zahrady</div>
+            </div>
+            <div className="hero-stat">
+              <div className="val">{stats.pins}</div>
+              <div className="lbl">Rostliny</div>
+            </div>
+            <div className="hero-stat">
+              <div className={`val ${urgentClass}`}>{urgentCount}</div>
+              <div className="lbl">{stats.overdue > 0 ? 'Po termínu' : 'Dnes'}</div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {stats && (
-        <div className="stats-grid">
-          <button
-            type="button"
-            className="stat-card stat-card-clickable stat-plants"
-            onClick={() => nav('/zahrady')}
-          >
-            <div className="stat-icon">🌱</div>
-            <div className="value">{stats.pins}</div>
-            <div className="label">Rostlin celkem</div>
-          </button>
-          <button
-            type="button"
-            className="stat-card stat-card-clickable stat-week"
-            onClick={() => nav('/ukoly')}
-          >
-            <div className="stat-icon">📅</div>
-            <div className="value">{stats.tasksThisWeek ?? 0}</div>
-            <div className="label">Úkolů tento týden</div>
-          </button>
-          <button
-            type="button"
-            className={`stat-card stat-card-clickable stat-overdue${stats.overdue > 0 ? ' has-overdue' : ''}`}
-            onClick={() => nav('/ukoly')}
-          >
-            <div className="stat-icon">⚠️</div>
-            <div className="value">{stats.overdue}</div>
-            <div className="label">Po termínu</div>
-          </button>
-          <button
-            type="button"
-            className="stat-card stat-card-clickable stat-gardens"
-            onClick={() => nav('/zahrady')}
-          >
-            <div className="stat-icon">🗺️</div>
-            <div className="value">{stats.gardens}</div>
-            <div className="label">Zahrad</div>
-          </button>
-        </div>
-      )}
+      <div className="quick-actions">
+        <button type="button" className="quick-action-btn" onClick={() => nav('/zahrady')}>
+          <span className="qa-icon">🗺️</span>
+          <span className="qa-label">Moje zahrady</span>
+        </button>
+        <button type="button" className="quick-action-btn" onClick={() => nav('/ukoly')}>
+          <span className="qa-icon">📋</span>
+          <span className="qa-label">Všechny úkoly</span>
+        </button>
+      </div>
 
-      <div className="gp-section">
-        <div className="gp-section-title">🌞 Dnes a po termínu</div>
-        {today.length > 0 && <span className="gp-section-count">{today.length}</span>}
+      <div className="section-header">
+        <div className="title">🌞 Dnes a po termínu</div>
+        {today.length > 0 && (
+          <span className={`count-badge${stats?.overdue > 0 ? ' danger' : ''}`}>{today.length}</span>
+        )}
       </div>
       {today.length === 0 ? (
         <div className="gp-empty" style={{ padding: '24px 16px' }}>
@@ -139,11 +129,13 @@ export default function HomePage({ onTaskComplete }) {
         today.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
-      <div className="gp-section">
-        <div className="gp-section-title">📅 Nadcházející</div>
-        <Link to="/ukoly" className="gp-section-link">
-          Vše →
-        </Link>
+      <div className="section-header">
+        <div className="title">📅 Nadcházející</div>
+        {upcoming.length > 0 ? (
+          <span className="count-badge">{upcoming.length}</span>
+        ) : (
+          <Link to="/ukoly" className="gp-section-link">Vše →</Link>
+        )}
       </div>
       {upcoming.length === 0 ? (
         <div className="gp-empty" style={{ padding: '20px 16px' }}>
@@ -155,71 +147,25 @@ export default function HomePage({ onTaskComplete }) {
         upcoming.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
-      <div
+      <Link
+        to="/premium"
+        className="btn secondary"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 10,
-          marginTop: 24,
-          marginBottom: 8,
+          display: 'flex',
+          padding: '14px 12px',
+          borderRadius: 14,
+          background: 'var(--sand)',
+          color: 'var(--primary)',
+          fontWeight: 700,
+          border: '1px solid var(--sand-dark)',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          marginTop: 18,
         }}
       >
-        <Link
-          to="/zahrady"
-          className="btn secondary"
-          style={{
-            padding: '14px 12px',
-            borderRadius: 14,
-            background: 'var(--sand)',
-            color: 'var(--primary)',
-            fontWeight: 700,
-            border: '1px solid var(--sand-dark)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}
-        >
-          🗺️ Zahrady
-        </Link>
-        <Link
-          to="/ukoly"
-          className="btn secondary"
-          style={{
-            padding: '14px 12px',
-            borderRadius: 14,
-            background: 'var(--sand)',
-            color: 'var(--primary)',
-            fontWeight: 700,
-            border: '1px solid var(--sand-dark)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}
-        >
-          📋 Úkoly
-        </Link>
-        <Link
-          to="/premium"
-          className="btn secondary"
-          style={{
-            padding: '14px 12px',
-            borderRadius: 14,
-            background: 'var(--sand)',
-            color: 'var(--primary)',
-            fontWeight: 700,
-            border: '1px solid var(--sand-dark)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            gridColumn: '1 / -1',
-          }}
-        >
-          🌟 Premium
-        </Link>
-      </div>
+        🌟 Premium
+      </Link>
     </>
   );
 }

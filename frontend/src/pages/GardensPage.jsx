@@ -64,33 +64,37 @@ export default function GardensPage() {
           </button>
         </div>
       ) : (
-        gardens.map((g) => (
-          <div key={g.id} className="gp-garden-card" onClick={() => nav(`/zahrada/${g.id}`)}>
-            <div className="hero">
-              {g.image_path ? (
-                <img src={g.image_path} alt={g.name} />
-              ) : (
-                <div className="hero-placeholder">🌱</div>
-              )}
-              <div className="hero-overlay" />
-              <div className="hero-meta">
-                <div className="name">{g.name}</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  <span className="gp-pill glass">
-                    📍 {pinCounts[g.id] ?? 0}{' '}
-                    {pinCounts[g.id] === 1 ? 'pin' : 'pinů'}
-                  </span>
+        <div className="gardens-grid">
+          {gardens.map((g) => {
+            const count = pinCounts[g.id] ?? 0;
+            const pinLabel = count === 1 ? 'pin' : count >= 2 && count <= 4 ? 'piny' : 'pinů';
+            return (
+              <div
+                key={g.id}
+                className="garden-card-v2"
+                onClick={() => nav(`/zahrada/${g.id}`)}
+              >
+                <div className="img-wrap">
+                  {g.image_path ? <img src={g.image_path} alt={g.name} /> : <span>🌱</span>}
+                </div>
+                <div className="card-body">
+                  <div>
+                    <div className="g-name">{g.name}</div>
+                    <div className="g-meta">
+                      📍 {count} {pinLabel} ·{' '}
+                      {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
                 </div>
               </div>
-            </div>
-            <div className="body">
-              <div className="meta">
-                Vytvořeno {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ')}
-              </div>
-              <span className="chevron">›</span>
-            </div>
-          </div>
-        ))
+            );
+          })}
+        </div>
       )}
 
       {showNew && (

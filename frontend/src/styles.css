@@ -1540,6 +1540,7 @@ input, textarea, select {
   margin-top: 2px;
 }
 
+.home-hero .hero-stat .val.danger { color: #ff9999; }
 .home-hero .hero-stat .val.warning { color: #ffe5a0; }
 
 
@@ -1607,6 +1608,7 @@ input, textarea, select {
   gap: 10px;
 }
 
+@media (min-width: 560px) {
   .gardens-grid { grid-template-columns: 1fr 1fr; }
 }
 
