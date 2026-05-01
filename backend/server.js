@@ -263,13 +263,13 @@ app.get('/api/tasks/week', (req, res) => {
 });
 
 app.post('/api/tasks', (req, res) => {
-  const { pin_id, title, task_type, frequency_days, specific_date, notes } = req.body;
+  const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence_pattern } = req.body;
   const tmp = { specific_date, frequency_days, last_done: null };
   const next_due = computeNextDue(tmp);
   const info = db
     .prepare(
-      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       pin_id,
@@ -279,6 +279,8 @@ app.post('/api/tasks', (req, res) => {
       specific_date || null,
       next_due,
       notes || null,
+      recurring ? 1 : 0,
+      recurrence_pattern || null,
     );
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(info.lastInsertRowid);
   res.json(task);
@@ -299,10 +301,16 @@ app.put('/api/tasks/:id', (req, res) => {
   const specific_date =
     req.body.specific_date !== undefined ? req.body.specific_date || null : current.specific_date;
   const notes = req.body.notes ?? current.notes;
+  const recurring =
+    req.body.recurring !== undefined ? (req.body.recurring ? 1 : 0) : current.recurring;
+  const recurrence_pattern =
+    req.body.recurrence_pattern !== undefined
+      ? req.body.recurrence_pattern || null
+      : current.recurrence_pattern;
   const next_due = computeNextDue({ specific_date, frequency_days, last_done: current.last_done });
   db.prepare(
-    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=? WHERE id=?`,
-  ).run(title, task_type, frequency_days, specific_date, next_due, notes, id);
+    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=?, recurring=?, recurrence_pattern=? WHERE id=?`,
+  ).run(title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern, id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
 });
 
@@ -324,6 +332,19 @@ app.post('/api/tasks/:id/done', (req, res) => {
   ).run(id, task.pin_id, task.title, req.body?.notes || null);
 
   if (task.specific_date) {
+    if (task.recurring && task.recurrence_pattern === 'yearly') {
+      // Yearly recurring: posunout specific_date o rok dopředu
+      const d = new Date(task.specific_date);
+      d.setFullYear(d.getFullYear() + 1);
+      const newDate = d.toISOString().slice(0, 10);
+      db.prepare('UPDATE tasks SET last_done=?, specific_date=?, next_due=? WHERE id=?').run(
+        today,
+        newDate,
+        newDate,
+        id,
+      );
+      return res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+    }
     // One-time task: delete after completion
     db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
     return res.json({ ok: true, removed: true });
@@ -492,15 +513,18 @@ app.get('/api/export/ical', (req, res) => {
     lines.push(`DTEND;TZID=Europe/Prague:${dtend}`);
     lines.push(foldLine(`SUMMARY:${escape(summary)}`));
     if (desc) lines.push(foldLine(`DESCRIPTION:${desc}`));
-    // RRULE for recurring tasks — repeat every frequency_days days
+    // RRULE for recurring tasks
+    const isYearly = t.recurring && t.recurrence_pattern === 'yearly';
     if (t.frequency_days) {
       lines.push(`RRULE:FREQ=DAILY;INTERVAL=${t.frequency_days}`);
+    } else if (isYearly) {
+      lines.push('RRULE:FREQ=YEARLY');
     }
     // VALARM: remind 1 day before (or at 8:00 same day for one-time tasks)
     lines.push('BEGIN:VALARM');
     lines.push('ACTION:DISPLAY');
     lines.push(foldLine(`DESCRIPTION:Připomínka: ${escape(summary)}`));
-    lines.push(t.frequency_days ? 'TRIGGER:-PT24H' : 'TRIGGER:PT0S');
+    lines.push(t.frequency_days || isYearly ? 'TRIGGER:-PT24H' : 'TRIGGER:PT0S');
     lines.push('END:VALARM');
     lines.push('END:VEVENT');
   }
