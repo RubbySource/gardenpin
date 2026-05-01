@@ -10,6 +10,13 @@ const db = require('./db');
 let sharp;
 try { sharp = require('sharp'); } catch { sharp = null; }
 
+// Web Push — optional (pokud web-push není nainstalován, push se vypne)
+let push;
+try { push = require('./push'); } catch (e) {
+  console.warn('Web Push není dostupný:', e.message);
+  push = null;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -404,6 +411,46 @@ app.post('/api/gardens/:id/upscale', async (req, res) => {
   }
 });
 
+// ======================= WEB PUSH =======================
+app.get('/api/push/vapid-public-key', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  res.json({ publicKey: push.getPublicKey() });
+});
+
+app.post('/api/push/subscribe', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  try {
+    push.saveSubscription(req.body);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/push/unsubscribe', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  const endpoint = req.body?.endpoint;
+  if (!endpoint) return res.status(400).json({ error: 'endpoint je povinný' });
+  push.deleteSubscription(endpoint);
+  res.json({ ok: true });
+});
+
+// Posílá push všem odběratelům. Bez body posílá denní souhrn (stejný jako cron).
+app.post('/api/push/send', async (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  try {
+    const payload =
+      req.body && req.body.title
+        ? { title: req.body.title, body: req.body.body || '', url: req.body.url || '/' }
+        : push.buildDailyDigest();
+    if (!payload) return res.json({ skipped: true, reason: 'Žádné úkoly na dnes/zítra' });
+    const stats = await push.sendToAll(payload);
+    res.json(stats);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ======================= WEATHER =======================
 // Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
 app.get('/api/weather', async (req, res) => {
@@ -561,4 +608,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Zahradní tracker běží na http://localhost:${PORT}`);
+  if (push) push.startDailyCron();
 });
