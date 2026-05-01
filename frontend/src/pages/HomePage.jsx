@@ -1,7 +1,8 @@
-// Home / dashboard — GardenPin design: welcome banner, stats, upcoming tasks
+// Home / dashboard — GardenPin design: personal greeting, garden cards, tasks, FAB
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import NewGardenModal from '../components/NewGardenModal.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -21,6 +22,9 @@ const MONTH_TIPS = [
   'Plánujte sezónu ve své kuchyni',
 ];
 
+const USER_NAME_KEY = 'gardenpin.userName';
+const DEFAULT_NAME = 'Patriku';
+
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 6) return 'Dobrou noc';
@@ -33,17 +37,41 @@ export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [stats, setStats] = useState(null);
+  const [gardens, setGardens] = useState([]);
+  const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
   const [loading, setLoading] = useState(true);
+  const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
+
+  const userName = localStorage.getItem(USER_NAME_KEY) || DEFAULT_NAME;
 
   const load = async () => {
     try {
-      const [t, w, s] = await Promise.all([api.todayTasks(), api.weekTasks(), api.stats()]);
+      const [t, w, s, gs] = await Promise.all([
+        api.todayTasks(),
+        api.weekTasks(),
+        api.stats(),
+        api.listGardens(),
+      ]);
       setToday(t);
-      // Top 3 nadcházející (kromě "dnes a po termínu")
       const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
       setStats(s);
+      setGardens(gs);
+
+      // Load per-garden plant counts (pins) in parallel
+      const pinResults = await Promise.all(
+        gs.map((g) =>
+          api.listPins(g.id).then((pins) => [g.id, pins.length]).catch(() => [g.id, 0]),
+        ),
+      );
+      const allWeekTasks = w.tasks || [];
+      const stat = {};
+      for (const [gid, plantCount] of pinResults) {
+        const upcomingCount = allWeekTasks.filter((task) => task.garden_id === gid).length;
+        stat[gid] = { plantCount, upcomingCount };
+      }
+      setGardenStats(stat);
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -75,16 +103,23 @@ export default function HomePage({ onTaskComplete }) {
 
   return (
     <>
-      <div className="home-hero">
-        <div className="greeting">{getGreeting()}, zahradníku</div>
+      {/* Personal greeting hero */}
+      <div className="home-hero greeting-hero">
+        <div className="greeting">{getGreeting()}, {userName} 🌿</div>
         <div className="hero-title">
           {today.length === 0
-            ? 'Vše je vyřízené 🌿'
+            ? 'Vše je vyřízené'
             : `Máte ${today.length} ${
                 today.length === 1 ? 'úkol dnes' : today.length < 5 ? 'úkoly dnes' : 'úkolů dnes'
               }`}
         </div>
-        <div className="greeting" style={{ marginBottom: 14 }}>{monthTip}</div>
+        <div className="hero-sub">
+          {gardens.length === 0
+            ? 'Začněte svou první zahradu'
+            : `${gardens.length} ${gardens.length === 1 ? 'zahrada' : gardens.length < 5 ? 'zahrady' : 'zahrad'}`}
+          {stats?.pins > 0 && ` · ${stats.pins} rostlin`}
+          {monthTip && ` · ${monthTip}`}
+        </div>
         {stats && (
           <div className="hero-stats hero-stats-4">
             <div className="hero-stat">
@@ -109,17 +144,64 @@ export default function HomePage({ onTaskComplete }) {
         )}
       </div>
 
-      <div className="quick-actions">
-        <button type="button" className="quick-action-btn" onClick={() => nav('/zahrady')}>
-          <span className="qa-icon">🗺️</span>
-          <span className="qa-label">Moje zahrady</span>
-        </button>
-        <button type="button" className="quick-action-btn" onClick={() => nav('/ukoly')}>
-          <span className="qa-icon">📋</span>
-          <span className="qa-label">Všechny úkoly</span>
-        </button>
-      </div>
+      {/* Garden cards */}
+      {gardens.length > 0 ? (
+        <>
+          <div className="section-header">
+            <div className="title">🗺️ Moje zahrady</div>
+            <Link to="/zahrady" className="gp-section-link">Vše →</Link>
+          </div>
+          <div className="gardens-grid">
+            {gardens.map((g) => {
+              const gs = gardenStats[g.id] || { plantCount: 0, upcomingCount: 0 };
+              return (
+                <div
+                  key={g.id}
+                  className="garden-card-v2 with-stats"
+                  onClick={() => nav(`/zahrada/${g.id}`)}
+                >
+                  <div className="img-wrap">
+                    {g.image_path ? <img src={g.image_path} alt={g.name} /> : <span>🌱</span>}
+                    <div className="card-stats-overlay">
+                      <span className="stat-chip">
+                        <span className="ic">🌱</span> {gs.plantCount}
+                      </span>
+                      <span className={`stat-chip ${gs.upcomingCount > 0 ? 'accent' : ''}`}>
+                        <span className="ic">📅</span> {gs.upcomingCount}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    <div>
+                      <div className="g-name">{g.name}</div>
+                      <div className="g-meta">
+                        {gs.plantCount === 0
+                          ? 'Žádné rostliny'
+                          : `${gs.plantCount} rostlin${gs.plantCount === 1 ? 'a' : gs.plantCount < 5 ? 'y' : ''}`}
+                        {gs.upcomingCount > 0 && ` · ${gs.upcomingCount} úkol${gs.upcomingCount === 1 ? '' : gs.upcomingCount < 5 ? 'y' : 'ů'}`}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <div className="gp-empty" style={{ padding: '24px 16px' }}>
+          <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🌻</span>
+          <div className="gp-empty-title">Začněte svou první zahradu</div>
+          <div className="gp-empty-text">
+            Přidejte fotografii zahrady, přidejte rostliny a sledujte péči o ně.
+          </div>
+          <button className="btn-cta" onClick={() => setShowNew(true)}>
+            + Vytvořit zahradu
+          </button>
+        </div>
+      )}
 
+      {/* Today + overdue */}
       <div className="section-header">
         <div className="title">🌞 Dnes a po termínu</div>
         {today.length > 0 && (
@@ -136,6 +218,7 @@ export default function HomePage({ onTaskComplete }) {
         today.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
+      {/* Upcoming */}
       <div className="section-header">
         <div className="title">📅 Nadcházející</div>
         {upcoming.length > 0 ? (
@@ -173,6 +256,27 @@ export default function HomePage({ onTaskComplete }) {
       >
         🌟 Premium
       </Link>
+
+      {/* FAB — new garden */}
+      <button
+        className="floating-fab"
+        onClick={() => setShowNew(true)}
+        aria-label="Nová zahrada"
+        title="Nová zahrada"
+      >
+        +
+      </button>
+
+      {showNew && (
+        <NewGardenModal
+          onClose={() => setShowNew(false)}
+          onCreated={(g) => {
+            setShowNew(false);
+            toast('✅ Zahrada vytvořena');
+            nav(`/zahrada/${g.id}`);
+          }}
+        />
+      )}
     </>
   );
 }
