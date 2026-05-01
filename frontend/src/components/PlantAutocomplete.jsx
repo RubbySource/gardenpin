@@ -38,6 +38,8 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
       frequency_days: null,
       specific_date: `${targetYear}-${m}-15`,
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
+      recurring: true,
+      recurrence_pattern: 'yearly',
     });
   });
   return out;
