@@ -61,6 +61,30 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+
+  // Weather
+  weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
+
+  // Push
+  pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
+  pushSubscribe: (subscription) =>
+    jsonFetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription),
+    }),
+  pushUnsubscribe: (endpoint) =>
+    jsonFetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    }),
+  pushSendTest: () =>
+    jsonFetch('/api/push/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: '🌿 Test notifikace', body: 'Funguje to!' }),
+    }),
 };
 
 async function handle(res) {

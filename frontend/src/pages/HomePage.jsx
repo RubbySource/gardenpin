@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import TaskItem from '../components/TaskItem.jsx';
+import WeatherWidget from '../components/WeatherWidget.jsx';
 import { toast } from '../App.jsx';
 
 export default function HomePage({ onTaskComplete }) {
@@ -79,6 +80,9 @@ export default function HomePage({ onTaskComplete }) {
           </div>
         )}
       </div>
+
+      {/* Weather */}
+      <WeatherWidget />
 
       {/* Quick actions */}
       <div className="quick-actions">

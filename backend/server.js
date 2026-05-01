@@ -404,6 +404,25 @@ app.post('/api/gardens/:id/upscale', async (req, res) => {
   }
 });
 
+// ======================= WEATHER =======================
+// Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
+app.get('/api/weather', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lon = parseFloat(req.query.lon);
+  if (Number.isNaN(lat) || Number.isNaN(lon)) {
+    return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
+  }
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe%2FPrague`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });
+    const data = await r.json();
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
 // ======================= ICAL EXPORT =======================
 app.get('/api/export/ical', (req, res) => {
   const tasks = db.prepare(
