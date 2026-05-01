@@ -9,6 +9,7 @@ import {
   unsubscribePush,
   getCurrentSubscription,
 } from '../push.js';
+import PremiumBadge from '../components/PremiumBadge.jsx';
 
 export default function SettingsPage() {
   const [notifStatus, setNotifStatus] = useState(
@@ -89,6 +90,8 @@ export default function SettingsPage() {
   return (
     <>
       <h2 className="section-title">⚙️ Nastavení</h2>
+
+      <PremiumBadge />
 
       <div className="card">
         <h3 style={{ marginTop: 0 }}>🔔 Notifikace</h3>

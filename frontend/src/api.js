@@ -91,6 +91,15 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: '🌿 Test notifikace', body: 'Funguje to!' }),
     }),
+
+  // Stripe Premium
+  stripeStatus: () => jsonFetch('/api/stripe/status'),
+  stripeCreateCheckout: () =>
+    jsonFetch('/api/stripe/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    }),
 };
 
 async function handle(res) {

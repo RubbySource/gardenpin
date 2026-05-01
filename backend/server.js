@@ -1,10 +1,12 @@
 // Main Express server for Zahradní tracker
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
+const stripeRoutes = require('./routes/stripeRoutes');
 
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
@@ -43,8 +45,15 @@ const upload = multer({
 });
 
 app.use(cors());
+
+// Stripe webhook MUSÍ být před express.json() — ověřuje signature na raw body
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeRoutes.webhookHandler);
+
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
+
+// Ostatní Stripe routes po json parseru
+app.use('/api/stripe', stripeRoutes.router);
 
 // Serve built frontend (production)
 const publicDir = path.join(__dirname, 'public');
