@@ -126,7 +126,7 @@ input, textarea, select {
   background: #fff;
   border-top: 1px solid var(--border);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   padding-bottom: var(--safe-bottom);
   z-index: 20;
   box-shadow: 0 -2px 12px rgba(0,0,0,0.05);
@@ -1758,4 +1758,152 @@ input, textarea, select {
 .gp-empty svg {
   margin: 0 auto 12px;
   display: block;
+}
+/* Seasonal calendar */
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.calendar-year-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2px;
+}
+.calendar-year-switch .btn.ghost.small {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.calendar-year-label {
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 56px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+.calendar-garden-select {
+  flex: 1;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: var(--charcoal);
+  font-weight: 600;
+  min-height: 40px;
+}
+.months-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 560px) {
+  .months-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 900px) {
+  .months-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.month-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+.month-card.empty-month {
+  background: var(--sand);
+  box-shadow: none;
+}
+.month-card.current {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--green-100), var(--shadow);
+}
+.month-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.month-card.empty-month .month-header { border-bottom-color: var(--sand-dark); }
+.month-emoji { font-size: 1.2rem; }
+.month-name {
+  font-weight: 700;
+  color: var(--charcoal);
+  flex: 1;
+}
+.month-card.current .month-name { color: var(--primary); }
+.month-count {
+  background: var(--green-100);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.month-empty {
+  padding: 4px 0;
+  text-align: center;
+  opacity: 0.6;
+}
+.month-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.month-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--sand);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.month-task:hover { background: var(--sand-dark); }
+.month-task-day {
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 26px;
+  font-size: 0.85rem;
+  padding-top: 1px;
+}
+.month-task-icon {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.month-task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.month-task-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.month-task-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
