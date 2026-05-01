@@ -381,32 +381,16 @@ export default function GardenDetailPage() {
             </div>
           ) : (
             pins.map((p) => (
-              <div
+              <PlantRow
                 key={p.id}
-                className="garden-card"
-                onClick={() => setEditingPinId(p.id)}
-              >
-                {p.photo_path ? (
-                  <img src={p.photo_path} alt="" className="thumb" />
-                ) : (
-                  <div
-                    className="thumb thumb-placeholder"
-                    style={{ background: (p.color || '#4a7c3a') + '33', color: p.color || '#4a7c3a' }}
-                  >
-                    🌱
-                  </div>
-                )}
-                <div className="details">
-                  <div className="name">{p.name}</div>
-                  {p.plant_name && <div className="meta">🌿 {p.plant_name}</div>}
-                  {p.planting_date && (
-                    <div className="meta">
-                      📅 Vysazeno {new Date(p.planting_date).toLocaleDateString('cs-CZ')}
-                    </div>
-                  )}
-                </div>
-                <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
-              </div>
+                pin={p}
+                onOpen={() => setEditingPinId(p.id)}
+                onPhotoUpdated={(photoPath) =>
+                  setPins((prev) =>
+                    prev.map((x) => (x.id === p.id ? { ...x, photo_path: photoPath } : x)),
+                  )
+                }
+              />
             ))
           )}
         </>
@@ -450,6 +434,79 @@ export default function GardenDetailPage() {
         />
       )}
     </>
+  );
+}
+
+function PlantRow({ pin, onOpen, onPhotoUpdated }) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
+
+  const handleFile = async (e) => {
+    e.stopPropagation();
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(new Error('Nelze načíst soubor'));
+        r.readAsDataURL(file);
+      });
+      const out = await api.setPinPhoto(pin.id, dataUrl);
+      onPhotoUpdated(out.photo_path);
+      toast('✅ Fotka uložena');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const openPicker = (e) => {
+    e.stopPropagation();
+    fileRef.current?.click();
+  };
+
+  return (
+    <div className="garden-card" onClick={onOpen}>
+      {pin.photo_path ? (
+        <img src={pin.photo_path} alt="" className="plant-avatar" />
+      ) : (
+        <div
+          className="plant-avatar plant-avatar-placeholder"
+          style={{ background: (pin.color || '#4a7c3a') + '22', color: pin.color || '#4a7c3a' }}
+        >
+          🌿
+        </div>
+      )}
+      <div className="details">
+        <div className="name">{pin.name}</div>
+        {pin.plant_name && <div className="meta">🌿 {pin.plant_name}</div>}
+        {pin.planting_date && (
+          <div className="meta">
+            📅 Vysazeno {new Date(pin.planting_date).toLocaleDateString('cs-CZ')}
+          </div>
+        )}
+        <button
+          type="button"
+          className="btn ghost small mt-1"
+          onClick={openPicker}
+          disabled={uploading}
+        >
+          {uploading ? '⏳ Nahrávám…' : pin.photo_path ? '📷 Změnit foto' : '📷 Přidat foto'}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleFile}
+        />
+      </div>
+      <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
+    </div>
   );
 }
 

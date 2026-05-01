@@ -230,6 +230,58 @@ app.delete('/api/pins/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// Base64 photo upload — přijme data URL, ořízne přes Sharp na max 800px, uloží do uploads/.
+app.put('/api/pins/:id/photo', async (req, res) => {
+  const id = req.params.id;
+  const pin = db.prepare('SELECT * FROM pins WHERE id = ?').get(id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+
+  const { photo } = req.body || {};
+  if (!photo || typeof photo !== 'string') {
+    return res.status(400).json({ error: 'Chybí pole photo (data URL)' });
+  }
+  const m = photo.match(/^data:image\/(\w+);base64,(.+)$/);
+  if (!m) return res.status(400).json({ error: 'Neplatný formát — očekávám data:image/...;base64,...' });
+  const buf = Buffer.from(m[2], 'base64');
+
+  try {
+    const filename = Date.now() + '-' + Math.round(Math.random() * 1e9) + '.jpg';
+    const dest = path.join(uploadsDir, filename);
+    if (sharp) {
+      await sharp(buf)
+        .rotate() // respektuj EXIF orientaci
+        .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toFile(dest);
+    } else {
+      // Fallback bez Sharp: ulož raw buffer (bez resize)
+      fs.writeFileSync(dest, buf);
+    }
+
+    if (pin.photo_path) {
+      const old = path.join(__dirname, pin.photo_path);
+      if (fs.existsSync(old)) fs.unlinkSync(old);
+    }
+    const photoPath = '/uploads/' + filename;
+    db.prepare('UPDATE pins SET photo_path = ? WHERE id = ?').run(photoPath, id);
+    res.json({ ok: true, photo_path: photoPath });
+  } catch (e) {
+    res.status(500).json({ error: 'Chyba při zpracování fotky: ' + e.message });
+  }
+});
+
+app.get('/api/pins/:id/photo', (req, res) => {
+  const pin = db.prepare('SELECT photo_path FROM pins WHERE id = ?').get(req.params.id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  if (!pin.photo_path) return res.json({ photo: null });
+  const p = path.join(__dirname, pin.photo_path);
+  if (!fs.existsSync(p)) return res.json({ photo: null });
+  const ext = path.extname(p).toLowerCase().replace('.', '') || 'jpeg';
+  const mime = ext === 'jpg' ? 'jpeg' : ext;
+  const buf = fs.readFileSync(p);
+  res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
+});
+
 // ======================= TASKS =======================
 app.get('/api/tasks', (req, res) => {
   // All tasks with related pin + garden data

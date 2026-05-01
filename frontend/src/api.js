@@ -25,6 +25,12 @@ export const api = {
   updatePin: (id, formData) =>
     fetch(`/api/pins/${id}`, { method: 'PUT', body: formData }).then(handle),
   deletePin: (id) => jsonFetch(`/api/pins/${id}`, { method: 'DELETE' }),
+  setPinPhoto: (id, dataUrl) =>
+    jsonFetch(`/api/pins/${id}/photo`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo: dataUrl }),
+    }),
 
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),
