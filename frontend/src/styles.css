@@ -1711,6 +1711,47 @@ input, textarea, select {
 .home-hero .hero-stats-4 .hero-stat .lbl { font-size: 0.62rem; }
 .home-hero .hero-stat .val.success { color: #b8f0a0; }
 
+/* Personal greeting hero variant */
+.home-hero.greeting-hero .hero-title {
+  font-size: 1.55rem;
+  margin-bottom: 6px;
+}
+.home-hero .hero-sub {
+  font-size: 0.92rem;
+  opacity: 0.85;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+/* Stats overlay on garden card thumbnails */
+.garden-card-v2.with-stats .img-wrap { position: relative; }
+.garden-card-v2 .card-stats-overlay {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 1;
+}
+.garden-card-v2 .stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--charcoal);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.garden-card-v2 .stat-chip .ic { font-size: 0.85rem; }
+.garden-card-v2 .stat-chip.accent {
+  background: var(--primary);
+  color: #fff;
+}
+
 /* === Swipe-to-complete on .gp-task (mobile) === */
 .gp-task-wrap {
   position: relative;
