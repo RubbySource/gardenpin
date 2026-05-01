@@ -59,7 +59,17 @@ function computeNextDue(task) {
 
 // ======================= GARDENS =======================
 app.get('/api/gardens', (req, res) => {
-  const rows = db.prepare('SELECT * FROM gardens ORDER BY created_at DESC').all();
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = db
+    .prepare(
+      `SELECT g.*,
+        (SELECT COUNT(*) FROM pins WHERE garden_id = g.id) AS pin_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id) AS task_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id AND t.next_due <= ?) AS urgent_count
+       FROM gardens g
+       ORDER BY g.created_at DESC`,
+    )
+    .all(today);
   res.json(rows);
 });
 

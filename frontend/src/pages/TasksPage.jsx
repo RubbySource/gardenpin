@@ -1,22 +1,60 @@
-// All tasks page — GardenPin design: měsíce + chip pro datum
-import React, { useEffect, useMemo, useState } from 'react';
+// All tasks page with month grouping + filters
+import React, { useEffect, useState, useMemo } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
-import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
-import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
+import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
 
-const MONTH_NAMES_CZ = [
-  'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
-  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec',
+const MONTH_NAMES = [
+  'Leden',
+  'Únor',
+  'Březen',
+  'Duben',
+  'Květen',
+  'Červen',
+  'Červenec',
+  'Srpen',
+  'Září',
+  'Říjen',
+  'Listopad',
+  'Prosinec',
 ];
+
+function monthKey(dateStr) {
+  if (!dateStr) return 'unknown';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return 'unknown';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthLabel(key) {
+  if (key === 'unknown') return 'Bez termínu';
+  const [y, m] = key.split('-');
+  const monthIdx = parseInt(m, 10) - 1;
+  const now = new Date();
+  const isCurrent =
+    parseInt(y, 10) === now.getFullYear() && monthIdx === now.getMonth();
+  const yearLabel = parseInt(y, 10) === now.getFullYear() ? '' : ` ${y}`;
+  return (isCurrent ? 'Tento měsíc · ' : '') + MONTH_NAMES[monthIdx] + yearLabel;
+}
+
+function groupByMonth(items, getDate) {
+  const groups = new Map();
+  items.forEach((it) => {
+    const key = monthKey(getDate(it));
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(it);
+  });
+  return Array.from(groups.entries());
+}
 
 export default function TasksPage({ onTaskComplete }) {
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('upcoming');
+  const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
   const [openPin, setOpenPin] = useState(null);
+  const [completingIds, setCompletingIds] = useState(new Set());
 
   const load = async () => {
     try {
@@ -34,188 +72,173 @@ export default function TasksPage({ onTaskComplete }) {
   }, []);
 
   const completeTask = async (t) => {
+    if (completingIds.has(t.id)) return;
+    setCompletingIds((s) => new Set(s).add(t.id));
     try {
+      await new Promise((r) => setTimeout(r, 280));
       await api.completeTask(t.id);
       toast('✅ Hotovo');
-      load();
+      await load();
       onTaskComplete?.();
     } catch (e) {
       toast('Chyba: ' + e.message);
+    } finally {
+      setCompletingIds((s) => {
+        const next = new Set(s);
+        next.delete(t.id);
+        return next;
+      });
     }
   };
 
-  // Seskupit úkoly po měsíci, plus extra "Po termínu" sekce
-  const grouped = useMemo(() => {
-    const overdue = [];
-    const byMonth = new Map(); // 'YYYY-MM' → { label, year, month, items }
-    for (const t of tasks) {
-      const days = daysFromToday(t.next_due);
-      if (days !== null && days < 0) {
-        overdue.push(t);
-        continue;
-      }
-      if (!t.next_due) continue;
-      const d = new Date(t.next_due);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (!byMonth.has(key)) {
-        byMonth.set(key, {
-          key,
-          label: `${MONTH_NAMES_CZ[d.getMonth()]} ${d.getFullYear()}`,
-          items: [],
-        });
-      }
-      byMonth.get(key).items.push(t);
-    }
-    return { overdue, months: Array.from(byMonth.values()) };
-  }, [tasks]);
+  const overdueCount = tasks.filter((t) => daysFromToday(t.next_due) < 0).length;
+  const todayCount = tasks.filter((t) => daysFromToday(t.next_due) === 0).length;
+  const urgentCount = overdueCount + todayCount;
 
-  if (loading) return <div className="empty">Načítám...</div>;
+  const visibleTasks = useMemo(() => {
+    if (filter === 'all') return tasks;
+    if (filter === 'thisMonth') {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      return tasks.filter((t) => {
+        if (!t.next_due) return false;
+        const d = new Date(t.next_due);
+        return d.getFullYear() === y && d.getMonth() === m;
+      });
+    }
+    return [];
+  }, [tasks, filter]);
+
+  const taskGroups = useMemo(() => {
+    if (filter === 'done') return [];
+    return groupByMonth(visibleTasks, (t) => t.next_due).sort(
+      ([a], [b]) => a.localeCompare(b),
+    );
+  }, [visibleTasks, filter]);
+
+  const historyGroups = useMemo(() => {
+    if (filter !== 'done') return [];
+    return groupByMonth(history, (h) => h.done_at).sort(
+      ([a], [b]) => b.localeCompare(a),
+    );
+  }, [history, filter]);
+
+  if (loading) return <div className="empty">🌱 Načítám...</div>;
 
   return (
     <>
-      <div className="page-header">
-        <div className="heading">
-          <div className="eyebrow">📋 Plánovač</div>
-          <h1>Sezónní úkoly</h1>
-          <div className="subtitle">
-            {tasks.length === 0
-              ? 'Vše hotovo'
-              : `${tasks.length} ${tasks.length === 1 ? 'úkol' : tasks.length < 5 ? 'úkoly' : 'úkolů'} celkem`}
+      <div className="tasks-hero">
+        <div className="tasks-hero-row">
+          <div>
+            <div className="tasks-hero-eyebrow">📋 Úkoly</div>
+            <div className="tasks-hero-title">
+              {urgentCount > 0
+                ? `${urgentCount} ${urgentCount === 1 ? 'úkol' : urgentCount < 5 ? 'úkoly' : 'úkolů'} čeká`
+                : tasks.length > 0
+                ? 'Vše pod kontrolou 🌿'
+                : 'Žádné úkoly'}
+            </div>
+          </div>
+          {urgentCount > 0 && (
+            <div className="tasks-hero-urgent">
+              <div className="val">{urgentCount}</div>
+              <div className="lbl">naléhavé</div>
+            </div>
+          )}
+        </div>
+        <div className="tasks-hero-stats">
+          <div className="tasks-hero-stat">
+            <div className="val">{tasks.length}</div>
+            <div className="lbl">Naplánováno</div>
+          </div>
+          <div className="tasks-hero-stat">
+            <div className={`val ${overdueCount > 0 ? 'danger' : ''}`}>{overdueCount}</div>
+            <div className="lbl">Po termínu</div>
+          </div>
+          <div className="tasks-hero-stat">
+            <div className="val">{history.length}</div>
+            <div className="lbl">Hotovo</div>
           </div>
         </div>
       </div>
 
-      <div className="gp-tabs">
+      <div className="filter-pills">
         <button
-          className={tab === 'upcoming' ? 'active' : ''}
-          onClick={() => setTab('upcoming')}
+          className={`filter-pill ${filter === 'thisMonth' ? 'active' : ''}`}
+          onClick={() => setFilter('thisMonth')}
         >
-          Nadcházející ({tasks.length})
+          Tento měsíc
         </button>
         <button
-          className={tab === 'history' ? 'active' : ''}
-          onClick={() => setTab('history')}
+          className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
+          onClick={() => setFilter('all')}
         >
-          Historie ({history.length})
+          Vše {tasks.length > 0 && <span className="pill-count">{tasks.length}</span>}
+        </button>
+        <button
+          className={`filter-pill ${filter === 'done' ? 'active' : ''}`}
+          onClick={() => setFilter('done')}
+        >
+          Dokončené {history.length > 0 && <span className="pill-count">{history.length}</span>}
         </button>
       </div>
 
-      {tab === 'upcoming' && (
-        <>
-          {tasks.length === 0 ? (
-            <div className="gp-empty">
-              <span className="gp-empty-icon">🌱</span>
-              <div className="gp-empty-title">Žádné úkoly na dnešek 🌱</div>
-              <div className="gp-empty-text">
-                Užijte si den! Když budete mít chvilku, projděte se po zahradě a podívejte se,
-                jestli se někde něco nezměnilo.
-              </div>
-            </div>
-          ) : (
-            <>
-              {grouped.overdue.length > 0 && (
-                <div className="gp-month-group">
-                  <div className="section-header">
-                    <div className="title" style={{ color: 'var(--danger)' }}>
-                      ⚠️ Po termínu
-                    </div>
-                    <span className="count-badge danger">{grouped.overdue.length}</span>
-                  </div>
-                  {grouped.overdue.map((t) => (
-                    <GpTaskCard
-                      key={t.id}
-                      task={t}
-                      onComplete={completeTask}
-                      onClick={() => setOpenPin(t.pin_id)}
-                    />
-                  ))}
-                </div>
-              )}
-              {grouped.months.map((g) => (
-                <div key={g.key} className="gp-month-group">
-                  <div className="section-header">
-                    <div className="title">{g.label}</div>
-                    <span className="count-badge">{g.items.length}</span>
-                  </div>
-                  {g.items.map((t) => (
-                    <GpTaskCard
-                      key={t.id}
-                      task={t}
-                      onComplete={completeTask}
-                      onClick={() => setOpenPin(t.pin_id)}
-                    />
-                  ))}
-                </div>
-              ))}
-            </>
-          )}
-        </>
+      {filter !== 'done' && taskGroups.length === 0 && (
+        <div className="card empty">
+          <div className="icon">🌼</div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>
+            {filter === 'thisMonth' ? 'Žádné úkoly tento měsíc' : 'Žádné úkoly'}
+          </div>
+          <div className="small muted">Přidejte je v detailu místa v zahradě.</div>
+        </div>
       )}
 
-      {tab === 'history' && (
-        <>
-          {history.length === 0 ? (
-            <div className="gp-empty">
-              <span className="gp-empty-icon">📖</span>
-              <div className="gp-empty-title">Zatím žádná historie</div>
-              <div className="gp-empty-text">
-                Po dokončení úkolů se zde objeví záznam o péči.
-              </div>
+      {filter !== 'done' &&
+        taskGroups.map(([key, items]) => (
+          <div key={key} className="task-month-group">
+            <div className="task-month-header">
+              <span className="task-month-name">{monthLabel(key)}</span>
+              <span className="task-month-count">{items.length}</span>
             </div>
-          ) : (
-            history.map((h) => (
-              <div
-                key={h.id}
-                className="gp-task is-done"
-                onClick={() => setOpenPin(h.pin_id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1rem',
-                    flexShrink: 0,
-                    opacity: 0.7,
-                  }}
-                >
-                  ✓
-                </div>
-                <div className="gp-task-body">
-                  <div className="gp-task-title">{h.action}</div>
-                  <div className="gp-task-meta">
-                    {h.pin_name}
-                    {h.plant_name ? ` · ${h.plant_name}` : ''}
-                    {' · 🗺️ '}
-                    {h.garden_name}
-                  </div>
-                  {h.notes && (
-                    <div className="gp-task-meta" style={{ marginTop: 4 }}>
-                      {h.notes}
-                    </div>
-                  )}
-                  <div className="gp-task-chips">
-                    <span className="gp-chip muted">
-                      {new Date(h.done_at + 'Z').toLocaleString('cs-CZ', {
-                        day: 'numeric',
-                        month: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </>
+            <div className="task-month-body">
+              {items.map((t) => (
+                <TaskRow
+                  key={t.id}
+                  task={t}
+                  completing={completingIds.has(t.id)}
+                  onComplete={() => completeTask(t)}
+                  onOpen={() => setOpenPin(t.pin_id)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+      {filter === 'done' && historyGroups.length === 0 && (
+        <div className="card empty">
+          <div className="icon">📭</div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>Zatím žádná historie péče</div>
+          <div className="small muted">
+            Až dokončíte první úkol, objeví se tady.
+          </div>
+        </div>
       )}
+
+      {filter === 'done' &&
+        historyGroups.map(([key, items]) => (
+          <div key={key} className="task-month-group">
+            <div className="task-month-header">
+              <span className="task-month-name">{monthLabel(key)}</span>
+              <span className="task-month-count">{items.length}</span>
+            </div>
+            <div className="task-month-body">
+              {items.map((h) => (
+                <DoneRow key={h.id} item={h} onOpen={() => setOpenPin(h.pin_id)} />
+              ))}
+            </div>
+          </div>
+        ))}
 
       {openPin && (
         <PinDetail
@@ -230,67 +253,69 @@ export default function TasksPage({ onTaskComplete }) {
   );
 }
 
-// GardenPin task karta — emoji + název + zahrada + chip s datem
-function GpTaskCard({ task, onComplete, onClick }) {
+function TaskRow({ task, completing, onComplete, onOpen }) {
   const badge = dueBadge(task.next_due);
-  const days = daysFromToday(task.next_due);
-  const stateClass =
-    days !== null && days < 0
-      ? 'is-overdue'
-      : days === 0
-      ? 'is-today'
-      : '';
-
-  // Title typically already has emoji prefix from buildSeasonalTaskPayloads, but if not — fallback
-  const cleanTitle = task.title;
-  const fallbackEmoji = taskIcon(task.task_type);
-  const { handlers, itemStyle, triggered } = useSwipeToComplete(() => onComplete?.(task));
-
+  const cls = badge ? badge.cls : '';
   return (
-    <div className="gp-task-wrap">
-      <div className={`gp-task-swipe-bg ${triggered ? 'triggered' : ''}`} aria-hidden="true">
-        <span className="swipe-icon">{triggered ? '✅' : '✓'}</span>
-        <span className="swipe-label">{triggered ? 'Pustit pro hotovo' : 'Posuňte →'}</span>
-      </div>
-      <div
-        className={`gp-task ${stateClass} ${triggered ? 'is-triggered' : ''}`}
-        style={itemStyle}
-        {...handlers}
+    <div className={`task-row ${cls} ${completing ? 'completing' : ''}`}>
+      <button
+        className={`task-checkbox ${completing ? 'checked' : ''}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onComplete();
+        }}
+        aria-label="Označit jako hotové"
+        title="Označit jako hotové"
       >
-        <button
-          className="gp-task-check"
-          onClick={(e) => {
-            e.stopPropagation();
-            onComplete?.(task);
-          }}
-          aria-label="Označit jako hotové"
-          title="Označit jako hotové"
-        >
-          ✓
-        </button>
-        <div
-          className="gp-task-body"
-          onClick={onClick}
-          style={{ cursor: onClick ? 'pointer' : 'default' }}
-        >
-          <div className="gp-task-title">
-            {!/^[^\w\s]/u.test(cleanTitle) && <span>{fallbackEmoji}</span>}
-            <span>{cleanTitle}</span>
-          </div>
-          <div className="gp-task-meta">
-            🌿 {task.pin_name}
-            {task.plant_name ? ` · ${task.plant_name}` : ''}
-            {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
-          </div>
-          <div className="gp-task-chips">
-            {badge && <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>}
-            {task.frequency_days ? (
-              <span className="gp-chip">🔁 {task.frequency_days} dní</span>
-            ) : null}
-            {task.specific_date && !task.frequency_days ? (
-              <span className="gp-chip">📌 Jednorázově</span>
-            ) : null}
-          </div>
+        {completing ? '✓' : ''}
+      </button>
+      <div className="task-row-info" onClick={onOpen} style={{ cursor: 'pointer' }}>
+        <div className="task-row-title">
+          <span className="task-row-icon">{taskIcon(task.task_type)}</span>
+          <span className="task-row-name">{task.title}</span>
+        </div>
+        <div className="task-row-meta">
+          {task.pin_name}
+          {task.plant_name ? ` · ${task.plant_name}` : ''}
+          {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
+        </div>
+        <div className="task-row-tags">
+          {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
+          {task.frequency_days ? (
+            <span className="badge">Každých {task.frequency_days} dní</span>
+          ) : null}
+          {task.specific_date ? <span className="badge">Jednorázově</span> : null}
+          <span className="badge type">{taskLabel(task.task_type)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DoneRow({ item, onOpen }) {
+  const date = new Date(item.done_at + 'Z').toLocaleString('cs-CZ', {
+    day: 'numeric',
+    month: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return (
+    <div className="task-row done" onClick={onOpen} style={{ cursor: 'pointer' }}>
+      <div className="task-checkbox checked done-static" aria-hidden="true">
+        ✓
+      </div>
+      <div className="task-row-info">
+        <div className="task-row-title">
+          <span className="task-row-name">{item.action}</span>
+        </div>
+        <div className="task-row-meta">
+          {item.pin_name}
+          {item.plant_name ? ` · ${item.plant_name}` : ''}
+          {item.garden_name ? ` · 🗺️ ${item.garden_name}` : ''}
+        </div>
+        {item.notes && <div className="small muted task-row-notes">{item.notes}</div>}
+        <div className="task-row-tags">
+          <span className="badge done-badge">📅 {date}</span>
         </div>
       </div>
     </div>
