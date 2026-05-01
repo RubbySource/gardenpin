@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
+import WeatherWidget from '../components/WeatherWidget.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -143,6 +144,9 @@ export default function HomePage({ onTaskComplete }) {
           </div>
         )}
       </div>
+
+      {/* Weather */}
+      <WeatherWidget />
 
       {/* Garden cards */}
       {gardens.length > 0 ? (

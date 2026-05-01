@@ -3,6 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { toast } from '../App.jsx';
 import { requestNotificationPermission, showNotification } from '../utils.js';
 import { api } from '../api.js';
+import {
+  isPushSupported,
+  subscribePush,
+  unsubscribePush,
+  getCurrentSubscription,
+} from '../push.js';
 
 export default function SettingsPage() {
   const [notifStatus, setNotifStatus] = useState(
@@ -12,10 +18,52 @@ export default function SettingsPage() {
     parseInt(localStorage.getItem('notifReminderDays') ?? '1', 10),
   );
   const [stats, setStats] = useState(null);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const pushSupported = isPushSupported();
 
   useEffect(() => {
     api.stats().then(setStats).catch(() => {});
-  }, []);
+    if (pushSupported) {
+      getCurrentSubscription().then((s) => setPushSubscribed(!!s)).catch(() => {});
+    }
+  }, [pushSupported]);
+
+  const enablePush = async () => {
+    setPushBusy(true);
+    try {
+      await subscribePush();
+      setPushSubscribed(true);
+      setNotifStatus('granted');
+      toast('✅ Push notifikace aktivní');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const disablePush = async () => {
+    setPushBusy(true);
+    try {
+      await unsubscribePush();
+      setPushSubscribed(false);
+      toast('Push notifikace vypnuté');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const sendTestPush = async () => {
+    try {
+      const r = await api.pushSendTest();
+      toast(`Odesláno: ${r.sent}/${r.total}`);
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
 
   const enableNotifications = async () => {
     const r = await requestNotificationPermission();
@@ -95,6 +143,35 @@ export default function SettingsPage() {
                   : `Upozornění až ${reminderDays} dny před termínem.`}
             </p>
           </div>
+        )}
+      </div>
+
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>📲 Push notifikace</h3>
+        <p className="small muted">
+          Push notifikace fungují i když je aplikace zavřená. Server pošle souhrn úkolů
+          každý den v 8:00 ráno (pokud máte úkoly na dnes nebo zítra).
+        </p>
+        {!pushSupported ? (
+          <div className="small muted">⚠️ Tento prohlížeč nepodporuje Web Push.</div>
+        ) : pushSubscribed ? (
+          <div>
+            <div style={{ marginBottom: 12 }}>
+              Stav: <span className="badge done">✅ Přihlášeno</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button className="btn secondary" onClick={sendTestPush}>
+                Poslat testovací push
+              </button>
+              <button className="btn secondary" onClick={disablePush} disabled={pushBusy}>
+                {pushBusy ? '…' : 'Odhlásit push'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="btn" onClick={enablePush} disabled={pushBusy}>
+            {pushBusy ? 'Přihlašuji…' : 'Povolit push notifikace'}
+          </button>
         )}
       </div>
 
