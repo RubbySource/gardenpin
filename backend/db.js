@@ -47,6 +47,8 @@ db.exec(`
     next_due TEXT,
     last_done TEXT,
     notes TEXT,
+    recurring INTEGER DEFAULT 0,
+    recurrence_pattern TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
@@ -73,5 +75,7 @@ db.exec(`
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 
 module.exports = db;

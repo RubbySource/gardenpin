@@ -4,5 +4,6 @@ backend/data/
 backend/uploads/
 backend/public/
 backend/.env
-*.timestamp-*.mjs
+.env
 .claude/
+*.timestamp-*.mjs

@@ -1,6 +1,6 @@
 // Autocomplete input pro výběr rostliny + plant info card v GardenPin designu
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { searchPlants } from '../plantDatabase.js';
+import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
 
 // Design tokeny — GardenPin paleta
 const PALETTE = {
@@ -38,6 +38,8 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
       frequency_days: null,
       specific_date: `${targetYear}-${m}-15`,
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
+      recurring: true,
+      recurrence_pattern: 'yearly',
     });
   });
   return out;
@@ -51,15 +53,23 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
  *   onSelect: (plant) => void — volá se při výběru z dropdownu
  *   placeholder: string
  */
+// Browse fallback — top of database when input is empty but focused.
+// Filters in-memory by nameCz / nameLat exactly like searchPlants, just unbounded query.
+function browsePlants(limit = 12) {
+  return PLANT_DATABASE.slice(0, limit).map(enrichPlant);
+}
+
 export default function PlantAutocomplete({ value, onChange, onSelect, placeholder }) {
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState([]);
   const wrapRef = useRef();
 
   useEffect(() => {
-    const r = searchPlants(value);
-    setResults(r);
-    setOpen(r.length > 0 && value.length >= 1);
+    if (!value) {
+      setResults(browsePlants());
+      return;
+    }
+    setResults(searchPlants(value));
   }, [value]);
 
   useEffect(() => {
@@ -76,19 +86,21 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
     onSelect?.(plant);
   };
 
+  const showResults = open && results.length > 0;
+  const isBrowse = !value;
+
   return (
     <div ref={wrapRef} style={{ position: 'relative' }}>
       <input
-        type="text"
+        type="search"
         value={value}
         onChange={(e) => onChange(e.target.value, null)}
-        placeholder={placeholder || 'Název rostliny…'}
-        onFocus={() => {
-          if (results.length > 0) setOpen(true);
-        }}
+        placeholder={placeholder || 'Hledat rostlinu…'}
+        onFocus={() => setOpen(true)}
         autoComplete="off"
+        aria-label="Hledat rostlinu"
       />
-      {open && (
+      {showResults && (
         <div
           style={{
             position: 'absolute',
@@ -105,9 +117,44 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
             marginTop: 4,
           }}
         >
+          {isBrowse && (
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                color: PALETTE.muted,
+                padding: '8px 12px 4px',
+              }}
+            >
+              Procházet rostliny ({PLANT_DATABASE.length})
+            </div>
+          )}
           {results.map((p) => (
             <PlantSearchRow key={p.id} plant={p} onPick={() => handleSelect(p)} />
           ))}
+        </div>
+      )}
+      {open && !showResults && value && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: '100%',
+            zIndex: 200,
+            background: PALETTE.white,
+            border: `1px solid ${PALETTE.border}`,
+            borderRadius: 12,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            padding: '14px 12px',
+            marginTop: 4,
+            fontSize: 13,
+            color: PALETTE.muted,
+          }}
+        >
+          Žádná rostlina neodpovídá „{value}".
         </div>
       )}
     </div>
