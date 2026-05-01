@@ -77,11 +77,31 @@ db.exec(`
     auth TEXT NOT NULL,
     created_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password_hash TEXT,
+    is_premium INTEGER DEFAULT 0,
+    stripe_customer_id TEXT,
+    stripe_subscription_id TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
+try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE users ADD COLUMN stripe_customer_id TEXT'); } catch {}
+try { db.exec('ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT'); } catch {}
+
+// Single-user MVP — nasaď výchozího uživatele s id=1, pokud neexistuje.
+// Jakmile přidáme auth, bude se užívat reálné ID.
+const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+if (userCount === 0) {
+  db.prepare('INSERT INTO users (id, email) VALUES (1, ?)').run('default@gardenpin.local');
+}
 
 module.exports = db;
