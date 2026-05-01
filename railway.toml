@@ -1,10 +1,8 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "cd backend && npm install && npm run build-frontend"
+builder = "nixpacks"
+buildCommand = "npm run build"
 
 [deploy]
-startCommand = "cd backend && node server.js"
-healthcheckPath = "/api/gardens"
-healthcheckTimeout = 30
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+startCommand = "node backend/server.js"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5

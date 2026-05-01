@@ -3,10 +3,16 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+// Cesta k DB souboru — pokud je nastavena env DATABASE_PATH (např. Railway Volume),
+// použije se přímo. Jinak fallback na backend/data/zahrada.db.
+const dbPath = process.env.DATABASE_PATH
+  ? path.resolve(process.env.DATABASE_PATH)
+  : path.join(__dirname, 'data', 'zahrada.db');
 
-const db = new Database(path.join(dataDir, 'zahrada.db'));
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+
+const db = new Database(dbPath);
 db.exec('PRAGMA journal_mode = WAL');
 db.exec('PRAGMA foreign_keys = ON');
 
