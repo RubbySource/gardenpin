@@ -1,14 +1,23 @@
 // Main Express server for Zahradní tracker
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
+const stripeRoutes = require('./routes/stripeRoutes');
 
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
 try { sharp = require('sharp'); } catch { sharp = null; }
+
+// Web Push — optional (pokud web-push není nainstalován, push se vypne)
+let push;
+try { push = require('./push'); } catch (e) {
+  console.warn('Web Push není dostupný:', e.message);
+  push = null;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,8 +45,15 @@ const upload = multer({
 });
 
 app.use(cors());
+
+// Stripe webhook MUSÍ být před express.json() — ověřuje signature na raw body
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeRoutes.webhookHandler);
+
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
+
+// Ostatní Stripe routes po json parseru
+app.use('/api/stripe', stripeRoutes.router);
 
 // Serve built frontend (production)
 const publicDir = path.join(__dirname, 'public');
@@ -59,7 +75,17 @@ function computeNextDue(task) {
 
 // ======================= GARDENS =======================
 app.get('/api/gardens', (req, res) => {
-  const rows = db.prepare('SELECT * FROM gardens ORDER BY created_at DESC').all();
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = db
+    .prepare(
+      `SELECT g.*,
+        (SELECT COUNT(*) FROM pins WHERE garden_id = g.id) AS pin_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id) AS task_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id AND t.next_due <= ?) AS urgent_count
+       FROM gardens g
+       ORDER BY g.created_at DESC`,
+    )
+    .all(today);
   res.json(rows);
 });
 
@@ -213,6 +239,58 @@ app.delete('/api/pins/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// Base64 photo upload — přijme data URL, ořízne přes Sharp na max 800px, uloží do uploads/.
+app.put('/api/pins/:id/photo', async (req, res) => {
+  const id = req.params.id;
+  const pin = db.prepare('SELECT * FROM pins WHERE id = ?').get(id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+
+  const { photo } = req.body || {};
+  if (!photo || typeof photo !== 'string') {
+    return res.status(400).json({ error: 'Chybí pole photo (data URL)' });
+  }
+  const m = photo.match(/^data:image\/(\w+);base64,(.+)$/);
+  if (!m) return res.status(400).json({ error: 'Neplatný formát — očekávám data:image/...;base64,...' });
+  const buf = Buffer.from(m[2], 'base64');
+
+  try {
+    const filename = Date.now() + '-' + Math.round(Math.random() * 1e9) + '.jpg';
+    const dest = path.join(uploadsDir, filename);
+    if (sharp) {
+      await sharp(buf)
+        .rotate() // respektuj EXIF orientaci
+        .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toFile(dest);
+    } else {
+      // Fallback bez Sharp: ulož raw buffer (bez resize)
+      fs.writeFileSync(dest, buf);
+    }
+
+    if (pin.photo_path) {
+      const old = path.join(__dirname, pin.photo_path);
+      if (fs.existsSync(old)) fs.unlinkSync(old);
+    }
+    const photoPath = '/uploads/' + filename;
+    db.prepare('UPDATE pins SET photo_path = ? WHERE id = ?').run(photoPath, id);
+    res.json({ ok: true, photo_path: photoPath });
+  } catch (e) {
+    res.status(500).json({ error: 'Chyba při zpracování fotky: ' + e.message });
+  }
+});
+
+app.get('/api/pins/:id/photo', (req, res) => {
+  const pin = db.prepare('SELECT photo_path FROM pins WHERE id = ?').get(req.params.id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  if (!pin.photo_path) return res.json({ photo: null });
+  const p = path.join(__dirname, pin.photo_path);
+  if (!fs.existsSync(p)) return res.json({ photo: null });
+  const ext = path.extname(p).toLowerCase().replace('.', '') || 'jpeg';
+  const mime = ext === 'jpg' ? 'jpeg' : ext;
+  const buf = fs.readFileSync(p);
+  res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
+});
+
 // ======================= TASKS =======================
 app.get('/api/tasks', (req, res) => {
   // All tasks with related pin + garden data
@@ -263,13 +341,13 @@ app.get('/api/tasks/week', (req, res) => {
 });
 
 app.post('/api/tasks', (req, res) => {
-  const { pin_id, title, task_type, frequency_days, specific_date, notes } = req.body;
+  const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence_pattern } = req.body;
   const tmp = { specific_date, frequency_days, last_done: null };
   const next_due = computeNextDue(tmp);
   const info = db
     .prepare(
-      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       pin_id,
@@ -279,6 +357,8 @@ app.post('/api/tasks', (req, res) => {
       specific_date || null,
       next_due,
       notes || null,
+      recurring ? 1 : 0,
+      recurrence_pattern || null,
     );
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(info.lastInsertRowid);
   res.json(task);
@@ -299,10 +379,16 @@ app.put('/api/tasks/:id', (req, res) => {
   const specific_date =
     req.body.specific_date !== undefined ? req.body.specific_date || null : current.specific_date;
   const notes = req.body.notes ?? current.notes;
+  const recurring =
+    req.body.recurring !== undefined ? (req.body.recurring ? 1 : 0) : current.recurring;
+  const recurrence_pattern =
+    req.body.recurrence_pattern !== undefined
+      ? req.body.recurrence_pattern || null
+      : current.recurrence_pattern;
   const next_due = computeNextDue({ specific_date, frequency_days, last_done: current.last_done });
   db.prepare(
-    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=? WHERE id=?`,
-  ).run(title, task_type, frequency_days, specific_date, next_due, notes, id);
+    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=?, recurring=?, recurrence_pattern=? WHERE id=?`,
+  ).run(title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern, id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
 });
 
@@ -324,6 +410,19 @@ app.post('/api/tasks/:id/done', (req, res) => {
   ).run(id, task.pin_id, task.title, req.body?.notes || null);
 
   if (task.specific_date) {
+    if (task.recurring && task.recurrence_pattern === 'yearly') {
+      // Yearly recurring: posunout specific_date o rok dopředu
+      const d = new Date(task.specific_date);
+      d.setFullYear(d.getFullYear() + 1);
+      const newDate = d.toISOString().slice(0, 10);
+      db.prepare('UPDATE tasks SET last_done=?, specific_date=?, next_due=? WHERE id=?').run(
+        today,
+        newDate,
+        newDate,
+        id,
+      );
+      return res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+    }
     // One-time task: delete after completion
     db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
     return res.json({ ok: true, removed: true });
@@ -366,7 +465,11 @@ app.get('/api/stats', (req, res) => {
   const overdue = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due < ?').get(today).c;
   const dueToday = db.prepare('SELECT COUNT(*) AS c FROM tasks WHERE next_due = ?').get(today).c;
   const historyCount = db.prepare('SELECT COUNT(*) AS c FROM care_history').get().c;
-  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount });
+  // care_history.done_at is stored as UTC text via SQLite CURRENT_TIMESTAMP
+  const weeklyDone = db
+    .prepare("SELECT COUNT(*) AS c FROM care_history WHERE done_at >= datetime('now', '-7 days')")
+    .get().c;
+  res.json({ gardens, pins, tasks, overdue, dueToday, historyCount, weeklyDone });
 });
 
 // ======================= UPSCALE =======================
@@ -401,6 +504,65 @@ app.post('/api/gardens/:id/upscale', async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
+  }
+});
+
+// ======================= WEB PUSH =======================
+app.get('/api/push/vapid-public-key', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  res.json({ publicKey: push.getPublicKey() });
+});
+
+app.post('/api/push/subscribe', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  try {
+    push.saveSubscription(req.body);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/push/unsubscribe', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  const endpoint = req.body?.endpoint;
+  if (!endpoint) return res.status(400).json({ error: 'endpoint je povinný' });
+  push.deleteSubscription(endpoint);
+  res.json({ ok: true });
+});
+
+// Posílá push všem odběratelům. Bez body posílá denní souhrn (stejný jako cron).
+app.post('/api/push/send', async (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  try {
+    const payload =
+      req.body && req.body.title
+        ? { title: req.body.title, body: req.body.body || '', url: req.body.url || '/' }
+        : push.buildDailyDigest();
+    if (!payload) return res.json({ skipped: true, reason: 'Žádné úkoly na dnes/zítra' });
+    const stats = await push.sendToAll(payload);
+    res.json(stats);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ======================= WEATHER =======================
+// Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
+app.get('/api/weather', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lon = parseFloat(req.query.lon);
+  if (Number.isNaN(lat) || Number.isNaN(lon)) {
+    return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
+  }
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe%2FPrague`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });
+    const data = await r.json();
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ error: e.message });
   }
 });
 
@@ -492,15 +654,18 @@ app.get('/api/export/ical', (req, res) => {
     lines.push(`DTEND;TZID=Europe/Prague:${dtend}`);
     lines.push(foldLine(`SUMMARY:${escape(summary)}`));
     if (desc) lines.push(foldLine(`DESCRIPTION:${desc}`));
-    // RRULE for recurring tasks — repeat every frequency_days days
+    // RRULE for recurring tasks
+    const isYearly = t.recurring && t.recurrence_pattern === 'yearly';
     if (t.frequency_days) {
       lines.push(`RRULE:FREQ=DAILY;INTERVAL=${t.frequency_days}`);
+    } else if (isYearly) {
+      lines.push('RRULE:FREQ=YEARLY');
     }
     // VALARM: remind 1 day before (or at 8:00 same day for one-time tasks)
     lines.push('BEGIN:VALARM');
     lines.push('ACTION:DISPLAY');
     lines.push(foldLine(`DESCRIPTION:Připomínka: ${escape(summary)}`));
-    lines.push(t.frequency_days ? 'TRIGGER:-PT24H' : 'TRIGGER:PT0S');
+    lines.push(t.frequency_days || isYearly ? 'TRIGGER:-PT24H' : 'TRIGGER:PT0S');
     lines.push('END:VALARM');
     lines.push('END:VEVENT');
   }
@@ -540,6 +705,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Zahradní tracker běží na http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Zahradní tracker běží na portu ${PORT}`);
+  if (push) push.startDailyCron();
 });

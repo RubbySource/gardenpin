@@ -1,14 +1,16 @@
 // List of gardens + create new
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
+import NewGardenModal from '../components/NewGardenModal.jsx';
 import { toast } from '../App.jsx';
 
 export default function GardensPage() {
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const nav = useNavigate();
 
   const load = async () => {
@@ -24,13 +26,54 @@ export default function GardensPage() {
     load();
   }, []);
 
+  const totalPins = gardens.reduce((sum, g) => sum + (g.pin_count || 0), 0);
+  const totalTasks = gardens.reduce((sum, g) => sum + (g.task_count || 0), 0);
+
+  const handleDelete = async (g) => {
+    try {
+      await api.deleteGarden(g.id);
+      toast('🗑️ Zahrada smazána');
+      setConfirmDelete(null);
+      load();
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
+
   return (
     <>
-      <div className="section-header" style={{ marginTop: 4 }}>
-        <div className="title">🗺️ Moje zahrady
-          {gardens.length > 0 && <span className="count-badge" style={{ marginLeft: 6 }}>{gardens.length}</span>}
+      <div className="gardens-hero">
+        <div className="gardens-hero-row">
+          <div>
+            <div className="gardens-hero-eyebrow">🗺️ Moje zahrady</div>
+            <div className="gardens-hero-title">
+              {gardens.length === 0
+                ? 'Začněte mapovat'
+                : gardens.length === 1
+                ? '1 zahrada'
+                : `${gardens.length} ${gardens.length < 5 ? 'zahrady' : 'zahrad'}`}
+            </div>
+          </div>
+          <button className="btn" onClick={() => setShowNew(true)}>
+            + Nová
+          </button>
         </div>
-        <button className="btn small" onClick={() => setShowNew(true)}>+ Nová</button>
+        {gardens.length > 0 && (
+          <div className="gardens-hero-stats">
+            <div className="gardens-hero-stat">
+              <div className="val">{totalPins}</div>
+              <div className="lbl">Rostlin</div>
+            </div>
+            <div className="gardens-hero-stat">
+              <div className="val">{totalTasks}</div>
+              <div className="lbl">Úkolů</div>
+            </div>
+            <div className="gardens-hero-stat">
+              <div className="val">{gardens.length}</div>
+              <div className="lbl">Zahrad</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -49,23 +92,12 @@ export default function GardensPage() {
       ) : (
         <div className="gardens-grid">
           {gardens.map((g) => (
-            <div key={g.id} className="garden-card-v2" onClick={() => nav(`/zahrada/${g.id}`)}>
-              <div className="img-wrap">
-                {g.image_path
-                  ? <img src={g.image_path} alt={g.name} />
-                  : <span>🌱</span>
-                }
-              </div>
-              <div className="card-body">
-                <div>
-                  <div className="g-name">{g.name}</div>
-                  <div className="g-meta">
-                    {new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </div>
-                </div>
-                <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
-              </div>
-            </div>
+            <GardenCard
+              key={g.id}
+              garden={g}
+              onOpen={() => nav(`/zahrada/${g.id}`)}
+              onDelete={() => setConfirmDelete(g)}
+            />
           ))}
         </div>
       )}
@@ -80,107 +112,84 @@ export default function GardensPage() {
           }}
         />
       )}
+
+      {confirmDelete && (
+        <Modal title="Smazat zahradu?" onClose={() => setConfirmDelete(null)}>
+          <p style={{ marginTop: 0 }}>
+            Opravdu chcete smazat zahradu <strong>{confirmDelete.name}</strong>?
+          </p>
+          <p className="small muted">
+            Smaže se mapa, všechny piny ({confirmDelete.pin_count || 0}) i jejich úkoly. Akce nejde
+            vrátit zpět.
+          </p>
+          <div className="row mt-3" style={{ justifyContent: 'flex-end' }}>
+            <button className="btn ghost" onClick={() => setConfirmDelete(null)}>
+              Zrušit
+            </button>
+            <button className="btn danger" onClick={() => handleDelete(confirmDelete)}>
+              Smazat
+            </button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
 
-function NewGardenModal({ onClose, onCreated }) {
-  const [name, setName] = useState('');
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const inputRef = useRef();
-
-  const handleFile = (f) => {
-    setFile(f);
-    if (f) {
-      const r = new FileReader();
-      r.onload = () => setPreview(r.result);
-      r.readAsDataURL(f);
-    } else {
-      setPreview(null);
-    }
-  };
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) return toast('Zadejte název');
-    setSaving(true);
-    try {
-      const fd = new FormData();
-      fd.append('name', name);
-      if (file) {
-        // Get image dimensions
-        const img = new Image();
-        img.src = preview;
-        await new Promise((res) => (img.onload = res));
-        fd.append('width', img.naturalWidth);
-        fd.append('height', img.naturalHeight);
-        fd.append('image', file);
-      }
-      const g = await api.createGarden(fd);
-      onCreated(g);
-    } catch (err) {
-      toast('Chyba: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
+function GardenCard({ garden, onOpen, onDelete }) {
+  const created = new Date(garden.created_at + 'Z').toLocaleDateString('cs-CZ', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
   return (
-    <Modal title="Nová zahrada" onClose={onClose}>
-      <form onSubmit={submit}>
-        <div className="field">
-          <label>Název zahrady</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Např. Zahrada u domu"
-            autoFocus
-          />
-        </div>
-        <div className="field">
-          <label>Fotografie z leteckého pohledu (volitelné)</label>
-          <div className="file-input-wrap" onClick={() => inputRef.current?.click()}>
-            {preview ? (
-              <img
-                src={preview}
-                alt=""
-                style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8 }}
-              />
-            ) : (
-              <>
-                <div style={{ fontSize: '2rem' }}>📷</div>
-                <div className="small muted">Klikněte pro nahrání fotky</div>
-              </>
-            )}
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFile(e.target.files?.[0])}
-            />
+    <div className="garden-card-v3" onClick={onOpen}>
+      <div className="img-wrap">
+        {garden.image_path ? (
+          <img src={garden.image_path} alt={garden.name} />
+        ) : (
+          <div className="img-placeholder">
+            <span style={{ fontSize: '3.5rem' }}>🌱</span>
           </div>
-          {preview && (
-            <button
-              type="button"
-              className="btn ghost small mt-2"
-              onClick={() => handleFile(null)}
-            >
-              Odstranit fotku
-            </button>
-          )}
-        </div>
-        <div className="row mt-3">
-          <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+        )}
+        {garden.urgent_count > 0 && (
+          <div className="garden-urgent-badge">⚠️ {garden.urgent_count}</div>
+        )}
+      </div>
+      <div className="card-body">
+        <div className="card-head">
+          <div className="g-name">{garden.name}</div>
+          <button
+            className="card-action-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            aria-label="Smazat zahradu"
+            title="Smazat zahradu"
+          >
+            🗑️
           </button>
-          <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Vytvořit zahradu'}
-          </button>
         </div>
-      </form>
-    </Modal>
+        <div className="g-meta">{created}</div>
+        <div className="garden-stats-row">
+          <div className="garden-stat">
+            <span className="garden-stat-icon">📍</span>
+            <span className="garden-stat-val">{garden.pin_count || 0}</span>
+            <span className="garden-stat-lbl">
+              {garden.pin_count === 1 ? 'pin' : 'pinů'}
+            </span>
+          </div>
+          <div className="garden-stat">
+            <span className="garden-stat-icon">📋</span>
+            <span className="garden-stat-val">{garden.task_count || 0}</span>
+            <span className="garden-stat-lbl">
+              {garden.task_count === 1 ? 'úkol' : 'úkolů'}
+            </span>
+          </div>
+          <span className="garden-open-arrow">›</span>
+        </div>
+      </div>
+    </div>
   );
 }

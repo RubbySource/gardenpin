@@ -21,6 +21,9 @@ export default function TaskItem({ task, onComplete, onClick, showGarden }) {
       <div className="info" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
         <div className="title">
           {taskIcon(task.task_type)} {task.title}
+          {task.recurring ? (
+            <span title="Opakuje se každý rok" style={{ marginLeft: 6 }}>🔄</span>
+          ) : null}
         </div>
         <div className="meta">
           {task.pin_name}
@@ -34,7 +37,11 @@ export default function TaskItem({ task, onComplete, onClick, showGarden }) {
               Každých {task.frequency_days} dní
             </span>
           ) : null}
-          {task.specific_date ? (
+          {task.specific_date && task.recurring && task.recurrence_pattern === 'yearly' ? (
+            <span className="badge" style={{ marginLeft: 6 }}>
+              🔄 Každý rok
+            </span>
+          ) : task.specific_date ? (
             <span className="badge" style={{ marginLeft: 6 }}>
               Jednorázově
             </span>
