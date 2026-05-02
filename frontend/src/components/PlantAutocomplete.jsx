@@ -2,16 +2,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
 
-// Design tokeny — GardenPin paleta
+// Design tokeny — GardenPin paleta (Claude Design plant card spec)
 const PALETTE = {
   forest: '#2d5a27',
-  forestDark: '#1f3e1a',
+  forestDark: '#1f4019',
   sand: '#f5f0e8',
-  sandDark: '#e5e0d8',
+  sandDark: '#ebe2d2',
   white: '#ffffff',
-  charcoal: '#1a1a1a',
-  muted: '#6b7280',
-  border: '#e5e0d8',
+  charcoal: '#1c1c1e',
+  muted: '#6b6b70',
+  border: 'rgba(0,0,0,0.06)',
 };
 
 const MONTH_NAMES_CZ = [
@@ -394,12 +394,12 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
             disabled={creating}
             style={{
               width: '100%',
-              minHeight: 48,
+              height: 52,
               padding: '12px 16px',
               background: PALETTE.forest,
               color: '#fff',
               border: 'none',
-              borderRadius: 12,
+              borderRadius: 14,
               fontSize: 15,
               fontWeight: 700,
               cursor: creating ? 'wait' : 'pointer',
@@ -409,6 +409,7 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
               justifyContent: 'center',
               gap: 8,
               transition: 'background 0.15s, transform 0.05s',
+              letterSpacing: '-0.005em',
             }}
             onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.98)')}
             onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
@@ -516,8 +517,8 @@ function CategoryBadge({ category }) {
   return (
     <span
       style={{
-        background: PALETTE.forest,
-        color: '#fff',
+        background: 'rgba(45, 90, 39, 0.10)',
+        color: PALETTE.forestDark,
         fontSize: 11,
         fontWeight: 700,
         textTransform: 'uppercase',
