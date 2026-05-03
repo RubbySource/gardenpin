@@ -2702,3 +2702,185 @@ input, textarea, select {
   text-transform: none;
   letter-spacing: 0;
 }
+
+/* ===================== Garden Detail — hero header + iOS Maps FAB ===================== */
+.garden-detail-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-deep) 100%);
+  color: #fff;
+  border-radius: 18px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(31, 64, 25, 0.18);
+}
+.garden-detail-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 60%);
+  pointer-events: none;
+}
+.garden-detail-back {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s, transform 0.15s;
+}
+.garden-detail-back:hover { background: rgba(255,255,255,0.28); }
+.garden-detail-back:active { transform: scale(0.94); }
+.garden-detail-thumb {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.16);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+.garden-detail-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.garden-detail-info {
+  flex: 1;
+  min-width: 0;
+  z-index: 1;
+}
+.garden-detail-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 2px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.garden-detail-sub {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+.garden-detail-urgent {
+  color: #ffd479;
+  font-weight: 700;
+}
+.garden-detail-edit {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.garden-detail-edit:hover { background: rgba(255,255,255,0.28); }
+.garden-detail-edit:active { transform: scale(0.94); }
+
+/* Map tools collapse */
+.map-tools-collapse {
+  background: var(--sand);
+  border-radius: 14px;
+  border: 1px solid var(--divider);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.map-tools-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  color: var(--charcoal);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.map-tools-toggle:hover { background: rgba(45,90,39,0.06); }
+.map-tools-toggle .chevron {
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.map-tools-toggle .chevron.open { transform: rotate(180deg); }
+.map-tools-panel {
+  padding: 8px 14px 14px;
+  border-top: 1px solid var(--divider);
+  background: rgba(255,255,255,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.map-tools-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.map-tools-label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.map-tools-value {
+  font-size: 0.78rem;
+  color: var(--forest);
+  font-weight: 700;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Map card add-mode visual */
+.map-card.add-mode {
+  border: 2px solid var(--forest);
+  box-shadow: 0 0 0 4px rgba(45,90,39,0.12);
+  animation: pulseAddMode 1.6s infinite;
+}
+@keyframes pulseAddMode {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(45,90,39,0.12); }
+  50% { box-shadow: 0 0 0 8px rgba(45,90,39,0.04); }
+}
+.map-container.add-mode { background: rgba(45,90,39,0.04); }
+
+/* Map FAB (extends .floating-fab) */
+.floating-fab.map-fab {
+  bottom: calc(80px + var(--safe-bottom));
+  background: var(--forest);
+  box-shadow: 0 8px 24px rgba(45,90,39,0.32);
+}
+.floating-fab.map-fab.active {
+  background: var(--danger);
+  box-shadow: 0 8px 24px rgba(192,57,43,0.32);
+  transform: rotate(45deg);
+}
+.floating-fab.map-fab.active:hover { background: #a52e23; }
+
+/* Plant task count badge inline with name */
+.plant-task-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: var(--forest-soft);
+  color: var(--forest);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  vertical-align: middle;
+}
