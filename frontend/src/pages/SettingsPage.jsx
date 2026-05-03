@@ -173,62 +173,45 @@ export default function SettingsPage() {
           </div>
         ) : (
           <button className="btn" onClick={enablePush} disabled={pushBusy}>
-            {pushBusy ? 'Přihlašuji…' : 'Povolit push notifikace'}
+            {pushBusy ? '…' : '📲 Přihlásit push notifikace'}
           </button>
         )}
       </div>
 
       <div className="card">
-        <h3 style={{ marginTop: 0 }}>💾 Export dat</h3>
+        <h3 style={{ marginTop: 0 }}>📤 Export dat</h3>
         <p className="small muted">
-          Stáhnout zálohu všech zahrad, míst, úkolů a historie ve formátu JSON.
+          Exportujte vaše zahrady a úkoly ve formátu iCal (kalendář iOS/Google).
         </p>
         <button className="btn secondary" onClick={handleExport}>
-          📥 Stáhnout zálohu (JSON)
+          Exportovat iCal
         </button>
-        <div style={{ marginTop: 14 }}>
-          <p className="small muted" style={{ marginBottom: 8 }}>
-            Exportovat všechny naplánované úkoly jako kalendářní soubor (.ics) pro import do iOS
-            Kalendáře, Google Kalendáře nebo Outlooku. Každý úkol je naplánován na 8:00.
-          </p>
-          <button className="btn secondary" onClick={() => { window.location.href = '/api/export/ical'; }}>
-            📅 Exportovat do kalendáře (.ics)
-          </button>
-        </div>
       </div>
 
       {stats && (
         <div className="card">
           <h3 style={{ marginTop: 0 }}>📊 Statistiky</h3>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="value">{stats.gardens}</div>
-              <div className="label">Zahrady</div>
+          <div className="gp-stat-row">
+            <div className="gp-stat">
+              <span className="gp-stat-value">{stats.total ?? 0}</span>
+              <span className="gp-stat-label">Úkolů celkem</span>
             </div>
-            <div className="stat-card">
-              <div className="value">{stats.pins}</div>
-              <div className="label">Místa</div>
+            <div className="gp-stat">
+              <span className="gp-stat-value">{stats.dueToday ?? 0}</span>
+              <span className="gp-stat-label">Dnes</span>
             </div>
-            <div className="stat-card">
-              <div className="value">{stats.tasks}</div>
-              <div className="label">Aktivní úkoly</div>
-            </div>
-            <div className="stat-card">
-              <div className="value">{stats.historyCount}</div>
-              <div className="label">Zápisů péče</div>
+            <div className="gp-stat">
+              <span className="gp-stat-value">{stats.overdue ?? 0}</span>
+              <span className="gp-stat-label">Po termínu</span>
             </div>
           </div>
         </div>
       )}
 
-      <div className="card">
-        <h3 style={{ marginTop: 0 }}>🌿 O aplikaci</h3>
-        <p className="small">
-          <strong>Zahradní tracker</strong> — jednoduchá aplikace pro zaznamenávání vaší zahrady,
-          rostlin a péče o ně. Nahrajte si leteckou fotografii zahrady, přidejte piny k
-          jednotlivým záhonům a sledujte, kdy co zalít, hnojit nebo sklidit.
-        </p>
-        <p className="small muted">Verze 1.0 · Běží lokálně · Vaše data zůstávají u vás</p>
+      <div className="card" style={{ textAlign: 'center', color: 'var(--muted)' }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>📍</div>
+        <div className="small" style={{ fontWeight: 600 }}>GardenPin</div>
+        <div className="small">Správa zahrady v kapse</div>
       </div>
     </>
   );

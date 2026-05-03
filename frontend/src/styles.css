@@ -47,15 +47,9 @@
 html, body {
   margin: 0;
   padding: 0;
-<<<<<<< claude/busy-lamarr-0ff86e
-  background: #fff;
-  color: var(--charcoal);
-  font-family: -apple-system, "SF Pro Text", BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-=======
   background: var(--bg);
   color: var(--text);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
->>>>>>> master
   font-size: 16px;
   line-height: 1.45;
   overscroll-behavior-y: none;
@@ -1100,34 +1094,6 @@ input, textarea, select {
   margin-bottom: 6px;
   line-height: 1;
 }
-<<<<<<< claude/busy-lamarr-0ff86e
-
-/* ── HOMEPAGE HERO ─────────────────────────────────────────── */
-.home-hero {
-  background: var(--sand-deep);
-  border-radius: 20px;
-  padding: 20px 18px 18px;
-  margin-bottom: 14px;
-  color: var(--charcoal);
-  position: relative;
-  overflow: hidden;
-}
-.home-hero .greeting {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-bottom: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.home-hero .hero-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 0 0 14px;
-  line-height: 1.2;
-  color: var(--charcoal);
-  letter-spacing: -0.02em;
-=======
 .gp-stat .gp-stat-value {
   font-size: 1.7rem;
   font-weight: 800;
@@ -1478,7 +1444,6 @@ input, textarea, select {
   font-weight: 800;
   margin: 0 0 14px;
   line-height: 1.2;
->>>>>>> master
 }
 .home-hero .hero-stats {
   display: grid;
@@ -1487,33 +1452,6 @@ input, textarea, select {
   position: relative; z-index: 1;
 }
 .home-hero .hero-stat {
-<<<<<<< claude/busy-lamarr-0ff86e
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px 8px;
-  text-align: center;
-}
-.home-hero .hero-stat .val {
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--forest);
-  letter-spacing: -0.02em;
-}
-.home-hero .hero-stat .lbl {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 4px;
-  font-weight: 600;
-}
-.home-hero .hero-stat .val.danger { color: var(--danger); }
-.home-hero .hero-stat .val.warning { color: var(--warning); }
-
-/* Improved stat cards */
-.stat-card-v2 {
-  background: var(--sand);
-  border: 1px solid var(--divider);
-=======
   background: rgba(255,255,255,0.13);
   border-radius: 12px;
   padding: 10px 8px;
@@ -1537,32 +1475,17 @@ input, textarea, select {
 .stat-card-v2 {
   background: #fff;
   border: 1px solid var(--border);
->>>>>>> master
   border-radius: 14px;
   padding: 14px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-<<<<<<< claude/busy-lamarr-0ff86e
-=======
   box-shadow: var(--shadow);
->>>>>>> master
 }
 .stat-card-v2 .icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
 .stat-card-v2 .info .val {
   font-size: 1.3rem;
   font-weight: 800;
-<<<<<<< claude/busy-lamarr-0ff86e
-  color: var(--forest);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.stat-card-v2 .info .lbl {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 2px;
-  font-weight: 600;
-=======
   color: var(--primary);
   line-height: 1;
 }
@@ -1570,44 +1493,17 @@ input, textarea, select {
   font-size: 0.75rem;
   color: var(--text-dim);
   margin-top: 2px;
->>>>>>> master
 }
 
 /* Quick actions */
 .quick-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-<<<<<<< claude/busy-lamarr-0ff86e
-  gap: 10px;
-=======
   gap: 8px;
->>>>>>> master
   margin-bottom: 14px;
 }
 .quick-action-btn {
   background: var(--sand);
-<<<<<<< claude/busy-lamarr-0ff86e
-  border: 1px solid var(--divider);
-  border-radius: 16px;
-  padding: 16px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.05s;
-  text-align: left;
-  min-height: 72px;
-}
-.quick-action-btn:hover { background: var(--sand-deep); }
-.quick-action-btn:active { transform: scale(0.98); }
-.quick-action-btn .qa-icon { font-size: 1.5rem; }
-.quick-action-btn .qa-label {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--charcoal);
-  letter-spacing: -0.01em;
-=======
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px 12px;
@@ -1626,7 +1522,6 @@ input, textarea, select {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--charcoal);
->>>>>>> master
 }
 
 /* Section header */
@@ -1637,30 +1532,12 @@ input, textarea, select {
   margin: 18px 0 10px;
 }
 .section-header .title {
-<<<<<<< claude/busy-lamarr-0ff86e
-  font-size: 1.05rem;
-=======
   font-size: 1rem;
->>>>>>> master
   font-weight: 700;
   color: var(--charcoal);
   display: flex;
   align-items: center;
   gap: 6px;
-<<<<<<< claude/busy-lamarr-0ff86e
-  letter-spacing: -0.01em;
-}
-.section-header .count-badge {
-  background: var(--forest-soft);
-  color: var(--forest-deep);
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 999px;
-}
-.section-header .count-badge.danger {
-  background: rgba(192, 57, 43, 0.10);
-=======
 }
 .section-header .count-badge {
   background: var(--green-100);
@@ -1672,7 +1549,6 @@ input, textarea, select {
 }
 .section-header .count-badge.danger {
   background: #ffe0db;
->>>>>>> master
   color: var(--danger);
 }
 
@@ -1689,19 +1565,6 @@ input, textarea, select {
   display: flex;
   flex-direction: column;
   background: #fff;
-<<<<<<< claude/busy-lamarr-0ff86e
-  border: 1px solid var(--divider);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.15s, transform 0.05s;
-}
-.garden-card-v2:hover { border-color: var(--forest); }
-.garden-card-v2:active { transform: scale(0.99); }
-.garden-card-v2 .img-wrap {
-  height: 130px;
-  background: var(--sand-deep);
-=======
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
@@ -1714,7 +1577,6 @@ input, textarea, select {
 .garden-card-v2 .img-wrap {
   height: 130px;
   background: linear-gradient(135deg, var(--green-100), var(--green-200));
->>>>>>> master
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1728,34 +1590,19 @@ input, textarea, select {
   object-fit: cover;
 }
 .garden-card-v2 .card-body {
-<<<<<<< claude/busy-lamarr-0ff86e
-  padding: 14px;
-=======
   padding: 12px 14px;
->>>>>>> master
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .garden-card-v2 .g-name {
   font-weight: 700;
-<<<<<<< claude/busy-lamarr-0ff86e
-  font-size: 1.05rem;
-  margin-bottom: 2px;
-  color: var(--charcoal);
-  letter-spacing: -0.01em;
-}
-.garden-card-v2 .g-meta {
-  font-size: 0.78rem;
-  color: var(--muted);
-=======
   font-size: 1rem;
   margin-bottom: 2px;
 }
 .garden-card-v2 .g-meta {
   font-size: 0.78rem;
   color: var(--text-dim);
->>>>>>> master
 }
 
 /* Task section label */
@@ -1785,39 +1632,23 @@ input, textarea, select {
 
 /* About card — tester info */
 .tester-card {
-<<<<<<< claude/busy-lamarr-0ff86e
-  background: var(--sand);
-  border: 1px solid var(--divider);
-=======
   background: linear-gradient(135deg, var(--green-50), #fff);
   border: 1px solid var(--green-200);
->>>>>>> master
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 12px;
 }
-<<<<<<< claude/busy-lamarr-0ff86e
-.tester-card h3 { margin-top: 0; color: var(--charcoal); letter-spacing: -0.01em; }
-.tester-card .url-box {
-  background: var(--charcoal);
-  color: #7eed7a;
-  border-radius: 10px;
-  padding: 12px 14px;
-=======
 .tester-card h3 { margin-top: 0; color: var(--primary); }
 .tester-card .url-box {
   background: var(--charcoal);
   color: #7eed7a;
   border-radius: 8px;
   padding: 10px 14px;
->>>>>>> master
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 0.85rem;
   word-break: break-all;
   margin: 8px 0;
 }
-<<<<<<< claude/busy-lamarr-0ff86e
-=======
 
 /* Weather widget */
 .weather-widget {
@@ -2871,4 +2702,3 @@ input, textarea, select {
   text-transform: none;
   letter-spacing: 0;
 }
->>>>>>> master
