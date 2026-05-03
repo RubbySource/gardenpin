@@ -70,6 +70,15 @@ db.exec(`
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS pin_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pin_id INTEGER NOT NULL,
+    path TEXT NOT NULL,
+    caption TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+  );
+
   CREATE TABLE IF NOT EXISTS push_subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     endpoint TEXT NOT NULL UNIQUE,

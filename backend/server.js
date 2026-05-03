@@ -291,6 +291,81 @@ app.get('/api/pins/:id/photo', (req, res) => {
   res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
 });
 
+// ======================= PIN GALLERY (multi-photo) =======================
+// List all photos for a pin (newest first). Includes the primary photo_path
+// virtually as id=0 if it exists, plus all gallery photos.
+app.get('/api/pins/:id/photos', (req, res) => {
+  const pinId = req.params.id;
+  const pin = db.prepare('SELECT photo_path FROM pins WHERE id = ?').get(pinId);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  const rows = db
+    .prepare('SELECT * FROM pin_photos WHERE pin_id = ? ORDER BY created_at DESC')
+    .all(pinId);
+  res.json(rows);
+});
+
+// Upload new photo to gallery — multipart/form-data with field 'photo'.
+// Server resizes via Sharp (max 1200px) for storage efficiency.
+app.post('/api/pins/:id/photos', upload.single('photo'), async (req, res) => {
+  const pinId = req.params.id;
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(pinId);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  if (!req.file) return res.status(400).json({ error: 'Chybí fotka' });
+
+  let finalName = req.file.filename;
+  // If Sharp dostupný, zmenši a překóduj na JPEG pro úsporu místa
+  if (sharp) {
+    try {
+      const tmpPath = req.file.path;
+      const newName = Date.now() + '-' + Math.round(Math.random() * 1e9) + '.jpg';
+      const newPath = path.join(uploadsDir, newName);
+      await sharp(tmpPath)
+        .rotate()
+        .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toFile(newPath);
+      // Smaž původní soubor
+      if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+      finalName = newName;
+    } catch (e) {
+      // pokud zpracování selže, použijeme původní soubor
+      console.warn('Sharp processing failed:', e.message);
+    }
+  }
+
+  const photoPath = '/uploads/' + finalName;
+  const caption = req.body.caption || null;
+  const info = db
+    .prepare('INSERT INTO pin_photos (pin_id, path, caption) VALUES (?, ?, ?)')
+    .run(pinId, photoPath, caption);
+  const photo = db.prepare('SELECT * FROM pin_photos WHERE id = ?').get(info.lastInsertRowid);
+  res.json(photo);
+});
+
+// Delete a gallery photo (also removes file)
+app.delete('/api/pins/photos/:photoId', (req, res) => {
+  const id = req.params.photoId;
+  const photo = db.prepare('SELECT * FROM pin_photos WHERE id = ?').get(id);
+  if (!photo) return res.status(404).json({ error: 'Fotka nenalezena' });
+  db.prepare('DELETE FROM pin_photos WHERE id = ?').run(id);
+  if (photo.path) {
+    const p = path.join(__dirname, photo.path);
+    if (fs.existsSync(p)) {
+      try { fs.unlinkSync(p); } catch {}
+    }
+  }
+  res.json({ ok: true });
+});
+
+// Set a gallery photo as the pin's cover (primary photo_path)
+app.post('/api/pins/photos/:photoId/cover', (req, res) => {
+  const id = req.params.photoId;
+  const photo = db.prepare('SELECT * FROM pin_photos WHERE id = ?').get(id);
+  if (!photo) return res.status(404).json({ error: 'Fotka nenalezena' });
+  db.prepare('UPDATE pins SET photo_path = ? WHERE id = ?').run(photo.path, photo.pin_id);
+  res.json({ ok: true });
+});
+
 // ======================= TASKS =======================
 app.get('/api/tasks', (req, res) => {
   // All tasks with related pin + garden data

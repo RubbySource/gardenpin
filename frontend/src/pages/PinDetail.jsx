@@ -9,16 +9,22 @@ import { findPlantByName } from '../plantDatabase.js';
 
 export default function PinDetail({ pinId, onClose }) {
   const [pin, setPin] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('info');
   const [editing, setEditing] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [lightboxPhoto, setLightboxPhoto] = useState(null);
 
   const load = async () => {
     try {
-      const p = await api.getPin(pinId);
+      const [p, ph] = await Promise.all([
+        api.getPin(pinId),
+        api.listPinPhotos(pinId).catch(() => []),
+      ]);
       setPin(p);
+      setPhotos(ph);
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -28,6 +34,14 @@ export default function PinDetail({ pinId, onClose }) {
   useEffect(() => {
     load();
   }, [pinId]);
+
+  const refreshPhotos = async () => {
+    try {
+      const [p, ph] = await Promise.all([api.getPin(pinId), api.listPinPhotos(pinId)]);
+      setPin(p);
+      setPhotos(ph);
+    } catch {}
+  };
 
   const completeTask = async (t) => {
     try {
@@ -88,6 +102,9 @@ export default function PinDetail({ pinId, onClose }) {
         <button className={tab === 'info' ? 'active' : ''} onClick={() => setTab('info')}>
           ℹ️ Info
         </button>
+        <button className={tab === 'photos' ? 'active' : ''} onClick={() => setTab('photos')}>
+          📷 Fotky{photos.length > 0 ? ` (${photos.length})` : ''}
+        </button>
         <button className={tab === 'tasks' ? 'active' : ''} onClick={() => setTab('tasks')}>
           ✅ Úkoly ({pin.tasks.length})
         </button>
@@ -139,6 +156,16 @@ export default function PinDetail({ pinId, onClose }) {
             </button>
           </div>
         </div>
+      )}
+
+      {tab === 'photos' && (
+        <PhotoGallery
+          pinId={pin.id}
+          coverPath={pin.photo_path}
+          photos={photos}
+          onRefresh={refreshPhotos}
+          onOpen={(photo) => setLightboxPhoto(photo)}
+        />
       )}
 
       {tab === 'tasks' && (
@@ -241,7 +268,142 @@ export default function PinDetail({ pinId, onClose }) {
           )}
         </div>
       )}
+
+      {lightboxPhoto && (
+        <PhotoLightbox
+          photo={lightboxPhoto}
+          isCover={pin.photo_path === lightboxPhoto.path}
+          onClose={() => setLightboxPhoto(null)}
+          onDelete={async () => {
+            if (!confirm('Smazat tuto fotku?')) return;
+            try {
+              await api.deletePinPhoto(lightboxPhoto.id);
+              toast('🗑️ Fotka smazána');
+              setLightboxPhoto(null);
+              refreshPhotos();
+            } catch (e) {
+              toast('Chyba: ' + e.message);
+            }
+          }}
+          onSetCover={async () => {
+            try {
+              await api.setPinPhotoAsCover(lightboxPhoto.id);
+              toast('✅ Nastaveno jako titulní fotka');
+              refreshPhotos();
+            } catch (e) {
+              toast('Chyba: ' + e.message);
+            }
+          }}
+        />
+      )}
     </Modal>
+  );
+}
+
+function PhotoGallery({ pinId, coverPath, photos, onRefresh, onOpen }) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
+
+  const handleAdd = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      for (const file of files) {
+        await api.addPinPhoto(pinId, file);
+      }
+      toast(`✅ ${files.length} ${files.length === 1 ? 'fotka přidána' : files.length < 5 ? 'fotky přidány' : 'fotek přidáno'}`);
+      onRefresh();
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="photo-gallery">
+      <button
+        type="button"
+        className="btn block mb-2"
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+      >
+        {uploading ? '⏳ Nahrávám…' : '📷 Přidat fotky'}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={handleAdd}
+      />
+
+      {photos.length === 0 ? (
+        <div className="gp-empty" style={{ padding: '24px 16px' }}>
+          <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>📷</span>
+          <div className="gp-empty-title">Žádné fotky</div>
+          <div className="gp-empty-text">
+            Přidejte první fotku této rostliny pro sledování růstu.
+          </div>
+        </div>
+      ) : (
+        <div className="photo-grid">
+          {photos.map((photo) => (
+            <button
+              type="button"
+              key={photo.id}
+              className={`photo-grid-item${coverPath === photo.path ? ' is-cover' : ''}`}
+              onClick={() => onOpen(photo)}
+              title={photo.caption || formatDateTime(photo.created_at)}
+            >
+              <img src={photo.path} alt={photo.caption || ''} loading="lazy" />
+              {coverPath === photo.path && (
+                <span className="photo-cover-badge">⭐ Titulní</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PhotoLightbox({ photo, isCover, onClose, onDelete, onSetCover }) {
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="photo-lightbox-backdrop" onClick={onClose}>
+      <div className="photo-lightbox-content" onClick={(e) => e.stopPropagation()}>
+        <button className="photo-lightbox-close" onClick={onClose} aria-label="Zavřít">
+          ×
+        </button>
+        <img src={photo.path} alt={photo.caption || ''} className="photo-lightbox-img" />
+        {photo.caption && <div className="photo-lightbox-caption">{photo.caption}</div>}
+        <div className="photo-lightbox-meta">
+          📅 {formatDateTime(photo.created_at)}
+        </div>
+        <div className="photo-lightbox-actions">
+          {!isCover && (
+            <button className="btn ghost" onClick={onSetCover}>
+              ⭐ Nastavit jako titulní
+            </button>
+          )}
+          <button className="btn danger" onClick={onDelete}>
+            🗑️ Smazat
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

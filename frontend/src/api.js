@@ -32,6 +32,19 @@ export const api = {
       body: JSON.stringify({ photo: dataUrl }),
     }),
 
+  // Multi-photo gallery for pins
+  listPinPhotos: (pinId) => jsonFetch(`/api/pins/${pinId}/photos`),
+  addPinPhoto: (pinId, file, caption) => {
+    const fd = new FormData();
+    fd.append('photo', file);
+    if (caption) fd.append('caption', caption);
+    return fetch(`/api/pins/${pinId}/photos`, { method: 'POST', body: fd }).then(handle);
+  },
+  deletePinPhoto: (photoId) =>
+    jsonFetch(`/api/pins/photos/${photoId}`, { method: 'DELETE' }),
+  setPinPhotoAsCover: (photoId) =>
+    jsonFetch(`/api/pins/photos/${photoId}/cover`, { method: 'POST' }),
+
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),
   todayTasks: () => jsonFetch('/api/tasks/today'),
