@@ -2884,3 +2884,127 @@ input, textarea, select {
   border-radius: 999px;
   vertical-align: middle;
 }
+
+/* ===================== Task buckets — Dnes / Tento týden / Příští týden / Později ===================== */
+.task-bucket {
+  margin: 14px 0 10px;
+}
+.task-bucket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 6px;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  letter-spacing: -0.01em;
+}
+.task-bucket-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.task-bucket-count {
+  background: var(--sand-deep);
+  color: var(--charcoal);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+}
+.task-bucket-danger .task-bucket-name { color: var(--danger); }
+.task-bucket-danger .task-bucket-count {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--danger);
+}
+.task-bucket-warning .task-bucket-name { color: var(--warning); }
+.task-bucket-warning .task-bucket-count {
+  background: rgba(217, 122, 27, 0.14);
+  color: var(--warning);
+}
+.task-bucket-muted .task-bucket-name { color: var(--muted); }
+.task-bucket-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Swipe wrapper for task rows */
+.task-row-swipe-wrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.task-row-swipe-wrap > .task-row { will-change: transform; position: relative; z-index: 1; }
+.task-row-swipe-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--forest) 0%, var(--forest-deep) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding-left: 22px;
+  gap: 10px;
+  font-weight: 700;
+  z-index: 0;
+  transition: filter 0.15s;
+}
+.task-row-swipe-bg .swipe-icon {
+  font-size: 1.4rem;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-row-swipe-bg .swipe-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+.task-row-swipe-bg.triggered { filter: brightness(1.12); }
+
+/* Empty state illustration */
+.tasks-empty-illustration {
+  text-align: center;
+  padding: 36px 18px;
+  margin: 16px 0;
+  background: var(--sand);
+  border-radius: 18px;
+  border: 1px solid var(--divider);
+}
+.tasks-empty-illustration .emoji-art {
+  font-size: 2.4rem;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  animation: gentleSway 4s ease-in-out infinite;
+}
+.tasks-empty-illustration .emoji-art span:nth-child(1) {
+  animation: gentleSway 3s ease-in-out infinite;
+}
+.tasks-empty-illustration .emoji-art span:nth-child(2) {
+  animation: gentleSway 4s ease-in-out infinite -1s;
+}
+.tasks-empty-illustration .emoji-art span:nth-child(3) {
+  animation: gentleSway 5s ease-in-out infinite -2s;
+}
+.tasks-empty-illustration .title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 4px;
+}
+.tasks-empty-illustration .text {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+@keyframes gentleSway {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
