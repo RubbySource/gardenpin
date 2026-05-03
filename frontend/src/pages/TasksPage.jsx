@@ -1,5 +1,6 @@
 // All tasks page with smart time buckets + swipe-to-complete
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
@@ -92,12 +93,30 @@ function groupByMonth(items, getDate) {
 }
 
 export default function TasksPage({ onTaskComplete }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialFilter = (() => {
+    const f = searchParams.get('filter');
+    if (f === 'done' || f === 'all') return f;
+    if (f === 'overdue' || f === 'today' || f === 'upcoming') return 'upcoming';
+    return 'upcoming';
+  })();
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('upcoming'); // upcoming | all | done
+  const [filter, setFilter] = useState(initialFilter); // upcoming | all | done
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
+
+  // Reflect filter in URL when user clicks pills
+  const updateFilter = (next) => {
+    setFilter(next);
+    if (next === 'upcoming') {
+      searchParams.delete('filter');
+    } else {
+      searchParams.set('filter', next);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const load = async () => {
     try {
@@ -202,19 +221,19 @@ export default function TasksPage({ onTaskComplete }) {
       <div className="filter-pills">
         <button
           className={`filter-pill ${filter === 'upcoming' ? 'active' : ''}`}
-          onClick={() => setFilter('upcoming')}
+          onClick={() => updateFilter('upcoming')}
         >
           Nadcházející
         </button>
         <button
           className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
+          onClick={() => updateFilter('all')}
         >
           Vše {tasks.length > 0 && <span className="pill-count">{tasks.length}</span>}
         </button>
         <button
           className={`filter-pill ${filter === 'done' ? 'active' : ''}`}
-          onClick={() => setFilter('done')}
+          onClick={() => updateFilter('done')}
         >
           Dokončené {history.length > 0 && <span className="pill-count">{history.length}</span>}
         </button>

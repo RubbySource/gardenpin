@@ -123,26 +123,45 @@ export default function HomePage({ onTaskComplete }) {
         </div>
         {stats && (
           <div className="hero-stats hero-stats-4">
-            <div className="hero-stat">
+            <Link to="/zahrady" className="hero-stat hero-stat-link">
               <div className="val">{stats.gardens}</div>
               <div className="lbl">Zahrady</div>
-            </div>
-            <div className="hero-stat">
+            </Link>
+            <Link to="/zahrady" className="hero-stat hero-stat-link">
               <div className="val">{stats.pins}</div>
               <div className="lbl">Rostliny</div>
-            </div>
-            <div className="hero-stat">
+            </Link>
+            <Link
+              to={stats.overdue > 0 ? '/ukoly?filter=overdue' : '/ukoly?filter=today'}
+              className="hero-stat hero-stat-link"
+            >
               <div className={`val ${urgentClass}`}>{urgentCount}</div>
               <div className="lbl">{stats.overdue > 0 ? 'Po termínu' : 'Dnes'}</div>
-            </div>
-            <div className="hero-stat">
+            </Link>
+            <Link to="/ukoly?filter=done" className="hero-stat hero-stat-link">
               <div className={`val ${stats.weeklyDone > 0 ? 'success' : ''}`}>
                 {stats.weeklyDone ?? 0}
               </div>
               <div className="lbl">Tento týden</div>
-            </div>
+            </Link>
           </div>
         )}
+      </div>
+
+      {/* Quick actions */}
+      <div className="quick-actions">
+        <button className="quick-action" onClick={() => setShowNew(true)}>
+          <span className="qa-icon">🌱</span>
+          <span className="qa-label">Nová zahrada</span>
+        </button>
+        <Link to="/ukoly" className="quick-action">
+          <span className="qa-icon">📋</span>
+          <span className="qa-label">Úkoly</span>
+        </Link>
+        <Link to="/kalendar" className="quick-action">
+          <span className="qa-icon">📅</span>
+          <span className="qa-label">Kalendář</span>
+        </Link>
       </div>
 
       {/* Weather */}
