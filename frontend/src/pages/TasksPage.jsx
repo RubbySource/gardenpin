@@ -133,6 +133,18 @@ export default function TasksPage({ onTaskComplete }) {
     load();
   }, []);
 
+  // When arriving from HomePage with ?filter=overdue|today, scroll to that bucket
+  useEffect(() => {
+    if (loading) return;
+    const f = searchParams.get('filter');
+    if (f !== 'overdue' && f !== 'today') return;
+    const id = `bucket-${f}`;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [loading, searchParams]);
+
   const completeTask = async (t) => {
     if (completingIds.has(t.id)) return;
     setCompletingIds((s) => new Set(s).add(t.id));
@@ -265,7 +277,11 @@ export default function TasksPage({ onTaskComplete }) {
             const items = buckets[bucket.key] || [];
             if (items.length === 0) return null;
             return (
-              <div key={bucket.key} className={`task-bucket task-bucket-${bucket.tone}`}>
+              <div
+                key={bucket.key}
+                id={`bucket-${bucket.key}`}
+                className={`task-bucket task-bucket-${bucket.tone}`}
+              >
                 <div className="task-bucket-header">
                   <span className="task-bucket-name">{bucket.label}</span>
                   <span className="task-bucket-count">{items.length}</span>
