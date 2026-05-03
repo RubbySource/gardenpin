@@ -9,7 +9,6 @@
     "build-frontend": "cd ../frontend && npm install && npm run build"
   },
   "dependencies": {
-    "better-sqlite3": "^9.6.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",

@@ -1,5 +1,5 @@
-// SQLite database setup — using better-sqlite3 (Node >= 14, works with Node 20)
-const Database = require('better-sqlite3');
+// SQLite database setup — using built-in node:sqlite (Node 22+, no compilation needed)
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
@@ -12,7 +12,7 @@ const dbPath = process.env.DATABASE_PATH
 const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
-const db = new Database(dbPath);
+const db = new DatabaseSync(dbPath);
 db.exec('PRAGMA journal_mode = WAL');
 db.exec('PRAGMA foreign_keys = ON');
 
