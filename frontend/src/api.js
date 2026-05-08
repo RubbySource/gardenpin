@@ -67,6 +67,9 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+
+  // Weather
+  weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
 };
 
 async function handle(res) {
