@@ -18,12 +18,18 @@ export default function Modal({ title, onClose, children }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>
-          <span>{title}</span>
-          <button className="close-btn" onClick={onClose} aria-label="Zavřít">
+        {title === null ? (
+          <button className="modal-close-floating" onClick={onClose} aria-label="Zavřít">
             ×
           </button>
-        </h2>
+        ) : (
+          <h2>
+            <span>{title}</span>
+            <button className="close-btn" onClick={onClose} aria-label="Zavřít">
+              ×
+            </button>
+          </h2>
+        )}
         {children}
       </div>
     </div>

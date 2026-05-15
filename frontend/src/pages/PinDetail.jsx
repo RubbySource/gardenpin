@@ -1,9 +1,9 @@
-// Pin detail modal: info, tasks, history editing
+// Pin detail modal — Claude Design iOS premium (forest/sand, flat)
 import React, { useEffect, useRef, useState } from 'react';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
-import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskIcon, taskLabel } from '../utils.js';
+import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskIcon } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 
@@ -82,124 +82,197 @@ export default function PinDetail({ pinId, onClose }) {
     );
   }
 
+  const knownPlant = findPlantByName(pin.plant_name);
+  const plantedDays = pin.planting_date
+    ? Math.floor((new Date() - new Date(pin.planting_date)) / 86400000)
+    : null;
+
   return (
-    <Modal title={`📍 ${pin.name}`} onClose={onClose}>
-      <div className="tabs">
-        <button className={tab === 'info' ? 'active' : ''} onClick={() => setTab('info')}>
-          ℹ️ Info
+    <Modal title={null} onClose={onClose}>
+      {/* Hero header: photo or forest gradient */}
+      <div
+        className={`pin-hero${pin.photo_path ? '' : ' placeholder'}`}
+        style={pin.photo_path ? { backgroundImage: `url(${pin.photo_path})` } : undefined}
+      >
+        <div className="pin-hero-content">
+          {pin.plant_name && <div className="pin-hero-eyebrow">{pin.plant_name}</div>}
+          <h2 className="pin-hero-title">{pin.name}</h2>
+          {pin.planting_date && (
+            <div className="pin-hero-sub">
+              <span>📅</span> Vysazeno {formatDate(pin.planting_date)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="gp-tabs">
+        <button
+          className={tab === 'info' ? 'active' : ''}
+          onClick={() => setTab('info')}
+          type="button"
+        >
+          Info
         </button>
-        <button className={tab === 'tasks' ? 'active' : ''} onClick={() => setTab('tasks')}>
-          ✅ Úkoly ({pin.tasks.length})
+        <button
+          className={tab === 'tasks' ? 'active' : ''}
+          onClick={() => setTab('tasks')}
+          type="button"
+        >
+          Úkoly
+          {pin.tasks.length > 0 && <span className="tab-count">{pin.tasks.length}</span>}
         </button>
-        <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
-          📜 Historie
+        <button
+          className={tab === 'history' ? 'active' : ''}
+          onClick={() => setTab('history')}
+          type="button"
+        >
+          Historie
+          {pin.history.length > 0 && <span className="tab-count">{pin.history.length}</span>}
         </button>
       </div>
 
+      {/* Info tab */}
       {tab === 'info' && (
         <div>
-          {pin.photo_path && (
-            <img src={pin.photo_path} alt="" className="pin-photo-preview mb-2" />
+          {knownPlant && (
+            <PlantInfoCard
+              plant={knownPlant}
+              pinId={pin.id}
+              onTasksCreated={() => {
+                toast('✅ Doporučené úkoly přidány');
+                load();
+              }}
+            />
           )}
-          <div className="field">
-            <label>Rostlina</label>
-            <div>{pin.plant_name || <span className="muted">—</span>}</div>
-          </div>
-          <div className="field">
-            <label>Datum výsadby</label>
-            <div>
-              {pin.planting_date ? (
-                <>
-                  {formatDate(pin.planting_date)}
-                  {(() => {
-                    const d = new Date(pin.planting_date);
-                    const days = Math.floor((new Date() - d) / 86400000);
-                    return days >= 0 ? (
-                      <span className="muted small"> (před {days} dny)</span>
-                    ) : null;
-                  })()}
-                </>
-              ) : (
-                <span className="muted">—</span>
-              )}
+
+          <div className="info-rows">
+            <div className="info-row">
+              <span className="info-row-label">Rostlina</span>
+              <span className="info-row-value">
+                {pin.plant_name || <span className="muted-dash">—</span>}
+              </span>
             </div>
-          </div>
-          <div className="field">
-            <label>Poznámky</label>
-            <div style={{ whiteSpace: 'pre-wrap' }}>
-              {pin.notes || <span className="muted">—</span>}
+            <div className="info-row">
+              <span className="info-row-label">Datum výsadby</span>
+              <span className="info-row-value">
+                {pin.planting_date ? (
+                  <>
+                    {formatDate(pin.planting_date)}
+                    {plantedDays !== null && plantedDays >= 0 && (
+                      <span className="info-row-value-meta">před {plantedDays} dny</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="muted-dash">—</span>
+                )}
+              </span>
             </div>
+            {pin.notes ? (
+              <div className="info-row column">
+                <span className="info-row-label">Poznámky</span>
+                <span className="info-row-value">{pin.notes}</span>
+              </div>
+            ) : (
+              <div className="info-row">
+                <span className="info-row-label">Poznámky</span>
+                <span className="info-row-value">
+                  <span className="muted-dash">—</span>
+                </span>
+              </div>
+            )}
           </div>
-          <div className="row mt-3">
-            <button className="btn danger" onClick={deletePin}>
-              🗑️ Smazat
-            </button>
-            <button className="btn" onClick={() => setEditing(true)}>
-              ✏️ Upravit
-            </button>
-          </div>
+
+          <button className="btn block" onClick={() => setEditing(true)} type="button">
+            ✏️ Upravit místo
+          </button>
+          <button className="btn-text-danger" onClick={deletePin} type="button">
+            Smazat místo
+          </button>
         </div>
       )}
 
+      {/* Tasks tab */}
       {tab === 'tasks' && (
         <div>
-          <button className="btn block mb-2" onClick={() => setShowNewTask(true)}>
-            + Přidat úkol
-          </button>
           {pin.tasks.length === 0 ? (
-            <div className="empty small">Žádné úkoly. Přidejte zálivku, hnojení apod.</div>
+            <div className="gp-empty" style={{ marginBottom: 14 }}>
+              <span className="gp-empty-icon">✅</span>
+              <div className="gp-empty-title">Žádné úkoly</div>
+              <div className="gp-empty-text">
+                Přidejte zálivku, hnojení nebo jinou péči pro tuto rostlinu.
+              </div>
+            </div>
           ) : (
-            pin.tasks.map((t) => {
-              const badge = dueBadge(t.next_due);
-              return (
-                <div key={t.id} className={`task-item ${badge?.cls || ''}`}>
-                  <button
-                    className="task-complete-btn"
-                    onClick={() => completeTask(t)}
-                    aria-label="Hotovo"
+            <div>
+              {pin.tasks.map((t) => {
+                const badge = dueBadge(t.next_due);
+                const isOverdue = badge?.cls === 'overdue';
+                const isToday = badge?.cls === 'today';
+                return (
+                  <div
+                    key={t.id}
+                    className={`gp-task${isOverdue ? ' is-overdue' : ''}${isToday ? ' is-today' : ''}`}
                   >
-                    ✓
-                  </button>
-                  <div className="info">
-                    <div className="title">
-                      {taskIcon(t.task_type)} {t.title}
-                    </div>
-                    <div className="meta">
-                      {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-                      {t.frequency_days ? (
-                        <span className="badge" style={{ marginLeft: 6 }}>
-                          Každých {t.frequency_days} dní
-                        </span>
-                      ) : null}
+                    <button
+                      className="gp-task-check"
+                      onClick={() => completeTask(t)}
+                      aria-label="Hotovo"
+                      type="button"
+                    >
+                      ✓
+                    </button>
+                    <div className="gp-task-body">
+                      <div className="gp-task-title">
+                        <span style={{ fontSize: '1.05rem' }}>{taskIcon(t.task_type)}</span>
+                        {t.title}
+                      </div>
+                      <div className="gp-task-chips">
+                        {badge && <span className={`gp-chip ${badge.cls}`}>{badge.text}</span>}
+                        {t.frequency_days ? (
+                          <span className="gp-chip muted">Každých {t.frequency_days} dní</span>
+                        ) : null}
+                      </div>
                       {t.last_done && (
-                        <span className="muted small" style={{ marginLeft: 6 }}>
-                          · Naposledy: {formatDate(t.last_done)}
-                        </span>
+                        <div className="gp-task-meta" style={{ marginTop: 4 }}>
+                          Naposledy: {formatDate(t.last_done)}
+                        </div>
                       )}
                     </div>
+                    <div className="gp-task-actions">
+                      <button
+                        className="icon-btn"
+                        onClick={() => setEditingTask(t)}
+                        aria-label="Upravit"
+                        title="Upravit úkol"
+                        type="button"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="icon-btn danger"
+                        onClick={() => deleteTask(t)}
+                        aria-label="Smazat"
+                        title="Smazat úkol"
+                        type="button"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button
-                      className="btn ghost small"
-                      onClick={() => setEditingTask(t)}
-                      aria-label="Upravit"
-                      title="Upravit úkol"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="btn ghost small"
-                      onClick={() => deleteTask(t)}
-                      aria-label="Smazat"
-                      title="Smazat úkol"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
+
+          <button
+            className="btn block mt-3"
+            onClick={() => setShowNewTask(true)}
+            type="button"
+          >
+            + Přidat úkol
+          </button>
+
           {showNewTask && (
             <NewTaskForm
               pinId={pin.id}
@@ -223,21 +296,29 @@ export default function PinDetail({ pinId, onClose }) {
         </div>
       )}
 
+      {/* History tab */}
       {tab === 'history' && (
         <div>
           {pin.history.length === 0 ? (
-            <div className="empty small">Zatím žádná historie péče</div>
-          ) : (
-            pin.history.map((h) => (
-              <div key={h.id} className="history-item">
-                <div className="dot" />
-                <div className="info">
-                  <div>{h.action}</div>
-                  {h.notes && <div className="small muted">{h.notes}</div>}
-                  <div className="date">{formatDateTime(h.done_at)}</div>
-                </div>
+            <div className="gp-empty">
+              <span className="gp-empty-icon">📜</span>
+              <div className="gp-empty-title">Zatím žádná historie</div>
+              <div className="gp-empty-text">
+                Až splníte první úkol, objeví se zde záznam o péči.
               </div>
-            ))
+            </div>
+          ) : (
+            <div className="pin-history">
+              {pin.history.map((h) => (
+                <div key={h.id} className="pin-history-item">
+                  <div className="pin-history-dot" />
+                  <div className="pin-history-line" />
+                  <div className="pin-history-action">{h.action}</div>
+                  {h.notes && <div className="pin-history-notes">{h.notes}</div>}
+                  <div className="pin-history-date">{formatDateTime(h.done_at)}</div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -318,10 +399,14 @@ function EditPinForm({ pin, onClose, onSaved }) {
         </div>
         <div className="field">
           <label>Poznámky</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Něco o rostlině, péči, zdroji semen…"
+          />
         </div>
         <div className="field">
-          <label>Barva pinu</label>
+          <label>Barva pinu na mapě</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
         </div>
         <div className="field">
@@ -342,9 +427,12 @@ function EditPinForm({ pin, onClose, onSaved }) {
             {file ? (
               <div className="small">📎 {file.name}</div>
             ) : (
-              <div className="small muted">
-                {pin.photo_path ? 'Nahrát jinou fotku' : 'Klikněte pro nahrání fotky'}
-              </div>
+              <>
+                <div style={{ fontSize: '1.5rem' }}>📷</div>
+                <div className="small muted">
+                  {pin.photo_path ? 'Nahrát jinou fotku' : 'Klikněte pro nahrání fotky'}
+                </div>
+              </>
             )}
             <input
               ref={fileRef}
@@ -357,12 +445,12 @@ function EditPinForm({ pin, onClose, onSaved }) {
             />
           </div>
         </div>
-        <div className="row mt-3">
+        <div className="sheet-actions">
           <button type="button" className="btn ghost" onClick={onClose}>
             Zrušit
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Uložit'}
+            {saving ? 'Ukládám…' : 'Uložit'}
           </button>
         </div>
       </form>
@@ -380,7 +468,6 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Auto-fill title from type
     if (!title) {
       const t = TASK_TYPES.find((x) => x.value === taskType);
       if (t) setTitle(t.label);
@@ -437,7 +524,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
         </div>
         <div className="field">
           <label>Kdy</label>
-          <div className="tabs">
+          <div className="segmented">
             <button
               type="button"
               className={mode === 'frequency' ? 'active' : ''}
@@ -454,17 +541,16 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
             </button>
           </div>
           {mode === 'frequency' ? (
-            <div className="row">
-              <label className="small muted">Každých</label>
+            <div className="frequency-row">
+              <span className="freq-label">Každých</span>
               <input
                 type="number"
                 min="1"
                 max="365"
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                style={{ width: 80 }}
               />
-              <label className="small muted">dní</label>
+              <span className="freq-label">dní</span>
             </div>
           ) : (
             <input
@@ -478,12 +564,12 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
           <label>Poznámky</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
-        <div className="row mt-3">
+        <div className="sheet-actions">
           <button type="button" className="btn ghost" onClick={onClose}>
             Zrušit
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Přidat úkol'}
+            {saving ? 'Ukládám…' : 'Přidat úkol'}
           </button>
         </div>
       </form>
@@ -491,7 +577,6 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
   );
 }
 
-// ===================== P5: Editace úkolu =====================
 function EditTaskForm({ task, onClose, onSaved }) {
   const [title, setTitle] = useState(task.title);
   const [taskType, setTaskType] = useState(task.task_type);
@@ -540,15 +625,11 @@ function EditTaskForm({ task, onClose, onSaved }) {
         </div>
         <div className="field">
           <label>Název úkolu</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div className="field">
           <label>Kdy</label>
-          <div className="tabs">
+          <div className="segmented">
             <button
               type="button"
               className={mode === 'frequency' ? 'active' : ''}
@@ -565,17 +646,16 @@ function EditTaskForm({ task, onClose, onSaved }) {
             </button>
           </div>
           {mode === 'frequency' ? (
-            <div className="row">
-              <label className="small muted">Každých</label>
+            <div className="frequency-row">
+              <span className="freq-label">Každých</span>
               <input
                 type="number"
                 min="1"
                 max="365"
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                style={{ width: 80 }}
               />
-              <label className="small muted">dní</label>
+              <span className="freq-label">dní</span>
             </div>
           ) : (
             <input
@@ -589,12 +669,12 @@ function EditTaskForm({ task, onClose, onSaved }) {
           <label>Poznámky</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
-        <div className="row mt-3">
+        <div className="sheet-actions">
           <button type="button" className="btn ghost" onClick={onClose}>
             Zrušit
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Uložit změny'}
+            {saving ? 'Ukládám…' : 'Uložit změny'}
           </button>
         </div>
       </form>
