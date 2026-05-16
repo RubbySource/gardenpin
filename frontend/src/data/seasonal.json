@@ -1,0 +1,149 @@
+{
+  "_meta": {
+    "zone": "Česká republika (mírné pásmo, USDA 6-7)",
+    "note": "Typické sezonní úkoly pro ČR. Termíny jsou orientační, přizpůsobte si dle počasí v daném roce."
+  },
+  "months": [
+    {
+      "month": 1,
+      "name": "Leden",
+      "tasks": [
+        { "title": "Plánování sezóny", "type": "kontrola", "desc": "Zhodnotit loňskou sezónu, vybrat semena a odrůdy.", "plantTags": [] },
+        { "title": "Objednat semena", "type": "jine", "desc": "Online katalogy a zahradnictví — semena, sazenice, cibuloviny.", "plantTags": [] },
+        { "title": "Kontrola uskladněné úrody", "type": "kontrola", "desc": "Brambory, jablka, cibule — odstranit shnilé kusy.", "plantTags": ["brambory", "jablka", "cibule"] },
+        { "title": "Otřepání sněhu ze stromů", "type": "kontrola", "desc": "Aby těžký mokrý sníh neulámal větve.", "plantTags": [] },
+        { "title": "Ostření zahradního nářadí", "type": "jine", "desc": "Nůžky, motyky, rýče — zima je ideální čas na servis.", "plantTags": [] }
+      ]
+    },
+    {
+      "month": 2,
+      "name": "Únor",
+      "tasks": [
+        { "title": "Předpěstování rajčat a paprik", "type": "presazeni", "desc": "Konec února — vysadit do truhlíků na okno nebo do skleníku.", "plantTags": ["rajče", "paprika", "rajčata", "papriky"] },
+        { "title": "Řez ovocných stromů", "type": "strihani", "desc": "Hlavní řez jádrovin (jabloně, hrušně) v bezmrazých dnech.", "plantTags": ["jabloň", "hrušeň", "švestka"] },
+        { "title": "Řez révy vinné", "type": "strihani", "desc": "Před počátkem mízování — nejlépe v únoru.", "plantTags": ["vinná réva", "réva", "víno"] },
+        { "title": "Předpěstování celeru a pórku", "type": "presazeni", "desc": "Pomaleji rostoucí zelenina — výsev do sadbovačů.", "plantTags": ["celer", "pórek"] },
+        { "title": "Kontrola krytů", "type": "kontrola", "desc": "Zkontrolovat zimní ochranu citlivých rostlin (růže, fíkovník).", "plantTags": ["růže", "fíkovník"] }
+      ]
+    },
+    {
+      "month": 3,
+      "name": "Březen",
+      "tasks": [
+        { "title": "Výsev hrachu a špenátu", "type": "jine", "desc": "Přímo na záhon, jakmile půda rozmrzne.", "plantTags": ["hrách", "špenát"] },
+        { "title": "Sázení brambor (rané)", "type": "jine", "desc": "Konec března v teplejších oblastech — naklíčené hlízy.", "plantTags": ["brambory"] },
+        { "title": "Řez bobulovin", "type": "strihani", "desc": "Rybízy, angrešt, maliník — odstranit staré výhony.", "plantTags": ["rybíz", "angrešt", "maliník", "ostružiník"] },
+        { "title": "Hnojení trávníku", "type": "hnojeni", "desc": "Startovací jarní hnojení s vyšším obsahem dusíku.", "plantTags": ["trávník"] },
+        { "title": "Předpěstování okurek a cuket", "type": "presazeni", "desc": "Konec března do květináčů, ne dříve — rychle rostou.", "plantTags": ["okurka", "cuketa", "tykev"] },
+        { "title": "Vyhrabání trávníku", "type": "jine", "desc": "Odstranit plsť a starou trávu, provzdušnit.", "plantTags": ["trávník"] }
+      ]
+    },
+    {
+      "month": 4,
+      "name": "Duben",
+      "tasks": [
+        { "title": "Výsadba cibule a česneku jarního", "type": "jine", "desc": "Jakmile je půda zpracovatelná.", "plantTags": ["cibule", "česnek"] },
+        { "title": "Setí mrkve, petržele, ředkvičky", "type": "jine", "desc": "Přímo na záhon — kořenová zelenina.", "plantTags": ["mrkev", "petržel", "ředkvička"] },
+        { "title": "Pletí jarní", "type": "plet", "desc": "Plevele rostou s teplem — vyplet brzy a často.", "plantTags": [] },
+        { "title": "Sázení jahod", "type": "presazeni", "desc": "Doplnění porostů, omlazení starších záhonů.", "plantTags": ["jahody"] },
+        { "title": "Mulčování záhonů", "type": "jine", "desc": "Udržet vlhkost, omezit plevele — kompost, sláma, štěpka.", "plantTags": [] },
+        { "title": "Postřik proti chorobám", "type": "kontrola", "desc": "Preventivní postřik ovocných stromů (měď, síra).", "plantTags": ["jabloň", "hrušeň", "broskvoň"] }
+      ]
+    },
+    {
+      "month": 5,
+      "name": "Květen",
+      "tasks": [
+        { "title": "Výsadba rajčat a paprik", "type": "presazeni", "desc": "Po ledových mužích (15. května) ven na záhon.", "plantTags": ["rajče", "paprika", "rajčata", "papriky"] },
+        { "title": "Výsadba okurek a cuket", "type": "presazeni", "desc": "Půda musí být prohřátá nad 15 °C.", "plantTags": ["okurka", "cuketa", "tykev", "meloun"] },
+        { "title": "Sklizeň reveně a chřestu", "type": "sklizen", "desc": "Hlavní sezóna — sklízet do poloviny června.", "plantTags": ["reveň", "chřest"] },
+        { "title": "Sečení trávníku", "type": "jine", "desc": "Začátek pravidelného sečení (1-2× týdně).", "plantTags": ["trávník"] },
+        { "title": "Vyvazování rajčat", "type": "jine", "desc": "Pravidelné podvazování, vylamování zálistků.", "plantTags": ["rajče", "rajčata"] },
+        { "title": "Zálivka po výsadbě", "type": "zalivka", "desc": "Nové sazenice potřebují vydatnou zálivku.", "plantTags": [] }
+      ]
+    },
+    {
+      "month": 6,
+      "name": "Červen",
+      "tasks": [
+        { "title": "Sklizeň jahod", "type": "sklizen", "desc": "Hlavní sezóna jahod — sklízet denně, zralé.", "plantTags": ["jahody"] },
+        { "title": "Hnojení zeleniny", "type": "hnojeni", "desc": "Přihnojit rajčata, papriky, okurky kompostem nebo organickým hnojivem.", "plantTags": ["rajče", "paprika", "okurka"] },
+        { "title": "Letní řez ovocných stromů", "type": "strihani", "desc": "Probírání plodů, vylamování vlků.", "plantTags": ["jabloň", "hrušeň", "broskvoň"] },
+        { "title": "Sklizeň raných odrůd zeleniny", "type": "sklizen", "desc": "Salát, ředkvičky, jarní cibulka, hrášek.", "plantTags": ["salát", "ředkvička", "hrách", "cibule"] },
+        { "title": "Postřik proti mšicím", "type": "kontrola", "desc": "Mýdlový roztok nebo biologická ochrana.", "plantTags": [] },
+        { "title": "Vyvázání ovocných větví", "type": "kontrola", "desc": "U bohatě plodících stromů podepřít větve.", "plantTags": ["jabloň", "švestka"] }
+      ]
+    },
+    {
+      "month": 7,
+      "name": "Červenec",
+      "tasks": [
+        { "title": "Vydatná zálivka", "type": "zalivka", "desc": "V suchu zalévat ráno nebo večer, raději vydatně a méně často.", "plantTags": [] },
+        { "title": "Sklizeň raných brambor", "type": "sklizen", "desc": "Sklízet podle potřeby, skladovat v chladnu.", "plantTags": ["brambory"] },
+        { "title": "Sklizeň rybízu a angreštu", "type": "sklizen", "desc": "Bobuloviny vrcholí v červenci.", "plantTags": ["rybíz", "angrešt"] },
+        { "title": "Sklizeň meruněk", "type": "sklizen", "desc": "Hlavní sezóna meruněk — sklízet zralé.", "plantTags": ["meruňka"] },
+        { "title": "Letní řez živých plotů", "type": "strihani", "desc": "Tvarování zimostrázu, ptačího zobu, tisu.", "plantTags": ["živý plot"] },
+        { "title": "Pinzírování rajčat", "type": "kontrola", "desc": "Pravidelně vylamovat zálistky.", "plantTags": ["rajče", "rajčata"] }
+      ]
+    },
+    {
+      "month": 8,
+      "name": "Srpen",
+      "tasks": [
+        { "title": "Sklizeň rajčat a paprik", "type": "sklizen", "desc": "Hlavní sezóna — sklízet průběžně, zpracovat.", "plantTags": ["rajče", "paprika", "rajčata", "papriky"] },
+        { "title": "Sklizeň broskví a švestek", "type": "sklizen", "desc": "Postupně podle zralosti, srpen je vrchol.", "plantTags": ["broskvoň", "švestka", "slíva"] },
+        { "title": "Výsev zimního špenátu", "type": "jine", "desc": "Zelenina na podzim a předjaří.", "plantTags": ["špenát"] },
+        { "title": "Výsadba podzimních cibulovin", "type": "presazeni", "desc": "Krokusy, tulipány, narcisy (od konce srpna).", "plantTags": ["tulipán", "narcis", "krokus"] },
+        { "title": "Sklizeň okurek", "type": "sklizen", "desc": "Pravidelně, aby plodily dál.", "plantTags": ["okurka"] },
+        { "title": "Sklizeň byliny", "type": "sklizen", "desc": "Bazalka, máta, oregano, tymián — sušení.", "plantTags": ["bazalka", "máta", "tymián", "oregano", "byliny"] }
+      ]
+    },
+    {
+      "month": 9,
+      "name": "Září",
+      "tasks": [
+        { "title": "Sklizeň jablek a hrušek", "type": "sklizen", "desc": "Letní a podzimní odrůdy — uskladnit zdravé kusy.", "plantTags": ["jabloň", "hrušeň"] },
+        { "title": "Sklizeň brambor (hlavní)", "type": "sklizen", "desc": "Po zaschnutí natě, suché počasí.", "plantTags": ["brambory"] },
+        { "title": "Výsadba česneku zimního", "type": "jine", "desc": "Konec září / začátek října — paličák do mrazu.", "plantTags": ["česnek"] },
+        { "title": "Setí trávníku", "type": "jine", "desc": "Druhá nejlepší doba pro zakládání trávníku.", "plantTags": ["trávník"] },
+        { "title": "Vyrýt záhony", "type": "jine", "desc": "Sklizené záhony zrýt, zelené hnojení.", "plantTags": [] },
+        { "title": "Sklizeň hroznů", "type": "sklizen", "desc": "Dle odrůdy a počasí — zjistit cukernatost.", "plantTags": ["vinná réva", "réva", "víno"] }
+      ]
+    },
+    {
+      "month": 10,
+      "name": "Říjen",
+      "tasks": [
+        { "title": "Sklizeň pozdních jablek", "type": "sklizen", "desc": "Zimní odrůdy — pro skladování.", "plantTags": ["jabloň"] },
+        { "title": "Sklizeň dýní a tykví", "type": "sklizen", "desc": "Před prvními mrazy, do sucha.", "plantTags": ["tykev", "dýně"] },
+        { "title": "Hrabání listí", "type": "jine", "desc": "Na kompost, nebo zapracovat do záhonů.", "plantTags": [] },
+        { "title": "Sázení ovocných stromů", "type": "presazeni", "desc": "Podzimní výsadba — stromy se dobře zakoření.", "plantTags": ["jabloň", "hrušeň", "švestka"] },
+        { "title": "Sklizeň kořenové zeleniny", "type": "sklizen", "desc": "Mrkev, petržel, červená řepa — uskladnit.", "plantTags": ["mrkev", "petržel", "červená řepa"] },
+        { "title": "Poslední sečení trávníku", "type": "jine", "desc": "Posekat krátce před zimou.", "plantTags": ["trávník"] }
+      ]
+    },
+    {
+      "month": 11,
+      "name": "Listopad",
+      "tasks": [
+        { "title": "Zazimování růží", "type": "kontrola", "desc": "Nahrnout zeminu k bázi, citlivé odrůdy přikrýt.", "plantTags": ["růže"] },
+        { "title": "Ochrana citlivých rostlin", "type": "kontrola", "desc": "Fíkovník, oleandr, vavřín — chvojí, jutový obal.", "plantTags": ["fíkovník", "oleandr", "vavřín"] },
+        { "title": "Hluboké zrytí těžkých půd", "type": "jine", "desc": "Mráz pak zpracuje hroudy.", "plantTags": [] },
+        { "title": "Konzervace nářadí", "type": "jine", "desc": "Vyčistit, naolejovat, uložit do sucha.", "plantTags": [] },
+        { "title": "Ochrana proti hlodavcům", "type": "kontrola", "desc": "Pletivo kolem mladých stromků, otrávené nástrahy.", "plantTags": [] },
+        { "title": "Zalévání před mrazem", "type": "zalivka", "desc": "Stálezelené keře potřebují vláhu i v zimě.", "plantTags": [] }
+      ]
+    },
+    {
+      "month": 12,
+      "name": "Prosinec",
+      "tasks": [
+        { "title": "Kontrola uskladněné úrody", "type": "kontrola", "desc": "Jablka, brambory, cibule — odstranit shnilé kusy.", "plantTags": ["jablka", "brambory", "cibule"] },
+        { "title": "Otřepání sněhu", "type": "kontrola", "desc": "Z větví stromů a keřů, aby nepraskaly.", "plantTags": [] },
+        { "title": "Plánování příští sezóny", "type": "jine", "desc": "Osevní plán, zhodnocení, semena.", "plantTags": [] },
+        { "title": "Krmítka pro ptáky", "type": "jine", "desc": "Pravidelně doplňovat — slunečnice, lůj.", "plantTags": [] },
+        { "title": "Rozjímání u krbu", "type": "jine", "desc": "Listovat semenářskými katalogy. Zasloužené.", "plantTags": [] }
+      ]
+    }
+  ]
+}

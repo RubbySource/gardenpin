@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GardenPin – Sezónní péče o zahradu v tvém kalendáři</title>
+  <meta name="description" content="Připni rostliny na fotku své zahrady a získej sezónní připomínky hnojení, řezu a zazimování přímo v Apple nebo Google Kalendáři. 85+ českých rostlin." />
+  <meta property="og:title" content="GardenPin – Sezónní péče o zahradu v tvém kalendáři" />
+  <meta property="og:description" content="Připni rostliny na fotku své zahrady a získej sezónní připomínky hnojení, řezu a zazimování přímo v Apple nebo Google Kalendáři." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="cs_CZ" />
+  <meta name="theme-color" content="#2d5a27" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── RESET & VARIABLES ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #2d5a27;
+      --green-mid:  #3d7a35;
+      --green-light:#e8f2e6;
+      --green-glow: rgba(45,90,39,.12);
+      --sand:       #f5f0e8;
+      --sand-dark:  #ede6d8;
+      --white:      #ffffff;
+      --charcoal:   #1a1a1a;
+      --gray-700:   #374151;
+      --gray-500:   #6b7280;
+      --gray-200:   #e5e7eb;
+      --radius:     16px;
+      --radius-lg:  24px;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:  0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+      --shadow-lg:  0 12px 40px rgba(0,0,0,.1), 0 4px 12px rgba(0,0,0,.06);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: var(--charcoal);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── TYPOGRAPHY ────────────────────────────────────────────── */
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; letter-spacing: -.03em; }
+    h2 { font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 700; line-height: 1.2; letter-spacing: -.02em; }
+    h3 { font-size: 1.1rem; font-weight: 600; line-height: 1.3; }
+    p  { line-height: 1.65; color: var(--gray-700); }
+
+    /* ── LAYOUT HELPERS ────────────────────────────────────────── */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin-inline: auto;
+      padding-inline: clamp(1.25rem, 5vw, 2.5rem);
+    }
+
+    section { padding-block: clamp(4rem, 8vw, 7rem); }
+
+    /* ── NAV ───────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--green);
+      text-decoration: none;
+      letter-spacing: -.02em;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--green);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--green);
+      color: var(--white);
+      font-weight: 600;
+      font-size: .875rem;
+      padding: .5rem 1.1rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .nav-cta:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+    /* ── HERO ──────────────────────────────────────────────────── */
+    #hero {
+      background: linear-gradient(160deg, var(--green) 0%, #1e3d1a 100%);
+      color: var(--white);
+      padding-block: clamp(5rem, 12vw, 9rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff' opacity='.04'/%3E%3C/svg%3E");
+    }
+
+    .hero-content {
+      position: relative;
+      display: grid;
+      gap: 2.5rem;
+      max-width: 680px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50px;
+      padding: .35rem .9rem;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    #hero h1 { color: var(--white); }
+    #hero h1 span { color: #86efac; }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: rgba(255,255,255,.8);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--white);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: .85rem 1.8rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      color: rgba(255,255,255,.85);
+      font-weight: 600;
+      font-size: .95rem;
+      text-decoration: none;
+      padding: .5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.35);
+      transition: color .2s, border-color .2s;
+    }
+    .btn-ghost:hover { color: var(--white); border-color: var(--white); }
+
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      color: rgba(255,255,255,.6);
+      font-size: .8rem;
+    }
+    .hero-trust-dots {
+      display: flex;
+    }
+    .hero-trust-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.4);
+      background: linear-gradient(135deg, #86efac, #4ade80);
+      margin-left: -6px;
+      font-size: .65rem;
+      display: grid;
+      place-items: center;
+    }
+    .hero-trust-dot:first-child { margin-left: 0; }
+
+    /* Mock phone visual */
+    .hero-visual {
+      position: absolute;
+      right: clamp(-4rem, -2vw, -1rem);
+      top: 50%;
+      transform: translateY(-50%);
+      width: clamp(200px, 35vw, 380px);
+      pointer-events: none;
+      display: none;
+    }
+    @media (min-width: 800px) { .hero-visual { display: block; } }
+
+    .phone-mock {
+      width: 100%;
+      background: #0f1a0d;
+      border-radius: 40px;
+      border: 2px solid rgba(255,255,255,.12);
+      padding: 1.5rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,.5);
+      position: relative;
+    }
+
+    .phone-screen {
+      background: var(--sand);
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 9/17;
+      position: relative;
+    }
+
+    .phone-garden-bg {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #4a7c59 0%, #2d5a27 40%, #86efac22 100%);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      gap: .5rem;
+    }
+
+    .phone-header {
+      background: rgba(255,255,255,.95);
+      border-radius: 12px;
+      padding: .5rem .75rem;
+      font-size: .55rem;
+      font-weight: 700;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    .phone-pins {
+      flex: 1;
+      position: relative;
+    }
+
+    .pin-dot {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: grid;
+      place-items: center;
+      font-size: .75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      cursor: default;
+    }
+    .pin-dot span { transform: rotate(45deg); display: block; }
+
+    .pin-1 { background: var(--white); top: 20%; left: 25%; }
+    .pin-2 { background: #fbbf24; top: 45%; left: 55%; }
+    .pin-3 { background: #f87171; top: 65%; left: 20%; }
+    .pin-4 { background: #a78bfa; top: 30%; left: 68%; }
+
+    .phone-cal-card {
+      background: rgba(255,255,255,.95);
+      border-radius: 10px;
+      padding: .5rem .75rem;
+      font-size: .5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+    .cal-label { font-weight: 700; color: var(--green); font-size: .55rem; }
+    .cal-item { display: flex; align-items: center; gap: .3rem; color: var(--gray-700); }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* ── HOW IT WORKS ──────────────────────────────────────────── */
+    #how {
+      background: var(--sand);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--green-light);
+      color: var(--green);
+      border-radius: 50px;
+      padding: .3rem .9rem;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .section-header p {
+      margin-top: .75rem;
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin-inline: auto;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .step-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--sand-dark);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .step-number {
+      position: absolute;
+      top: -14px; left: 2rem;
+      background: var(--green);
+      color: var(--white);
+      font-size: .7rem;
+      font-weight: 800;
+      padding: .25rem .65rem;
+      border-radius: 50px;
+      letter-spacing: .04em;
+    }
+
+    .step-icon {
+      font-size: 2.4rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .step-card h3 { margin-bottom: .5rem; color: var(--charcoal); }
+    .step-card p  { font-size: .9rem; }
+
+    /* connector arrows between steps */
+    .steps-arrows {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .steps-arrows { display: block; }
+    }
+
+    /* ── FEATURES ──────────────────────────────────────────────── */
+    #features { background: var(--white); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--sand);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      border: 1px solid var(--sand-dark);
+      transition: transform .25s, box-shadow .25s, background .2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      background: var(--white);
+    }
+
+    .feature-icon-wrap {
+      width: 48px; height: 48px;
+      background: var(--green-light);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.1rem;
+      transition: background .2s;
+    }
+    .feature-card:hover .feature-icon-wrap { background: var(--green); }
+
+    .feature-card h3 { margin-bottom: .45rem; }
+    .feature-card p  { font-size: .9rem; }
+
+    /* Featured / wide card */
+    .feature-card--wide {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+      background: linear-gradient(135deg, var(--green) 0%, #1e3d1a 100%);
+      border: none;
+      color: var(--white);
+    }
+    .feature-card--wide:hover { background: linear-gradient(135deg, var(--green-mid) 0%, #2d5a27 100%); }
+    .feature-card--wide h3 { color: var(--white); font-size: 1.25rem; }
+    .feature-card--wide p  { color: rgba(255,255,255,.8); font-size: .95rem; }
+    .feature-card--wide .feature-icon-wrap {
+      background: rgba(255,255,255,.15);
+      font-size: 1.8rem;
+      width: 60px; height: 60px;
+    }
+    .feature-card--wide:hover .feature-icon-wrap { background: rgba(255,255,255,.25); }
+
+    .feature-wide-img {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cal-preview {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      font-size: .82rem;
+      color: rgba(255,255,255,.9);
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .cal-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .cal-month {
+      background: rgba(255,255,255,.15);
+      border-radius: 6px;
+      padding: .2rem .5rem;
+      font-size: .7rem;
+      font-weight: 700;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .cal-event {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      flex: 1;
+    }
+    .cal-event-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    @media (max-width: 640px) {
+      .feature-card--wide {
+        grid-template-columns: 1fr;
+      }
+      .feature-wide-img { display: none; }
+    }
+
+    /* ── PRICING ───────────────────────────────────────────────── */
+    #pricing {
+      background: var(--sand);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      border: 2px solid var(--gray-200);
+      position: relative;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .pricing-card--featured {
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px var(--green-glow), var(--shadow-md);
+    }
+    .pricing-card--featured:hover { box-shadow: 0 0 0 4px var(--green-glow), var(--shadow-lg); }
+
+    .pricing-badge {
+      position: absolute;
+      top: -14px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: var(--white);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .3rem .9rem;
+      border-radius: 50px;
+      white-space: nowrap;
+      letter-spacing: .03em;
+    }
+
+    .pricing-name {
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: .5rem;
+    }
+
+    .pricing-price {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--charcoal);
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+    .pricing-price sub {
+      font-size: .9rem;
+      font-weight: 500;
+      vertical-align: baseline;
+      color: var(--gray-500);
+      letter-spacing: 0;
+    }
+    .pricing-price small {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--gray-500);
+    }
+
+    .pricing-period {
+      font-size: .82rem;
+      color: var(--gray-500);
+      margin-top: .25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 1.25rem 0;
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .88rem;
+      color: var(--gray-700);
+    }
+
+    .check {
+      font-size: .85rem;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .check--yes { color: var(--green); }
+    .check--no  { color: var(--gray-200); }
+
+    .btn-pricing {
+      display: block;
+      text-align: center;
+      font-weight: 700;
+      font-size: .95rem;
+      padding: .85rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: background .2s, transform .15s, box-shadow .2s;
+    }
+
+    .btn-pricing--primary {
+      background: var(--green);
+      color: var(--white);
+    }
+    .btn-pricing--primary:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(45,90,39,.3); }
+
+    .btn-pricing--outline {
+      background: transparent;
+      color: var(--charcoal);
+      border: 2px solid var(--gray-200);
+    }
+    .btn-pricing--outline:hover { border-color: var(--green); color: var(--green); transform: translateY(-1px); }
+
+    .pricing-note {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: .85rem;
+      color: var(--gray-500);
+    }
+
+    /* ── CTA SECTION ───────────────────────────────────────────── */
+    #cta {
+      background: linear-gradient(150deg, var(--green) 0%, #1a3318 100%);
+      color: var(--white);
+      text-align: center;
+      padding-block: clamp(4rem, 8vw, 6rem);
+    }
+
+    #cta h2 { color: var(--white); margin-bottom: 1rem; }
+    #cta p  { color: rgba(255,255,255,.75); max-width: 480px; margin-inline: auto; margin-bottom: 2rem; font-size: 1.05rem; }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .btn-cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--white);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: .9rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+    .btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+
+    .btn-cta-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      color: rgba(255,255,255,.8);
+      font-weight: 600;
+      font-size: .95rem;
+      text-decoration: none;
+      padding: .9rem 1.5rem;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,.3);
+      transition: background .2s, border-color .2s;
+    }
+    .btn-cta-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.6); }
+
+    /* ── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      background: #0f1a0d;
+      color: rgba(255,255,255,.5);
+      padding-block: 2.5rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: -.02em;
+    }
+
+    .footer-logo-icon {
+      width: 28px; height: 28px;
+      background: var(--green);
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: .9rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,.45);
+      font-size: .85rem;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+
+    .footer-copy {
+      font-size: .82rem;
+      width: 100%;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 1.5rem;
+      margin-top: .5rem;
+    }
+
+    /* ── UTILITIES ─────────────────────────────────────────────── */
+    .text-center { text-align: center; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* ── ANIMATIONS ────────────────────────────────────────────── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .float { animation: float 4s ease-in-out infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(45,90,39,.4); }
+      50% { box-shadow: 0 0 0 6px rgba(45,90,39,0); }
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────────── -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="logo" aria-label="GardenPin domů">
+      <span class="logo-icon" aria-hidden="true">📍</span>
+      GardenPin
+    </a>
+    <a href="#pricing" class="nav-cta">
+      Vyzkoušet zdarma →
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<section id="hero" aria-label="Úvod">
+  <div class="container" style="position: relative;">
+    <div class="hero-content">
+      <span class="hero-badge">
+        <span aria-hidden="true">🌿</span>
+        85+ českých rostlin &nbsp;·&nbsp; PWA
+      </span>
+      <h1>Zahrada pod<br><span>kontrolou</span> celý rok</h1>
+      <p class="hero-sub">
+        Připni rostliny na fotku své zahrady a získej sezónní připomínky — řez, hnojení, zazimování — přímo v Apple nebo Google Kalendáři. Žádné denní otravování. Jen ty správné úkoly ve správný čas.
+      </p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn-primary">
+          <span aria-hidden="true">🌱</span>
+          Vyzkoušet zdarma
+        </a>
+        <a href="#how" class="btn-ghost">
+          Jak to funguje <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+      <div class="hero-trust" aria-hidden="true">
+        <div class="hero-trust-dots">
+          <div class="hero-trust-dot">🧑</div>
+          <div class="hero-trust-dot">🧑</div>
+          <div class="hero-trust-dot">🧑</div>
+        </div>
+        <span>Vyzkoušeno českými zahrádkáři</span>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="hero-visual float" aria-hidden="true">
+      <div class="phone-mock">
+        <div class="phone-screen">
+          <div class="phone-garden-bg">
+            <div class="phone-header">
+              <span>📍</span> Má zahrada — 6 rostlin
+            </div>
+            <div class="phone-pins" style="flex:1; position:relative;">
+              <div class="pin-dot pin-1" style="position:absolute;top:20%;left:25%"><span>🌹</span></div>
+              <div class="pin-dot pin-2" style="position:absolute;top:40%;left:55%"><span>🌳</span></div>
+              <div class="pin-dot pin-3" style="position:absolute;top:65%;left:18%"><span>🌿</span></div>
+              <div class="pin-dot pin-4" style="position:absolute;top:28%;left:68%"><span>🌸</span></div>
+            </div>
+            <div class="phone-cal-card">
+              <div class="cal-label">📅 Nejbližší akce</div>
+              <div class="cal-item"><span class="cal-dot"></span>Řez růží — 15. března</div>
+              <div class="cal-item"><span class="cal-dot" style="background:#fbbf24"></span>Hnojení jabloní — 1. dubna</div>
+              <div class="cal-item"><span class="cal-dot" style="background:#a78bfa"></span>Zazimování — 1. listopadu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ──────────────────────────────────────────────── -->
+<section id="how" aria-label="Jak GardenPin funguje">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label"><span aria-hidden="true">⚡</span> Tři kroky</div>
+      <h2>Jednoduché jako focení zahrady</h2>
+      <p>Žádné složité nastavení. Funguje hned.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-number">Krok 1</span>
+        <span class="step-icon" aria-hidden="true">📷</span>
+        <h3>Vyfot svoji zahradu</h3>
+        <p>Nahraj fotku své skutečné zahrady. GardenPin ji použije jako mapu — každý pin přesně tam, kde daná rostlina roste.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">Krok 2</span>
+        <span class="step-icon" aria-hidden="true">📍</span>
+        <h3>Připni rostlinu &amp; vyber akce</h3>
+        <p>Vyber rostlinu z databáze 85+ druhů. GardenPin navrhne správné sezónní akce — ty odškrtneš jen ty, které chceš sledovat.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">Krok 3</span>
+        <span class="step-icon" aria-hidden="true">📅</span>
+        <h3>Exportuj do kalendáře</h3>
+        <p>Jedním klepnutím exportuješ všechny úkoly do Apple Kalendáře nebo Google Kalendáře jako roční připomínky.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ──────────────────────────────────────────────────── -->
+<section id="features" aria-label="Klíčové funkce GardenPin">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label"><span aria-hidden="true">✨</span> Funkce</div>
+      <h2>Vše, co potřebuješ pro kvetoucí zahradu</h2>
+    </div>
+
+    <div class="features-grid">
+
+      <!-- Wide featured card -->
+      <div class="feature-card feature-card--wide">
+        <div>
+          <div class="feature-icon-wrap" aria-hidden="true">📅</div>
+          <h3>iCal export pro Apple &amp; Google Kalendář</h3>
+          <p>Jedním klepnutím odešleš všechny sezónní úkoly do svého oblíbeného kalendáře jako opakující se roční události. Bez instalace aplikace — funguje na iPhone i Androidu přes PWA.</p>
+        </div>
+        <div class="feature-wide-img" aria-hidden="true">
+          <div class="cal-preview">
+            <div class="cal-row">
+              <span class="cal-month">BŘE</span>
+              <div class="cal-event">
+                <span class="cal-event-dot" style="background:#4ade80"></span>
+                Řez zimostrázu
+              </div>
+            </div>
+            <div class="cal-row">
+              <span class="cal-month">DUB</span>
+              <div class="cal-event">
+                <span class="cal-event-dot" style="background:#fbbf24"></span>
+                Hnojení jabloní
+              </div>
+            </div>
+            <div class="cal-row">
+              <span class="cal-month">KVĚ</span>
+              <div class="cal-event">
+                <span class="cal-event-dot" style="background:#f87171"></span>
+                Řez rododendronů
+              </div>
+            </div>
+            <div class="cal-row">
+              <span class="cal-month">ŘÍJ</span>
+              <div class="cal-event">
+                <span class="cal-event-dot" style="background:#a78bfa"></span>
+                Mulčování trvalek
+              </div>
+            </div>
+            <div class="cal-row">
+              <span class="cal-month">LIS</span>
+              <div class="cal-event">
+                <span class="cal-event-dot" style="background:#60a5fa"></span>
+                Zazimování růží
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrap" aria-hidden="true">🗺️</div>
+        <h3>Mapa na tvé fotce</h3>
+        <p>Žádná generická mřížka. Připínáš přímo na fotku své skutečné zahrady — přesně víš, o které keře jde.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrap" aria-hidden="true">🌿</div>
+        <h3>85+ českých rostlin</h3>
+        <p>Databáze zaměřená na okrasné zahrady — keře, trvalky, stromy, cibuloviny. Odrůdy a středoevropský klima fokus.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrap" aria-hidden="true">✂️</div>
+        <h3>Sezónní akce, ne zalévání</h3>
+        <p>Jen velké roční úkoly: řez, hnojení, přesazení, mulčování, zazimování. Nekrmíme tě denními banálnostmi.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrap" aria-hidden="true">📱</div>
+        <h3>Mobilní PWA bez App Store</h3>
+        <p>Přidáš na plochu iPhonu nebo Androidu přímo z prohlížeče. Žádné čekání na schválení, žádný download.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrap" aria-hidden="true">🔒</div>
+        <h3>Tvá data, tvoje zahrada</h3>
+        <p>Fotky zahrady zůstávají na tvém zařízení. Export do kalendáře funguje přes standardní iCal — bez vendor lock-in.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ───────────────────────────────────────────────────── -->
+<section id="pricing" aria-label="Ceník GardenPin">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label"><span aria-hidden="true">💚</span> Ceník</div>
+      <h2>Začni zdarma, plať jen za víc</h2>
+      <p>Zkus GardenPin bez platební karty. Přejdi na Premium, až budeš chtít víc.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- Free -->
+      <div class="pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price">€0</div>
+        <div class="pricing-period">navždy zdarma</div>
+        <hr class="pricing-divider" />
+        <ul class="pricing-features" aria-label="Co obsahuje Free plán">
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Až 10 pinů na zahradu</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Základní databáze rostlin</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Ruční zobrazení akcí</li>
+          <li><span class="check check--no" aria-label="nezahrnuto">✗</span> <span style="color:var(--gray-400)">iCal export do kalendáře</span></li>
+          <li><span class="check check--no" aria-label="nezahrnuto">✗</span> <span style="color:var(--gray-400)">Plná databáze 85+ rostlin</span></li>
+          <li><span class="check check--no" aria-label="nezahrnuto">✗</span> <span style="color:var(--gray-400)">Více zahrad</span></li>
+        </ul>
+        <a href="#" class="btn-pricing btn-pricing--outline">Začít zdarma</a>
+      </div>
+
+      <!-- Premium -->
+      <div class="pricing-card pricing-card--featured">
+        <span class="pricing-badge">🌟 Nejoblíbenější</span>
+        <div class="pricing-name">Premium</div>
+        <div class="pricing-price">€2<sub>.99</sub> <small style="font-size:1rem">/měs</small></div>
+        <div class="pricing-period">nebo €19.99 / rok — ušetříš 44 %</div>
+        <hr class="pricing-divider" />
+        <ul class="pricing-features" aria-label="Co obsahuje Premium plán">
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Neomezené piny</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Plná databáze 85+ rostlin</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> <strong>iCal export do Apple &amp; Google Kalendáře</strong></li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Více zahrad</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Prioritní podpora</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Přístup k novým funkcím jako první</li>
+        </ul>
+        <a href="#" class="btn-pricing btn-pricing--primary">Začít Premium</a>
+      </div>
+
+      <!-- One-time -->
+      <div class="pricing-card">
+        <div class="pricing-name">Navždy</div>
+        <div class="pricing-price">€29<sub>.99</sub></div>
+        <div class="pricing-period">jednorázová platba, bez předplatného</div>
+        <hr class="pricing-divider" />
+        <ul class="pricing-features" aria-label="Co obsahuje plán Navždy">
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Vše z Premium plánu</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Platíš jednou, máš navždy</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Všechny budoucí aktualizace</li>
+          <li><span class="check check--yes" aria-label="zahrnuto">✓</span> Ideální pro vášnivé zahrádkáře</li>
+        </ul>
+        <a href="#" class="btn-pricing btn-pricing--outline">Koupit navždy</a>
+      </div>
+
+    </div>
+
+    <p class="pricing-note">
+      Bez závazků. Zrušení předplatného kdykoli. Platba přes zabezpečené připojení.
+    </p>
+  </div>
+</section>
+
+<!-- ── CTA ───────────────────────────────────────────────────────── -->
+<section id="cta" aria-label="Výzva k akci">
+  <div class="container">
+    <div class="section-label" style="background:rgba(255,255,255,.12); color:var(--white); border:1px solid rgba(255,255,255,.2); margin-inline:auto; margin-bottom:1.25rem;">
+      <span aria-hidden="true">🌸</span> Připraveno na jarní sezónu
+    </div>
+    <h2>Tvoje zahrada tě čeká</h2>
+    <p>Přidej první rostlinu za 2 minuty. Zdarma, bez karty, bez závazku.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-cta-primary">
+        <span aria-hidden="true">🌱</span>
+        Vyzkoušet zdarma
+      </a>
+      <a href="#features" class="btn-cta-ghost">
+        Zobrazit funkce
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#" class="footer-logo" aria-label="GardenPin domů">
+        <span class="footer-logo-icon" aria-hidden="true">📍</span>
+        GardenPin
+      </a>
+      <ul class="footer-links" aria-label="Patičkové odkazy">
+        <li><a href="#">O aplikaci</a></li>
+        <li><a href="#">Ochrana soukromí</a></li>
+        <li><a href="#">Podmínky použití</a></li>
+        <li><a href="mailto:hello@gardenpin.app">Kontakt</a></li>
+      </ul>
+    </div>
+    <p class="footer-copy">
+      © 2026 GardenPin. Vyrobeno s&nbsp;❤️ pro české zahrádkáře.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
