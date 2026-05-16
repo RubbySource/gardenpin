@@ -46,17 +46,16 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [ ] iOS-style redesign Home + List
-  Scope:
-  - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
-  - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
-  - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
-
 ## Hotovo
+
+- [x] iOS-style redesign Home + List — hotovo 2026-05-16
+  - Home: sekce "Tento týden — sklizeň" (úkoly task_type=sklizen na 7 dní), grid 4 posledních fotek napříč piny (nový backend endpoint GET /api/photos/recent)
+  - List (Gardens + Tasks): sticky search bar s backdrop-blur, swipe-to-delete na garden card, pull-to-refresh hook
+  - SF Symbols-inspired inline SVG ikonky (Icon.jsx, 15 ikonek bez nové dependence), nahrazení emoji na klíčových místech (search, trash, camera, basket)
+  - Nový hook useSwipeAction (oba směry — left=delete, right=complete) + usePullToRefresh + PullIndicator komponenta
+  - Cleanup: opraveny pre-existing syntax errory v SeasonalCalendar.jsx a PinDetail.jsx (orphan duplicate JSX bloky)
 
 - [x] Merge PR #19 — Claude Design redesign PinDetail — mergeno 2026-05-15
-
-## Hotovo
 
 - [x] Fotky rostlin — upload + galerie — hotovo 2026-05-16
   - Backend: tabulka `pin_photos`, endpointy POST/GET/DELETE `/api/pins/:id/photos`, multer per-pin storage, static serve `/uploads/pins/...`

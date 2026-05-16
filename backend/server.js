@@ -307,6 +307,27 @@ const pinPhotoUpload = multer({
   },
 });
 
+// Nejnovější fotky napříč všemi piny — pro Home grid "Poslední fotky"
+app.get('/api/photos/recent', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit || '4', 10) || 4, 24);
+  const rows = db
+    .prepare(
+      `SELECT ph.id, ph.pin_id, ph.filename, ph.uploaded_at, ph.caption,
+              p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+         FROM pin_photos ph
+         JOIN pins p ON p.id = ph.pin_id
+         JOIN gardens g ON g.id = p.garden_id
+         ORDER BY ph.uploaded_at DESC
+         LIMIT ?`,
+    )
+    .all(limit);
+  const photos = rows.map((r) => ({
+    ...r,
+    url: `/uploads/pins/${r.pin_id}/${r.filename}`,
+  }));
+  res.json(photos);
+});
+
 // Seznam fotek pinu
 app.get('/api/pins/:id/photos', (req, res) => {
   const id = req.params.id;

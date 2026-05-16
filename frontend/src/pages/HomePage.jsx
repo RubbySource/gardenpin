@@ -4,9 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import Icon from '../components/Icon.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
+import PullIndicator from '../components/PullIndicator.jsx';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -37,6 +40,8 @@ function getGreeting() {
 export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
+  const [harvest, setHarvest] = useState([]);
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
@@ -48,17 +53,22 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, photos] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
-      const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
+      const weekTasks = w.tasks || [];
+      const future = weekTasks.filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
+      const harvestThisWeek = weekTasks.filter((x) => x.task_type === 'sklizen').slice(0, 5);
+      setHarvest(harvestThisWeek);
       setStats(s);
       setGardens(gs);
+      setRecentPhotos(photos || []);
 
       // Load per-garden plant counts (pins) in parallel
       const pinResults = await Promise.all(
@@ -66,10 +76,9 @@ export default function HomePage({ onTaskComplete }) {
           api.listPins(g.id).then((pins) => [g.id, pins.length]).catch(() => [g.id, 0]),
         ),
       );
-      const allWeekTasks = w.tasks || [];
       const stat = {};
       for (const [gid, plantCount] of pinResults) {
-        const upcomingCount = allWeekTasks.filter((task) => task.garden_id === gid).length;
+        const upcomingCount = weekTasks.filter((task) => task.garden_id === gid).length;
         stat[gid] = { plantCount, upcomingCount };
       }
       setGardenStats(stat);
@@ -79,6 +88,8 @@ export default function HomePage({ onTaskComplete }) {
       setLoading(false);
     }
   };
+
+  const { pull, refreshing, threshold } = usePullToRefresh(load);
 
   useEffect(() => {
     load();
@@ -104,6 +115,7 @@ export default function HomePage({ onTaskComplete }) {
 
   return (
     <>
+      <PullIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
       {/* Personal greeting hero */}
       <div className="home-hero greeting-hero">
         <div className="greeting">{getGreeting()}, {userName} 🌿</div>
@@ -203,6 +215,51 @@ export default function HomePage({ onTaskComplete }) {
             + Vytvořit zahradu
           </button>
         </div>
+      )}
+
+      {/* Recent photos grid */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">
+              <Icon name="camera" size={18} /> Poslední fotky
+            </div>
+            <span className="count-badge">{recentPhotos.length}</span>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <Link
+                key={p.id}
+                to={`/zahrada/${p.garden_id}`}
+                className="recent-photo"
+                title={`${p.pin_name}${p.plant_name ? ' · ' + p.plant_name : ''}`}
+              >
+                <img src={p.url} alt={p.pin_name} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <div className="recent-photo-pin">{p.pin_name}</div>
+                  {p.plant_name && (
+                    <div className="recent-photo-plant">{p.plant_name}</div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Tento týden — sklizeň */}
+      {harvest.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">
+              <Icon name="basket" size={18} /> Tento týden — sklizeň
+            </div>
+            <span className="count-badge">{harvest.length}</span>
+          </div>
+          {harvest.map((t) => (
+            <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />
+          ))}
+        </>
       )}
 
       {/* Today + overdue */}

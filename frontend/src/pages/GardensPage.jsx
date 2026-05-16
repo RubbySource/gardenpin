@@ -1,16 +1,21 @@
 // List of gardens + create new
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import NewGardenModal from '../components/NewGardenModal.jsx';
+import Icon from '../components/Icon.jsx';
 import { toast } from '../App.jsx';
+import { useSwipeAction } from '../hooks/useSwipeAction.js';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
+import PullIndicator from '../components/PullIndicator.jsx';
 
 export default function GardensPage() {
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [query, setQuery] = useState('');
   const nav = useNavigate();
 
   const load = async () => {
@@ -25,6 +30,14 @@ export default function GardensPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const { pull, refreshing, threshold } = usePullToRefresh(load);
+
+  const filteredGardens = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return gardens;
+    return gardens.filter((g) => g.name.toLowerCase().includes(q));
+  }, [gardens, query]);
 
   const totalPins = gardens.reduce((sum, g) => sum + (g.pin_count || 0), 0);
   const totalTasks = gardens.reduce((sum, g) => sum + (g.task_count || 0), 0);
@@ -42,6 +55,7 @@ export default function GardensPage() {
 
   return (
     <>
+      <PullIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
       <div className="gardens-hero">
         <div className="gardens-hero-row">
           <div>
@@ -76,6 +90,30 @@ export default function GardensPage() {
         )}
       </div>
 
+      {gardens.length > 0 && (
+        <div className="sticky-search">
+          <div className="sticky-search-inner">
+            <Icon name="search" size={18} className="sticky-search-icon" />
+            <input
+              type="search"
+              className="sticky-search-input"
+              placeholder="Hledat zahradu"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <button
+                className="sticky-search-clear"
+                onClick={() => setQuery('')}
+                aria-label="Vymazat"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="empty">🌱 Načítám...</div>
       ) : gardens.length === 0 ? (
@@ -89,9 +127,15 @@ export default function GardensPage() {
             + Vytvořit první zahradu
           </button>
         </div>
+      ) : filteredGardens.length === 0 ? (
+        <div className="card empty">
+          <div className="icon">🔍</div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>Žádný výsledek</div>
+          <div className="small muted">Zkuste jiný název.</div>
+        </div>
       ) : (
         <div className="gardens-grid">
-          {gardens.map((g) => (
+          {filteredGardens.map((g) => (
             <GardenCard
               key={g.id}
               garden={g}
@@ -142,8 +186,25 @@ function GardenCard({ garden, onOpen, onDelete }) {
     month: 'long',
     year: 'numeric',
   });
+  const { handlers, itemStyle, triggeredLeft, drag } = useSwipeAction({
+    onSwipeLeft: () => onDelete(),
+  });
   return (
-    <div className="garden-card-v3" onClick={onOpen}>
+    <div className="swipe-wrap">
+      {drag < 0 && (
+        <div className={`swipe-delete-bg ${triggeredLeft ? 'triggered' : ''}`} aria-hidden="true">
+          <Icon name="trash" size={22} />
+          <span className="swipe-delete-label">
+            {triggeredLeft ? 'Pustit pro smazání' : 'Smazat'}
+          </span>
+        </div>
+      )}
+      <div
+        className={`garden-card-v3 ${triggeredLeft ? 'is-triggered-delete' : ''}`}
+        onClick={onOpen}
+        style={itemStyle}
+        {...handlers}
+      >
       <div className="img-wrap">
         {garden.image_path ? (
           <img src={garden.image_path} alt={garden.name} />
@@ -168,7 +229,7 @@ function GardenCard({ garden, onOpen, onDelete }) {
             aria-label="Smazat zahradu"
             title="Smazat zahradu"
           >
-            🗑️
+            <Icon name="trash" size={18} />
           </button>
         </div>
         <div className="g-meta">{created}</div>
@@ -189,6 +250,7 @@ function GardenCard({ garden, onOpen, onDelete }) {
           </div>
           <span className="garden-open-arrow">›</span>
         </div>
+      </div>
       </div>
     </div>
   );
