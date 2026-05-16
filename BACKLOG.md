@@ -19,12 +19,6 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Ověřit Lighthouse PWA audit ≥ 90, instalovatelnost na iOS Safari a Chrome Android.
   - Build (`cd frontend && npm run build`), `pm2 restart gardenpin`.
 
-- [~] Fotky rostlin — upload + galerie u záznamu rostliny
-  Scope:
-  - Backend: nový endpoint `POST /api/pins/:id/photos` (multer multipart), uložit do `backend/uploads/pins/:id/`, vrátit URL. `GET /api/pins/:id/photos` vrátí seznam. `DELETE /api/pins/:id/photos/:photoId`. Vytvořit SQLite tabulku `pin_photos` (id, pin_id, filename, uploaded_at, caption).
-  - Frontend: v `PinDetail` přidat sekci "Fotky" se thumbnail gridem, file input s `capture="environment"` pro mobil, lightbox při kliknutí (jednoduchý modal). Před uploadem client-side resize na max 1600px (canvas) pro úsporu místa.
-  - Express servuje `/uploads/pins/...` jako static. Commit + push.
-
 - [~] Sezónní kalendář — co dělat tento měsíc
   Scope:
   - Nová stránka `/kalendar` (route v App.jsx). Pro každý měsíc seznam typických prací (sázení, řez, hnojení, sklizeň) podle ČR klimatické zóny. Data jako statický JSON `frontend/src/data/seasonal.json` (12 měsíců × 4-8 úkolů, česky).
@@ -55,8 +49,6 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 ## Hotovo
 
 - [x] Merge PR #19 — Claude Design redesign PinDetail — mergeno 2026-05-15
-
-## Hotovo
 
 - [x] Fotky rostlin — upload + galerie — hotovo 2026-05-16
   - Backend: tabulka `pin_photos`, endpointy POST/GET/DELETE `/api/pins/:id/photos`, multer per-pin storage, static serve `/uploads/pins/...`
