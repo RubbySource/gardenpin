@@ -628,15 +628,101 @@ app.post('/api/push/send', async (req, res) => {
   }
 });
 
+// ======================= GARDEN SHARING (read-only public link) =======================
+const crypto = require('crypto');
+
+function generateShareToken() {
+  // 24 znaků hex (~96 bitů entropie), URL-safe
+  return crypto.randomBytes(12).toString('hex');
+}
+
+// Vytvořit nebo získat existující share link pro zahradu
+app.post('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+
+  const existing = db.prepare('SELECT * FROM garden_shares WHERE garden_id = ?').get(id);
+  if (existing) return res.json(existing);
+
+  const token = generateShareToken();
+  db.prepare('INSERT INTO garden_shares (garden_id, token) VALUES (?, ?)').run(id, token);
+  const share = db.prepare('SELECT * FROM garden_shares WHERE garden_id = ?').get(id);
+  res.json(share);
+});
+
+// Získat aktuální share status (pokud existuje)
+app.get('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const share = db.prepare('SELECT * FROM garden_shares WHERE garden_id = ?').get(id);
+  res.json(share || null);
+});
+
+// Zrušit sdílení
+app.delete('/api/gardens/:id/share', (req, res) => {
+  db.prepare('DELETE FROM garden_shares WHERE garden_id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+// Veřejný read-only endpoint — žádná autentizace, jen token
+app.get('/api/share/:token', (req, res) => {
+  const token = req.params.token;
+  const share = db.prepare('SELECT * FROM garden_shares WHERE token = ?').get(token);
+  if (!share) return res.status(404).json({ error: 'Sdílení neexistuje nebo bylo zrušeno' });
+
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(share.garden_id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+
+  const pins = db.prepare('SELECT * FROM pins WHERE garden_id = ? ORDER BY created_at DESC').all(garden.id);
+
+  // Inkrementuj view_count (best-effort, neselháváme requeest pokud DB write padne)
+  try {
+    db.prepare('UPDATE garden_shares SET view_count = view_count + 1 WHERE id = ?').run(share.id);
+  } catch {}
+
+  res.json({
+    garden: {
+      id: garden.id,
+      name: garden.name,
+      image_path: garden.image_path,
+      image_width: garden.image_width,
+      image_height: garden.image_height,
+      rotation: garden.rotation,
+    },
+    pins: pins.map((p) => ({
+      id: p.id,
+      name: p.name,
+      x: p.x,
+      y: p.y,
+      plant_name: p.plant_name,
+      planting_date: p.planting_date,
+      notes: p.notes,
+      photo_path: p.photo_path,
+      color: p.color,
+    })),
+    shared_at: share.created_at,
+  });
+});
+
 // ======================= WEATHER =======================
 // Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
+// Vrací current_weather, 7denní daily forecast a hourly precipitation_probability na 24h dopředu
 app.get('/api/weather', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (Number.isNaN(lat) || Number.isNaN(lon)) {
     return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
   }
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe%2FPrague`;
+  const params = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lon),
+    current_weather: 'true',
+    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max',
+    hourly: 'precipitation_probability',
+    forecast_days: '7',
+    timezone: 'Europe/Prague',
+  });
+  const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
   try {
     const r = await fetch(url);
     if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });

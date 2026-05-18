@@ -96,6 +96,15 @@ db.exec(`
     uploaded_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS garden_shares (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    garden_id INTEGER NOT NULL UNIQUE,
+    token TEXT NOT NULL UNIQUE,
+    view_count INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují

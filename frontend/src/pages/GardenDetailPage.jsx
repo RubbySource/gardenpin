@@ -16,6 +16,7 @@ export default function GardenDetailPage() {
   const [addingPinAt, setAddingPinAt] = useState(null); // { x, y } in percentages
   const [editingPinId, setEditingPinId] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
@@ -188,6 +189,9 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button className="btn ghost small" onClick={() => setShowShare(true)}>
+            🔗 Sdílet
+          </button>
           <button className="btn ghost small" onClick={() => setShowEdit(true)}>
             ✏️ Upravit
           </button>
@@ -433,7 +437,122 @@ export default function GardenDetailPage() {
           uploading={uploadingMap}
         />
       )}
+
+      {showShare && (
+        <ShareGardenModal
+          gardenId={garden.id}
+          gardenName={garden.name}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </>
+  );
+}
+
+function ShareGardenModal({ gardenId, gardenName, onClose }) {
+  const [share, setShare] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const shareUrl = share
+    ? `${window.location.origin}/sdileni/${share.token}`
+    : '';
+
+  useEffect(() => {
+    api
+      .getShare(gardenId)
+      .then((s) => setShare(s))
+      .catch(() => setShare(null))
+      .finally(() => setLoading(false));
+  }, [gardenId]);
+
+  const createLink = async () => {
+    setBusy(true);
+    try {
+      const s = await api.createShare(gardenId);
+      setShare(s);
+      toast('✅ Sdílení vytvořeno');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const revoke = async () => {
+    if (!confirm('Opravdu zrušit sdílení? Odkaz přestane fungovat.')) return;
+    setBusy(true);
+    try {
+      await api.deleteShare(gardenId);
+      setShare(null);
+      toast('Sdílení zrušeno');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+      toast('📋 Odkaz zkopírován');
+    } catch {
+      toast('Kopírování selhalo — vyberte text ručně');
+    }
+  };
+
+  return (
+    <Modal title={`🔗 Sdílet zahradu — ${gardenName}`} onClose={onClose}>
+      {loading ? (
+        <div className="empty small">Načítám…</div>
+      ) : !share ? (
+        <>
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Vytvořte veřejný read-only odkaz na tuto zahradu. Kdokoliv s tímto odkazem uvidí
+            mapu, piny a fotky rostlin — ale nemůže nic upravovat.
+          </p>
+          <div className="row mt-3">
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Zrušit
+            </button>
+            <button type="button" className="btn" onClick={createLink} disabled={busy}>
+              {busy ? 'Vytvářím…' : '🔗 Vytvořit odkaz'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Sdílejte tento odkaz. Návštěvníci uvidí zahradu read-only.
+          </p>
+          <div className="field">
+            <label>Veřejný odkaz</label>
+            <input
+              type="text"
+              value={shareUrl}
+              readOnly
+              onClick={(e) => e.target.select()}
+              style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+            />
+          </div>
+          <div className="small muted">
+            👁️ Zobrazeno {share.view_count || 0}×
+          </div>
+          <div className="row mt-3" style={{ gap: 6, flexWrap: 'wrap' }}>
+            <button type="button" className="btn danger" onClick={revoke} disabled={busy}>
+              🗑️ Zrušit sdílení
+            </button>
+            <button type="button" className="btn" onClick={copy}>
+              {copied ? '✅ Zkopírováno' : '📋 Zkopírovat'}
+            </button>
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 

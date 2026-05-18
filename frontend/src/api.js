@@ -78,6 +78,14 @@ export const api = {
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
 
+  // Garden sharing (read-only public link)
+  getShare: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`),
+  createShare: (gardenId) =>
+    jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),
+  deleteShare: (gardenId) =>
+    jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'DELETE' }),
+  fetchSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
+
   // Stripe
   stripeStatus: () => jsonFetch('/api/stripe/status'),
   stripeCreateCheckout: () => jsonFetch('/api/stripe/create-checkout', { method: 'POST' }),

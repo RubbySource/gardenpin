@@ -52,6 +52,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
   - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
 
+
 ## Hotovo
 
 - [x] Merge PR #19 — Claude Design redesign PinDetail — mergeno 2026-05-15
@@ -65,3 +66,13 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 - [x] Sezónní kalendář — typické úkoly per měsíc — hotovo 2026-05-16
   - `frontend/src/data/seasonal.json` — 12 měsíců × 5-6 typických úkolů (ČR klimatické pásmo)
   - `SeasonalCalendar` rozšířen o sekci typických úkolů, plantTags filter na piny, scroll na aktuální měsíc, badge "Tento měsíc"
+
+- [x] Počasí integrace — Open-Meteo API — hotovo 2026-05-18
+  - Backend `/api/weather` proxy rozšířená o 7denní daily + 24h hourly precipitation_probability
+  - `WeatherWidget` — toggle 7denní předpověď (ikona, max/min °C, šance srážek %)
+  - Varování pro zahradníka: déšť ≥ 60 % do 24 h → "zálivka možná nebude potřeba"; mráz ≤ 2 °C do 3 dnů → "chraňte citlivé rostliny"
+
+- [x] Sdílení zahrady — read-only link — hotovo 2026-05-18
+  - Backend: tabulka `garden_shares` (UNIQUE token + view_count), endpointy `POST/GET/DELETE /api/gardens/:id/share`, veřejný `GET /api/share/:token`
+  - Frontend: tlačítko "🔗 Sdílet" v `GardenDetailPage` → modal s URL + copy + view_count + revoke
+  - Veřejná routa `/sdileni/:token` (`SharedGardenPage`) mimo App shell — read-only mapa s piny, modal s detailem rostliny, footer "Sdíleno přes 🌿 GardenPin"
