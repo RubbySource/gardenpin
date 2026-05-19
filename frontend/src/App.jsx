@@ -73,12 +73,23 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const routeTitle = (() => {
+    const p = location.pathname;
+    if (p === '/' || p === '') return 'Přehled';
+    if (p.startsWith('/zahrady')) return 'Zahrady';
+    if (p.startsWith('/zahrada/')) return 'Detail zahrady';
+    if (p.startsWith('/ukoly')) return 'Úkoly';
+    if (p.startsWith('/kalendar')) return 'Kalendář';
+    if (p.startsWith('/nastaveni')) return 'Nastavení';
+    return 'GardenPin';
+  })();
+
   return (
     <div className="app">
       <header className="topbar">
         <h1>
           <span className="leaf">📍</span>
-          GardenPin
+          <span>{routeTitle}</span>
         </h1>
         <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
           {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}

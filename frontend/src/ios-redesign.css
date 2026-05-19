@@ -1,0 +1,889 @@
+/* ============================================================
+   GardenPin · iOS-native redesign layer
+   Loaded AFTER styles.css — overrides legacy styles to give the
+   app the look & feel of a native iOS application.
+   ============================================================ */
+
+:root {
+  /* iOS system palette */
+  --ios-bg: #f2f2f7;             /* systemGroupedBackground */
+  --ios-bg-elev: #ffffff;        /* card / sheet background */
+  --ios-bg-secondary: #ffffff;
+  --ios-bg-tertiary: #f9f9fb;
+  --ios-separator: rgba(60, 60, 67, 0.12);
+  --ios-separator-opaque: #c6c6c8;
+  --ios-label: #1c1c1e;
+  --ios-label-secondary: rgba(60, 60, 67, 0.60);
+  --ios-label-tertiary: rgba(60, 60, 67, 0.30);
+  --ios-fill: rgba(120, 120, 128, 0.12);
+  --ios-fill-secondary: rgba(120, 120, 128, 0.08);
+
+  /* Accent (brand-aware: GardenPin forest paired with iOS green) */
+  --ios-accent: #2d5a27;
+  --ios-accent-hover: #1f4019;
+  --ios-green: #34c759;
+  --ios-blue: #007aff;
+  --ios-red: #ff3b30;
+  --ios-orange: #ff9500;
+  --ios-yellow: #ffcc00;
+
+  /* Glass / blur */
+  --ios-glass-bg: rgba(255, 255, 255, 0.72);
+  --ios-glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --ios-glass-blur: saturate(180%) blur(20px);
+
+  /* Shadows */
+  --ios-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --ios-shadow-md: 0 2px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --ios-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --ios-shadow-card: 0 2px 14px rgba(0, 0, 0, 0.06);
+
+  /* Radii */
+  --ios-r-xs: 8px;
+  --ios-r-sm: 10px;
+  --ios-r-md: 14px;
+  --ios-r-lg: 18px;
+  --ios-r-xl: 22px;
+  --ios-r-2xl: 28px;
+
+  /* Animations */
+  --ios-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ios-ease: cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  /* Type — SF on Apple, Inter on Android/Win, system fallback */
+  --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+              'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
+
+  /* Map legacy aliases to new tokens so existing classes pick them up */
+  --bg: var(--ios-bg);
+  --card: var(--ios-bg-elev);
+  --text: var(--ios-label);
+  --text-dim: var(--ios-label-secondary);
+  --muted: var(--ios-label-secondary);
+  --charcoal: var(--ios-label);
+  --divider: var(--ios-separator);
+  --border: var(--ios-separator);
+  --border-strong: rgba(60, 60, 67, 0.20);
+  --sand: var(--ios-fill-secondary);
+  --sand-deep: var(--ios-fill);
+  --sand-dark: var(--ios-fill);
+  --forest: var(--ios-accent);
+  --forest-deep: var(--ios-accent-hover);
+  --forest-soft: rgba(45, 90, 39, 0.10);
+  --primary: var(--ios-accent);
+  --danger: var(--ios-red);
+  --warning: var(--ios-orange);
+  --success: var(--ios-green);
+  --shadow: var(--ios-shadow-sm);
+  --shadow-lg: var(--ios-shadow-lg);
+  --radius: var(--ios-r-lg);
+}
+
+/* ---------- Base ---------- */
+html, body {
+  font-family: var(--ios-font);
+  background: var(--ios-bg);
+  color: var(--ios-label);
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--ios-font);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--ios-label);
+}
+
+/* ---------- App shell ---------- */
+.app {
+  background: var(--ios-bg);
+  padding-bottom: calc(82px + var(--safe-bottom));
+}
+
+.main {
+  padding: 8px 16px 32px;
+  max-width: 920px;
+}
+
+/* ---------- Top bar — iOS large title pattern ---------- */
+.topbar {
+  background: var(--ios-glass-bg);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  border-bottom: 0.5px solid var(--ios-separator);
+  padding: calc(10px + var(--safe-top)) 16px 10px;
+  min-height: calc(44px + var(--safe-top));
+}
+.topbar h1 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+}
+.topbar h1 .leaf {
+  font-size: 1.25rem;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.06));
+}
+.topbar .small {
+  color: var(--ios-label-secondary);
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+
+/* ---------- Bottom tab bar — frosted iOS ---------- */
+.bottom-nav {
+  background: var(--ios-glass-bg);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  border-top: 0.5px solid var(--ios-separator);
+  padding-top: 6px;
+  padding-bottom: calc(4px + var(--safe-bottom));
+  min-height: calc(54px + var(--safe-bottom));
+}
+.bottom-nav a {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ios-label-secondary);
+  padding: 6px 4px 4px;
+  gap: 2px;
+  transition: color 160ms var(--ios-ease), transform 80ms var(--ios-ease);
+}
+.bottom-nav a:active { transform: scale(0.92); }
+.bottom-nav a.active {
+  color: var(--ios-accent);
+  font-weight: 600;
+}
+.bottom-nav a.active::after { display: none; }
+.bottom-nav a .icon {
+  font-size: 1.45rem;
+  line-height: 1;
+  filter: grayscale(0.2);
+  transition: filter 160ms var(--ios-ease), transform 200ms var(--ios-spring);
+}
+.bottom-nav a.active .icon {
+  filter: none;
+  transform: translateY(-1px) scale(1.05);
+}
+
+/* ---------- Cards / grouped sections ---------- */
+.card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--ios-shadow-card);
+}
+.card h2, .card h3 {
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Buttons ---------- */
+.btn,
+.btn-cta {
+  font-family: var(--ios-font);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  border-radius: var(--ios-r-md);
+  min-height: 46px;
+  padding: 12px 18px;
+  transition: transform 100ms var(--ios-ease), background 160ms var(--ios-ease),
+              box-shadow 160ms var(--ios-ease), opacity 160ms var(--ios-ease);
+  box-shadow: none;
+}
+.btn { background: var(--ios-accent); color: #fff; }
+.btn:hover { background: var(--ios-accent-hover); }
+.btn:active { transform: scale(0.96); }
+
+.btn.secondary {
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+  border: none;
+  font-weight: 600;
+}
+.btn.secondary:hover { background: var(--ios-fill); filter: brightness(0.95); }
+
+.btn.ghost {
+  background: transparent;
+  color: var(--ios-accent);
+  font-weight: 600;
+}
+.btn.ghost:hover { background: var(--ios-fill-secondary); }
+
+.btn.danger { background: var(--ios-red); }
+.btn.danger:hover { background: #d8281f; }
+.btn.warning { background: var(--ios-orange); }
+
+.btn.small {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 0.85rem;
+  border-radius: var(--ios-r-sm);
+}
+
+.btn-cta {
+  background: var(--ios-accent);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(45, 90, 39, 0.24);
+  font-weight: 600;
+}
+.btn-cta:hover { background: var(--ios-accent-hover); box-shadow: 0 10px 24px rgba(45, 90, 39, 0.30); }
+.btn-cta:active { transform: scale(0.97); }
+
+/* ---------- Form fields ---------- */
+.field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ios-label-secondary);
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+.field input[type="text"],
+.field input[type="date"],
+.field input[type="number"],
+.field input[type="color"],
+.field select,
+.field textarea {
+  background: var(--ios-fill-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--ios-r-md);
+  padding: 13px 14px;
+  font-size: 16px;
+  color: var(--ios-label);
+  transition: background 160ms var(--ios-ease), border-color 160ms var(--ios-ease),
+              box-shadow 160ms var(--ios-ease);
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  background: #fff;
+  border-color: var(--ios-accent);
+  box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.12);
+}
+.file-input-wrap {
+  background: var(--ios-fill-secondary);
+  border: 1.5px dashed var(--ios-separator-opaque);
+  border-radius: var(--ios-r-md);
+  padding: 18px;
+}
+.file-input-wrap:hover { background: var(--ios-fill); border-color: var(--ios-accent); }
+
+/* ---------- Badges ---------- */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ios-fill);
+  color: var(--ios-label);
+}
+.badge.overdue { background: rgba(255, 59, 48, 0.14); color: var(--ios-red); }
+.badge.today { background: rgba(255, 149, 0, 0.16); color: #b45a00; }
+.badge.week { background: var(--ios-accent); color: #fff; }
+.badge.done { background: var(--ios-green); color: #fff; }
+
+/* ---------- Hero sections ----------
+   Existing hero variants (.home-hero, .gardens-hero, .tasks-hero) use the
+   forest gradient. We keep brand-coloured heroes but soften them. */
+.home-hero,
+.gardens-hero,
+.tasks-hero {
+  border-radius: var(--ios-r-2xl);
+  box-shadow: 0 12px 36px rgba(45, 90, 39, 0.18);
+  padding: 22px 20px 20px;
+}
+.home-hero .hero-stat,
+.gardens-hero-stat,
+.tasks-hero-stat {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--ios-r-md);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.home-hero .hero-title,
+.gardens-hero-title,
+.tasks-hero-title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.home-hero .greeting,
+.gardens-hero-eyebrow,
+.tasks-hero-eyebrow {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+/* ---------- Garden cards (v2 + v3) ---------- */
+.garden-card-v2,
+.garden-card-v3,
+.gp-garden-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-xl);
+  box-shadow: var(--ios-shadow-card);
+  transition: transform 200ms var(--ios-spring), box-shadow 200ms var(--ios-ease);
+}
+.garden-card-v2:hover,
+.garden-card-v3:hover,
+.gp-garden-card:hover {
+  box-shadow: var(--ios-shadow-md);
+  transform: translateY(-2px);
+}
+.garden-card-v2:active,
+.garden-card-v3:active,
+.gp-garden-card:active { transform: scale(0.98); }
+
+.garden-card-v3 .img-wrap,
+.garden-card-v2 .img-wrap {
+  height: 168px;
+  background: linear-gradient(135deg, #e6f0e2 0%, #cfe2c5 100%);
+}
+.garden-card-v3 .garden-urgent-badge {
+  background: rgba(255, 59, 48, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(255, 59, 48, 0.35);
+  font-size: 0.74rem;
+}
+.garden-card-v3 .g-name {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+.garden-card-v3 .garden-stats-row {
+  border-top: 0.5px solid var(--ios-separator);
+}
+.garden-card-v3 .garden-stat-val { color: var(--ios-accent); }
+.garden-card-v3 .garden-open-arrow { color: var(--ios-label-tertiary); }
+
+.garden-card-v2 .card-stats-overlay .stat-chip {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+  font-weight: 600;
+}
+.garden-card-v2 .card-stats-overlay .stat-chip.accent {
+  background: var(--ios-accent);
+  color: #fff;
+}
+
+/* Legacy single-row garden-card (used inside garden detail) */
+.garden-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  padding: 14px;
+  transition: transform 160ms var(--ios-ease), box-shadow 160ms var(--ios-ease);
+}
+.garden-card:hover { box-shadow: var(--ios-shadow-md); }
+.garden-card:active { transform: scale(0.98); }
+.garden-card .plant-avatar {
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Section headers ---------- */
+.section-header,
+.gp-section {
+  margin: 22px 4px 10px;
+}
+.section-header .title,
+.gp-section .gp-section-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ios-label);
+}
+.section-header .count-badge,
+.gp-section .gp-section-count {
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  font-weight: 700;
+}
+.section-header .count-badge.danger { background: rgba(255, 59, 48, 0.14); color: var(--ios-red); }
+.gp-section-link,
+.section-header a {
+  color: var(--ios-blue) !important;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+/* iOS-style large title — used for page hero replacements when desired */
+.ios-large-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--ios-label);
+  margin: 12px 4px 6px;
+  line-height: 1.05;
+}
+
+/* ---------- Tasks ---------- */
+.task-row,
+.gp-task {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  padding: 14px;
+  transition: transform 120ms var(--ios-ease), box-shadow 160ms var(--ios-ease),
+              opacity 240ms var(--ios-ease);
+}
+.task-row:hover,
+.gp-task:hover { box-shadow: var(--ios-shadow-md); border-color: transparent; }
+.task-row.overdue { border-left: 4px solid var(--ios-red); }
+.task-row.today { border-left: 4px solid var(--ios-orange); }
+.gp-task.is-overdue { border-left: 4px solid var(--ios-red); }
+.gp-task.is-today { border-left: 4px solid var(--ios-orange); }
+
+.task-checkbox {
+  border: 1.5px solid var(--ios-separator-opaque);
+  background: #fff;
+  transition: background 180ms var(--ios-ease), border-color 180ms var(--ios-ease),
+              transform 200ms var(--ios-spring);
+}
+.task-checkbox:hover { border-color: var(--ios-accent); background: var(--ios-fill-secondary); }
+.task-checkbox.checked,
+.gp-task .gp-task-check { background: var(--ios-green); border-color: var(--ios-green); color: #fff; }
+.gp-task .gp-task-check:hover { background: #29a247; }
+.task-checkbox:active,
+.gp-task .gp-task-check:active { transform: scale(0.88); }
+
+.task-row-title,
+.gp-task .gp-task-title {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ios-label);
+}
+.task-row-meta,
+.gp-task .gp-task-meta {
+  color: var(--ios-label-secondary);
+  font-size: 0.82rem;
+}
+
+/* ---------- Pills / filter pills ---------- */
+.filter-pill {
+  background: var(--ios-fill);
+  border: none;
+  color: var(--ios-label);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition: background 160ms var(--ios-ease), color 160ms var(--ios-ease),
+              transform 100ms var(--ios-ease);
+}
+.filter-pill:active { transform: scale(0.96); }
+.filter-pill.active {
+  background: var(--ios-accent);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.20);
+}
+.filter-pill .pill-count {
+  background: rgba(255, 255, 255, 0.30);
+  font-weight: 700;
+}
+.filter-pill:not(.active) .pill-count {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ios-accent);
+  border: none;
+}
+
+/* ---------- Tabs (legacy) ---------- */
+.tabs,
+.gp-tabs {
+  background: var(--ios-fill);
+  border-radius: var(--ios-r-sm);
+  padding: 3px;
+}
+.tabs button,
+.gp-tabs button {
+  border-radius: 8px;
+  font-weight: 500;
+  color: var(--ios-label-secondary);
+  letter-spacing: -0.005em;
+  transition: all 220ms var(--ios-ease);
+}
+.tabs button.active,
+.gp-tabs button.active {
+  background: #fff;
+  color: var(--ios-label);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Modal — iOS sheet ---------- */
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.40);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.modal {
+  background: var(--ios-bg-elev);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.20);
+  padding: 8px 20px 20px;
+  padding-bottom: calc(24px + var(--safe-bottom));
+}
+.modal::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ios-separator-opaque);
+  margin: 8px auto 14px;
+  opacity: 0.6;
+}
+@media (min-width: 640px) {
+  .modal {
+    border-radius: var(--ios-r-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+  }
+  .modal::before { display: none; }
+}
+.modal h2 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.modal .close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ios-fill);
+  color: var(--ios-label-secondary);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.modal .close-btn:hover { background: var(--ios-separator); color: var(--ios-label); }
+
+/* ---------- Floating Action Button — iOS-style pill ---------- */
+.floating-fab {
+  width: 56px;
+  height: 56px;
+  background: var(--ios-accent);
+  box-shadow: 0 10px 30px rgba(45, 90, 39, 0.40), 0 4px 12px rgba(45, 90, 39, 0.25);
+  border-radius: 50%;
+  bottom: calc(82px + var(--safe-bottom));
+  font-size: 1.7rem;
+  font-weight: 300;
+  transition: transform 200ms var(--ios-spring), background 200ms var(--ios-ease),
+              box-shadow 200ms var(--ios-ease);
+}
+.floating-fab:hover { background: var(--ios-accent-hover); box-shadow: 0 14px 36px rgba(45, 90, 39, 0.45); }
+.floating-fab:active { transform: scale(0.92); }
+
+/* ---------- Toast ---------- */
+.toast {
+  background: rgba(28, 28, 30, 0.92);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 13px 22px;
+  bottom: calc(96px + var(--safe-bottom));
+}
+
+/* ---------- Reminder banner ---------- */
+.reminder-banner {
+  margin: 8px 12px;
+  border-radius: var(--ios-r-md);
+  border: none;
+  box-shadow: var(--ios-shadow-card);
+  font-weight: 500;
+  font-size: 0.88rem;
+  background: rgba(255, 149, 0, 0.12);
+  color: #8a4a00;
+  padding: 11px 14px;
+}
+.reminder-banner.overdue {
+  background: rgba(255, 59, 48, 0.10);
+  color: var(--ios-red);
+}
+
+/* ---------- Settings page — iOS grouped table view ---------- */
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ios-label);
+  margin: 16px 4px 14px;
+}
+/* On SettingsPage every .card becomes an iOS-style "grouped section" */
+[class*="settings"] .card,
+main .card {
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+}
+
+/* ---------- Calendar / seasonal ---------- */
+.calendar-controls { gap: 10px; }
+.calendar-year-switch {
+  background: var(--ios-bg-elev);
+  border: none;
+  box-shadow: var(--ios-shadow-sm);
+  border-radius: var(--ios-r-sm);
+}
+.calendar-year-label {
+  color: var(--ios-label);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.calendar-garden-select {
+  background: var(--ios-bg-elev);
+  border: none;
+  box-shadow: var(--ios-shadow-sm);
+  border-radius: var(--ios-r-sm);
+  font-weight: 500;
+}
+.month-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  padding: 14px;
+  transition: transform 200ms var(--ios-spring), box-shadow 200ms var(--ios-ease);
+}
+.month-card:hover { box-shadow: var(--ios-shadow-md); transform: translateY(-1px); }
+.month-card.current {
+  border: none;
+  background: linear-gradient(180deg, rgba(45, 90, 39, 0.06), var(--ios-bg-elev));
+  box-shadow: 0 0 0 2px rgba(45, 90, 39, 0.22), var(--ios-shadow-card);
+}
+.month-card.empty-month {
+  background: var(--ios-bg-elev);
+  opacity: 0.78;
+  box-shadow: var(--ios-shadow-sm);
+}
+.month-header { border-bottom: 0.5px solid var(--ios-separator); }
+.month-name { letter-spacing: -0.015em; }
+.month-count {
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+  font-weight: 700;
+}
+.month-task { background: var(--ios-fill-secondary); transition: background 160ms var(--ios-ease); }
+.month-task:hover { background: var(--ios-fill); }
+.seasonal-task { background: rgba(45, 90, 39, 0.07); border-radius: var(--ios-r-sm); }
+.seasonal-pin-chip {
+  background: var(--ios-bg-elev);
+  border: 0.5px solid var(--ios-separator);
+  box-shadow: var(--ios-shadow-sm);
+}
+.seasonal-pin-chip:hover { background: var(--ios-fill-secondary); }
+
+/* ---------- Stat cards / empty state ---------- */
+.stat-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-sm);
+}
+.stat-card .value { color: var(--ios-accent); letter-spacing: -0.03em; }
+.gp-stat {
+  background: var(--ios-bg-elev);
+  border: none;
+  box-shadow: var(--ios-shadow-card);
+  border-radius: var(--ios-r-md);
+}
+.gp-stat .gp-stat-value { color: var(--ios-accent); letter-spacing: -0.025em; }
+
+.gp-empty {
+  background: var(--ios-bg-elev);
+  border: none;
+  box-shadow: var(--ios-shadow-card);
+  border-radius: var(--ios-r-xl);
+}
+.gp-empty .gp-empty-title {
+  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+}
+.empty .icon { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06)); }
+
+/* ---------- Nav badge — iOS red dot style ---------- */
+.nav-badge {
+  background: var(--ios-red);
+  font-size: 0.62rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--ios-glass-bg-strong);
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Map / pins ---------- */
+.map-container {
+  border-radius: var(--ios-r-lg);
+  border: none;
+  background: var(--ios-fill-secondary);
+  box-shadow: inset 0 0 0 0.5px var(--ios-separator);
+}
+.gp-map-frame {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-xl);
+  box-shadow: var(--ios-shadow-card);
+}
+.pin .pin-body {
+  border-width: 2.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.30);
+  transition: transform 200ms var(--ios-spring);
+}
+.pin:hover .pin-body { transform: rotate(-45deg) scale(1.1); }
+.pin .pin-label {
+  background: rgba(28, 28, 30, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* ---------- Install prompt / weather ---------- */
+.install-prompt {
+  background: rgba(28, 28, 30, 0.92);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  border-radius: var(--ios-r-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+.install-prompt-install {
+  background: var(--ios-blue);
+  color: #fff;
+  font-weight: 600;
+}
+.weather-widget {
+  background: linear-gradient(135deg, #4a8bd1 0%, #6cb2ea 50%, #5fb86d 100%);
+  border-radius: var(--ios-r-xl);
+  box-shadow: var(--ios-shadow-card);
+  padding: 16px 18px;
+}
+.weather-temp { letter-spacing: -0.04em; }
+
+/* ---------- Photo gallery ---------- */
+.photo-thumb {
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-sm);
+  transition: transform 200ms var(--ios-spring), box-shadow 200ms var(--ios-ease);
+}
+.photo-thumb:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--ios-shadow-md);
+}
+.photo-lightbox {
+  background: rgba(0, 0, 0, 0.90);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+/* ---------- Quick actions ---------- */
+.quick-action-btn {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-sm);
+  transition: transform 120ms var(--ios-ease), box-shadow 160ms var(--ios-ease);
+}
+.quick-action-btn:hover { box-shadow: var(--ios-shadow-md); transform: translateY(-1px); }
+.quick-action-btn:active { transform: scale(0.97); }
+
+/* ---------- Premium badge / shared page ---------- */
+.tester-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  box-shadow: var(--ios-shadow-card);
+  border-radius: var(--ios-r-lg);
+}
+.shared-header {
+  background: linear-gradient(180deg, rgba(45, 90, 39, 0.08), transparent);
+  border-radius: 0 0 var(--ios-r-2xl) var(--ios-r-2xl);
+}
+
+/* ---------- Universal micro-interactions ---------- */
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button:active { transition-duration: 0ms; }
+
+/* Soft scroll for any scrollable area */
+* { scrollbar-width: thin; scrollbar-color: var(--ios-separator-opaque) transparent; }
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-thumb { background: var(--ios-separator-opaque); border-radius: 3px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Range slider — iOS look ---------- */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--ios-fill);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20), 0 0 0 0.5px rgba(0, 0, 0, 0.10);
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease);
+}
+input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
+  cursor: pointer;
+}
+
+/* ---------- Misc legacy bits ---------- */
+.gp-pill {
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.gp-pill.glass {
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--ios-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+.gp-chip {
+  background: var(--ios-fill);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.gp-chip.overdue { background: rgba(255, 59, 48, 0.14); color: var(--ios-red); }
+.gp-chip.today { background: rgba(255, 149, 0, 0.16); color: #b45a00; }
+.gp-chip.week { background: var(--ios-accent); color: #fff; }
+
+.history-item .dot { background: var(--ios-green); }
+
+/* Make small text readable on light bg */
+.small.muted, .muted { color: var(--ios-label-secondary); }
+
+/* Page eyebrow + subtitle */
+.page-header h1 { letter-spacing: -0.03em; font-weight: 800; font-size: 1.8rem; }
+.page-header .eyebrow { color: var(--ios-accent); letter-spacing: 0.6px; }
+.page-header .subtitle { color: var(--ios-label-secondary); }
+
+/* Selection */
+::selection { background: rgba(45, 90, 39, 0.25); color: var(--ios-label); }
