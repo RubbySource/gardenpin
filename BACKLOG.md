@@ -46,7 +46,12 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [ ] iOS-style redesign Home + List
+- [x] iOS-style redesign Home + List — hotovo 2026-05-20
+  - Home: sekce "Tento týden ke sklizni" + grid "Nedávné fotky" (2×2 / 4×1) napojené na nový endpoint `/api/photos/recent`
+  - GardensPage: sticky search bar (blur backdrop), swipe-LEFT-to-delete na kartě, pull-to-refresh
+  - TasksPage: sticky search napříč úkoly/historií, pull-to-refresh
+  - Reusable: `StickySearch.jsx`, `PullRefreshIndicator.jsx`, `useSwipeToDelete`, `usePullToRefresh`
+  - Fix: odstraněn duplikát/garbage konec v `SeasonalCalendar.jsx` a `PinDetail.jsx` (build už neselhával na vite parsing chybě)
   Scope:
   - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
   - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.

@@ -3,6 +3,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
+import StickySearch from '../components/StickySearch.jsx';
+import PullRefreshIndicator from '../components/PullRefreshIndicator.jsx';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
 
 const MONTH_NAMES = [
@@ -55,6 +58,7 @@ export default function TasksPage({ onTaskComplete }) {
   const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
+  const [query, setQuery] = useState('');
 
   const load = async () => {
     try {
@@ -70,6 +74,20 @@ export default function TasksPage({ onTaskComplete }) {
   useEffect(() => {
     load();
   }, []);
+
+  const ptr = usePullToRefresh(load);
+
+  const matchesQuery = (t) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (t.title && t.title.toLowerCase().includes(q)) ||
+      (t.pin_name && t.pin_name.toLowerCase().includes(q)) ||
+      (t.plant_name && t.plant_name.toLowerCase().includes(q)) ||
+      (t.garden_name && t.garden_name.toLowerCase().includes(q)) ||
+      (t.action && t.action.toLowerCase().includes(q))
+    );
+  };
 
   const completeTask = async (t) => {
     if (completingIds.has(t.id)) return;
@@ -96,19 +114,20 @@ export default function TasksPage({ onTaskComplete }) {
   const urgentCount = overdueCount + todayCount;
 
   const visibleTasks = useMemo(() => {
-    if (filter === 'all') return tasks;
-    if (filter === 'thisMonth') {
+    let list;
+    if (filter === 'all') list = tasks;
+    else if (filter === 'thisMonth') {
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
-      return tasks.filter((t) => {
+      list = tasks.filter((t) => {
         if (!t.next_due) return false;
         const d = new Date(t.next_due);
         return d.getFullYear() === y && d.getMonth() === m;
       });
-    }
-    return [];
-  }, [tasks, filter]);
+    } else list = [];
+    return list.filter(matchesQuery);
+  }, [tasks, filter, query]);
 
   const taskGroups = useMemo(() => {
     if (filter === 'done') return [];
@@ -119,15 +138,22 @@ export default function TasksPage({ onTaskComplete }) {
 
   const historyGroups = useMemo(() => {
     if (filter !== 'done') return [];
-    return groupByMonth(history, (h) => h.done_at).sort(
+    const filteredHistory = history.filter(matchesQuery);
+    return groupByMonth(filteredHistory, (h) => h.done_at).sort(
       ([a], [b]) => b.localeCompare(a),
     );
-  }, [history, filter]);
+  }, [history, filter, query]);
 
   if (loading) return <div className="empty">🌱 Načítám...</div>;
 
   return (
-    <>
+    <div className="ptr-host" {...ptr.handlers}>
+      <PullRefreshIndicator
+        style={ptr.indicatorStyle}
+        progress={ptr.progress}
+        refreshing={ptr.refreshing}
+        triggered={ptr.triggered}
+      />
       <div className="tasks-hero">
         <div className="tasks-hero-row">
           <div>
@@ -162,6 +188,12 @@ export default function TasksPage({ onTaskComplete }) {
           </div>
         </div>
       </div>
+
+      <StickySearch
+        value={query}
+        onChange={setQuery}
+        placeholder="Hledat úkol nebo rostlinu…"
+      />
 
       <div className="filter-pills">
         <button
@@ -249,7 +281,7 @@ export default function TasksPage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 

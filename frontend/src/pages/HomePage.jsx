@@ -37,6 +37,8 @@ function getGreeting() {
 export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
+  const [weekHarvest, setWeekHarvest] = useState([]);
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
@@ -48,15 +50,21 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, photos] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
       const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
+      const harvest = (w.tasks || [])
+        .filter((x) => x.task_type === 'sklizen')
+        .slice(0, 4);
+      setWeekHarvest(harvest);
+      setRecentPhotos(photos);
       setStats(s);
       setGardens(gs);
 
@@ -222,6 +230,37 @@ export default function HomePage({ onTaskComplete }) {
         today.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
+      {/* Tento týden: sklizeň */}
+      {weekHarvest.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">🧺 Tento týden ke sklizni</div>
+            <span className="count-badge">{weekHarvest.length}</span>
+          </div>
+          <div className="harvest-grid">
+            {weekHarvest.map((t) => {
+              const badge = dueBadge(t.next_due);
+              return (
+                <button
+                  key={t.id}
+                  className="harvest-card"
+                  onClick={() => nav(`/zahrada/${t.garden_id}`)}
+                >
+                  <span className="harvest-emoji">🧺</span>
+                  <div className="harvest-body">
+                    <div className="harvest-title">{t.pin_name}</div>
+                    <div className="harvest-meta">
+                      {t.plant_name || t.title}
+                    </div>
+                  </div>
+                  {badge && <span className={`harvest-chip ${badge.cls}`}>{badge.text}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {/* Upcoming */}
       <div className="section-header">
         <div className="title">📅 Nadcházející</div>
@@ -239,6 +278,31 @@ export default function HomePage({ onTaskComplete }) {
         </div>
       ) : (
         upcoming.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
+      )}
+
+      {/* Nedávné fotky */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">📸 Nedávné fotky</div>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <button
+                key={p.id}
+                className="recent-photo"
+                onClick={() => nav(`/zahrada/${p.garden_id}`)}
+                aria-label={`${p.pin_name} — ${p.garden_name}`}
+              >
+                <img src={p.url} alt={p.pin_name} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <span className="rp-title">{p.pin_name}</span>
+                  <span className="rp-meta">{p.garden_name}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       <Link
