@@ -38,6 +38,7 @@ export const api = {
     fetch(`/api/pins/${id}/photos`, { method: 'POST', body: formData }).then(handle),
   deletePinPhoto: (pinId, photoId) =>
     jsonFetch(`/api/pins/${pinId}/photos/${photoId}`, { method: 'DELETE' }),
+  recentPhotos: (limit = 4) => jsonFetch(`/api/photos/recent?limit=${limit}`),
 
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),

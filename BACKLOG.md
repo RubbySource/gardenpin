@@ -46,17 +46,17 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [ ] iOS-style redesign Home + List
-  Scope:
-  - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
-  - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
-  - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
-
 ## Hotovo
+
+- [x] iOS-style redesign Home + List — hotovo 2026-05-20
+  - Home: SF Symbols-inspired SVG ikony v section headers, sekce "Dnes" + "Tento týden", grid posledních 4 fotek (`GET /api/photos/recent`) s gradient overlay a kliknutím na pin
+  - List (Gardens): sticky iOS search bar s `backdrop-filter: blur(18px)`, swipe-to-delete (`useSwipeToDelete`) s odhalením 88px Smazat tlačítka, pull-to-refresh (`usePullToRefresh`) s spinnerem
+  - Backend: `GET /api/photos/recent?limit=N` napříč všemi piny (JOIN pin_photos × pins × gardens)
+  - Komponenty: `Icon.jsx` (10 SF-style ikon, stroke=currentColor), `useSwipeToDelete.js`, `usePullToRefresh.js`
+  - Fix: orphan duplicate code v `SeasonalCalendar.jsx` (řádky 271-389) a `PinDetail.jsx` (řádky 786+) způsobující build error — odstraněno
+  - CSS: rounded-2xl/3xl karty, soft shadows, gradient overlays na recent-photo-card
 
 - [x] Merge PR #19 — Claude Design redesign PinDetail — mergeno 2026-05-15
-
-## Hotovo
 
 - [x] Fotky rostlin — upload + galerie — hotovo 2026-05-16
   - Backend: tabulka `pin_photos`, endpointy POST/GET/DELETE `/api/pins/:id/photos`, multer per-pin storage, static serve `/uploads/pins/...`

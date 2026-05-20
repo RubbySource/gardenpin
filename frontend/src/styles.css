@@ -2695,3 +2695,246 @@ input, textarea, select {
 .task-row-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .task-row-tags .badge.type { background: var(--sand); color: var(--charcoal); }
 .task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; }
+
+/* ============================================================
+   iOS-style redesign — Home + List
+   ============================================================ */
+
+/* SF Symbols-inspired ikony */
+.sf-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.section-header .title .sf-icon { color: var(--forest); }
+
+/* Recent photos grid na Home */
+.recent-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+@media (max-width: 460px) {
+  .recent-photos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.recent-photo-card {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: none;
+  background: var(--sand);
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
+}
+.recent-photo-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.recent-photo-card:active { transform: scale(0.97); }
+.recent-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.recent-photo-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 18px 10px 8px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 100%);
+  color: #fff;
+  text-align: left;
+}
+.recent-photo-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-photo-sub {
+  font-size: 0.66rem;
+  opacity: 0.85;
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* iOS sticky search bar (Gardens) */
+.ios-search-bar {
+  position: sticky;
+  top: calc(var(--safe-top) + 60px); /* pod topbar */
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: 0 -12px 12px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(1.6) blur(18px);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.ios-search-bar .ios-search-icon {
+  color: var(--muted);
+  margin-left: 6px;
+}
+.ios-search-bar input {
+  flex: 1;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(120, 120, 128, 0.12);
+  color: var(--charcoal);
+  font-size: 16px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ios-search-bar input::placeholder { color: var(--muted); }
+.ios-search-bar input:focus {
+  background: rgba(120, 120, 128, 0.16);
+  box-shadow: 0 0 0 3px var(--forest-soft);
+}
+.ios-search-clear {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ios-search-clear:hover { background: rgba(0,0,0,0.06); color: var(--charcoal); }
+.ios-search-bar input[type="search"]::-webkit-search-decoration,
+.ios-search-bar input[type="search"]::-webkit-search-cancel-button,
+.ios-search-bar input[type="search"]::-webkit-search-results-button,
+.ios-search-bar input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/* Swipe-to-delete na garden kartě */
+.garden-swipe-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  margin-bottom: 0;
+}
+.garden-swipe-wrap > .garden-card-v3 {
+  margin-bottom: 0;
+  will-change: transform;
+  position: relative;
+  z-index: 2;
+}
+.garden-swipe-delete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: var(--danger);
+  z-index: 1;
+}
+.garden-swipe-delete-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  padding: 0 8px;
+}
+.garden-swipe-delete-btn:active { background: rgba(0,0,0,0.18); }
+
+/* Pull-to-refresh indikátor */
+.ptr-indicator {
+  position: fixed;
+  top: calc(var(--safe-top) + 50px);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 25;
+  will-change: transform, opacity;
+}
+.ptr-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.94);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--forest);
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: transform 0.18s ease;
+}
+.ptr-spinner.ready { transform: scale(1.08); }
+.ptr-spinner.spinning {
+  animation: ptr-spin 0.9s linear infinite;
+}
+@keyframes ptr-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Detail polish — iOS-style sekce header s ikonkou */
+.section-header .title {
+  letter-spacing: -0.01em;
+}
+
+/* Větší a klidnější greeting hero (iOS-style soft hero) */
+.home-hero.greeting-hero {
+  border-radius: 22px;
+  padding: 22px 20px 18px;
+  box-shadow: 0 10px 30px rgba(31, 62, 26, 0.18);
+}
+.home-hero.greeting-hero .greeting {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.92;
+  margin-bottom: 4px;
+}
+.home-hero.greeting-hero .hero-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.18;
+}
+
+/* Garden card v3 — jemné iOS-style stíny a rohy */
+.garden-card-v3 { border-radius: 20px; }
+.garden-card-v3 .img-wrap { border-radius: 0; }
+.garden-card-v3 .card-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.garden-card-v3 .card-action-btn .sf-icon { color: var(--muted); }
+.garden-card-v3 .card-action-btn:hover .sf-icon { color: var(--danger); }
+.garden-card-v3 .garden-stat-icon { display: inline-flex; align-items: center; color: var(--muted); }
+.garden-card-v3 .garden-open-arrow { display: inline-flex; align-items: center; color: var(--text-dim); }

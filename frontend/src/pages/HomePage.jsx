@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import Icon from '../components/Icon.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -40,6 +41,7 @@ export default function HomePage({ onTaskComplete }) {
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
@@ -48,17 +50,19 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, photos] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
       const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
       setStats(s);
       setGardens(gs);
+      setRecentPhotos(Array.isArray(photos) ? photos : []);
 
       // Load per-garden plant counts (pins) in parallel
       const pinResults = await Promise.all(
@@ -152,7 +156,9 @@ export default function HomePage({ onTaskComplete }) {
       {gardens.length > 0 ? (
         <>
           <div className="section-header">
-            <div className="title">🗺️ Moje zahrady</div>
+            <div className="title">
+              <Icon name="leaf" size={18} /> Moje zahrady
+            </div>
             <Link to="/zahrady" className="gp-section-link">Vše →</Link>
           </div>
           <div className="gardens-grid">
@@ -207,7 +213,9 @@ export default function HomePage({ onTaskComplete }) {
 
       {/* Today + overdue */}
       <div className="section-header">
-        <div className="title">🌞 Dnes a po termínu</div>
+        <div className="title">
+          <Icon name="sun" size={18} /> Dnes
+        </div>
         {today.length > 0 && (
           <span className={`count-badge${stats?.overdue > 0 ? ' danger' : ''}`}>{today.length}</span>
         )}
@@ -222,9 +230,9 @@ export default function HomePage({ onTaskComplete }) {
         today.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
-      {/* Upcoming */}
+      {/* Upcoming — Tento týden */}
       <div className="section-header">
-        <div className="title">📅 Nadcházející</div>
+        <div className="title">📅 Tento týden</div>
         {upcoming.length > 0 ? (
           <span className="count-badge">{upcoming.length}</span>
         ) : (
@@ -239,6 +247,36 @@ export default function HomePage({ onTaskComplete }) {
         </div>
       ) : (
         upcoming.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
+      )}
+
+      {/* Poslední fotky */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">
+              <Icon name="camera" size={18} /> Poslední fotky
+            </div>
+            <Link to="/zahrady" className="gp-section-link">Vše →</Link>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <button
+                key={p.id}
+                className="recent-photo-card"
+                onClick={() => nav(`/zahrada/${p.garden_id}?pin=${p.pin_id}`)}
+                aria-label={`${p.pin_name} — otevřít`}
+              >
+                <img src={p.url} alt={p.pin_name} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <div className="recent-photo-name">{p.pin_name}</div>
+                  {p.garden_name && (
+                    <div className="recent-photo-sub">{p.garden_name}</div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       <Link
