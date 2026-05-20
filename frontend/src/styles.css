@@ -2695,3 +2695,205 @@ input, textarea, select {
 .task-row-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .task-row-tags .badge.type { background: var(--sand); color: var(--charcoal); }
 .task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; }
+
+/* ===== iOS-style redesign: lucide SVG icons, sticky search, photo grid, pull-to-refresh ===== */
+
+/* Lucide icons inherit currentColor and keep crisp rendering */
+.lucide {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* Bottom-nav icons: switch from emoji sizing → svg sizing */
+.bottom-nav a .icon .lucide,
+.bottom-nav a .icon svg {
+  width: 22px;
+  height: 22px;
+}
+.bottom-nav a .icon { font-size: 0; line-height: 1; }
+.bottom-nav a.active .icon { color: var(--forest); }
+
+.topbar h1 .leaf .lucide { color: var(--forest); }
+
+/* Card chevron / arrow */
+.card-arrow,
+.garden-open-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+}
+
+/* Sticky search bar with frosted glass blur — sticks just below the topbar */
+.sticky-search {
+  position: sticky;
+  top: calc(48px + var(--safe-top));
+  z-index: 10;
+  margin: 8px -12px 12px;
+  padding: 8px 12px 10px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--divider);
+}
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sand);
+  border: 1px solid var(--sand-deep);
+  border-radius: 14px;
+  padding: 10px 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-field:focus-within {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.12);
+  background: #fff;
+}
+.search-field-icon {
+  display: inline-flex;
+  color: var(--text-dim);
+}
+.search-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  min-width: 0;
+}
+.search-field input::placeholder { color: var(--text-dim); }
+.search-field input::-webkit-search-cancel-button { display: none; }
+.search-field-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text);
+  padding: 0;
+  transition: background 0.15s;
+}
+.search-field-clear:hover { background: rgba(0, 0, 0, 0.15); }
+
+/* Icon pill button (used for "Nová" with plus icon) */
+.btn-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-icon-pill .lucide { margin-right: -2px; }
+
+/* Recent photos grid on Home */
+.recent-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.recent-photo-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  background: var(--sand);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.recent-photo-tile:active { transform: scale(0.96); }
+.recent-photo-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.recent-photo-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px 8px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: left;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 100%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 480px) {
+  .recent-photos-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .recent-photo-caption { font-size: 0.68rem; padding: 12px 6px 5px; }
+}
+
+/* Section header icon (lucide) */
+.section-header .title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--forest-soft);
+  color: var(--forest);
+  margin-right: 6px;
+}
+
+/* Pull-to-refresh — keeps sticky search working by avoiding overflow:hidden */
+.ptr-root {
+  position: relative;
+  touch-action: pan-y;
+}
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--forest);
+  font-size: 0.82rem;
+  font-weight: 600;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+.ptr-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--forest);
+}
+.ptr-indicator.refreshing .ptr-icon {
+  animation: ptr-spin 0.8s linear infinite;
+}
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+.ptr-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Trash icon in card actions */
+.card-action-btn .lucide { color: var(--danger); }
+
+/* Garden urgent badge with lucide alert */
+.garden-urgent-badge .lucide { color: #fff; }
+

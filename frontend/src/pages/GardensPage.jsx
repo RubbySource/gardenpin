@@ -1,9 +1,18 @@
 // List of gardens + create new
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import NewGardenModal from '../components/NewGardenModal.jsx';
+import PullToRefresh from '../components/PullToRefresh.jsx';
+import {
+  IconSearch,
+  IconX,
+  IconPlus,
+  IconTrash,
+  IconChevronRight,
+  IconAlert,
+} from '../components/Icons.jsx';
 import { toast } from '../App.jsx';
 
 export default function GardensPage() {
@@ -11,9 +20,10 @@ export default function GardensPage() {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [search, setSearch] = useState('');
   const nav = useNavigate();
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setGardens(await api.listGardens());
     } catch (e) {
@@ -21,10 +31,16 @@ export default function GardensPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
+
+  const filteredGardens = useMemo(() => {
+    const q = search.trim().toLocaleLowerCase('cs-CZ');
+    if (!q) return gardens;
+    return gardens.filter((g) => (g.name || '').toLocaleLowerCase('cs-CZ').includes(q));
+  }, [gardens, search]);
 
   const totalPins = gardens.reduce((sum, g) => sum + (g.pin_count || 0), 0);
   const totalTasks = gardens.reduce((sum, g) => sum + (g.task_count || 0), 0);
@@ -41,7 +57,7 @@ export default function GardensPage() {
   };
 
   return (
-    <>
+    <PullToRefresh onRefresh={load}>
       <div className="gardens-hero">
         <div className="gardens-hero-row">
           <div>
@@ -54,8 +70,9 @@ export default function GardensPage() {
                 : `${gardens.length} ${gardens.length < 5 ? 'zahrady' : 'zahrad'}`}
             </div>
           </div>
-          <button className="btn" onClick={() => setShowNew(true)}>
-            + Nová
+          <button className="btn btn-icon-pill" onClick={() => setShowNew(true)} aria-label="Nová zahrada">
+            <IconPlus size={18} strokeWidth={2.4} />
+            <span>Nová</span>
           </button>
         </div>
         {gardens.length > 0 && (
@@ -76,6 +93,34 @@ export default function GardensPage() {
         )}
       </div>
 
+      {gardens.length > 1 && (
+        <div className="sticky-search">
+          <div className="search-field">
+            <span className="search-field-icon" aria-hidden="true">
+              <IconSearch size={18} />
+            </span>
+            <input
+              type="search"
+              inputMode="search"
+              placeholder="Hledat zahradu…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Hledat zahradu"
+            />
+            {search && (
+              <button
+                type="button"
+                className="search-field-clear"
+                onClick={() => setSearch('')}
+                aria-label="Vymazat hledání"
+              >
+                <IconX size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="empty">🌱 Načítám...</div>
       ) : gardens.length === 0 ? (
@@ -89,9 +134,17 @@ export default function GardensPage() {
             + Vytvořit první zahradu
           </button>
         </div>
+      ) : filteredGardens.length === 0 ? (
+        <div className="card empty">
+          <div className="icon"><IconSearch size={28} /></div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>Nic nenalezeno</div>
+          <div className="small muted">
+            Zkuste jiný výraz nebo vymažte filtr.
+          </div>
+        </div>
       ) : (
         <div className="gardens-grid">
-          {gardens.map((g) => (
+          {filteredGardens.map((g) => (
             <GardenCard
               key={g.id}
               garden={g}
@@ -132,7 +185,7 @@ export default function GardensPage() {
           </div>
         </Modal>
       )}
-    </>
+    </PullToRefresh>
   );
 }
 
@@ -153,7 +206,9 @@ function GardenCard({ garden, onOpen, onDelete }) {
           </div>
         )}
         {garden.urgent_count > 0 && (
-          <div className="garden-urgent-badge">⚠️ {garden.urgent_count}</div>
+          <div className="garden-urgent-badge">
+            <IconAlert size={14} /> {garden.urgent_count}
+          </div>
         )}
       </div>
       <div className="card-body">
@@ -168,7 +223,7 @@ function GardenCard({ garden, onOpen, onDelete }) {
             aria-label="Smazat zahradu"
             title="Smazat zahradu"
           >
-            🗑️
+            <IconTrash size={18} />
           </button>
         </div>
         <div className="g-meta">{created}</div>
@@ -187,7 +242,9 @@ function GardenCard({ garden, onOpen, onDelete }) {
               {garden.task_count === 1 ? 'úkol' : 'úkolů'}
             </span>
           </div>
-          <span className="garden-open-arrow">›</span>
+          <span className="garden-open-arrow" aria-hidden="true">
+            <IconChevronRight size={18} />
+          </span>
         </div>
       </div>
     </div>

@@ -19,19 +19,6 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Ověřit Lighthouse PWA audit ≥ 90, instalovatelnost na iOS Safari a Chrome Android.
   - Build (`cd frontend && npm run build`), `pm2 restart gardenpin`.
 
-- [~] Fotky rostlin — upload + galerie u záznamu rostliny
-  Scope:
-  - Backend: nový endpoint `POST /api/pins/:id/photos` (multer multipart), uložit do `backend/uploads/pins/:id/`, vrátit URL. `GET /api/pins/:id/photos` vrátí seznam. `DELETE /api/pins/:id/photos/:photoId`. Vytvořit SQLite tabulku `pin_photos` (id, pin_id, filename, uploaded_at, caption).
-  - Frontend: v `PinDetail` přidat sekci "Fotky" se thumbnail gridem, file input s `capture="environment"` pro mobil, lightbox při kliknutí (jednoduchý modal). Před uploadem client-side resize na max 1600px (canvas) pro úsporu místa.
-  - Express servuje `/uploads/pins/...` jako static. Commit + push.
-
-- [~] Sezónní kalendář — co dělat tento měsíc
-  Scope:
-  - Nová stránka `/kalendar` (route v App.jsx). Pro každý měsíc seznam typických prací (sázení, řez, hnojení, sklizeň) podle ČR klimatické zóny. Data jako statický JSON `frontend/src/data/seasonal.json` (12 měsíců × 4-8 úkolů, česky).
-  - U každého úkolu volitelně tagy rostlin → kliknutí filtruje příslušné Piny.
-  - Aktuální měsíc se zvýrazní, scroll na něj při načtení. iOS-style karty (rounded-2xl, soft shadow).
-  - Build + push.
-
 - [~] Připomínky péče — notifikace v PWA — dispatched 2026-05-16
   Scope:
   - Backend: SQLite tabulka `reminders` (id, pin_id, type [zaliti|hnojeni|rez|prihnojit], interval_days, last_done_at, next_due_at). Endpoint CRUD `/api/pins/:id/reminders`.
@@ -46,17 +33,18 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [ ] iOS-style redesign Home + List
-  Scope:
-  - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
-  - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
-  - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
-
 ## Hotovo
+
+- [x] iOS-style redesign Home + List — hotovo 2026-05-21
+  - Inline SVG ikony (lucide-style) v novém `components/Icons.jsx` — Home, Map, CheckCircle, Calendar, Settings, Search, Plus, Trash, ChevronRight, Camera, Refresh, Leaf, X, Alert
+  - Bottom-nav + topbar přešly z emoji na SVG ikony s konzistentním sizingem 22px a barvou currentColor
+  - Home: grid posledních 4 fotek napříč všemi piny (nový endpoint `GET /api/photos/recent`)
+  - List (Gardens + Tasks): sticky search bar s frosted glass blur backdropem, hledání podle jména zahrady / úkolu / rostliny
+  - `usePullToRefresh` hook + `PullToRefresh` wrapper s rotujícím SVG indikátorem — aktivní na Home, Gardens a Tasks
+  - CSS: nové třídy `.sticky-search`, `.search-field`, `.recent-photos-grid`, `.recent-photo-tile`, `.ptr-root/.ptr-indicator/.ptr-content`, `.btn-icon-pill`, `.title-icon` se sand pozadím a rounded-2xl
+  - Cleanup: opravil korupci v `SeasonalCalendar.jsx` (270+ řádků mrtvého kódu) a `PinDetail.jsx` (duplicitní PhotoGallery + resizeImage + nevalidní JSX zbytky)
 
 - [x] Merge PR #19 — Claude Design redesign PinDetail — mergeno 2026-05-15
-
-## Hotovo
 
 - [x] Fotky rostlin — upload + galerie — hotovo 2026-05-16
   - Backend: tabulka `pin_photos`, endpointy POST/GET/DELETE `/api/pins/:id/photos`, multer per-pin storage, static serve `/uploads/pins/...`

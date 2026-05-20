@@ -1,9 +1,11 @@
 // All tasks page with month grouping + filters
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
+import PullToRefresh from '../components/PullToRefresh.jsx';
+import { IconSearch, IconX } from '../components/Icons.jsx';
 
 const MONTH_NAMES = [
   'Leden',
@@ -55,8 +57,9 @@ export default function TasksPage({ onTaskComplete }) {
   const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
+  const [search, setSearch] = useState('');
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const [t, h] = await Promise.all([api.listTasks(), api.listHistory()]);
       setTasks(t);
@@ -66,10 +69,30 @@ export default function TasksPage({ onTaskComplete }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
+
+  const matchSearch = useCallback(
+    (item, ...extra) => {
+      const q = search.trim().toLocaleLowerCase('cs-CZ');
+      if (!q) return true;
+      const hay = [
+        item.title,
+        item.action,
+        item.pin_name,
+        item.plant_name,
+        item.garden_name,
+        ...extra,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLocaleLowerCase('cs-CZ');
+      return hay.includes(q);
+    },
+    [search],
+  );
 
   const completeTask = async (t) => {
     if (completingIds.has(t.id)) return;
@@ -96,19 +119,20 @@ export default function TasksPage({ onTaskComplete }) {
   const urgentCount = overdueCount + todayCount;
 
   const visibleTasks = useMemo(() => {
-    if (filter === 'all') return tasks;
-    if (filter === 'thisMonth') {
+    let base;
+    if (filter === 'all') base = tasks;
+    else if (filter === 'thisMonth') {
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
-      return tasks.filter((t) => {
+      base = tasks.filter((t) => {
         if (!t.next_due) return false;
         const d = new Date(t.next_due);
         return d.getFullYear() === y && d.getMonth() === m;
       });
-    }
-    return [];
-  }, [tasks, filter]);
+    } else base = [];
+    return base.filter((t) => matchSearch(t));
+  }, [tasks, filter, matchSearch]);
 
   const taskGroups = useMemo(() => {
     if (filter === 'done') return [];
@@ -117,17 +141,24 @@ export default function TasksPage({ onTaskComplete }) {
     );
   }, [visibleTasks, filter]);
 
+  const filteredHistory = useMemo(
+    () => history.filter((h) => matchSearch(h)),
+    [history, matchSearch],
+  );
+
   const historyGroups = useMemo(() => {
     if (filter !== 'done') return [];
-    return groupByMonth(history, (h) => h.done_at).sort(
+    return groupByMonth(filteredHistory, (h) => h.done_at).sort(
       ([a], [b]) => b.localeCompare(a),
     );
-  }, [history, filter]);
+  }, [filteredHistory, filter]);
 
   if (loading) return <div className="empty">🌱 Načítám...</div>;
 
+  const hasAnyItems = tasks.length > 0 || history.length > 0;
+
   return (
-    <>
+    <PullToRefresh onRefresh={load}>
       <div className="tasks-hero">
         <div className="tasks-hero-row">
           <div>
@@ -162,6 +193,34 @@ export default function TasksPage({ onTaskComplete }) {
           </div>
         </div>
       </div>
+
+      {hasAnyItems && (
+        <div className="sticky-search">
+          <div className="search-field">
+            <span className="search-field-icon" aria-hidden="true">
+              <IconSearch size={18} />
+            </span>
+            <input
+              type="search"
+              inputMode="search"
+              placeholder="Hledat úkol, rostlinu, zahradu…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Hledat úkol"
+            />
+            {search && (
+              <button
+                type="button"
+                className="search-field-clear"
+                onClick={() => setSearch('')}
+                aria-label="Vymazat hledání"
+              >
+                <IconX size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="filter-pills">
         <button
@@ -249,7 +308,7 @@ export default function TasksPage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </PullToRefresh>
   );
 }
 

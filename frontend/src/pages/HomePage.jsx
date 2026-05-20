@@ -1,9 +1,11 @@
 // Home / dashboard — GardenPin design: personal greeting, garden cards, tasks, FAB
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import PullToRefresh from '../components/PullToRefresh.jsx';
+import { IconCamera, IconChevronRight, IconPlus } from '../components/Icons.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -40,25 +42,28 @@ export default function HomePage({ onTaskComplete }) {
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
 
   const userName = localStorage.getItem(USER_NAME_KEY) || DEFAULT_NAME;
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, photos] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
       const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
       setStats(s);
       setGardens(gs);
+      setRecentPhotos(photos || []);
 
       // Load per-garden plant counts (pins) in parallel
       const pinResults = await Promise.all(
@@ -78,11 +83,11 @@ export default function HomePage({ onTaskComplete }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const completeTask = async (t) => {
     try {
@@ -103,7 +108,7 @@ export default function HomePage({ onTaskComplete }) {
   const urgentClass = stats && stats.overdue > 0 ? 'danger' : urgentCount > 0 ? 'warning' : '';
 
   return (
-    <>
+    <PullToRefresh onRefresh={load}>
       {/* Personal greeting hero */}
       <div className="home-hero greeting-hero">
         <div className="greeting">{getGreeting()}, {userName} 🌿</div>
@@ -185,7 +190,9 @@ export default function HomePage({ onTaskComplete }) {
                         {gs.upcomingCount > 0 && ` · ${gs.upcomingCount} úkol${gs.upcomingCount === 1 ? '' : gs.upcomingCount < 5 ? 'y' : 'ů'}`}
                       </div>
                     </div>
-                    <span style={{ fontSize: '1.3rem', color: 'var(--text-dim)' }}>›</span>
+                    <span className="card-arrow" aria-hidden="true">
+                      <IconChevronRight size={20} />
+                    </span>
                   </div>
                 </div>
               );
@@ -203,6 +210,34 @@ export default function HomePage({ onTaskComplete }) {
             + Vytvořit zahradu
           </button>
         </div>
+      )}
+
+      {/* Recent photos — iOS-style grid of last 4 photos across all pins */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">
+              <span className="title-icon"><IconCamera size={18} /></span>
+              Poslední fotky
+            </div>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((ph) => (
+              <button
+                key={ph.id}
+                className="recent-photo-tile"
+                onClick={() => nav(`/zahrada/${ph.garden_id}`)}
+                aria-label={`Otevřít zahradu ${ph.garden_name}`}
+                title={`${ph.pin_name}${ph.plant_name ? ' · ' + ph.plant_name : ''} · ${ph.garden_name}`}
+              >
+                <img src={ph.url} alt={ph.pin_name} loading="lazy" />
+                <span className="recent-photo-caption">
+                  {ph.plant_name || ph.pin_name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Today + overdue */}
@@ -268,7 +303,7 @@ export default function HomePage({ onTaskComplete }) {
         aria-label="Nová zahrada"
         title="Nová zahrada"
       >
-        +
+        <IconPlus size={26} strokeWidth={2.4} />
       </button>
 
       {showNew && (
@@ -281,7 +316,7 @@ export default function HomePage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </PullToRefresh>
   );
 }
 

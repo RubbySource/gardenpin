@@ -9,6 +9,14 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
+import {
+  IconHome,
+  IconMap,
+  IconCheckCircle,
+  IconCalendar,
+  IconSettings,
+  IconLeaf,
+} from './components/Icons.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -77,7 +85,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>
-          <span className="leaf">📍</span>
+          <span className="leaf" aria-hidden="true"><IconLeaf size={20} /></span>
           GardenPin
         </h1>
         <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
@@ -101,16 +109,16 @@ export default function App() {
 
       <nav className="bottom-nav">
         <NavLink to="/" end>
-          <span className="icon">🏠</span>
+          <span className="icon"><IconHome size={22} /></span>
           <span>Přehled</span>
         </NavLink>
         <NavLink to="/zahrady">
-          <span className="icon">🗺️</span>
+          <span className="icon"><IconMap size={22} /></span>
           <span>Zahrady</span>
         </NavLink>
         <NavLink to="/ukoly">
           <span className="nav-icon-wrap">
-            <span className="icon">✅</span>
+            <span className="icon"><IconCheckCircle size={22} /></span>
             {pendingStats.overdue + pendingStats.dueToday > 0 && (
               <span className="nav-badge">
                 {pendingStats.overdue + pendingStats.dueToday > 99
@@ -122,11 +130,11 @@ export default function App() {
           <span>Úkoly</span>
         </NavLink>
         <NavLink to="/kalendar">
-          <span className="icon">📅</span>
+          <span className="icon"><IconCalendar size={22} /></span>
           <span>Kalendář</span>
         </NavLink>
         <NavLink to="/nastaveni">
-          <span className="icon">⚙️</span>
+          <span className="icon"><IconSettings size={22} /></span>
           <span>Nastavení</span>
         </NavLink>
       </nav>
