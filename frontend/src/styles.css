@@ -2695,3 +2695,289 @@ input, textarea, select {
 .task-row-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .task-row-tags .badge.type { background: var(--sand); color: var(--charcoal); }
 .task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; }
+
+/* ===== iOS-style redesign: Home extras + List ===== */
+
+/* Tento týden — sklizeň horizontal scroll */
+.harvest-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 4px 12px;
+  margin-bottom: 4px;
+  scrollbar-width: none;
+}
+.harvest-row::-webkit-scrollbar { display: none; }
+.harvest-chip {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff 0%, var(--green-50) 100%);
+  border: 1px solid var(--green-200);
+  border-radius: 18px;
+  padding: 10px 14px 10px 12px;
+  min-width: 180px;
+  max-width: 240px;
+  box-shadow: 0 1px 4px rgba(45, 90, 39, 0.08);
+  text-align: left;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.harvest-chip:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(45, 90, 39, 0.06);
+}
+.harvest-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+.harvest-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.harvest-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--charcoal);
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.harvest-meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+.count-badge.accent {
+  background: var(--green-100);
+  color: var(--forest-deep);
+}
+
+/* Poslední fotky — 4 thumbs grid */
+.recent-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.recent-photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--sand);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.recent-photo:active {
+  transform: scale(0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.recent-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.recent-photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 6px 5px;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  font-size: 0.65rem;
+  line-height: 1.15;
+  pointer-events: none;
+}
+.recent-photo-overlay .rp-title {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-photo-overlay .rp-sub {
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.6rem;
+}
+@media (max-width: 380px) {
+  .recent-photos-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .recent-photo-overlay { font-size: 0.75rem; padding: 18px 8px 6px; }
+  .recent-photo-overlay .rp-sub { font-size: 0.7rem; }
+}
+
+/* Sticky search bar with blur backdrop */
+.sticky-search {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  padding: 8px 4px 10px;
+  margin: -4px -4px 8px;
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+.sticky-search-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--sand);
+  border-radius: 14px;
+  padding: 0 12px 0 38px;
+  border: 1px solid var(--divider);
+}
+.sticky-search .search-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.sticky-search .search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  height: 42px;
+  font-size: 1rem;
+  color: var(--charcoal);
+  padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.sticky-search .search-input::placeholder { color: var(--muted); }
+.sticky-search .search-clear {
+  background: rgba(0, 0, 0, 0.12);
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Pull-to-refresh indicator */
+.ptr-indicator {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity 0.15s;
+  font-size: 0.85rem;
+  color: var(--forest);
+  font-weight: 600;
+}
+.ptr-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  font-size: 1rem;
+  transition: transform 0.05s linear;
+}
+.ptr-spinner.spinning {
+  animation: ptr-spin 0.8s linear infinite;
+}
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+.ptr-text {
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  letter-spacing: -0.01em;
+}
+
+/* Swipe-to-delete wrapper */
+.swipe-card-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  margin-bottom: 12px;
+}
+.swipe-card-wrap:last-child { margin-bottom: 0; }
+.swipe-delete-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #b9342a 0%, var(--danger) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 24px;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: 0.95rem;
+  border-radius: 18px;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.swipe-delete-bg.triggered {
+  background: linear-gradient(90deg, #8a261e 0%, #9c2a22 100%);
+}
+.swipe-delete-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.swipe-delete-label {
+  white-space: nowrap;
+}
+.swipe-card-foreground {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+}
+/* When inside swipe wrapper, the inner card shouldn't keep its own margin */
+.swipe-card-wrap .garden-card-v3 {
+  margin-bottom: 0;
+}
+
+/* Tweak gardens-grid spacing when swipe wrappers are used */
+.gardens-grid .swipe-card-wrap {
+  width: 100%;
+}

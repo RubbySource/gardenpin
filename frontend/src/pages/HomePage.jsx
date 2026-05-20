@@ -37,9 +37,11 @@ function getGreeting() {
 export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
+  const [weekHarvest, setWeekHarvest] = useState([]);
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
@@ -48,17 +50,24 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, ph] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
-      const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
+      const weekTasks = w.tasks || [];
+      const future = weekTasks.filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
+      const harvest = weekTasks
+        .filter((x) => x.task_type === 'sklizen' || /sklize|sklíz/i.test(x.title || ''))
+        .slice(0, 4);
+      setWeekHarvest(harvest);
       setStats(s);
       setGardens(gs);
+      setRecentPhotos(Array.isArray(ph) ? ph : []);
 
       // Load per-garden plant counts (pins) in parallel
       const pinResults = await Promise.all(
@@ -203,6 +212,67 @@ export default function HomePage({ onTaskComplete }) {
             + Vytvořit zahradu
           </button>
         </div>
+      )}
+
+      {/* Tento týden — sklizeň */}
+      {weekHarvest.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">🧺 Tento týden — sklizeň</div>
+            <span className="count-badge accent">{weekHarvest.length}</span>
+          </div>
+          <div className="harvest-row">
+            {weekHarvest.map((t) => {
+              const badge = dueBadge(t.next_due);
+              return (
+                <button
+                  key={t.id}
+                  className="harvest-chip"
+                  onClick={() => completeTask(t)}
+                  title="Označit jako sklizené"
+                >
+                  <span className="harvest-emoji">🧺</span>
+                  <span className="harvest-info">
+                    <span className="harvest-title">
+                      {t.plant_name || t.pin_name}
+                    </span>
+                    <span className="harvest-meta">
+                      {badge ? badge.text : ''}
+                      {t.garden_name ? ` · ${t.garden_name}` : ''}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Poslední fotky */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">📸 Poslední fotky</div>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <div
+                key={p.id}
+                className="recent-photo"
+                onClick={() => nav(`/zahrada/${p.garden_id}`)}
+                role="button"
+                tabIndex={0}
+                title={`${p.pin_name}${p.garden_name ? ' · ' + p.garden_name : ''}`}
+              >
+                <img src={p.url} alt={p.pin_name} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <div className="rp-title">{p.plant_name || p.pin_name}</div>
+                  {p.garden_name && <div className="rp-sub">{p.garden_name}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Today + overdue */}
