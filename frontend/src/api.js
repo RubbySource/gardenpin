@@ -34,6 +34,7 @@ export const api = {
 
   // Galerie fotek pinu
   listPinPhotos: (id) => jsonFetch(`/api/pins/${id}/photos`),
+  recentPhotos: (limit = 4) => jsonFetch(`/api/photos/recent?limit=${limit}`),
   uploadPinPhotos: (id, formData) =>
     fetch(`/api/pins/${id}/photos`, { method: 'POST', body: formData }).then(handle),
   deletePinPhoto: (pinId, photoId) =>

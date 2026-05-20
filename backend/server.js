@@ -347,6 +347,26 @@ app.post('/api/pins/:id/photos', pinPhotoUpload.array('photos', 10), (req, res) 
   res.json(inserted);
 });
 
+// Nejnovější fotky napříč všemi piny (pro home grid)
+app.get('/api/photos/recent', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 4, 20);
+  const rows = db
+    .prepare(
+      `SELECT pp.id, pp.pin_id, pp.filename, pp.uploaded_at, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+       FROM pin_photos pp
+       JOIN pins p ON p.id = pp.pin_id
+       LEFT JOIN gardens g ON g.id = p.garden_id
+       ORDER BY pp.uploaded_at DESC
+       LIMIT ?`,
+    )
+    .all(limit);
+  const photos = rows.map((r) => ({
+    ...r,
+    url: `/uploads/pins/${r.pin_id}/${r.filename}`,
+  }));
+  res.json(photos);
+});
+
 // Smazat fotku
 app.delete('/api/pins/:id/photos/:photoId', (req, res) => {
   const { id, photoId } = req.params;

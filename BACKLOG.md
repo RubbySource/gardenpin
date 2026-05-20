@@ -46,11 +46,11 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [~] iOS-style redesign Home + List
-  Scope:
-  - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
-  - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
-  - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
+- [x] iOS-style redesign Home + List — hotovo 2026-05-20
+  - HomePage: pull-to-refresh, sekce "Tento týden · sklizeň" (harvest grid), grid posledních 4 fotek (`/api/photos/recent`), zachován greeting hero + Dnes
+  - TasksPage: sticky search bar s blur backdrop, swipe-to-delete na úkolových řádcích (`useSwipeToDelete` hook), pull-to-refresh (`usePullToRefresh` hook)
+  - Backend: nový endpoint `GET /api/photos/recent?limit=N` (JOIN pin_photos+pins+gardens)
+  - Cleanup: odstraněn orphan kód v `SeasonalCalendar.jsx` a `PinDetail.jsx` (zbytek z předchozího edit), který blokoval build
 
 ## Hotovo
 

@@ -7,6 +7,7 @@ import WeatherWidget from '../components/WeatherWidget.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -37,6 +38,8 @@ function getGreeting() {
 export default function HomePage({ onTaskComplete }) {
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
+  const [weekHarvest, setWeekHarvest] = useState([]);
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
@@ -48,15 +51,23 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, ph] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
-      const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
+      const weekTasks = w.tasks || [];
+      const future = weekTasks.filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
+      // Sklizeň tento týden — task_type === 'sklizen' v rámci 7 dnů
+      const harvest = weekTasks
+        .filter((x) => x.task_type === 'sklizen')
+        .slice(0, 4);
+      setWeekHarvest(harvest);
+      setRecentPhotos(ph || []);
       setStats(s);
       setGardens(gs);
 
@@ -84,6 +95,8 @@ export default function HomePage({ onTaskComplete }) {
     load();
   }, []);
 
+  const ptr = usePullToRefresh(load);
+
   const completeTask = async (t) => {
     try {
       await api.completeTask(t.id);
@@ -103,7 +116,25 @@ export default function HomePage({ onTaskComplete }) {
   const urgentClass = stats && stats.overdue > 0 ? 'danger' : urgentCount > 0 ? 'warning' : '';
 
   return (
-    <>
+    <div
+      className="home-root"
+      onTouchStart={ptr.handlers.onTouchStart}
+      onTouchMove={ptr.handlers.onTouchMove}
+      onTouchEnd={ptr.handlers.onTouchEnd}
+      onTouchCancel={ptr.handlers.onTouchCancel}
+    >
+      {(ptr.pull > 0 || ptr.refreshing) && (
+        <div
+          className={`ptr-indicator ${ptr.refreshing ? 'is-refreshing' : ''} ${ptr.triggered ? 'is-triggered' : ''}`}
+          style={{
+            transform: `translateY(${ptr.refreshing ? 40 : ptr.pull * 0.7}px)`,
+            opacity: ptr.refreshing ? 1 : Math.min(1, ptr.pull / 70),
+          }}
+          aria-hidden="true"
+        >
+          <span className="ptr-spinner">{ptr.refreshing ? '🌿' : ptr.triggered ? '🌱' : '↓'}</span>
+        </div>
+      )}
       {/* Personal greeting hero */}
       <div className="home-hero greeting-hero">
         <div className="greeting">{getGreeting()}, {userName} 🌿</div>
@@ -222,6 +253,58 @@ export default function HomePage({ onTaskComplete }) {
         today.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
+      {/* Tento týden — sklizeň */}
+      {weekHarvest.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">🧺 Tento týden · sklizeň</div>
+            <span className="count-badge">{weekHarvest.length}</span>
+          </div>
+          <div className="harvest-grid">
+            {weekHarvest.map((t) => {
+              const days = daysFromToday(t.next_due);
+              const when =
+                days === 0 ? 'Dnes' : days === 1 ? 'Zítra' : days > 1 ? `Za ${days} dní` : `${Math.abs(days)} dní po termínu`;
+              return (
+                <div key={t.id} className="harvest-card" onClick={() => completeTask(t)}>
+                  <div className="harvest-emoji">🧺</div>
+                  <div className="harvest-body">
+                    <div className="harvest-title">{t.plant_name || t.pin_name}</div>
+                    <div className="harvest-meta">{when}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Poslední fotky */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">📷 Poslední fotky</div>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <div
+                key={p.id}
+                className="recent-photo-card"
+                onClick={() =>
+                  p.garden_id ? nav(`/zahrada/${p.garden_id}`) : null
+                }
+                title={`${p.plant_name || p.pin_name} · ${p.garden_name || ''}`}
+              >
+                <img src={p.url} alt={p.plant_name || p.pin_name || 'Fotka'} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <div className="recent-photo-title">{p.plant_name || p.pin_name}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* Upcoming */}
       <div className="section-header">
         <div className="title">📅 Nadcházející</div>
@@ -281,7 +364,7 @@ export default function HomePage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 

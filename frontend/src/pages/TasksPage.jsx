@@ -4,6 +4,8 @@ import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
+import { useSwipeToDelete } from '../hooks/useSwipeToDelete.js';
 
 const MONTH_NAMES = [
   'Leden',
@@ -55,6 +57,7 @@ export default function TasksPage({ onTaskComplete }) {
   const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
+  const [search, setSearch] = useState('');
 
   const load = async () => {
     try {
@@ -70,6 +73,42 @@ export default function TasksPage({ onTaskComplete }) {
   useEffect(() => {
     load();
   }, []);
+
+  const ptr = usePullToRefresh(load);
+
+  const deleteTask = async (t) => {
+    try {
+      await api.deleteTask(t.id);
+      toast('🗑️ Úkol smazán');
+      await load();
+      onTaskComplete?.();
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
+
+  const matchesSearch = (t) => {
+    if (!search.trim()) return true;
+    const q = search.trim().toLowerCase();
+    return (
+      (t.title || '').toLowerCase().includes(q) ||
+      (t.pin_name || '').toLowerCase().includes(q) ||
+      (t.plant_name || '').toLowerCase().includes(q) ||
+      (t.garden_name || '').toLowerCase().includes(q) ||
+      taskLabel(t.task_type).toLowerCase().includes(q)
+    );
+  };
+
+  const matchesSearchHist = (h) => {
+    if (!search.trim()) return true;
+    const q = search.trim().toLowerCase();
+    return (
+      (h.action || '').toLowerCase().includes(q) ||
+      (h.pin_name || '').toLowerCase().includes(q) ||
+      (h.plant_name || '').toLowerCase().includes(q) ||
+      (h.garden_name || '').toLowerCase().includes(q)
+    );
+  };
 
   const completeTask = async (t) => {
     if (completingIds.has(t.id)) return;
@@ -96,19 +135,20 @@ export default function TasksPage({ onTaskComplete }) {
   const urgentCount = overdueCount + todayCount;
 
   const visibleTasks = useMemo(() => {
-    if (filter === 'all') return tasks;
-    if (filter === 'thisMonth') {
+    let base;
+    if (filter === 'all') base = tasks;
+    else if (filter === 'thisMonth') {
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
-      return tasks.filter((t) => {
+      base = tasks.filter((t) => {
         if (!t.next_due) return false;
         const d = new Date(t.next_due);
         return d.getFullYear() === y && d.getMonth() === m;
       });
-    }
-    return [];
-  }, [tasks, filter]);
+    } else base = [];
+    return base.filter(matchesSearch);
+  }, [tasks, filter, search]);
 
   const taskGroups = useMemo(() => {
     if (filter === 'done') return [];
@@ -119,15 +159,34 @@ export default function TasksPage({ onTaskComplete }) {
 
   const historyGroups = useMemo(() => {
     if (filter !== 'done') return [];
-    return groupByMonth(history, (h) => h.done_at).sort(
+    const filtered = history.filter(matchesSearchHist);
+    return groupByMonth(filtered, (h) => h.done_at).sort(
       ([a], [b]) => b.localeCompare(a),
     );
-  }, [history, filter]);
+  }, [history, filter, search]);
 
   if (loading) return <div className="empty">🌱 Načítám...</div>;
 
   return (
-    <>
+    <div
+      className="tasks-root"
+      onTouchStart={ptr.handlers.onTouchStart}
+      onTouchMove={ptr.handlers.onTouchMove}
+      onTouchEnd={ptr.handlers.onTouchEnd}
+      onTouchCancel={ptr.handlers.onTouchCancel}
+    >
+      {(ptr.pull > 0 || ptr.refreshing) && (
+        <div
+          className={`ptr-indicator ${ptr.refreshing ? 'is-refreshing' : ''} ${ptr.triggered ? 'is-triggered' : ''}`}
+          style={{
+            transform: `translateY(${ptr.refreshing ? 40 : ptr.pull * 0.7}px)`,
+            opacity: ptr.refreshing ? 1 : Math.min(1, ptr.pull / 70),
+          }}
+          aria-hidden="true"
+        >
+          <span className="ptr-spinner">{ptr.refreshing ? '🌿' : ptr.triggered ? '🌱' : '↓'}</span>
+        </div>
+      )}
       <div className="tasks-hero">
         <div className="tasks-hero-row">
           <div>
@@ -161,6 +220,29 @@ export default function TasksPage({ onTaskComplete }) {
             <div className="lbl">Hotovo</div>
           </div>
         </div>
+      </div>
+
+      <div className="tasks-search-bar">
+        <span className="tasks-search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          className="tasks-search-input"
+          placeholder="Hledat úkol, rostlinu, zahradu…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          autoComplete="off"
+          inputMode="search"
+        />
+        {search && (
+          <button
+            className="tasks-search-clear"
+            onClick={() => setSearch('')}
+            aria-label="Vymazat hledání"
+            title="Vymazat hledání"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       <div className="filter-pills">
@@ -208,6 +290,7 @@ export default function TasksPage({ onTaskComplete }) {
                   task={t}
                   completing={completingIds.has(t.id)}
                   onComplete={() => completeTask(t)}
+                  onDelete={() => deleteTask(t)}
                   onOpen={() => setOpenPin(t.pin_id)}
                 />
               ))}
@@ -249,43 +332,62 @@ export default function TasksPage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 
-function TaskRow({ task, completing, onComplete, onOpen }) {
+function TaskRow({ task, completing, onComplete, onDelete, onOpen }) {
   const badge = dueBadge(task.next_due);
   const cls = badge ? badge.cls : '';
+  const swipe = useSwipeToDelete(onDelete);
   return (
-    <div className={`task-row ${cls} ${completing ? 'completing' : ''}`}>
-      <button
-        className={`task-checkbox ${completing ? 'checked' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onComplete();
-        }}
-        aria-label="Označit jako hotové"
-        title="Označit jako hotové"
+    <div className="task-row-wrap">
+      <div
+        className={`task-row-delete-bg ${swipe.triggered ? 'triggered' : ''}`}
+        aria-hidden="true"
       >
-        {completing ? '✓' : ''}
-      </button>
-      <div className="task-row-info" onClick={onOpen} style={{ cursor: 'pointer' }}>
-        <div className="task-row-title">
-          <span className="task-row-icon">{taskIcon(task.task_type)}</span>
-          <span className="task-row-name">{task.title}</span>
-        </div>
-        <div className="task-row-meta">
-          {task.pin_name}
-          {task.plant_name ? ` · ${task.plant_name}` : ''}
-          {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
-        </div>
-        <div className="task-row-tags">
-          {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-          {task.frequency_days ? (
-            <span className="badge">Každých {task.frequency_days} dní</span>
-          ) : null}
-          {task.specific_date ? <span className="badge">Jednorázově</span> : null}
-          <span className="badge type">{taskLabel(task.task_type)}</span>
+        <span className="swipe-icon">{swipe.triggered ? '🗑️' : '🗑'}</span>
+        <span className="swipe-label">
+          {swipe.triggered ? 'Pustit pro smazání' : 'Posuňte ←'}
+        </span>
+      </div>
+      <div
+        className={`task-row ${cls} ${completing ? 'completing' : ''} ${swipe.triggered ? 'is-deleting' : ''}`}
+        style={swipe.itemStyle}
+        onTouchStart={swipe.handlers.onTouchStart}
+        onTouchMove={swipe.handlers.onTouchMove}
+        onTouchEnd={swipe.handlers.onTouchEnd}
+        onTouchCancel={swipe.handlers.onTouchCancel}
+      >
+        <button
+          className={`task-checkbox ${completing ? 'checked' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete();
+          }}
+          aria-label="Označit jako hotové"
+          title="Označit jako hotové"
+        >
+          {completing ? '✓' : ''}
+        </button>
+        <div className="task-row-info" onClick={onOpen} style={{ cursor: 'pointer' }}>
+          <div className="task-row-title">
+            <span className="task-row-icon">{taskIcon(task.task_type)}</span>
+            <span className="task-row-name">{task.title}</span>
+          </div>
+          <div className="task-row-meta">
+            {task.pin_name}
+            {task.plant_name ? ` · ${task.plant_name}` : ''}
+            {task.garden_name ? ` · 🗺️ ${task.garden_name}` : ''}
+          </div>
+          <div className="task-row-tags">
+            {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
+            {task.frequency_days ? (
+              <span className="badge">Každých {task.frequency_days} dní</span>
+            ) : null}
+            {task.specific_date ? <span className="badge">Jednorázově</span> : null}
+            <span className="badge type">{taskLabel(task.task_type)}</span>
+          </div>
         </div>
       </div>
     </div>
