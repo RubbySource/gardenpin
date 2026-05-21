@@ -46,11 +46,12 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Queue offline mutací: POST/PUT/DELETE se uloží do IDB `pending_mutations`, po `online` eventu se přehrají.
   - Build + push.
 
-- [ ] iOS-style redesign Home + List
+- [x] iOS-style redesign Home + List — hotovo 2026-05-22
   Scope:
   - Home: velký pozdrav "Dobrý den 🌿", sekce "Dnes" (úkoly na dnešek z reminders), "Tento týden" (sklizeň), grid posledních 4 fotek.
   - List: SF Symbols-inspired ikonky (lucide-react), sticky search bar nahoře s blur backdrop, swipe-to-delete na řádku (framer-motion), pull-to-refresh.
   - Tailwind: rounded-2xl karty, font-weight 600 nadpisy, neutral-900 text na cream pozadí, soft shadows. Build + push.
+  - Implementace: nový backend endpoint `GET /api/photos/recent` (n posledních fotek napříč piny). Nové komponenty/hooks: `Icon.jsx` (inline SVG lucide-style ikony, žádné externí dep.), `usePullToRefresh.js`, `useSwipeActions.js` (swipe vlevo = smazat, vpravo = hotovo). HomePage: pull-to-refresh handler, recent photos grid (2/4 col), nový `ios-premium-link`. TasksPage: sticky `ios-search-wrap` s blur backdrop a vyhledáváním, swipe-to-delete + swipe-to-complete na úkolech, ikony rostlin/akcí přes Icon (SVG). styles.css: nové iOS třídy (rounded 16-24px, soft shadows, ptr-indicator, swipe-action-bg). Odstraněn pre-existing rot v `SeasonalCalendar.jsx` a `PinDetail.jsx`, který blokoval build.
 
 ## Hotovo
 
