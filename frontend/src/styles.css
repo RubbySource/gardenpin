@@ -2694,4 +2694,269 @@ input, textarea, select {
 .task-row-notes { margin-bottom: 6px; font-style: italic; }
 .task-row-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .task-row-tags .badge.type { background: var(--sand); color: var(--charcoal); }
-.task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; }
+.task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; display: inline-flex; align-items: center; gap: 4px; }
+
+/* ============================================================
+   iOS-style polish for Home + List (BACKLOG: iOS-style redesign)
+   ============================================================ */
+
+/* Inline SVG icon defaults */
+.ic-svg { display: inline-block; vertical-align: -2px; flex-shrink: 0; }
+
+/* Pull-to-refresh indicator */
+.ptr-host { position: relative; }
+.ptr-indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+.ptr-indicator .ptr-icon { color: var(--forest); transition: transform 0.18s ease; }
+.ptr-indicator.triggered .ptr-icon { color: var(--forest-deep); }
+.ptr-indicator .ptr-icon.spin { animation: ptr-spin 0.9s linear infinite; }
+@keyframes ptr-spin { to { transform: rotate(360deg) !important; } }
+
+/* Recent photos grid (Home) */
+.recent-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 4px 0 16px;
+}
+@media (min-width: 520px) {
+  .recent-photos-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.recent-photo-card {
+  position: relative;
+  border: none;
+  padding: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--sand);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 6px 18px rgba(0, 0, 0, 0.05);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.recent-photo-card:active { transform: scale(0.98); }
+.recent-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.recent-photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 10px 8px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55));
+  color: #fff;
+  text-align: left;
+}
+.recent-photo-title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-photo-meta {
+  font-size: 0.68rem;
+  opacity: 0.82;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* iOS-style "Premium" row link (replaces the old big green button) */
+.ios-premium-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-top: 18px;
+  border-radius: 16px;
+  background: var(--sand);
+  border: 1px solid var(--sand-deep);
+  color: var(--forest);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+.ios-premium-link:hover { background: var(--sand-deep); text-decoration: none; }
+.ios-premium-link:active { transform: scale(0.99); }
+.ios-premium-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(45, 90, 39, 0.10);
+  color: var(--forest);
+}
+.ios-premium-link span:nth-child(2) { flex: 1; }
+.ios-premium-chev { color: var(--muted); }
+
+/* Sticky iOS search bar with blur backdrop (Tasks page) */
+.ios-search-wrap {
+  position: sticky;
+  top: calc(56px + var(--safe-top));
+  z-index: 15;
+  margin: 8px -12px 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.ios-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.ios-search-icon { color: var(--muted); flex-shrink: 0; }
+.ios-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  min-width: 0;
+}
+.ios-search-input::placeholder { color: var(--muted); font-weight: 500; }
+.ios-search-input::-webkit-search-cancel-button { display: none; }
+.ios-search-clear {
+  border: none;
+  background: rgba(0, 0, 0, 0.18);
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.ios-search-clear:hover { background: rgba(0, 0, 0, 0.32); }
+
+/* iOS-style task row enhancements (soft shadows, chevron, swipe actions) */
+.ios-task-row {
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: transform 0.05s ease, opacity 0.25s ease, background 0.15s ease;
+  background: #fff;
+  will-change: transform;
+}
+.ios-task-row:active { background: rgba(0, 0, 0, 0.02); }
+.ios-task-row .task-row-icon-svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--forest-soft);
+  color: var(--forest);
+  flex-shrink: 0;
+}
+.ios-task-row .task-row-chev {
+  color: var(--muted);
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: 4px;
+}
+.ios-task-row.deleting { opacity: 0; transform: translateX(-120%); }
+
+/* Swipe action backgrounds (revealed under the row as it drags) */
+.swipe-row-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.swipe-action-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  transition: opacity 0.18s ease, background 0.18s ease;
+  pointer-events: none;
+  padding: 0 18px;
+}
+.swipe-action-complete {
+  left: 0;
+  right: 50%;
+  background: var(--forest);
+  justify-content: flex-start;
+  flex-direction: row;
+  gap: 8px;
+  padding-left: 24px;
+}
+.swipe-action-complete.triggered { background: var(--forest-deep); }
+.swipe-action-delete {
+  right: 0;
+  left: 50%;
+  background: #d9534f;
+  justify-content: flex-end;
+  flex-direction: row;
+  gap: 8px;
+  padding-right: 24px;
+}
+.swipe-action-delete.triggered { background: #c0392b; }
+
+/* iOS-style polish for greeting hero — softer shadow, tighter type */
+.home-hero.greeting-hero {
+  border-radius: 24px;
+  box-shadow: 0 4px 18px rgba(31, 62, 26, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.home-hero.greeting-hero .hero-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Section header refinement (cleaner spacing on cream bg) */
+.section-header .title {
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+/* Garden card softer iOS shadow */
+.garden-card-v2 {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Filter pills (already exist) — make them blend with sticky bar */
+.filter-pills { margin-top: 10px; }
+

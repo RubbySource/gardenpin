@@ -4,9 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import Icon from '../components/Icon.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
+import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -40,6 +42,7 @@ export default function HomePage({ onTaskComplete }) {
   const [stats, setStats] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [gardenStats, setGardenStats] = useState({}); // { [gardenId]: { plantCount, upcomingCount } }
+  const [recentPhotos, setRecentPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const nav = useNavigate();
@@ -48,17 +51,19 @@ export default function HomePage({ onTaskComplete }) {
 
   const load = async () => {
     try {
-      const [t, w, s, gs] = await Promise.all([
+      const [t, w, s, gs, photos] = await Promise.all([
         api.todayTasks(),
         api.weekTasks(),
         api.stats(),
         api.listGardens(),
+        api.recentPhotos(4).catch(() => []),
       ]);
       setToday(t);
       const future = (w.tasks || []).filter((x) => !t.some((y) => y.id === x.id)).slice(0, 3);
       setUpcoming(future);
       setStats(s);
       setGardens(gs);
+      setRecentPhotos(photos || []);
 
       // Load per-garden plant counts (pins) in parallel
       const pinResults = await Promise.all(
@@ -84,6 +89,8 @@ export default function HomePage({ onTaskComplete }) {
     load();
   }, []);
 
+  const ptr = usePullToRefresh(load);
+
   const completeTask = async (t) => {
     try {
       await api.completeTask(t.id);
@@ -103,7 +110,27 @@ export default function HomePage({ onTaskComplete }) {
   const urgentClass = stats && stats.overdue > 0 ? 'danger' : urgentCount > 0 ? 'warning' : '';
 
   return (
-    <>
+    <div {...ptr.handlers} className="ptr-host">
+      {/* Pull-to-refresh indicator */}
+      <div
+        className={`ptr-indicator ${ptr.refreshing ? 'refreshing' : ''} ${ptr.triggered ? 'triggered' : ''}`}
+        style={{
+          height: `${ptr.pull}px`,
+          opacity: ptr.pull > 6 ? 1 : 0,
+        }}
+        aria-hidden="true"
+      >
+        <Icon
+          name="refresh"
+          size={22}
+          className={`ptr-icon ${ptr.refreshing ? 'spin' : ''}`}
+          style={{ transform: `rotate(${Math.min(ptr.pull * 4, 360)}deg)` }}
+        />
+        <span className="ptr-label">
+          {ptr.refreshing ? 'Aktualizuji…' : ptr.triggered ? 'Pustit pro obnovu' : 'Stáhněte ↓'}
+        </span>
+      </div>
+
       {/* Personal greeting hero */}
       <div className="home-hero greeting-hero">
         <div className="greeting">{getGreeting()}, {userName} 🌿</div>
@@ -241,24 +268,40 @@ export default function HomePage({ onTaskComplete }) {
         upcoming.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
 
-      <Link
-        to="/premium"
-        className="btn secondary"
-        style={{
-          display: 'flex',
-          padding: '14px 12px',
-          borderRadius: 14,
-          background: 'var(--sand)',
-          color: 'var(--primary)',
-          fontWeight: 700,
-          border: '1px solid var(--sand-dark)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-          marginTop: 18,
-        }}
-      >
-        🌟 Premium
+      {/* Recent photos grid (last 4) */}
+      {recentPhotos.length > 0 && (
+        <>
+          <div className="section-header">
+            <div className="title">📸 Nedávné fotky</div>
+            <span className="count-badge">{recentPhotos.length}</span>
+          </div>
+          <div className="recent-photos-grid">
+            {recentPhotos.map((p) => (
+              <button
+                key={p.id}
+                className="recent-photo-card"
+                onClick={() => nav(`/zahrada/${p.garden_id}`)}
+                aria-label={`Otevřít zahradu ${p.garden_name || ''}`}
+              >
+                <img src={p.url} alt={p.pin_name || ''} loading="lazy" />
+                <div className="recent-photo-overlay">
+                  <div className="recent-photo-title">{p.pin_name}</div>
+                  {p.garden_name && (
+                    <div className="recent-photo-meta">{p.garden_name}</div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      <Link to="/premium" className="ios-premium-link">
+        <span className="ios-premium-icon" aria-hidden="true">
+          <Icon name="sparkles" size={18} />
+        </span>
+        <span>Premium</span>
+        <Icon name="chevronRight" size={16} className="ios-premium-chev" />
       </Link>
 
       {/* FAB — new garden */}
@@ -281,7 +324,7 @@ export default function HomePage({ onTaskComplete }) {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 
