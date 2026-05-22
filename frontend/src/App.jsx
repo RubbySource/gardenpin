@@ -6,8 +6,7 @@ import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
-import SharedGardenPage from './pages/SharedGardenPage.jsx';
-import SeasonalCalendar from './components/SeasonalCalendar.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
@@ -82,6 +81,16 @@ export default function App() {
     return (
       <Routes>
         <Route path="/share/:token" element={<SharedGardenPage />} />
+      </Routes>
+    );
+  }
+
+  // Landing page is a full-bleed marketing page — render outside the app shell
+  const isLanding = location.pathname === '/landing';
+  if (isLanding) {
+    return (
+      <Routes>
+        <Route path="/landing" element={<LandingPage />} />
       </Routes>
     );
   }
