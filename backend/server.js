@@ -629,14 +629,37 @@ app.post('/api/push/send', async (req, res) => {
 });
 
 // ======================= WEATHER =======================
+// Citlivé rostliny — substring match na plant_name (lower-cased, bez diakritiky)
+const SENSITIVE_PLANT_KEYWORDS = [
+  'rajc', 'paprik', 'okurk', 'bazalk', 'cuket', 'dyn', 'tykv', 'tykev', 'fazol', 'meloun',
+];
+
+function normalize(s) {
+  return (s || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+}
+
+function isSensitivePlant(plantName) {
+  const n = normalize(plantName);
+  return SENSITIVE_PLANT_KEYWORDS.some((k) => n.includes(k));
+}
+
 // Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
+// Vrací current_weather + 3denní předpověď (min/max/weathercode/sunrise/sunset)
 app.get('/api/weather', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (Number.isNaN(lat) || Number.isNaN(lon)) {
     return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
   }
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe%2FPrague`;
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current_weather=true` +
+    `&daily=temperature_2m_min,temperature_2m_max,weathercode` +
+    `&forecast_days=3&timezone=Europe%2FPrague`;
   try {
     const r = await fetch(url);
     if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });
@@ -645,6 +668,16 @@ app.get('/api/weather', async (req, res) => {
   } catch (e) {
     res.status(502).json({ error: e.message });
   }
+});
+
+// Vrací počet citlivých rostlin uživatele — používá WeatherWidget pro mrazové varování
+app.get('/api/pins/sensitive', (req, res) => {
+  const rows = db.prepare('SELECT id, name, plant_name FROM pins WHERE plant_name IS NOT NULL AND plant_name != ""').all();
+  const sensitive = rows.filter((r) => isSensitivePlant(r.plant_name));
+  res.json({
+    count: sensitive.length,
+    plants: sensitive.map((p) => ({ id: p.id, name: p.name, plant_name: p.plant_name })),
+  });
 });
 
 // ======================= ICAL EXPORT =======================

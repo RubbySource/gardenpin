@@ -77,6 +77,7 @@ export const api = {
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
+  sensitivePins: () => jsonFetch('/api/pins/sensitive'),
 
   // Stripe
   stripeStatus: () => jsonFetch('/api/stripe/status'),
