@@ -95,6 +95,7 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+  seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),

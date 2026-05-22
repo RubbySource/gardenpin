@@ -23,23 +23,13 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Sezónní kalendář úkonů — přehled co dělat tento měsíc napříč všemi zahradami — hotovo 2026-05-22
 
-- [ ] Připomínky hlavních úkonů — push notifikace v den úkonu
-  Scope:
-  - Web Push API + Service Worker subscription
-  - Uložit push subscription do DB (tabulka `subscriptions`)
-  - Backend job: každý den ráno v 7:00 zkontrolovat task_date = dnes, odeslat push přes web-push npm balíček
-  - Notifikace: "🌿 GardenPin: Dnes zastřihni levanduli v Zahradě u domu"
+- [x] Připomínky hlavních úkonů — push notifikace v den úkonu — hotovo 2026-05-22
 
 - [x] Databáze úkonů dle rostliny — automatické návrhy hlavních úkonů — hotovo 2026-05-22
 
-- [ ] Statistiky zahrady — přehled aktivity za sezónu
-  Scope:
-  - Sekce "Sezóna" na Dashboard nebo v detailu zahrady
-  - Počet splněných úkonů tento měsíc / tento rok
-  - Graf aktivity po měsících (bar chart)
-  - Nejaktivnější zahrada, nejpečovanější rostlina
+- [x] Statistiky zahrady — přehled aktivity za sezónu — hotovo 2026-05-23
 
-- [ ] Export zahrady — záloha dat jako JSON nebo CSV
+- [~] Export zahrady — záloha dat jako JSON nebo CSV
   Scope:
   - Endpoint GET /api/export?format=json|csv
   - JSON: kompletní export všech zahrad, pinů, tasků, fotek (base64 nebo URL)

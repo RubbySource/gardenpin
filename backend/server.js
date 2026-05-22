@@ -705,6 +705,77 @@ app.get('/api/stats', (req, res) => {
   res.json({ gardens, pins, tasks, overdue, dueToday, historyCount, weeklyDone });
 });
 
+// Sezónní statistiky — splněné úkony tento měsíc/rok, graf po měsících, top zahrada, top rostlina
+app.get('/api/stats/season', (req, res) => {
+  const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+  const yearStart = `${year}-01-01`;
+  const yearEnd = `${year + 1}-01-01`;
+  const monthStart = new Date().toISOString().slice(0, 7) + '-01';
+
+  // Splněné úkony tento měsíc a rok (sloupec done_at je UTC text)
+  const doneThisMonth = db
+    .prepare(
+      "SELECT COUNT(*) AS c FROM care_history WHERE done_at >= ?",
+    )
+    .get(monthStart).c;
+  const doneThisYear = db
+    .prepare(
+      'SELECT COUNT(*) AS c FROM care_history WHERE done_at >= ? AND done_at < ?',
+    )
+    .get(yearStart, yearEnd).c;
+
+  // Graf po měsících — vrátí pole 12 čísel pro daný rok
+  const monthlyRows = db
+    .prepare(
+      `SELECT CAST(strftime('%m', done_at) AS INTEGER) AS m, COUNT(*) AS c
+       FROM care_history
+       WHERE done_at >= ? AND done_at < ?
+       GROUP BY m`,
+    )
+    .all(yearStart, yearEnd);
+  const monthlyDone = Array.from({ length: 12 }, (_, i) => {
+    const row = monthlyRows.find((r) => r.m === i + 1);
+    return row ? row.c : 0;
+  });
+
+  // Nejaktivnější zahrada (nejvíc splněných úkonů v daném roce)
+  const topGarden = db
+    .prepare(
+      `SELECT g.id, g.name, COUNT(*) AS done_count
+       FROM care_history h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.done_at >= ? AND h.done_at < ?
+       GROUP BY g.id
+       ORDER BY done_count DESC
+       LIMIT 1`,
+    )
+    .get(yearStart, yearEnd);
+
+  // Nejpečovanější rostlina
+  const topPlant = db
+    .prepare(
+      `SELECT p.id AS pin_id, p.name AS pin_name, p.plant_name, g.name AS garden_name, COUNT(*) AS done_count
+       FROM care_history h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.done_at >= ? AND h.done_at < ?
+       GROUP BY p.id
+       ORDER BY done_count DESC
+       LIMIT 1`,
+    )
+    .get(yearStart, yearEnd);
+
+  res.json({
+    year,
+    doneThisMonth,
+    doneThisYear,
+    monthlyDone,
+    topGarden: topGarden || null,
+    topPlant: topPlant || null,
+  });
+});
+
 // ======================= UPSCALE =======================
 app.post('/api/gardens/:id/upscale', async (req, res) => {
   if (!sharp) return res.status(501).json({ error: 'Sharp není nainstalován. Spusť: npm install sharp' });
@@ -943,14 +1014,84 @@ app.get('/api/export/ical', (req, res) => {
 });
 
 // ======================= EXPORT =======================
+// Helper: escape value for CSV (RFC 4180)
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvRow(cells) {
+  return cells.map(csvCell).join(',');
+}
+
 app.get('/api/export', (req, res) => {
+  const format = (req.query.format || 'json').toLowerCase();
+  const gardens = db.prepare('SELECT * FROM gardens').all();
+  const pins = db.prepare('SELECT * FROM pins').all();
+  const tasks = db.prepare('SELECT * FROM tasks').all();
+  const care_history = db.prepare('SELECT * FROM care_history').all();
+  const beds = db.prepare('SELECT * FROM beds').all();
+  const pin_photos = db.prepare('SELECT * FROM pin_photos').all();
+
+  if (format === 'csv') {
+    // Plochá tabulka: jeden řádek = jeden úkol (s informací o pinu a zahradě).
+    // Piny bez úkolů se vypíšou s prázdnými task_* sloupci.
+    const lines = [];
+    lines.push(csvRow([
+      'garden_id', 'garden_name',
+      'pin_id', 'pin_name', 'plant_name', 'planting_date', 'pin_notes',
+      'task_id', 'task_title', 'task_type', 'frequency_days', 'specific_date', 'next_due', 'last_done', 'recurring', 'recurrence_pattern', 'task_notes',
+    ]));
+    const gardenById = new Map(gardens.map((g) => [g.id, g]));
+    const tasksByPin = new Map();
+    for (const t of tasks) {
+      if (!tasksByPin.has(t.pin_id)) tasksByPin.set(t.pin_id, []);
+      tasksByPin.get(t.pin_id).push(t);
+    }
+    for (const p of pins) {
+      const g = gardenById.get(p.garden_id) || { id: p.garden_id, name: '' };
+      const pinTasks = tasksByPin.get(p.id) || [];
+      if (pinTasks.length === 0) {
+        lines.push(csvRow([
+          g.id, g.name,
+          p.id, p.name, p.plant_name, p.planting_date, p.notes,
+          '', '', '', '', '', '', '', '', '', '',
+        ]));
+      } else {
+        for (const t of pinTasks) {
+          lines.push(csvRow([
+            g.id, g.name,
+            p.id, p.name, p.plant_name, p.planting_date, p.notes,
+            t.id, t.title, t.task_type, t.frequency_days, t.specific_date, t.next_due, t.last_done, t.recurring, t.recurrence_pattern, t.notes,
+          ]));
+        }
+      }
+    }
+    // UTF-8 BOM pro správný import do Excelu s diakritikou
+    const body = '﻿' + lines.join('\r\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker-export.csv"');
+    return res.send(body);
+  }
+
+  // JSON — kompletní export včetně relativních URL fotek (pro stažení samostatně)
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const baseUrl = `${proto}://${host}`;
   const data = {
     exportedAt: new Date().toISOString(),
-    version: 1,
-    gardens: db.prepare('SELECT * FROM gardens').all(),
-    pins: db.prepare('SELECT * FROM pins').all(),
-    tasks: db.prepare('SELECT * FROM tasks').all(),
-    care_history: db.prepare('SELECT * FROM care_history').all(),
+    version: 2,
+    baseUrl,
+    gardens: gardens.map((g) => ({ ...g, image_url: g.image_path ? baseUrl + g.image_path : null })),
+    pins: pins.map((p) => ({ ...p, photo_url: p.photo_path ? baseUrl + p.photo_path : null })),
+    beds,
+    tasks,
+    care_history,
+    pin_photos: pin_photos.map((ph) => ({
+      ...ph,
+      url: `${baseUrl}/uploads/pins/${ph.pin_id}/${ph.filename}`,
+    })),
   };
   res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker-export.json"');
   res.setHeader('Content-Type', 'application/json');
