@@ -30,11 +30,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
   - Backend job: každý den ráno v 7:00 zkontrolovat task_date = dnes, odeslat push přes web-push npm balíček
   - Notifikace: "🌿 GardenPin: Dnes zastřihni levanduli v Zahradě u domu"
 
-- [ ] Databáze úkonů dle rostliny — automatické návrhy hlavních úkonů
-  Scope:
-  - Rozšířit `frontend/src/plantDatabase.js` o pole `seasonalTasks: [{month: 8, action: "Zastřihnout po odkvětu", priority: "high"}, ...]` pro každou rostlinu
-  - Při přidání pinu automaticky vygenerovat doporučené úkony na celý rok
-  - Zobrazit jako "Doporučené úkony" v detailu pinu s možností jedním klikem přidat do tasků
+- [x] Databáze úkonů dle rostliny — automatické návrhy hlavních úkonů — hotovo 2026-05-22
 
 - [ ] Statistiky zahrady — přehled aktivity za sezónu
   Scope:

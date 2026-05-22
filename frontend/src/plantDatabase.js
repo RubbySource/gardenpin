@@ -2631,6 +2631,188 @@ const PLANT_META = {
           { text: 'Jarní seč na 5-10 cm', month: 3, emoji: '✂️' },
           { text: 'Nechat odkvetlé hlavy pro ptáky', month: 10, emoji: '🐦' },
         ] },
+
+  // — Doplněné záznamy: zelenina / ovoce / bylinky bez záznamu v původním META —
+  16: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '60-90 cm',
+        careActions: [
+          { text: 'Hnojení dusíkem', month: 6, emoji: '🌱' },
+          { text: 'Postupné obrývání pro bílení', month: 8, emoji: '🪴' },
+        ] },
+  18: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '40-60 cm',
+        careActions: [
+          { text: 'Sklizeň vnějších listů', month: 6, emoji: '🧺' },
+        ] },
+  19: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '20-30 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Pletí mezi řádky', month: 6, emoji: '✂️' },
+        ] },
+  20: { zone: '4-10', light: 'Plné slunce', water: 'Hojná', height: '50-80 cm',
+        careActions: [
+          { text: 'Vysadit po mrazech', month: 5, emoji: '🌱' },
+          { text: 'Sklizeň mladých plodů', month: 7, emoji: '🧺' },
+        ] },
+  26: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '150-300 cm',
+        careActions: [
+          { text: 'Odstranit dvouleté výhony po sklizni', month: 8, emoji: '✂️' },
+          { text: 'Přivázat nové výhony k drátěnce', month: 4, emoji: '🪵' },
+        ] },
+  33: { zone: '4-9', light: 'Plné slunce', water: 'Nízká', height: '20-40 cm',
+        careActions: [
+          { text: 'Seč před kvetením (nejlepší aroma)', month: 6, emoji: '✂️' },
+        ] },
+  36: { zone: '3-10', light: 'Plné slunce', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'První výsev', month: 4, emoji: '🌱' },
+          { text: 'Opakovaný výsev (každé 3 týdny)', month: 6, emoji: '🌱' },
+          { text: 'Sklizeň horních lístků', month: 6, emoji: '🧺' },
+        ] },
+  37: { zone: '5-9', light: 'Plné slunce', water: 'Nízká', height: '60-100 cm',
+        careActions: [
+          { text: 'Seč před kvetením', month: 6, emoji: '✂️' },
+        ] },
+  38: { zone: '4-10', light: 'Plné slunce', water: 'Nízká', height: '20-40 cm',
+        careActions: [
+          { text: 'Sklizeň květů (ráno)', month: 6, emoji: '🧺' },
+        ] },
+  39: { zone: '4-9', light: 'Plné slunce', water: 'Nízká', height: '60-100 cm',
+        careActions: [
+          { text: 'Sklizeň kvetoucích vrcholků', month: 7, emoji: '🧺' },
+        ] },
+  45: { zone: '9-11', light: 'Polostín', water: 'Mírná', height: '20-40 cm',
+        careActions: [
+          { text: 'Vysadit hlízy', month: 3, emoji: '🌱' },
+          { text: 'Vykopat hlízy před mrazem', month: 10, emoji: '🛡️' },
+        ] },
+  46: { zone: '8-11', light: 'Plné slunce', water: 'Hojná', height: '60-180 cm',
+        careActions: [
+          { text: 'Vysadit hlízy', month: 5, emoji: '🌱' },
+          { text: 'Pinzovat první výhony pro větvení', month: 6, emoji: '✂️' },
+          { text: 'Vykopat hlízy po prvním mrazu', month: 10, emoji: '🛡️' },
+        ] },
+  48: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '30-80 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Deadheading pro prodloužení kvetení', month: 7, emoji: '✂️' },
+        ] },
+  49: { zone: '4-10', light: 'Plné slunce', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Sklizeň květů na mast', month: 7, emoji: '🧺' },
+          { text: 'Intenzivní deadheading', month: 8, emoji: '✂️' },
+        ] },
+  53: { zone: '3-9', light: 'Plné slunce', water: 'Nízká', height: '20-50 cm',
+        careActions: [
+          { text: 'Sázet cibule (10-15 cm hluboko)', month: 9, emoji: '🌱' },
+          { text: 'Odříznout odkvetlý stonek', month: 5, emoji: '✂️' },
+        ] },
+  54: { zone: '4-8', light: 'Plné slunce', water: 'Nízká', height: '20-30 cm',
+        careActions: [
+          { text: 'Sázet cibule (10 cm hluboko)', month: 10, emoji: '🌱' },
+          { text: 'Deadheading po odkvětu', month: 5, emoji: '✂️' },
+        ] },
+  56: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '60-180 cm',
+        careActions: [
+          { text: 'Sázet cibule (15-20 cm hluboko)', month: 10, emoji: '🌱' },
+          { text: 'Sběr červených brouků (lilkožravec)', month: 5, emoji: '🐛' },
+        ] },
+  58: { zone: '5-9', light: 'Polostín', water: 'Mírná', height: '100-300 cm',
+        careActions: [
+          { text: 'První tvarování', month: 6, emoji: '✂️' },
+          { text: 'Druhé tvarování', month: 8, emoji: '✂️' },
+          { text: 'Kontrola housenky buxusové', month: 5, emoji: '🐛' },
+        ] },
+  59: { zone: '5-8', light: 'Polostín', water: 'Hojná', height: '100-300 cm',
+        careActions: [
+          { text: 'Kyselé hnojivo na jaře', month: 4, emoji: '🌱' },
+          { text: 'Deadheading po odkvětu', month: 6, emoji: '✂️' },
+        ] },
+  62: { zone: '4-8', light: 'Plné slunce', water: 'Nízká', height: '60-300 cm',
+        careActions: [
+          { text: 'Jarní prosvětlovací řez', month: 3, emoji: '✂️' },
+        ] },
+  63: { zone: '4-8', light: 'Plné slunce', water: 'Mírná', height: '300-600 cm',
+        careActions: [
+          { text: 'Zimní řez (prosvětlení)', month: 2, emoji: '✂️' },
+          { text: 'Sklizeň ořechů', month: 9, emoji: '🧺' },
+        ] },
+  65: { zone: '5-9', light: 'Plné slunce', water: 'Mírná', height: '300-1000 cm',
+        careActions: [
+          { text: 'Kyselé hnojivo na jaře', month: 4, emoji: '🌱' },
+        ] },
+  66: { zone: '5-9', light: 'Polostín', water: 'Mírná', height: '200-500 cm',
+        careActions: [
+          { text: 'Odstranit staré hnědé kulmy u kořene', month: 4, emoji: '✂️' },
+          { text: 'Dusíkaté hnojivo', month: 4, emoji: '🌱' },
+        ] },
+  67: { zone: '5-9', light: 'Plné slunce', water: 'Hojná', height: '500-1000 cm',
+        careActions: [
+          { text: 'Zimní řez (na 2-3 oka)', month: 2, emoji: '✂️' },
+          { text: 'Letní řez (na 5 oček)', month: 7, emoji: '✂️' },
+        ] },
+  68: { zone: '3-8', light: 'Plné slunce', water: 'Mírná', height: '150-300 cm',
+        careActions: [
+          { text: 'Zimní řez na 2-3 oka', month: 3, emoji: '✂️' },
+          { text: 'Hnojivo pro kvetoucí dřeviny', month: 4, emoji: '🌱' },
+        ] },
+  69: { zone: '3-8', light: 'Polostín', water: 'Nízká', height: '30-50 cm',
+        careActions: [
+          { text: 'Odříznout poničené zimní listy', month: 3, emoji: '✂️' },
+        ] },
+  72: { zone: '4-8', light: 'Polostín', water: 'Hojná', height: '40-100 cm',
+        careActions: [
+          { text: 'Sekat staré výhony', month: 3, emoji: '✂️' },
+          { text: 'Kompost na jaře', month: 4, emoji: '🌱' },
+        ] },
+  74: { zone: '5-9', light: 'Plné slunce', water: 'Nízká', height: '100-200 cm',
+        careActions: [
+          { text: 'Jarní seč na 10 cm', month: 3, emoji: '✂️' },
+          { text: 'Dusíkaté hnojivo', month: 4, emoji: '🌱' },
+        ] },
+  75: { zone: '4-9', light: 'Polostín', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'Odříznout staré listy před kvetením', month: 2, emoji: '✂️' },
+        ] },
+  77: { zone: '3-9', light: 'Plné slunce', water: 'Nízká', height: '40-100 cm',
+        careActions: [
+          { text: 'Sázet / dělit oddenky', month: 7, emoji: '🪴' },
+          { text: 'Zkrátit listy na 15 cm', month: 10, emoji: '✂️' },
+        ] },
+  78: { zone: '3-8', light: 'Stín', water: 'Mírná', height: '15-25 cm',
+        careActions: [
+          { text: 'Sázet oddenky', month: 10, emoji: '🌱' },
+          { text: 'Podzimní hnojení kompostem', month: 10, emoji: '🌱' },
+        ] },
+  79: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '60-100 cm',
+        careActions: [
+          { text: 'Podzimní seč na 10 cm', month: 10, emoji: '✂️' },
+          { text: 'Jarní hnojení', month: 4, emoji: '🌱' },
+        ] },
+  80: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '10-20 cm',
+        careActions: [
+          { text: 'Nastřihnout po první vlně kvetení', month: 7, emoji: '✂️' },
+        ] },
+  81: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '30-50 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Deadheading pro delší kvetení', month: 7, emoji: '✂️' },
+        ] },
+  82: { zone: '4-9', light: 'Polostín', water: 'Mírná', height: '20-60 cm',
+        careActions: [
+          { text: 'Kontrola invazivního šíření', month: 7, emoji: '🛡️' },
+        ] },
+  83: { zone: '7-10', light: 'Plné slunce', water: 'Mírná', height: '200-500 cm',
+        careActions: [
+          { text: 'Letní řez (zkracování)', month: 7, emoji: '✂️' },
+          { text: 'Sklizeň zralých fíků', month: 9, emoji: '🧺' },
+          { text: 'Zimní ochrana (juta / chlad)', month: 10, emoji: '🛡️' },
+        ] },
+  85: { zone: '9-11', light: 'Plné slunce', water: 'Hojná', height: '50-100 cm',
+        careActions: [
+          { text: 'Vynést ven', month: 5, emoji: '🌱' },
+          { text: 'Draselné hnojivo', month: 6, emoji: '🌱' },
+          { text: 'Přezimovat v chladu 5-10 °C', month: 10, emoji: '🛡️' },
+        ] },
 };
 
 // Odvození zjednodušeného popisku světla z původního "sun" textu
@@ -2658,6 +2840,125 @@ function isNewTaskFormat(tasks) {
     && typeof tasks[0].label === 'string';
 }
 
+// Priorita ukonu — high = klíčové sezónní okno (řez, výsadba cibulovin, zimní zábal,
+// kontrola škůdců), medium = standardní zahradnická péče, low = drobné monitorovací úkony.
+// Odvozeno z emoji/typu; jakákoli ručně nastavená priority v dat má přednost.
+const PRIORITY_BY_EMOJI = {
+  '✂️': 'high',     // řez / pasínkování
+  '🛡️': 'high',     // ochrana / zimování
+  '🐛': 'high',     // kontrola škůdců
+  '🌱': 'medium',   // výsadba / hnojení
+  '🌾': 'medium',   // mulčování
+  '🧺': 'medium',   // sklizeň
+  '🥒': 'medium',
+  '🎃': 'medium',
+  '🍓': 'medium',
+  '🪴': 'medium',   // dělení / přesazování
+  '🪵': 'medium',   // opory
+  '💜': 'low',
+  '🌿': 'low',
+  '🐦': 'low',
+  '☀️': 'low',
+};
+
+const PRIORITY_BY_TYPE = {
+  pruning: 'high',
+  protection: 'high',
+  fertilizing: 'medium',
+  mulching: 'medium',
+  harvest: 'medium',
+  watering: 'low',
+};
+
+function pickPriority(emoji, type) {
+  return PRIORITY_BY_EMOJI[emoji] || PRIORITY_BY_TYPE[type] || 'medium';
+}
+
+// Sjednocený formát sezónních úkolů: { month, action, priority, emoji }.
+// Zdrojem dat jsou (v pořadí):
+//   1) plant.tasks v novém formátu (id ≥ 86) — pole { month, label, type }
+//   2) PLANT_META[plant.id].careActions — pole { text, month, emoji }
+function buildSeasonalTasks(plant, meta) {
+  const fromNewTasks = isNewTaskFormat(plant.tasks)
+    ? plant.tasks.map((t) => {
+        const emoji = TASK_TYPE_EMOJI[t.type] || '🌿';
+        return {
+          month: t.month,
+          action: t.label,
+          priority: pickPriority(emoji, t.type),
+          emoji,
+        };
+      })
+    : [];
+  const fromMeta = (meta.careActions || []).map((c) => ({
+    month: c.month,
+    action: c.text,
+    priority: c.priority || pickPriority(c.emoji),
+    emoji: c.emoji || '🌿',
+  }));
+  // Plus: pokud má rostlina ve starém formátu úkoly s frequency_days = 365 a notes
+  // obsahuje měsíc, vytáhneme je jako sezónní (fallback pro plants 1-85 bez META).
+  const fromAnnual = (!isNewTaskFormat(plant.tasks) && Array.isArray(plant.tasks))
+    ? plant.tasks
+        .filter((t) => t.frequency_days === 365 && t.notes)
+        .map((t) => {
+          const month = extractMonthFromNote(t.notes);
+          if (!month) return null;
+          const emoji = TASK_TYPE_EMOJI_BY_TYPE[t.task_type] || '🌿';
+          return {
+            month,
+            action: t.title,
+            priority: pickPriority(emoji, t.task_type),
+            emoji,
+          };
+        })
+        .filter(Boolean)
+    : [];
+
+  // META má přednost před fallbackem z plant.tasks, takže pokud existuje META, ignorujeme fromAnnual.
+  const merged = fromNewTasks.length > 0
+    ? fromNewTasks
+    : (fromMeta.length > 0 ? fromMeta : fromAnnual);
+
+  // Seřaď podle měsíce
+  return merged.sort((a, b) => a.month - b.month);
+}
+
+const TASK_TYPE_EMOJI_BY_TYPE = {
+  strihani: '✂️',
+  hnojeni: '🌱',
+  zalivka: '💧',
+  kontrola: '🐛',
+  presazeni: '🪴',
+  sklizen: '🧺',
+  plet: '✂️',
+  jine: '🌿',
+};
+
+const MONTH_KEYWORDS = [
+  { m: 1, kw: ['leden', 'lednu', 'ledna'] },
+  { m: 2, kw: ['únor', 'únoru', 'února'] },
+  { m: 3, kw: ['březen', 'březnu', 'března'] },
+  { m: 4, kw: ['duben', 'dubnu', 'dubna'] },
+  { m: 5, kw: ['květen', 'květnu', 'května'] },
+  { m: 6, kw: ['červen', 'červnu', 'června'] },
+  { m: 7, kw: ['červenec', 'červenci', 'července'] },
+  { m: 8, kw: ['srpen', 'srpnu', 'srpna'] },
+  { m: 9, kw: ['září'] },
+  { m: 10, kw: ['říjen', 'říjnu', 'října'] },
+  { m: 11, kw: ['listopad', 'listopadu'] },
+  { m: 12, kw: ['prosinec', 'prosinci', 'prosince'] },
+];
+
+function extractMonthFromNote(note) {
+  if (!note) return null;
+  const lower = note.toLowerCase();
+  for (const { m, kw } of MONTH_KEYWORDS) {
+    if (kw.some((k) => lower.includes(k))) return m;
+  }
+  return null;
+}
+
 // Obohať záznam o nové vlastnosti pro karty (volat všude, kde se používá v UI)
 export function enrichPlant(plant) {
   if (!plant) return null;
@@ -2681,6 +2982,8 @@ export function enrichPlant(plant) {
     tasks = [];
   }
 
+  const seasonalTasks = buildSeasonalTasks(plant, meta);
+
   return {
     ...plant,
     tasks,
@@ -2691,7 +2994,15 @@ export function enrichPlant(plant) {
     height: plant.height || meta.height || null,
     notes: plant.notes || plant.description || null,
     careActions,
+    seasonalTasks,
   };
+}
+
+// Veřejný helper: vrátí sezónní úkoly pro rostlinu podle českého jména.
+// Vrací prázdné pole, pokud rostlinu nenajde nebo nemá sezónní data.
+export function getSeasonalTasksForPlant(plantName) {
+  const plant = findPlantByName(plantName);
+  return plant?.seasonalTasks || [];
 }
 
 // Vyhledávání v databázi (case-insensitive, hledá v nameCz i nameLat)

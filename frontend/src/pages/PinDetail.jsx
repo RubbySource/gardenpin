@@ -6,6 +6,7 @@ import { toast } from '../App.jsx';
 import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskIcon, taskLabel } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
+import RecommendedTasks from '../components/RecommendedTasks.jsx';
 
 export default function PinDetail({ pinId, onClose }) {
   const [pin, setPin] = useState(null);
@@ -133,6 +134,12 @@ export default function PinDetail({ pinId, onClose }) {
               {pin.notes || <span className="muted">—</span>}
             </div>
           </div>
+          <RecommendedTasks
+            plantName={pin.plant_name}
+            pinId={pin.id}
+            existingTasks={pin.tasks}
+            onTaskAdded={load}
+          />
           <div className="row mt-3">
             <button className="btn danger" onClick={deletePin}>
               🗑️ Smazat
