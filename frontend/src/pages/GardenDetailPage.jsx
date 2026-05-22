@@ -12,19 +12,26 @@ export default function GardenDetailPage() {
   const nav = useNavigate();
   const [garden, setGarden] = useState(null);
   const [pins, setPins] = useState([]);
+  const [beds, setBeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingPinAt, setAddingPinAt] = useState(null); // { x, y } in percentages
   const [editingPinId, setEditingPinId] = useState(null);
+  const [editingBed, setEditingBed] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
   const [gridSize, setGridSize] = useState(50);
   const [upscaling, setUpscaling] = useState(false);
-  // P4: Drag & drop state
-  const [draggingPin, setDraggingPin] = useState(null); // { pin, startX, startY }
-  const [dragPos, setDragPos] = useState(null); // { x%, y% }
+  // P4: Drag & drop state — používá pointer events (mouse + touch)
+  const [draggingPin, setDraggingPin] = useState(null);
+  const [dragPos, setDragPos] = useState(null);
+  // P5: Záhony — režim vytváření + náhled při kreslení
+  const [bedMode, setBedMode] = useState(false);
+  const [drawingBed, setDrawingBed] = useState(null); // { x, y, w, h } v %
+  const drawStartRef = useRef(null);
   const mapRef = useRef();
 
   const load = async () => {
@@ -38,8 +45,12 @@ export default function GardenDetailPage() {
       }
       setGarden(g);
       setRotation(g.rotation || 0);
-      const ps = await api.listPins(id);
+      const [ps, bs] = await Promise.all([
+        api.listPins(id),
+        api.listBeds(id).catch(() => []),
+      ]);
       setPins(ps);
+      setBeds(bs);
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -78,36 +89,42 @@ export default function GardenDetailPage() {
     } catch {}
   };
 
-  // P4: Drag & drop
-  const handlePinMouseDown = (e, pin) => {
+  // P4: Drag & drop — pointer events fungují pro myš i dotyk
+  const getMapPercent = (clientX, clientY) => {
+    if (!mapRef.current) return { x: 0, y: 0 };
+    const rect = mapRef.current.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100)),
+    };
+  };
+
+  const handlePinPointerDown = (e, pin) => {
+    if (bedMode) return; // V režimu kreslení záhonu pin nepřesouváme
     e.preventDefault();
     e.stopPropagation();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
     setDraggingPin(pin);
     setDragPos({ x: pin.x, y: pin.y });
   };
 
-  const handleMouseMove = useCallback(
-    (e) => {
-      if (!draggingPin || !mapRef.current) return;
-      const rect = mapRef.current.getBoundingClientRect();
-      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
-      setDragPos({ x, y });
-    },
-    [draggingPin],
-  );
+  const handlePinPointerMove = (e) => {
+    if (!draggingPin) return;
+    setDragPos(getMapPercent(e.clientX, e.clientY));
+  };
 
-  const handleMouseUp = useCallback(async () => {
+  const handlePinPointerUp = async (e) => {
     if (!draggingPin || !dragPos) {
       setDraggingPin(null);
       setDragPos(null);
       return;
     }
+    try { e.currentTarget.releasePointerCapture?.(e.pointerId); } catch {}
     const pin = draggingPin;
     const pos = dragPos;
     setDraggingPin(null);
     setDragPos(null);
-    // Pokud se pin téměř nepohnul, otevřeme detail
+    // Pokud se pin téměř nepohnul, otevřeme detail (chování "tap")
     const dx = Math.abs(pos.x - pin.x);
     const dy = Math.abs(pos.y - pin.y);
     if (dx < 0.5 && dy < 0.5) {
@@ -121,19 +138,91 @@ export default function GardenDetailPage() {
       await api.updatePin(pin.id, fd);
       setPins((prev) => prev.map((p) => (p.id === pin.id ? { ...p, x: pos.x, y: pos.y } : p)));
       toast('📍 Přesunuto');
-    } catch (e) {
-      toast('Chyba: ' + e.message);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
       load();
     }
-  }, [draggingPin, dragPos]);
+  };
+
+  // P5: Záhony — pointer handlery na mapě
+  const handleMapPointerDown = (e) => {
+    if (!garden || !garden.image_path) return;
+    if (!bedMode) return;
+    // Pouze primární tlačítko / dotyk
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    const pos = getMapPercent(e.clientX, e.clientY);
+    drawStartRef.current = pos;
+    setDrawingBed({ x: pos.x, y: pos.y, w: 0, h: 0 });
+  };
+
+  const handleMapPointerMove = (e) => {
+    if (draggingPin) {
+      setDragPos(getMapPercent(e.clientX, e.clientY));
+      return;
+    }
+    if (!drawingBed || !drawStartRef.current) return;
+    const cur = getMapPercent(e.clientX, e.clientY);
+    const start = drawStartRef.current;
+    const x = Math.min(start.x, cur.x);
+    const y = Math.min(start.y, cur.y);
+    const w = Math.abs(cur.x - start.x);
+    const h = Math.abs(cur.y - start.y);
+    setDrawingBed({ x, y, w, h });
+  };
+
+  const handleMapPointerUp = async (e) => {
+    if (draggingPin) {
+      // Pin drag uvolnění je řešeno přímo na pinu, ale pokud jsme přijeli sem (mimo pin), uložíme.
+      if (dragPos) {
+        const pin = draggingPin;
+        const pos = dragPos;
+        setDraggingPin(null);
+        setDragPos(null);
+        try {
+          const fd = new FormData();
+          fd.append('x', pos.x.toFixed(4));
+          fd.append('y', pos.y.toFixed(4));
+          await api.updatePin(pin.id, fd);
+          setPins((prev) => prev.map((p) => (p.id === pin.id ? { ...p, x: pos.x, y: pos.y } : p)));
+        } catch (err) {
+          toast('Chyba: ' + err.message);
+        }
+      }
+      return;
+    }
+    if (!drawingBed) return;
+    try { e.currentTarget.releasePointerCapture?.(e.pointerId); } catch {}
+    const bed = drawingBed;
+    setDrawingBed(null);
+    drawStartRef.current = null;
+    // Pokud je obdélník moc malý, ignorovat (vyhneme se omylem vytvořeným záhonům)
+    if (bed.w < 2 || bed.h < 2) return;
+    try {
+      const nextNumber = beds.length + 1;
+      const created = await api.createBed({
+        garden_id: Number(id),
+        name: `Záhon ${nextNumber}`,
+        x: Number(bed.x.toFixed(4)),
+        y: Number(bed.y.toFixed(4)),
+        width: Number(bed.w.toFixed(4)),
+        height: Number(bed.h.toFixed(4)),
+      });
+      setBeds((prev) => [...prev, created]);
+      setBedMode(false);
+      setEditingBed(created);
+      toast('🟫 Záhon vytvořen');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    }
+  };
 
   const handleMapClick = (e) => {
-    if (draggingPin) return; // Ignorovat click při drag
+    if (draggingPin || drawingBed || bedMode) return;
     if (!garden || !garden.image_path) return;
-    const rect = mapRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setAddingPinAt({ x, y });
+    const pos = getMapPercent(e.clientX, e.clientY);
+    setAddingPinAt(pos);
   };
 
   const handleUploadMap = async (e) => {
@@ -188,6 +277,9 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button className="btn ghost small" onClick={() => setShowShare(true)} title="Sdílet zahradu">
+            🔗 Sdílet
+          </button>
           <button className="btn ghost small" onClick={() => setShowEdit(true)}>
             ✏️ Upravit
           </button>
@@ -271,6 +363,15 @@ export default function GardenDetailPage() {
                   />
                 )}
               </div>
+              {/* Záhon */}
+              <button
+                className={`btn ghost small${bedMode ? ' active' : ''}`}
+                onClick={() => setBedMode((v) => !v)}
+                style={bedMode ? { background: 'rgba(139,111,71,0.18)', border: '1px solid #8b6f47' } : {}}
+                title="Vytvořit záhon (klik a táhni přes mapu)"
+              >
+                {bedMode ? '✋ Zrušit kreslení' : '🟫 Záhon'}
+              </button>
               {/* Upscale */}
               <button
                 className="btn ghost small"
@@ -285,20 +386,24 @@ export default function GardenDetailPage() {
 
           <div className="card">
             <div className="small muted mb-2">
-              💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.
+              {bedMode
+                ? '🟫 Klikněte a táhněte pro vytvoření záhonu.'
+                : '💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.'}
             </div>
             <div
               className="map-container"
               ref={mapRef}
               onClick={handleMapClick}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
+              onPointerDown={handleMapPointerDown}
+              onPointerMove={handleMapPointerMove}
+              onPointerUp={handleMapPointerUp}
+              onPointerCancel={handleMapPointerUp}
               style={{
                 aspectRatio: garden.image_width && garden.image_height
                   ? `${garden.image_width} / ${garden.image_height}`
                   : undefined,
-                cursor: draggingPin ? 'grabbing' : 'crosshair',
+                cursor: bedMode ? 'crosshair' : draggingPin ? 'grabbing' : 'crosshair',
+                touchAction: bedMode || draggingPin ? 'none' : 'manipulation',
               }}
             >
               <img
@@ -338,6 +443,46 @@ export default function GardenDetailPage() {
                   <rect width="100%" height="100%" fill="url(#grid)" />
                 </svg>
               )}
+              {/* Záhony — vykreslujeme pod piny */}
+              {beds.map((b) => (
+                <div
+                  key={b.id}
+                  className="bed-rect"
+                  style={{
+                    left: `${b.x}%`,
+                    top: `${b.y}%`,
+                    width: `${b.width}%`,
+                    height: `${b.height}%`,
+                    background: (b.color || '#8b6f47') + '33',
+                    border: `2px solid ${b.color || '#8b6f47'}`,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (bedMode) return;
+                    setEditingBed(b);
+                  }}
+                  title={b.name}
+                >
+                  <span className="bed-label">
+                    {b.name}
+                    {b.width_m && b.height_m ? (
+                      <span className="bed-size"> · {b.width_m}×{b.height_m} m</span>
+                    ) : null}
+                  </span>
+                </div>
+              ))}
+              {/* Náhled kresleného záhonu */}
+              {drawingBed && (
+                <div
+                  className="bed-rect drawing"
+                  style={{
+                    left: `${drawingBed.x}%`,
+                    top: `${drawingBed.y}%`,
+                    width: `${drawingBed.w}%`,
+                    height: `${drawingBed.h}%`,
+                  }}
+                />
+              )}
               {pins.map((p) => {
                 const isDragging = draggingPin?.id === p.id;
                 const pos = isDragging && dragPos ? dragPos : { x: p.x, y: p.y };
@@ -351,8 +496,12 @@ export default function GardenDetailPage() {
                       cursor: isDragging ? 'grabbing' : 'grab',
                       zIndex: isDragging ? 50 : 10,
                       userSelect: 'none',
+                      touchAction: 'none',
                     }}
-                    onMouseDown={(e) => handlePinMouseDown(e, p)}
+                    onPointerDown={(e) => handlePinPointerDown(e, p)}
+                    onPointerMove={handlePinPointerMove}
+                    onPointerUp={handlePinPointerUp}
+                    onPointerCancel={handlePinPointerUp}
                     onClick={(e) => e.stopPropagation()}
                     title={p.name}
                   >
@@ -371,6 +520,37 @@ export default function GardenDetailPage() {
               )}
             </div>
           </div>
+
+          {beds.length > 0 && (
+            <>
+              <h3 className="section-title">
+                🟫 Záhony ({beds.length})
+              </h3>
+              <div className="bed-list">
+                {beds.map((b) => (
+                  <div
+                    key={b.id}
+                    className="bed-list-item"
+                    onClick={() => setEditingBed(b)}
+                  >
+                    <span
+                      className="bed-swatch"
+                      style={{ background: b.color || '#8b6f47' }}
+                    />
+                    <div className="bed-list-info">
+                      <div className="bed-list-name">{b.name}</div>
+                      <div className="bed-list-meta small muted">
+                        {b.width_m && b.height_m
+                          ? `${b.width_m} × ${b.height_m} m`
+                          : `${b.width.toFixed(1)} × ${b.height.toFixed(1)} %`}
+                      </div>
+                    </div>
+                    <span style={{ color: 'var(--text-dim)' }}>›</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           <h3 className="section-title">
             📍 Místa v zahradě ({pins.length})
@@ -433,7 +613,226 @@ export default function GardenDetailPage() {
           uploading={uploadingMap}
         />
       )}
+
+      {showShare && (
+        <ShareGardenModal
+          garden={garden}
+          onClose={() => setShowShare(false)}
+        />
+      )}
+
+      {editingBed && (
+        <BedEditModal
+          bed={editingBed}
+          onClose={() => setEditingBed(null)}
+          onSaved={(b) => {
+            setBeds((prev) => prev.map((x) => (x.id === b.id ? b : x)));
+            setEditingBed(null);
+          }}
+          onDeleted={(bedId) => {
+            setBeds((prev) => prev.filter((x) => x.id !== bedId));
+            setEditingBed(null);
+          }}
+        />
+      )}
     </>
+  );
+}
+
+function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
+  const [name, setName] = useState(bed.name || 'Záhon');
+  const [widthM, setWidthM] = useState(bed.width_m ?? '');
+  const [heightM, setHeightM] = useState(bed.height_m ?? '');
+  const [color, setColor] = useState(bed.color || '#8b6f47');
+  const [saving, setSaving] = useState(false);
+
+  const save = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) return toast('Zadejte název záhonu');
+    setSaving(true);
+    try {
+      const updated = await api.updateBed(bed.id, {
+        name: name.trim(),
+        width_m: widthM === '' ? null : Number(widthM),
+        height_m: heightM === '' ? null : Number(heightM),
+        color,
+      });
+      toast('✅ Uloženo');
+      onSaved(updated);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('Smazat záhon? Piny zůstanou.')) return;
+    try {
+      await api.deleteBed(bed.id);
+      toast('🗑️ Záhon smazán');
+      onDeleted(bed.id);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    }
+  };
+
+  return (
+    <Modal title="🟫 Upravit záhon" onClose={onClose}>
+      <form onSubmit={save}>
+        <div className="field">
+          <label>Název</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Např. Záhon u plotu"
+            autoFocus
+          />
+        </div>
+        <div className="field row" style={{ gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>Šířka (m)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              value={widthM}
+              onChange={(e) => setWidthM(e.target.value)}
+              placeholder="2.0"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Délka (m)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              value={heightM}
+              onChange={(e) => setHeightM(e.target.value)}
+              placeholder="3.0"
+            />
+          </div>
+        </div>
+        <div className="field">
+          <label>Barva</label>
+          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+        </div>
+        <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
+          <button type="button" className="btn danger ghost small" onClick={remove}>
+            🗑️ Smazat
+          </button>
+          <div className="row" style={{ gap: 8 }}>
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Zrušit
+            </button>
+            <button type="submit" className="btn" disabled={saving}>
+              {saving ? 'Ukládám…' : 'Uložit'}
+            </button>
+          </div>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function ShareGardenModal({ garden, onClose }) {
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .createShareToken(garden.id)
+      .then((r) => { if (!cancelled) setToken(r.token); })
+      .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [garden.id]);
+
+  const shareUrl = token ? `${window.location.origin}/share/${token}` : '';
+
+  const copy = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast('📋 Odkaz zkopírován');
+      } else {
+        // Fallback — vybrat text
+        const input = document.getElementById('share-url-input');
+        input?.select();
+        document.execCommand('copy');
+        toast('📋 Odkaz zkopírován');
+      }
+    } catch (e) {
+      toast('Nelze kopírovat: ' + e.message);
+    }
+  };
+
+  const revoke = async () => {
+    if (!confirm('Zrušit sdílení? Odkaz přestane fungovat.')) return;
+    setRevoking(true);
+    try {
+      await api.revokeShareToken(garden.id);
+      toast('🔒 Sdílení zrušeno');
+      onClose();
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setRevoking(false);
+    }
+  };
+
+  return (
+    <Modal title="🔗 Sdílet zahradu" onClose={onClose}>
+      {loading ? (
+        <div className="empty small">Načítám…</div>
+      ) : (
+        <>
+          <div className="small muted mb-2">
+            Kdokoliv s tímto odkazem uvidí vaši zahradu, rostliny a nadcházející úkony.
+            Bez možnosti úprav.
+          </div>
+          <div className="field">
+            <label>Veřejný odkaz</label>
+            <input
+              id="share-url-input"
+              type="text"
+              value={shareUrl}
+              readOnly
+              onFocus={(e) => e.target.select()}
+            />
+          </div>
+          <div className="row mt-2" style={{ gap: 8 }}>
+            <button type="button" className="btn" onClick={copy}>
+              📋 Zkopírovat
+            </button>
+            <a
+              className="btn secondary"
+              href={shareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              👁️ Otevřít náhled
+            </a>
+          </div>
+          <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
+            <button
+              type="button"
+              className="btn danger ghost small"
+              onClick={revoke}
+              disabled={revoking}
+            >
+              {revoking ? 'Ruším…' : '🔒 Zrušit sdílení'}
+            </button>
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Zavřít
+            </button>
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 

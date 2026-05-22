@@ -18,6 +18,11 @@ export const api = {
     fetch(`/api/gardens/${id}`, { method: 'PUT', body: formData }).then(handle),
   deleteGarden: (id) => jsonFetch(`/api/gardens/${id}`, { method: 'DELETE' }),
 
+  // Sharing
+  createShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),
+  revokeShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'DELETE' }),
+  getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
+
   // Pins
   listPins: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/pins`),
   getPin: (id) => jsonFetch(`/api/pins/${id}`),
@@ -31,6 +36,29 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ photo: dataUrl }),
     }),
+
+  // Beds (záhony)
+  listBeds: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/beds`),
+  createBed: (data) =>
+    jsonFetch('/api/beds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updateBed: (id, data) =>
+    jsonFetch(`/api/beds/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deleteBed: (id) => jsonFetch(`/api/beds/${id}`, { method: 'DELETE' }),
+
+  // Galerie fotek pinu
+  listPinPhotos: (id) => jsonFetch(`/api/pins/${id}/photos`),
+  uploadPinPhotos: (id, formData) =>
+    fetch(`/api/pins/${id}/photos`, { method: 'POST', body: formData }).then(handle),
+  deletePinPhoto: (pinId, photoId) =>
+    jsonFetch(`/api/pins/${pinId}/photos/${photoId}`, { method: 'DELETE' }),
 
   // Tasks
   listTasks: () => jsonFetch('/api/tasks'),
@@ -67,9 +95,11 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+  seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
+  sensitivePins: () => jsonFetch('/api/pins/sensitive'),
 
   // Stripe
   stripeStatus: () => jsonFetch('/api/stripe/status'),
@@ -77,9 +107,28 @@ export const api = {
 
   // Push notifications
   pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
-  pushSubscribe: (sub) => jsonFetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) }),
-  pushUnsubscribe: () => jsonFetch('/api/push/unsubscribe', { method: 'POST' }),
-  pushSendTest: () => jsonFetch('/api/push/send-test', { method: 'POST' }),
+  pushSubscribe: (sub) =>
+    jsonFetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub),
+    }),
+  pushUnsubscribe: (endpoint) =>
+    jsonFetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    }),
+  pushSendTest: () =>
+    jsonFetch('/api/push/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '🌿 GardenPin',
+        body: 'Testovací notifikace funguje 🎉',
+        url: '/',
+      }),
+    }),
 };
 
 async function handle(res) {

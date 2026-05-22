@@ -255,11 +255,13 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
   const [done, setDone] = useState(false);
   const [selectedCare, setSelectedCare] = useState(() => new Set());
 
-  // Reset výběru při změně rostliny
+  // Při změně rostliny: výchozí výběr = všechny sezónní úkony (auto-generace na celý rok).
+  // Uživatel může individuálně odškrtnout.
   useEffect(() => {
-    setSelectedCare(new Set());
+    const all = new Set((plant?.careActions || []).map((_, i) => i));
+    setSelectedCare(all);
     setDone(false);
-    onSelectionChange?.(new Set());
+    onSelectionChange?.(all);
   }, [plant?.id]);
 
   if (!plant) return null;

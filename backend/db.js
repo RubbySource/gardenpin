@@ -87,10 +87,37 @@ db.exec(`
     stripe_subscription_id TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS pin_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pin_id INTEGER NOT NULL,
+    filename TEXT NOT NULL,
+    caption TEXT,
+    uploaded_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS beds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    garden_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    width REAL NOT NULL,
+    height REAL NOT NULL,
+    width_m REAL,
+    height_m REAL,
+    color TEXT DEFAULT '#8b6f47',
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN shared_at TEXT'); } catch {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}

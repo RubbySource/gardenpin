@@ -5,6 +5,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const db = require('./db');
 const stripeRoutes = require('./routes/stripeRoutes');
 
@@ -150,6 +151,93 @@ app.delete('/api/gardens/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// ======================= SHARING =======================
+// URL-safe random token, alfanum, 10 znaků (kolize prakticky nemožná)
+function generateShareToken(length = 10) {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const bytes = crypto.randomBytes(length);
+  let out = '';
+  for (let i = 0; i < length; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
+}
+
+// Vytvořit / vrátit share token zahrady
+app.post('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  if (g.share_token) {
+    return res.json({ token: g.share_token, shared_at: g.shared_at });
+  }
+  // Generuj unikátní token (retry při kolizi)
+  let token;
+  for (let i = 0; i < 5; i++) {
+    token = generateShareToken(10);
+    const exists = db.prepare('SELECT 1 FROM gardens WHERE share_token = ?').get(token);
+    if (!exists) break;
+    token = null;
+  }
+  if (!token) return res.status(500).json({ error: 'Nepodařilo se vygenerovat unikátní token' });
+  const now = new Date().toISOString();
+  db.prepare('UPDATE gardens SET share_token = ?, shared_at = ? WHERE id = ?').run(token, now, id);
+  res.json({ token, shared_at: now });
+});
+
+// Zrušit share token
+app.delete('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT id FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  db.prepare('UPDATE gardens SET share_token = NULL, shared_at = NULL WHERE id = ?').run(id);
+  res.json({ ok: true });
+});
+
+// Veřejný read-only pohled na sdílenou zahradu — bez autentizace
+app.get('/api/share/:token', (req, res) => {
+  const token = req.params.token;
+  if (!token || token.length < 6 || token.length > 32) {
+    return res.status(404).json({ error: 'Neplatný odkaz' });
+  }
+  const g = db.prepare('SELECT * FROM gardens WHERE share_token = ?').get(token);
+  if (!g) return res.status(404).json({ error: 'Sdílení neexistuje nebo bylo zrušeno' });
+
+  const pins = db.prepare('SELECT id, name, x, y, plant_name, planting_date, notes, photo_path, color FROM pins WHERE garden_id = ? ORDER BY created_at DESC').all(g.id);
+  const beds = db.prepare('SELECT id, name, x, y, width, height, width_m, height_m, color FROM beds WHERE garden_id = ? ORDER BY created_at ASC').all(g.id);
+
+  // Nadcházející úkony — pouze hlavní (ne zalévání) v rozumném horizontu
+  const today = new Date().toISOString().slice(0, 10);
+  const horizon = new Date();
+  horizon.setDate(horizon.getDate() + 90);
+  const horizonStr = horizon.toISOString().slice(0, 10);
+  const tasks = db.prepare(
+    `SELECT t.id, t.title, t.task_type, t.next_due, t.notes, p.name AS pin_name, p.plant_name
+     FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     WHERE p.garden_id = ?
+       AND t.next_due IS NOT NULL
+       AND t.next_due >= ?
+       AND t.next_due <= ?
+       AND t.task_type != 'zalivka'
+     ORDER BY t.next_due ASC
+     LIMIT 50`,
+  ).all(g.id, today, horizonStr);
+
+  res.json({
+    garden: {
+      id: g.id,
+      name: g.name,
+      image_path: g.image_path,
+      image_width: g.image_width,
+      image_height: g.image_height,
+      rotation: g.rotation || 0,
+      shared_at: g.shared_at,
+    },
+    pins,
+    beds,
+    upcoming_tasks: tasks,
+  });
+});
+
 // ======================= PINS =======================
 app.get('/api/gardens/:id/pins', (req, res) => {
   const rows = db
@@ -236,6 +324,11 @@ app.delete('/api/pins/:id', (req, res) => {
     const p = path.join(__dirname, pin.photo_path);
     if (fs.existsSync(p)) fs.unlinkSync(p);
   }
+  // Smaž celou složku s galerií fotek pinu
+  const photosDir = path.join(uploadsDir, 'pins', String(id));
+  if (fs.existsSync(photosDir)) {
+    try { fs.rmSync(photosDir, { recursive: true, force: true }); } catch {}
+  }
   res.json({ ok: true });
 });
 
@@ -279,6 +372,82 @@ app.put('/api/pins/:id/photo', async (req, res) => {
   }
 });
 
+// ======================= PIN PHOTOS GALLERY =======================
+// Multer storage pro fotky rostlin — podsložka per pin
+const pinPhotoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(uploadsDir, 'pins', String(req.params.id));
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + ext);
+  },
+});
+const pinPhotoUpload = multer({
+  storage: pinPhotoStorage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/image\/(jpeg|jpg|png|gif|webp|heic|heif)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Pouze obrázky jsou povolené'));
+  },
+});
+
+// Seznam fotek pinu
+app.get('/api/pins/:id/photos', (req, res) => {
+  const id = req.params.id;
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  const rows = db
+    .prepare('SELECT * FROM pin_photos WHERE pin_id = ? ORDER BY uploaded_at DESC')
+    .all(id);
+  const photos = rows.map((r) => ({
+    ...r,
+    url: `/uploads/pins/${id}/${r.filename}`,
+  }));
+  res.json(photos);
+});
+
+// Upload jedné nebo více fotek (multipart, field "photos")
+app.post('/api/pins/:id/photos', pinPhotoUpload.array('photos', 10), (req, res) => {
+  const id = req.params.id;
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  const files = req.files || [];
+  if (files.length === 0) return res.status(400).json({ error: 'Žádné soubory' });
+  const caption = req.body.caption || null;
+  const inserted = [];
+  const stmt = db.prepare(
+    'INSERT INTO pin_photos (pin_id, filename, caption) VALUES (?, ?, ?)',
+  );
+  for (const f of files) {
+    const info = stmt.run(id, f.filename, caption);
+    inserted.push({
+      id: info.lastInsertRowid,
+      pin_id: Number(id),
+      filename: f.filename,
+      caption,
+      url: `/uploads/pins/${id}/${f.filename}`,
+    });
+  }
+  res.json(inserted);
+});
+
+// Smazat fotku
+app.delete('/api/pins/:id/photos/:photoId', (req, res) => {
+  const { id, photoId } = req.params;
+  const photo = db.prepare('SELECT * FROM pin_photos WHERE id = ? AND pin_id = ?').get(photoId, id);
+  if (!photo) return res.status(404).json({ error: 'Fotka nenalezena' });
+  const filePath = path.join(uploadsDir, 'pins', String(id), photo.filename);
+  if (fs.existsSync(filePath)) {
+    try { fs.unlinkSync(filePath); } catch {}
+  }
+  db.prepare('DELETE FROM pin_photos WHERE id = ?').run(photoId);
+  res.json({ ok: true });
+});
+
 app.get('/api/pins/:id/photo', (req, res) => {
   const pin = db.prepare('SELECT photo_path FROM pins WHERE id = ?').get(req.params.id);
   if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
@@ -289,6 +458,70 @@ app.get('/api/pins/:id/photo', (req, res) => {
   const mime = ext === 'jpg' ? 'jpeg' : ext;
   const buf = fs.readFileSync(p);
   res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
+});
+
+// ======================= BEDS (zahony) =======================
+// Záhon je obdélníková plocha v zahradě s rozměry v procentech mapy
+// a volitelně velikostí v metrech (pro orientační měřítko).
+app.get('/api/gardens/:id/beds', (req, res) => {
+  const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(req.params.id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  const rows = db
+    .prepare('SELECT * FROM beds WHERE garden_id = ? ORDER BY created_at ASC')
+    .all(req.params.id);
+  res.json(rows);
+});
+
+app.post('/api/beds', (req, res) => {
+  const { garden_id, name, x, y, width, height, width_m, height_m, color } = req.body || {};
+  if (!garden_id) return res.status(400).json({ error: 'garden_id je povinný' });
+  const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(garden_id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  if ([x, y, width, height].some((v) => typeof v !== 'number' || Number.isNaN(v))) {
+    return res.status(400).json({ error: 'x, y, width, height musí být čísla' });
+  }
+  const info = db
+    .prepare(
+      `INSERT INTO beds (garden_id, name, x, y, width, height, width_m, height_m, color)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      garden_id,
+      name || 'Záhon',
+      x,
+      y,
+      width,
+      height,
+      width_m ?? null,
+      height_m ?? null,
+      color || '#8b6f47',
+    );
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(info.lastInsertRowid));
+});
+
+app.put('/api/beds/:id', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM beds WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záhon nenalezen' });
+  const name = req.body.name ?? current.name;
+  const x = req.body.x !== undefined ? Number(req.body.x) : current.x;
+  const y = req.body.y !== undefined ? Number(req.body.y) : current.y;
+  const width = req.body.width !== undefined ? Number(req.body.width) : current.width;
+  const height = req.body.height !== undefined ? Number(req.body.height) : current.height;
+  const width_m = req.body.width_m !== undefined ? (req.body.width_m === null ? null : Number(req.body.width_m)) : current.width_m;
+  const height_m = req.body.height_m !== undefined ? (req.body.height_m === null ? null : Number(req.body.height_m)) : current.height_m;
+  const color = req.body.color ?? current.color;
+  db.prepare(
+    `UPDATE beds SET name=?, x=?, y=?, width=?, height=?, width_m=?, height_m=?, color=? WHERE id=?`,
+  ).run(name, x, y, width, height, width_m, height_m, color, id);
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(id));
+});
+
+app.delete('/api/beds/:id', (req, res) => {
+  const bed = db.prepare('SELECT id FROM beds WHERE id = ?').get(req.params.id);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  db.prepare('DELETE FROM beds WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
 });
 
 // ======================= TASKS =======================
@@ -472,6 +705,77 @@ app.get('/api/stats', (req, res) => {
   res.json({ gardens, pins, tasks, overdue, dueToday, historyCount, weeklyDone });
 });
 
+// Sezónní statistiky — splněné úkony tento měsíc/rok, graf po měsících, top zahrada, top rostlina
+app.get('/api/stats/season', (req, res) => {
+  const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+  const yearStart = `${year}-01-01`;
+  const yearEnd = `${year + 1}-01-01`;
+  const monthStart = new Date().toISOString().slice(0, 7) + '-01';
+
+  // Splněné úkony tento měsíc a rok (sloupec done_at je UTC text)
+  const doneThisMonth = db
+    .prepare(
+      "SELECT COUNT(*) AS c FROM care_history WHERE done_at >= ?",
+    )
+    .get(monthStart).c;
+  const doneThisYear = db
+    .prepare(
+      'SELECT COUNT(*) AS c FROM care_history WHERE done_at >= ? AND done_at < ?',
+    )
+    .get(yearStart, yearEnd).c;
+
+  // Graf po měsících — vrátí pole 12 čísel pro daný rok
+  const monthlyRows = db
+    .prepare(
+      `SELECT CAST(strftime('%m', done_at) AS INTEGER) AS m, COUNT(*) AS c
+       FROM care_history
+       WHERE done_at >= ? AND done_at < ?
+       GROUP BY m`,
+    )
+    .all(yearStart, yearEnd);
+  const monthlyDone = Array.from({ length: 12 }, (_, i) => {
+    const row = monthlyRows.find((r) => r.m === i + 1);
+    return row ? row.c : 0;
+  });
+
+  // Nejaktivnější zahrada (nejvíc splněných úkonů v daném roce)
+  const topGarden = db
+    .prepare(
+      `SELECT g.id, g.name, COUNT(*) AS done_count
+       FROM care_history h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.done_at >= ? AND h.done_at < ?
+       GROUP BY g.id
+       ORDER BY done_count DESC
+       LIMIT 1`,
+    )
+    .get(yearStart, yearEnd);
+
+  // Nejpečovanější rostlina
+  const topPlant = db
+    .prepare(
+      `SELECT p.id AS pin_id, p.name AS pin_name, p.plant_name, g.name AS garden_name, COUNT(*) AS done_count
+       FROM care_history h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.done_at >= ? AND h.done_at < ?
+       GROUP BY p.id
+       ORDER BY done_count DESC
+       LIMIT 1`,
+    )
+    .get(yearStart, yearEnd);
+
+  res.json({
+    year,
+    doneThisMonth,
+    doneThisYear,
+    monthlyDone,
+    topGarden: topGarden || null,
+    topPlant: topPlant || null,
+  });
+});
+
 // ======================= UPSCALE =======================
 app.post('/api/gardens/:id/upscale', async (req, res) => {
   if (!sharp) return res.status(501).json({ error: 'Sharp není nainstalován. Spusť: npm install sharp' });
@@ -548,14 +852,37 @@ app.post('/api/push/send', async (req, res) => {
 });
 
 // ======================= WEATHER =======================
+// Citlivé rostliny — substring match na plant_name (lower-cased, bez diakritiky)
+const SENSITIVE_PLANT_KEYWORDS = [
+  'rajc', 'paprik', 'okurk', 'bazalk', 'cuket', 'dyn', 'tykv', 'tykev', 'fazol', 'meloun',
+];
+
+function normalize(s) {
+  return (s || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+}
+
+function isSensitivePlant(plantName) {
+  const n = normalize(plantName);
+  return SENSITIVE_PLANT_KEYWORDS.some((k) => n.includes(k));
+}
+
 // Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
+// Vrací current_weather + 3denní předpověď (min/max/weathercode/sunrise/sunset)
 app.get('/api/weather', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (Number.isNaN(lat) || Number.isNaN(lon)) {
     return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
   }
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Europe%2FPrague`;
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current_weather=true` +
+    `&daily=temperature_2m_min,temperature_2m_max,weathercode` +
+    `&forecast_days=3&timezone=Europe%2FPrague`;
   try {
     const r = await fetch(url);
     if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });
@@ -564,6 +891,16 @@ app.get('/api/weather', async (req, res) => {
   } catch (e) {
     res.status(502).json({ error: e.message });
   }
+});
+
+// Vrací počet citlivých rostlin uživatele — používá WeatherWidget pro mrazové varování
+app.get('/api/pins/sensitive', (req, res) => {
+  const rows = db.prepare('SELECT id, name, plant_name FROM pins WHERE plant_name IS NOT NULL AND plant_name != ""').all();
+  const sensitive = rows.filter((r) => isSensitivePlant(r.plant_name));
+  res.json({
+    count: sensitive.length,
+    plants: sensitive.map((p) => ({ id: p.id, name: p.name, plant_name: p.plant_name })),
+  });
 });
 
 // ======================= ICAL EXPORT =======================
@@ -632,6 +969,7 @@ app.get('/api/export/ical', (req, res) => {
     'END:VTIMEZONE',
   ];
 
+
   for (const t of tasks) {
     const emoji = typeEmoji[t.task_type] || '📋';
     const label = typeLabel[t.task_type] || 'Úkol';
@@ -654,14 +992,12 @@ app.get('/api/export/ical', (req, res) => {
     lines.push(`DTEND;TZID=Europe/Prague:${dtend}`);
     lines.push(foldLine(`SUMMARY:${escape(summary)}`));
     if (desc) lines.push(foldLine(`DESCRIPTION:${desc}`));
-    // RRULE for recurring tasks
     const isYearly = t.recurring && t.recurrence_pattern === 'yearly';
     if (t.frequency_days) {
       lines.push(`RRULE:FREQ=DAILY;INTERVAL=${t.frequency_days}`);
     } else if (isYearly) {
       lines.push('RRULE:FREQ=YEARLY');
     }
-    // VALARM: remind 1 day before (or at 8:00 same day for one-time tasks)
     lines.push('BEGIN:VALARM');
     lines.push('ACTION:DISPLAY');
     lines.push(foldLine(`DESCRIPTION:Připomínka: ${escape(summary)}`));
@@ -678,14 +1014,84 @@ app.get('/api/export/ical', (req, res) => {
 });
 
 // ======================= EXPORT =======================
+// Helper: escape value for CSV (RFC 4180)
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvRow(cells) {
+  return cells.map(csvCell).join(',');
+}
+
 app.get('/api/export', (req, res) => {
+  const format = (req.query.format || 'json').toLowerCase();
+  const gardens = db.prepare('SELECT * FROM gardens').all();
+  const pins = db.prepare('SELECT * FROM pins').all();
+  const tasks = db.prepare('SELECT * FROM tasks').all();
+  const care_history = db.prepare('SELECT * FROM care_history').all();
+  const beds = db.prepare('SELECT * FROM beds').all();
+  const pin_photos = db.prepare('SELECT * FROM pin_photos').all();
+
+  if (format === 'csv') {
+    // Plochá tabulka: jeden řádek = jeden úkol (s informací o pinu a zahradě).
+    // Piny bez úkolů se vypíšou s prázdnými task_* sloupci.
+    const lines = [];
+    lines.push(csvRow([
+      'garden_id', 'garden_name',
+      'pin_id', 'pin_name', 'plant_name', 'planting_date', 'pin_notes',
+      'task_id', 'task_title', 'task_type', 'frequency_days', 'specific_date', 'next_due', 'last_done', 'recurring', 'recurrence_pattern', 'task_notes',
+    ]));
+    const gardenById = new Map(gardens.map((g) => [g.id, g]));
+    const tasksByPin = new Map();
+    for (const t of tasks) {
+      if (!tasksByPin.has(t.pin_id)) tasksByPin.set(t.pin_id, []);
+      tasksByPin.get(t.pin_id).push(t);
+    }
+    for (const p of pins) {
+      const g = gardenById.get(p.garden_id) || { id: p.garden_id, name: '' };
+      const pinTasks = tasksByPin.get(p.id) || [];
+      if (pinTasks.length === 0) {
+        lines.push(csvRow([
+          g.id, g.name,
+          p.id, p.name, p.plant_name, p.planting_date, p.notes,
+          '', '', '', '', '', '', '', '', '', '',
+        ]));
+      } else {
+        for (const t of pinTasks) {
+          lines.push(csvRow([
+            g.id, g.name,
+            p.id, p.name, p.plant_name, p.planting_date, p.notes,
+            t.id, t.title, t.task_type, t.frequency_days, t.specific_date, t.next_due, t.last_done, t.recurring, t.recurrence_pattern, t.notes,
+          ]));
+        }
+      }
+    }
+    // UTF-8 BOM pro správný import do Excelu s diakritikou
+    const body = '﻿' + lines.join('\r\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker-export.csv"');
+    return res.send(body);
+  }
+
+  // JSON — kompletní export včetně relativních URL fotek (pro stažení samostatně)
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const baseUrl = `${proto}://${host}`;
   const data = {
     exportedAt: new Date().toISOString(),
-    version: 1,
-    gardens: db.prepare('SELECT * FROM gardens').all(),
-    pins: db.prepare('SELECT * FROM pins').all(),
-    tasks: db.prepare('SELECT * FROM tasks').all(),
-    care_history: db.prepare('SELECT * FROM care_history').all(),
+    version: 2,
+    baseUrl,
+    gardens: gardens.map((g) => ({ ...g, image_url: g.image_path ? baseUrl + g.image_path : null })),
+    pins: pins.map((p) => ({ ...p, photo_url: p.photo_path ? baseUrl + p.photo_path : null })),
+    beds,
+    tasks,
+    care_history,
+    pin_photos: pin_photos.map((ph) => ({
+      ...ph,
+      url: `${baseUrl}/uploads/pins/${ph.pin_id}/${ph.filename}`,
+    })),
   };
   res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker-export.json"');
   res.setHeader('Content-Type', 'application/json');

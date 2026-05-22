@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import SeasonStats from '../components/SeasonStats.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -240,6 +241,9 @@ export default function HomePage({ onTaskComplete }) {
       ) : (
         upcoming.map((t) => <HomeTaskCard key={t.id} task={t} onComplete={completeTask} />)
       )}
+
+      {/* Sezónní statistiky — graf aktivity, top zahrada a rostlina */}
+      <SeasonStats />
 
       <Link
         to="/premium"
