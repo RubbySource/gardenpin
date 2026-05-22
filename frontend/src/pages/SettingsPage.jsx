@@ -83,8 +83,12 @@ export default function SettingsPage() {
     toast('✅ Nastavení uloženo');
   };
 
-  const handleExport = () => {
-    window.location.href = '/api/export';
+  const handleExport = (format) => {
+    if (format === 'ical') {
+      window.location.href = '/api/export/ical';
+      return;
+    }
+    window.location.href = `/api/export?format=${format}`;
   };
 
   return (
@@ -181,11 +185,21 @@ export default function SettingsPage() {
       <div className="card">
         <h3 style={{ marginTop: 0 }}>📤 Export dat</h3>
         <p className="small muted">
-          Exportujte vaše zahrady a úkoly ve formátu iCal (kalendář iOS/Google).
+          Zálohujte si zahrady, rostliny a úkoly. JSON obsahuje úplná data včetně
+          URL fotek, CSV je tabulka rostlin a úkonů pro Excel. iCal otevřete v
+          kalendáři (iOS / Google).
         </p>
-        <button className="btn secondary" onClick={handleExport}>
-          Exportovat iCal
-        </button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button className="btn secondary" onClick={() => handleExport('json')}>
+            📦 Záloha (JSON)
+          </button>
+          <button className="btn secondary" onClick={() => handleExport('csv')}>
+            📊 Tabulka (CSV)
+          </button>
+          <button className="btn secondary" onClick={() => handleExport('ical')}>
+            📅 Kalendář (iCal)
+          </button>
+        </div>
       </div>
 
       {stats && (

@@ -29,9 +29,4 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Statistiky zahrady — přehled aktivity za sezónu — hotovo 2026-05-23
 
-- [~] Export zahrady — záloha dat jako JSON nebo CSV
-  Scope:
-  - Endpoint GET /api/export?format=json|csv
-  - JSON: kompletní export všech zahrad, pinů, tasků, fotek (base64 nebo URL)
-  - CSV: tabulka pinů s úkoly
-  - Tlačítko "Exportovat data" v Settings
+- [x] Export zahrady — záloha dat jako JSON nebo CSV — hotovo 2026-05-23
