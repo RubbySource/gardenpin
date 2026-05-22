@@ -71,7 +71,7 @@ export default function SharedGardenPage() {
     );
   }
 
-  const { garden, pins, upcoming_tasks } = data;
+  const { garden, pins, beds = [], upcoming_tasks } = data;
   const taskGroups = groupByMonth(upcoming_tasks || []);
 
   return (
@@ -104,6 +104,29 @@ export default function SharedGardenPage() {
                 draggable={false}
                 style={{ transform: `rotate(${garden.rotation || 0}deg)` }}
               />
+              {beds.map((b) => (
+                <div
+                  key={b.id}
+                  className="bed-rect"
+                  style={{
+                    left: `${b.x}%`,
+                    top: `${b.y}%`,
+                    width: `${b.width}%`,
+                    height: `${b.height}%`,
+                    background: (b.color || '#8b6f47') + '33',
+                    border: `2px solid ${b.color || '#8b6f47'}`,
+                    cursor: 'default',
+                  }}
+                  title={b.name}
+                >
+                  <span className="bed-label">
+                    {b.name}
+                    {b.width_m && b.height_m ? (
+                      <span className="bed-size"> · {b.width_m}×{b.height_m} m</span>
+                    ) : null}
+                  </span>
+                </div>
+              ))}
               {pins.map((p) => (
                 <div
                   key={p.id}

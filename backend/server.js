@@ -202,6 +202,7 @@ app.get('/api/share/:token', (req, res) => {
   if (!g) return res.status(404).json({ error: 'Sdílení neexistuje nebo bylo zrušeno' });
 
   const pins = db.prepare('SELECT id, name, x, y, plant_name, planting_date, notes, photo_path, color FROM pins WHERE garden_id = ? ORDER BY created_at DESC').all(g.id);
+  const beds = db.prepare('SELECT id, name, x, y, width, height, width_m, height_m, color FROM beds WHERE garden_id = ? ORDER BY created_at ASC').all(g.id);
 
   // Nadcházející úkony — pouze hlavní (ne zalévání) v rozumném horizontu
   const today = new Date().toISOString().slice(0, 10);
@@ -232,6 +233,7 @@ app.get('/api/share/:token', (req, res) => {
       shared_at: g.shared_at,
     },
     pins,
+    beds,
     upcoming_tasks: tasks,
   });
 });
@@ -456,6 +458,70 @@ app.get('/api/pins/:id/photo', (req, res) => {
   const mime = ext === 'jpg' ? 'jpeg' : ext;
   const buf = fs.readFileSync(p);
   res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
+});
+
+// ======================= BEDS (zahony) =======================
+// Záhon je obdélníková plocha v zahradě s rozměry v procentech mapy
+// a volitelně velikostí v metrech (pro orientační měřítko).
+app.get('/api/gardens/:id/beds', (req, res) => {
+  const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(req.params.id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  const rows = db
+    .prepare('SELECT * FROM beds WHERE garden_id = ? ORDER BY created_at ASC')
+    .all(req.params.id);
+  res.json(rows);
+});
+
+app.post('/api/beds', (req, res) => {
+  const { garden_id, name, x, y, width, height, width_m, height_m, color } = req.body || {};
+  if (!garden_id) return res.status(400).json({ error: 'garden_id je povinný' });
+  const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(garden_id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  if ([x, y, width, height].some((v) => typeof v !== 'number' || Number.isNaN(v))) {
+    return res.status(400).json({ error: 'x, y, width, height musí být čísla' });
+  }
+  const info = db
+    .prepare(
+      `INSERT INTO beds (garden_id, name, x, y, width, height, width_m, height_m, color)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      garden_id,
+      name || 'Záhon',
+      x,
+      y,
+      width,
+      height,
+      width_m ?? null,
+      height_m ?? null,
+      color || '#8b6f47',
+    );
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(info.lastInsertRowid));
+});
+
+app.put('/api/beds/:id', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM beds WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záhon nenalezen' });
+  const name = req.body.name ?? current.name;
+  const x = req.body.x !== undefined ? Number(req.body.x) : current.x;
+  const y = req.body.y !== undefined ? Number(req.body.y) : current.y;
+  const width = req.body.width !== undefined ? Number(req.body.width) : current.width;
+  const height = req.body.height !== undefined ? Number(req.body.height) : current.height;
+  const width_m = req.body.width_m !== undefined ? (req.body.width_m === null ? null : Number(req.body.width_m)) : current.width_m;
+  const height_m = req.body.height_m !== undefined ? (req.body.height_m === null ? null : Number(req.body.height_m)) : current.height_m;
+  const color = req.body.color ?? current.color;
+  db.prepare(
+    `UPDATE beds SET name=?, x=?, y=?, width=?, height=?, width_m=?, height_m=?, color=? WHERE id=?`,
+  ).run(name, x, y, width, height, width_m, height_m, color, id);
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(id));
+});
+
+app.delete('/api/beds/:id', (req, res) => {
+  const bed = db.prepare('SELECT id FROM beds WHERE id = ?').get(req.params.id);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  db.prepare('DELETE FROM beds WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
 });
 
 // ======================= TASKS =======================

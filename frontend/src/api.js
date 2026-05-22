@@ -37,6 +37,22 @@ export const api = {
       body: JSON.stringify({ photo: dataUrl }),
     }),
 
+  // Beds (záhony)
+  listBeds: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/beds`),
+  createBed: (data) =>
+    jsonFetch('/api/beds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updateBed: (id, data) =>
+    jsonFetch(`/api/beds/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deleteBed: (id) => jsonFetch(`/api/beds/${id}`, { method: 'DELETE' }),
+
   // Galerie fotek pinu
   listPinPhotos: (id) => jsonFetch(`/api/pins/${id}/photos`),
   uploadPinPhotos: (id, formData) =>

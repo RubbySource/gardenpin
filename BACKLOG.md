@@ -15,13 +15,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Sdílení zahrady — read-only link pro rodinu/přátele — hotovo 2026-05-22
 
-- [~] Mapa zahrady — vizuální layout záhonů, drag&drop pozice rostlin
-  Scope:
-  - Nová záložka "Mapa" v detailu zahrady
-  - Canvas nebo CSS grid reprezentující záhony (definovatelná velikost v metrech)
-  - Rostliny (piny) lze přetáhnout na pozici v záhonu
-  - Pozice se ukládá do DB (x%, y% pozice v záhonu)
-  - Mobilní drag funguje přes touch events
+- [x] Mapa zahrady — vizuální layout záhonů, drag&drop pozice rostlin — hotovo 2026-05-22
 
 - [x] PWA manifest + service worker — hotovo 2026-05-16
 

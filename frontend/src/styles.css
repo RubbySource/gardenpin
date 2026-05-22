@@ -403,6 +403,75 @@ input, textarea, select {
   color: var(--text-dim);
   text-align: center;
 }
+/* Záhony — obdélníkové plochy na mapě */
+.bed-rect {
+  position: absolute;
+  z-index: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 4px 6px;
+  overflow: hidden;
+  pointer-events: auto;
+}
+.bed-rect:hover { filter: brightness(0.95); }
+.bed-rect.drawing {
+  background: rgba(139, 111, 71, 0.22);
+  border: 2px dashed #8b6f47;
+  pointer-events: none;
+}
+.bed-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #3d2e1f;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-shadow: 0 0 2px #fff;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bed-size { font-weight: 500; opacity: 0.8; }
+
+.bed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.bed-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.bed-list-item:hover { background: var(--sand); }
+.bed-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+.bed-list-info { flex: 1; min-width: 0; }
+.bed-list-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--charcoal);
+}
+.bed-list-meta { font-size: 0.78rem; }
+
 .pin {
   position: absolute;
   transform: translate(-50%, -100%);

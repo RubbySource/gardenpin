@@ -96,6 +96,21 @@ db.exec(`
     uploaded_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS beds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    garden_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    width REAL NOT NULL,
+    height REAL NOT NULL,
+    width_m REAL,
+    height_m REAL,
+    color TEXT DEFAULT '#8b6f47',
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
+  );
 `);
 
 // Migrations — přidat sloupce pokud neexistují
