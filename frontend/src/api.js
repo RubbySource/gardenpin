@@ -106,9 +106,28 @@ export const api = {
 
   // Push notifications
   pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
-  pushSubscribe: (sub) => jsonFetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) }),
-  pushUnsubscribe: () => jsonFetch('/api/push/unsubscribe', { method: 'POST' }),
-  pushSendTest: () => jsonFetch('/api/push/send-test', { method: 'POST' }),
+  pushSubscribe: (sub) =>
+    jsonFetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub),
+    }),
+  pushUnsubscribe: (endpoint) =>
+    jsonFetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    }),
+  pushSendTest: () =>
+    jsonFetch('/api/push/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '🌿 GardenPin',
+        body: 'Testovací notifikace funguje 🎉',
+        url: '/',
+      }),
+    }),
 };
 
 async function handle(res) {
