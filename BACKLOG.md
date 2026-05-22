@@ -15,7 +15,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Sdílení zahrady — read-only link pro rodinu/přátele — hotovo 2026-05-22
 
-- [ ] Mapa zahrady — vizuální layout záhonů, drag&drop pozice rostlin
+- [~] Mapa zahrady — vizuální layout záhonů, drag&drop pozice rostlin
   Scope:
   - Nová záložka "Mapa" v detailu zahrady
   - Canvas nebo CSS grid reprezentující záhony (definovatelná velikost v metrech)
@@ -27,12 +27,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Fotky rostlin — upload + galerie u záznamu rostliny — hotovo 2026-05-16
 
-- [ ] Sezónní kalendář úkonů — přehled co dělat tento měsíc napříč všemi zahradami
-  Scope:
-  - Nová stránka /calendar (nebo záložka na Home)
-  - Zobrazí všechny nadcházející úkony (task_type = hlavní úkony) seřazené podle data napříč všemi zahradami a piny
-  - Skupinování po měsících, filtr po zahradě
-  - Úkon lze označit jako hotový přímo z kalendáře
+- [x] Sezónní kalendář úkonů — přehled co dělat tento měsíc napříč všemi zahradami — hotovo 2026-05-22
 
 - [ ] Připomínky hlavních úkonů — push notifikace v den úkonu
   Scope:

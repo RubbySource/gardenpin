@@ -32,7 +32,25 @@ export default function SeasonalCalendar() {
   const [loading, setLoading] = useState(true);
   const [openPin, setOpenPin] = useState(null);
   const [expandedSeasonal, setExpandedSeasonal] = useState({});
+  const [completing, setCompleting] = useState(null);
   const currentMonthRef = useRef(null);
+
+  // Označit úkol jako hotový přímo z kalendáře — zastav propagaci, ať neotevře PinDetail
+  const handleCompleteTask = async (e, taskId) => {
+    e.stopPropagation();
+    if (completing) return;
+    setCompleting(taskId);
+    try {
+      await api.completeTask(taskId);
+      toast('✅ Hotovo');
+      const fresh = await api.listTasks();
+      setTasks(fresh);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setCompleting(null);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -165,6 +183,7 @@ export default function SeasonalCalendar() {
                 <ul className="month-tasks">
                   {monthTasks.map((t) => {
                     const day = new Date(t.next_due).getDate();
+                    const isCompleting = completing === t.id;
                     return (
                       <li
                         key={t.id}
@@ -180,6 +199,16 @@ export default function SeasonalCalendar() {
                             {gardenFilter === 'all' && t.garden_name ? ` · ${t.garden_name}` : ''}
                           </span>
                         </span>
+                        <button
+                          type="button"
+                          className="month-task-done"
+                          onClick={(e) => handleCompleteTask(e, t.id)}
+                          disabled={isCompleting}
+                          title="Označit jako hotové"
+                          aria-label="Označit úkol jako hotové"
+                        >
+                          {isCompleting ? '⏳' : '✓'}
+                        </button>
                       </li>
                     );
                   })}

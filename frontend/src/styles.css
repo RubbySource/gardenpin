@@ -2306,6 +2306,36 @@ input, textarea, select {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.month-task-done {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary);
+  background: #fff;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  margin-left: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.month-task-done:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.08);
+}
+.month-task-done:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.month-task-done:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
 
 /* Sezónní typické úkoly */
 .seasonal-section {
