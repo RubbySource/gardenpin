@@ -16,6 +16,7 @@ export default function GardenDetailPage() {
   const [addingPinAt, setAddingPinAt] = useState(null); // { x, y } in percentages
   const [editingPinId, setEditingPinId] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
@@ -188,6 +189,9 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button className="btn ghost small" onClick={() => setShowShare(true)} title="Sdílet zahradu">
+            🔗 Sdílet
+          </button>
           <button className="btn ghost small" onClick={() => setShowEdit(true)}>
             ✏️ Upravit
           </button>
@@ -433,7 +437,114 @@ export default function GardenDetailPage() {
           uploading={uploadingMap}
         />
       )}
+
+      {showShare && (
+        <ShareGardenModal
+          garden={garden}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </>
+  );
+}
+
+function ShareGardenModal({ garden, onClose }) {
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .createShareToken(garden.id)
+      .then((r) => { if (!cancelled) setToken(r.token); })
+      .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [garden.id]);
+
+  const shareUrl = token ? `${window.location.origin}/share/${token}` : '';
+
+  const copy = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast('📋 Odkaz zkopírován');
+      } else {
+        // Fallback — vybrat text
+        const input = document.getElementById('share-url-input');
+        input?.select();
+        document.execCommand('copy');
+        toast('📋 Odkaz zkopírován');
+      }
+    } catch (e) {
+      toast('Nelze kopírovat: ' + e.message);
+    }
+  };
+
+  const revoke = async () => {
+    if (!confirm('Zrušit sdílení? Odkaz přestane fungovat.')) return;
+    setRevoking(true);
+    try {
+      await api.revokeShareToken(garden.id);
+      toast('🔒 Sdílení zrušeno');
+      onClose();
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setRevoking(false);
+    }
+  };
+
+  return (
+    <Modal title="🔗 Sdílet zahradu" onClose={onClose}>
+      {loading ? (
+        <div className="empty small">Načítám…</div>
+      ) : (
+        <>
+          <div className="small muted mb-2">
+            Kdokoliv s tímto odkazem uvidí vaši zahradu, rostliny a nadcházející úkony.
+            Bez možnosti úprav.
+          </div>
+          <div className="field">
+            <label>Veřejný odkaz</label>
+            <input
+              id="share-url-input"
+              type="text"
+              value={shareUrl}
+              readOnly
+              onFocus={(e) => e.target.select()}
+            />
+          </div>
+          <div className="row mt-2" style={{ gap: 8 }}>
+            <button type="button" className="btn" onClick={copy}>
+              📋 Zkopírovat
+            </button>
+            <a
+              className="btn secondary"
+              href={shareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              👁️ Otevřít náhled
+            </a>
+          </div>
+          <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
+            <button
+              type="button"
+              className="btn danger ghost small"
+              onClick={revoke}
+              disabled={revoking}
+            >
+              {revoking ? 'Ruším…' : '🔒 Zrušit sdílení'}
+            </button>
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Zavřít
+            </button>
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 

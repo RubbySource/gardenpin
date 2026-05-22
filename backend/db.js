@@ -100,6 +100,9 @@ db.exec(`
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN shared_at TEXT'); } catch {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}

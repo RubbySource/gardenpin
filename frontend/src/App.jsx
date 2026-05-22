@@ -6,6 +6,7 @@ import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import SharedGardenPage from './pages/SharedGardenPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
@@ -22,6 +23,7 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const location = useLocation();
+  const isSharedView = location.pathname.startsWith('/share/');
 
   toastHandler = (m) => {
     setToastMsg(m);
@@ -30,14 +32,16 @@ export default function App() {
 
   // Load stats for reminder banner and nav badge
   useEffect(() => {
+    if (isSharedView) return;
     const loadStats = () => api.stats().then((s) => setPendingStats(s)).catch(() => {});
     loadStats();
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isSharedView]);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
+    if (isSharedView) return;
     let lastNotified = JSON.parse(localStorage.getItem('lastNotified') || '{}');
     const check = async () => {
       try {
@@ -71,7 +75,16 @@ export default function App() {
     check();
     const interval = setInterval(check, 60 * 60 * 1000); // every hour
     return () => clearInterval(interval);
-  }, []);
+  }, [isSharedView]);
+
+  // Sdílený read-only pohled — bez topbar/nav/banneru
+  if (isSharedView) {
+    return (
+      <Routes>
+        <Route path="/share/:token" element={<SharedGardenPage />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="app">

@@ -18,6 +18,11 @@ export const api = {
     fetch(`/api/gardens/${id}`, { method: 'PUT', body: formData }).then(handle),
   deleteGarden: (id) => jsonFetch(`/api/gardens/${id}`, { method: 'DELETE' }),
 
+  // Sharing
+  createShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),
+  revokeShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'DELETE' }),
+  getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
+
   // Pins
   listPins: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/pins`),
   getPin: (id) => jsonFetch(`/api/pins/${id}`),

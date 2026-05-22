@@ -5,6 +5,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const db = require('./db');
 const stripeRoutes = require('./routes/stripeRoutes');
 
@@ -148,6 +149,91 @@ app.delete('/api/gardens/:id', (req, res) => {
     }
   }
   res.json({ ok: true });
+});
+
+// ======================= SHARING =======================
+// URL-safe random token, alfanum, 10 znaků (kolize prakticky nemožná)
+function generateShareToken(length = 10) {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const bytes = crypto.randomBytes(length);
+  let out = '';
+  for (let i = 0; i < length; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
+}
+
+// Vytvořit / vrátit share token zahrady
+app.post('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  if (g.share_token) {
+    return res.json({ token: g.share_token, shared_at: g.shared_at });
+  }
+  // Generuj unikátní token (retry při kolizi)
+  let token;
+  for (let i = 0; i < 5; i++) {
+    token = generateShareToken(10);
+    const exists = db.prepare('SELECT 1 FROM gardens WHERE share_token = ?').get(token);
+    if (!exists) break;
+    token = null;
+  }
+  if (!token) return res.status(500).json({ error: 'Nepodařilo se vygenerovat unikátní token' });
+  const now = new Date().toISOString();
+  db.prepare('UPDATE gardens SET share_token = ?, shared_at = ? WHERE id = ?').run(token, now, id);
+  res.json({ token, shared_at: now });
+});
+
+// Zrušit share token
+app.delete('/api/gardens/:id/share', (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT id FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  db.prepare('UPDATE gardens SET share_token = NULL, shared_at = NULL WHERE id = ?').run(id);
+  res.json({ ok: true });
+});
+
+// Veřejný read-only pohled na sdílenou zahradu — bez autentizace
+app.get('/api/share/:token', (req, res) => {
+  const token = req.params.token;
+  if (!token || token.length < 6 || token.length > 32) {
+    return res.status(404).json({ error: 'Neplatný odkaz' });
+  }
+  const g = db.prepare('SELECT * FROM gardens WHERE share_token = ?').get(token);
+  if (!g) return res.status(404).json({ error: 'Sdílení neexistuje nebo bylo zrušeno' });
+
+  const pins = db.prepare('SELECT id, name, x, y, plant_name, planting_date, notes, photo_path, color FROM pins WHERE garden_id = ? ORDER BY created_at DESC').all(g.id);
+
+  // Nadcházející úkony — pouze hlavní (ne zalévání) v rozumném horizontu
+  const today = new Date().toISOString().slice(0, 10);
+  const horizon = new Date();
+  horizon.setDate(horizon.getDate() + 90);
+  const horizonStr = horizon.toISOString().slice(0, 10);
+  const tasks = db.prepare(
+    `SELECT t.id, t.title, t.task_type, t.next_due, t.notes, p.name AS pin_name, p.plant_name
+     FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     WHERE p.garden_id = ?
+       AND t.next_due IS NOT NULL
+       AND t.next_due >= ?
+       AND t.next_due <= ?
+       AND t.task_type != 'zalivka'
+     ORDER BY t.next_due ASC
+     LIMIT 50`,
+  ).all(g.id, today, horizonStr);
+
+  res.json({
+    garden: {
+      id: g.id,
+      name: g.name,
+      image_path: g.image_path,
+      image_width: g.image_width,
+      image_height: g.image_height,
+      rotation: g.rotation || 0,
+      shared_at: g.shared_at,
+    },
+    pins,
+    upcoming_tasks: tasks,
+  });
 });
 
 // ======================= PINS =======================

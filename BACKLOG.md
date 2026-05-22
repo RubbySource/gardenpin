@@ -13,12 +13,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Počasí integrace — Open-Meteo API (3denní předpověď + mrazové varování) — hotovo 2026-05-22
 
-- [~] Sdílení zahrady — read-only link pro rodinu/přátele
-  Scope:
-  - Backend: endpoint `POST /api/gardens/:id/share` → vygeneruje unikátní token (nanoid 10 znaků), uloží do DB
-  - Veřejná stránka `/share/:token` — zobrazí zahradu, piny, nadcházející úkony (readonly, bez editace)
-  - Tlačítko "Sdílet zahradu" v detailu zahrady → zkopíruje link do schránky
-  - Token lze zrušit (DELETE /api/gardens/:id/share)
+- [x] Sdílení zahrady — read-only link pro rodinu/přátele — hotovo 2026-05-22
 
 - [ ] Mapa zahrady — vizuální layout záhonů, drag&drop pozice rostlin
   Scope:
