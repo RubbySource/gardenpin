@@ -30,3 +30,26 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 - [x] Statistiky zahrady — přehled aktivity za sezónu — hotovo 2026-05-23
 
 - [x] Export zahrady — záloha dat jako JSON nebo CSV — hotovo 2026-05-23
+
+- [x] Export sezónního plánu jako PDF — tisk co dělat tento rok měsíc po měsíci — hotovo 2026-05-23
+
+- [~] Pěstební podmínky zahrady — typ půdy, expozice, nadmořská výška
+  Scope:
+  - Pole v tabulce gardens: soil_type (TEXT), exposure (N/S/E/W/mixed), altitude_m (INT)
+  - Editovatelné v nastavení zahrady
+  - Ovlivňuje doporučené termíny úkonů (posunutí o ±2 týdny podle expozice/nadmořšky)
+  - Zobrazení podmínek na přehledové stránce zahrady
+
+- [ ] Záznam sklizně a výnosů — co sklidil, kolik, datum
+  Scope:
+  - Nová tabulka harvests: garden_id, plant_id, date, amount, unit (kg/ks/litr), note
+  - Formulář pro přidání sklizně u každé rostliny
+  - Stránka /statistics rozšířena o sekci Sklizeň: celkem za sezónu, trend rok-od-roku
+  - Export sklizní v JSON záloze
+
+- [ ] Souhrnný přehled přes všechny zahrady — "co dělat tento týden"
+  Scope:
+  - Nová stránka /overview nebo widget na hlavní stránce
+  - Agreguje úkony ze všech zahrad pro aktuální týden a příští týden
+  - Seřazeno podle naléhavosti (datum úkonu)
+  - Přístupné bez přepínání mezi zahradami

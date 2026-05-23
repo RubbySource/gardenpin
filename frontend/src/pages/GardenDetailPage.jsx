@@ -277,6 +277,13 @@ export default function GardenDetailPage() {
           </h2>
         </div>
         <div className="row" style={{ gap: 6 }}>
+          <button
+            className="btn ghost small"
+            onClick={() => window.open(`/api/gardens/${garden.id}/season-plan?print=1`, '_blank')}
+            title="Stáhnout sezónní plán jako PDF (přes tisk)"
+          >
+            📄 Plán PDF
+          </button>
           <button className="btn ghost small" onClick={() => setShowShare(true)} title="Sdílet zahradu">
             🔗 Sdílet
           </button>

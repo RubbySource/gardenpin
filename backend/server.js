@@ -1013,6 +1013,241 @@ app.get('/api/export/ical', (req, res) => {
   res.send(lines.join('\r\n'));
 });
 
+// ======================= SEASONAL PLAN (PDF print) =======================
+// Vrací print-friendly HTML pro tisk nebo uložení jako PDF.
+// Browser zobrazí tiskové menu (Save as PDF). Žádná nová server-side závislost.
+function htmlEscape(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const MONTH_NAMES_CZ = [
+  '', 'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
+  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec',
+];
+
+const TASK_TYPE_EMOJI_PDF = {
+  zalivka: '💧', hnojeni: '🌱', strihani: '✂️', presazeni: '🪴',
+  plet: '🌿', sklizen: '🧺', kontrola: '🔍', jine: '📋',
+};
+
+app.get('/api/gardens/:id/season-plan', (req, res) => {
+  const id = req.params.id;
+  const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!garden) return res.status(404).send('<h1>Zahrada nenalezena</h1>');
+
+  const pins = db.prepare('SELECT * FROM pins WHERE garden_id = ? ORDER BY name').all(id);
+  const tasks = db.prepare(
+    `SELECT t.*, p.name AS pin_name, p.plant_name
+     FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     WHERE p.garden_id = ?
+     ORDER BY p.name, t.next_due ASC`,
+  ).all(id);
+
+  // Skupiny: měsíc 1-12 = jednorázové úkony s specific_date v daném roce
+  // (i ty s recurrence_pattern='yearly' patří do měsíce ze specific_date)
+  const byMonth = Array.from({ length: 13 }, () => []);
+  const recurring = []; // průběžné (frequency_days)
+  for (const t of tasks) {
+    if (t.specific_date) {
+      const d = new Date(t.specific_date);
+      if (!Number.isNaN(d.getTime())) {
+        const m = d.getMonth() + 1;
+        byMonth[m].push(t);
+      }
+    } else if (t.frequency_days) {
+      recurring.push(t);
+    }
+  }
+
+  const renderTask = (t) => {
+    const emoji = TASK_TYPE_EMOJI_PDF[t.task_type] || '📋';
+    const plant = t.plant_name || t.pin_name;
+    const notes = t.notes ? `<div class="task-notes">${htmlEscape(t.notes)}</div>` : '';
+    const dayMonth = t.specific_date ? new Date(t.specific_date).getDate() + '. ' : '';
+    return `<li class="task">
+      <span class="task-emoji">${emoji}</span>
+      <div class="task-body">
+        <div class="task-title"><strong>${htmlEscape(dayMonth + t.title)}</strong> · ${htmlEscape(plant)}</div>
+        ${notes}
+      </div>
+    </li>`;
+  };
+
+  const months = [];
+  for (let m = 1; m <= 12; m++) {
+    if (byMonth[m].length === 0) continue;
+    const items = byMonth[m].map(renderTask).join('\n');
+    months.push(`
+      <section class="month">
+        <h2 class="month-title">${MONTH_NAMES_CZ[m]}</h2>
+        <ul class="task-list">${items}</ul>
+      </section>
+    `);
+  }
+
+  const recurringHtml = recurring.length > 0
+    ? `<section class="month recurring">
+        <h2 class="month-title">Průběžné úkony</h2>
+        <ul class="task-list">
+          ${recurring.map((t) => {
+            const emoji = TASK_TYPE_EMOJI_PDF[t.task_type] || '📋';
+            const plant = t.plant_name || t.pin_name;
+            const freq = t.frequency_days ? `každých ${t.frequency_days} dní` : '';
+            return `<li class="task">
+              <span class="task-emoji">${emoji}</span>
+              <div class="task-body">
+                <div class="task-title"><strong>${htmlEscape(t.title)}</strong> · ${htmlEscape(plant)}</div>
+                <div class="task-notes">${htmlEscape(freq)}</div>
+              </div>
+            </li>`;
+          }).join('\n')}
+        </ul>
+      </section>`
+    : '';
+
+  const conditions = [];
+  if (garden.soil_type) conditions.push(`Půda: ${htmlEscape(garden.soil_type)}`);
+  if (garden.exposure) {
+    const expMap = { N: 'sever', S: 'jih', E: 'východ', W: 'západ', mixed: 'smíšená' };
+    conditions.push(`Expozice: ${htmlEscape(expMap[garden.exposure] || garden.exposure)}`);
+  }
+  if (garden.altitude_m) conditions.push(`Nadm. výška: ${garden.altitude_m} m`);
+  const conditionsHtml = conditions.length > 0
+    ? `<div class="conditions">${conditions.join(' · ')}</div>`
+    : '';
+
+  const empty = months.length === 0 && recurring.length === 0
+    ? '<p class="empty-state">V této zahradě zatím nejsou žádné úkony. Přidejte úkoly k jednotlivým rostlinám.</p>'
+    : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sezónní plán — ${htmlEscape(garden.name)} ${year}</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #2d2d33;
+    background: #f5f0e8;
+    margin: 0;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .page { max-width: 800px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  header { border-bottom: 2px solid #4a7c3a; padding-bottom: 16px; margin-bottom: 24px; }
+  h1 { margin: 0 0 4px; font-size: 1.8rem; color: #2d5a27; }
+  .subtitle { color: #6b6b70; font-size: 0.95rem; }
+  .conditions { margin-top: 8px; color: #6b6b70; font-size: 0.85rem; }
+  .meta { margin-top: 12px; font-size: 0.85rem; color: #6b6b70; }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .toolbar button {
+    background: #4a7c3a;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .toolbar button.ghost {
+    background: #fff;
+    color: #2d5a27;
+    border: 1px solid #4a7c3a;
+  }
+  .month { margin-bottom: 28px; page-break-inside: avoid; break-inside: avoid; }
+  .month-title {
+    font-size: 1.25rem;
+    color: #2d5a27;
+    margin: 0 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e8e4dc;
+  }
+  .task-list { list-style: none; padding: 0; margin: 0; }
+  .task {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e8e4dc;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .task:last-child { border-bottom: none; }
+  .task-emoji { font-size: 1.1rem; flex-shrink: 0; }
+  .task-body { flex: 1; min-width: 0; }
+  .task-title { font-size: 0.95rem; }
+  .task-notes { font-size: 0.85rem; color: #6b6b70; margin-top: 2px; }
+  .recurring .month-title { color: #8b6f47; }
+  .empty-state {
+    text-align: center;
+    color: #6b6b70;
+    padding: 40px 20px;
+    font-style: italic;
+  }
+  footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #e8e4dc;
+    font-size: 0.75rem;
+    color: #9b9ba0;
+    text-align: center;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; padding: 20px; border-radius: 0; max-width: none; }
+    .toolbar { display: none !important; }
+    .month { page-break-inside: avoid; }
+    .task { page-break-inside: avoid; }
+    h1 { font-size: 1.5rem; }
+    @page { size: A4; margin: 18mm; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="toolbar">
+      <button onclick="window.print()">🖨️ Tisk / Uložit PDF</button>
+      <button class="ghost" onclick="window.close()">Zavřít</button>
+    </div>
+    <header>
+      <h1>🌿 Sezónní plán — ${htmlEscape(garden.name)}</h1>
+      <div class="subtitle">Rok ${year} · ${pins.length} ${pins.length === 1 ? 'místo' : (pins.length < 5 ? 'místa' : 'míst')} · ${tasks.length} ${tasks.length === 1 ? 'úkol' : (tasks.length < 5 ? 'úkoly' : 'úkolů')}</div>
+      ${conditionsHtml}
+    </header>
+    ${months.join('\n')}
+    ${recurringHtml}
+    ${empty}
+    <footer>Vytištěno z GardenPin · ${new Date().toLocaleDateString('cs-CZ')}</footer>
+  </div>
+  <script>
+    // Auto-otevři tiskový dialog jen pokud je v URL ?print=1
+    if (new URLSearchParams(location.search).get('print') === '1') {
+      setTimeout(() => window.print(), 400);
+    }
+  </script>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(html);
+});
+
 // ======================= EXPORT =======================
 // Helper: escape value for CSV (RFC 4180)
 function csvCell(v) {
