@@ -40,3 +40,9 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 - [x] Souhrnný přehled přes všechny zahrady — "co dělat tento týden" — hotovo 2026-05-23
 
 - [x] Globální vyhledávání — najdi rostlinu, zahradu nebo pin napříč všemi zahradami — hotovo 2026-05-23
+
+- [x] Šablony zahrad — předpřipravené sady rostlin a sezónních úkonů podle typu zahrady (zeleninová / okrasná / ovocná / bylinková) — hotovo 2026-05-23
+
+- [ ] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí
+
+- [ ] Onboarding průvodce — první spuštění provede uživatele založením první zahrady a rostliny

@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import NewGardenModal from '../components/NewGardenModal.jsx';
+import TemplateGardenModal from '../components/TemplateGardenModal.jsx';
 import { toast } from '../App.jsx';
 
 export default function GardensPage() {
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const nav = useNavigate();
 
@@ -54,9 +56,14 @@ export default function GardensPage() {
                 : `${gardens.length} ${gardens.length < 5 ? 'zahrady' : 'zahrad'}`}
             </div>
           </div>
-          <button className="btn" onClick={() => setShowNew(true)}>
-            + Nová
-          </button>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn ghost" onClick={() => setShowTemplate(true)} title="Vytvořit ze šablony">
+              🌱 Šablona
+            </button>
+            <button className="btn" onClick={() => setShowNew(true)}>
+              + Nová
+            </button>
+          </div>
         </div>
         {gardens.length > 0 && (
           <div className="gardens-hero-stats">
@@ -83,11 +90,16 @@ export default function GardensPage() {
           <div className="icon">🌻</div>
           <div style={{ fontWeight: 700, marginBottom: 6 }}>Zatím žádná zahrada</div>
           <div className="small muted" style={{ marginBottom: 14 }}>
-            Přidejte fotografii z leteckého pohledu a začněte mapovat.
+            Přidejte fotografii z leteckého pohledu nebo začněte ze šablony.
           </div>
-          <button className="btn" onClick={() => setShowNew(true)}>
-            + Vytvořit první zahradu
-          </button>
+          <div className="row" style={{ justifyContent: 'center', gap: 8 }}>
+            <button className="btn ghost" onClick={() => setShowTemplate(true)}>
+              🌱 Šablona
+            </button>
+            <button className="btn" onClick={() => setShowNew(true)}>
+              + Vytvořit zahradu
+            </button>
+          </div>
         </div>
       ) : (
         <div className="gardens-grid">
@@ -108,6 +120,16 @@ export default function GardensPage() {
           onCreated={(g) => {
             setShowNew(false);
             toast('✅ Zahrada vytvořena');
+            nav(`/zahrada/${g.id}`);
+          }}
+        />
+      )}
+
+      {showTemplate && (
+        <TemplateGardenModal
+          onClose={() => setShowTemplate(false)}
+          onCreated={(g) => {
+            setShowTemplate(false);
             nav(`/zahrada/${g.id}`);
           }}
         />
