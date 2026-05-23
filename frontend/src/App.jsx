@@ -11,6 +11,7 @@ import WeekOverviewPage from './pages/WeekOverviewPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
+import SearchOverlay from './components/SearchOverlay.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -23,8 +24,22 @@ export function toast(message) {
 export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const isSharedView = location.pathname.startsWith('/share/');
+
+  // Globální shortcut: Cmd/Ctrl+K otevře vyhledávání
+  useEffect(() => {
+    if (isSharedView) return;
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isSharedView]);
 
   toastHandler = (m) => {
     setToastMsg(m);
@@ -94,8 +109,19 @@ export default function App() {
           <span className="leaf">📍</span>
           GardenPin
         </h1>
-        <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
-          {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+        <div className="topbar-actions">
+          <button
+            type="button"
+            className="topbar-search-btn"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Vyhledávání"
+            title="Vyhledávání (Ctrl+K)"
+          >
+            🔍
+          </button>
+          <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
+            {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+          </div>
         </div>
       </header>
 
@@ -147,6 +173,7 @@ export default function App() {
       </nav>
 
       {toastMsg && <Toast message={toastMsg} />}
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </div>
   );
 }

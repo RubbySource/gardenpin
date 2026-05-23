@@ -38,3 +38,5 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 - [x] Záznam sklizně a výnosů — co sklidil, kolik, datum — hotovo 2026-05-23
 
 - [x] Souhrnný přehled přes všechny zahrady — "co dělat tento týden" — hotovo 2026-05-23
+
+- [x] Globální vyhledávání — najdi rostlinu, zahradu nebo pin napříč všemi zahradami — hotovo 2026-05-23

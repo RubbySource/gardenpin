@@ -105,6 +105,9 @@ export const api = {
     }),
   deleteHarvest: (id) => jsonFetch(`/api/harvests/${id}`, { method: 'DELETE' }),
 
+  // Search
+  search: (q) => jsonFetch(`/api/search?q=${encodeURIComponent(q)}`),
+
   // Stats
   stats: () => jsonFetch('/api/stats'),
   seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),

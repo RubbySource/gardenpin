@@ -595,6 +595,52 @@ app.get('/api/tasks/week', (req, res) => {
   res.json({ start: startStr, end: endStr, tasks: rows });
 });
 
+// Globální vyhledávání — zahrady + piny + rostliny, diakritika-insensitive
+function stripDia(s) {
+  return (s || '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+}
+
+app.get('/api/search', (req, res) => {
+  const raw = (req.query.q || '').toString().trim();
+  if (raw.length < 1) return res.json({ gardens: [], pins: [] });
+  const needle = stripDia(raw);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const allGardens = db
+    .prepare(
+      `SELECT g.*,
+        (SELECT COUNT(*) FROM pins WHERE garden_id = g.id) AS pin_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id AND t.next_due <= ?) AS urgent_count
+       FROM gardens g`,
+    )
+    .all(today);
+  const gardens = allGardens.filter((g) => stripDia(g.name).includes(needle));
+
+  const allPins = db
+    .prepare(
+      `SELECT p.*, g.name AS garden_name
+       FROM pins p
+       JOIN gardens g ON g.id = p.garden_id`,
+    )
+    .all();
+  const pins = allPins.filter((p) =>
+    stripDia(p.name).includes(needle) ||
+    stripDia(p.plant_name).includes(needle) ||
+    stripDia(p.notes).includes(needle),
+  );
+
+  res.json({
+    query: raw,
+    gardens: gardens.slice(0, 12),
+    pins: pins.slice(0, 30),
+    total: gardens.length + pins.length,
+  });
+});
+
 // Souhrnný přehled — všechny úkony přes všechny zahrady, defaultně 14 dní dopředu (+overdue)
 app.get('/api/tasks/overview', (req, res) => {
   const days = Math.max(1, Math.min(60, parseInt(req.query.days, 10) || 14));
