@@ -153,6 +153,27 @@ export const api = {
         url: '/',
       }),
     }),
+
+  // Email připomínky (týdenní digest)
+  getEmailSettings: () => jsonFetch('/api/email-settings'),
+  saveEmailSettings: (data) =>
+    jsonFetch('/api/email-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  sendEmailTest: (addr) =>
+    jsonFetch('/api/email-settings/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: addr || undefined }),
+    }),
+  sendEmailDigest: (addr) =>
+    jsonFetch('/api/email-settings/send-digest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: addr || undefined }),
+    }),
 };
 
 async function handle(res) {

@@ -26,12 +26,69 @@ export default function SettingsPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const pushSupported = isPushSupported();
 
+  // Email připomínky — týdenní digest
+  const [emailAddr, setEmailAddr] = useState('');
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [emailConfigured, setEmailConfigured] = useState(true);
+  const [emailBusy, setEmailBusy] = useState(false);
+  const [emailDirty, setEmailDirty] = useState(false);
+
   useEffect(() => {
     api.stats().then(setStats).catch(() => {});
     if (pushSupported) {
       getCurrentSubscription().then((s) => setPushSubscribed(!!s)).catch(() => {});
     }
+    api.getEmailSettings().then((s) => {
+      setEmailAddr(s.email || '');
+      setEmailEnabled(!!s.enabled);
+      setEmailConfigured(s.configured !== false);
+    }).catch(() => {});
   }, [pushSupported]);
+
+  const saveEmailSettings = async (overrides = {}) => {
+    setEmailBusy(true);
+    try {
+      const payload = {
+        email: overrides.email !== undefined ? overrides.email : emailAddr,
+        enabled: overrides.enabled !== undefined ? overrides.enabled : emailEnabled,
+      };
+      const r = await api.saveEmailSettings(payload);
+      setEmailAddr(r.email || '');
+      setEmailEnabled(!!r.enabled);
+      setEmailDirty(false);
+      toast('✅ Nastavení uloženo');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setEmailBusy(false);
+    }
+  };
+
+  const toggleEmailEnabled = async () => {
+    const next = !emailEnabled;
+    if (next && !emailAddr.trim()) {
+      toast('Nejdřív zadej emailovou adresu');
+      return;
+    }
+    setEmailEnabled(next);
+    await saveEmailSettings({ enabled: next });
+  };
+
+  const handleTestEmail = async () => {
+    if (!emailAddr.trim()) {
+      toast('Nejdřív zadej emailovou adresu');
+      return;
+    }
+    setEmailBusy(true);
+    try {
+      await api.sendEmailTest(emailAddr.trim());
+      toast('📧 Testovací email odeslán');
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
   const enablePush = async () => {
     setPushBusy(true);
@@ -187,6 +244,93 @@ export default function SettingsPage() {
             {pushBusy ? '…' : '📲 Přihlásit push notifikace'}
           </button>
         )}
+      </div>
+
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>📧 Email připomínky</h3>
+        <p className="small muted">
+          Každé pondělí ráno (8:00) dostaneš email s přehledem úkolů, které tě tento týden
+          čekají v zahradě. Opt-in — výchozí stav je vypnuto.
+        </p>
+        {!emailConfigured && (
+          <div
+            className="small"
+            style={{
+              background: 'var(--warn-bg, #fff4e0)',
+              color: 'var(--warn-fg, #8b4a00)',
+              padding: '10px 12px',
+              borderRadius: 8,
+              marginBottom: 12,
+            }}
+          >
+            ⚠️ SMTP server zatím nemá nastavené přihlašovací údaje
+            (<code>GMAIL_FROM</code> a <code>GMAIL_APP_PASSWORD</code> v <code>backend/.env</code>).
+            Adresu si můžeš zatím uložit, ale emaily se nebudou odesílat.
+          </div>
+        )}
+
+        <div className="field" style={{ marginBottom: 12 }}>
+          <label className="small" style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+            Tvoje emailová adresa
+          </label>
+          <input
+            type="text"
+            inputMode="email"
+            value={emailAddr}
+            onChange={(e) => {
+              setEmailAddr(e.target.value);
+              setEmailDirty(true);
+            }}
+            placeholder="ty@example.cz"
+            autoComplete="email"
+          />
+        </div>
+
+        <div
+          className="theme-toggle-row"
+          style={{ marginBottom: 12 }}
+        >
+          <div className="theme-toggle-info">
+            <div className="theme-toggle-title">
+              {emailEnabled ? '✅' : '⏸️'} Týdenní digest
+            </div>
+            <div className="theme-toggle-sub">
+              {emailEnabled
+                ? 'Emaily jsou zapnuté — pondělí 8:00'
+                : 'Pondělní email s úkoly na týden'}
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={emailEnabled}
+            aria-label="Přepnout týdenní email"
+            className={`ios-switch ${emailEnabled ? 'on' : ''}`}
+            onClick={toggleEmailEnabled}
+            disabled={emailBusy}
+          >
+            <span className="ios-switch-knob" />
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {emailDirty && (
+            <button
+              className="btn"
+              onClick={() => saveEmailSettings()}
+              disabled={emailBusy}
+            >
+              {emailBusy ? '…' : 'Uložit email'}
+            </button>
+          )}
+          <button
+            className="btn secondary"
+            onClick={handleTestEmail}
+            disabled={emailBusy || !emailAddr.trim()}
+          >
+            {emailBusy ? '…' : '📨 Odeslat testovací email'}
+          </button>
+        </div>
       </div>
 
       <div className="card">

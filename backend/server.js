@@ -20,6 +20,13 @@ try { push = require('./push'); } catch (e) {
   push = null;
 }
 
+// Email připomínky — optional (pokud nodemailer není nainstalován, email se vypne)
+let email;
+try { email = require('./email'); } catch (e) {
+  console.warn('Email modul není dostupný:', e.message);
+  email = null;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -1219,6 +1226,76 @@ app.post('/api/push/send', async (req, res) => {
   }
 });
 
+// ======================= EMAIL PŘIPOMÍNKY =======================
+// Jednoduchý in-memory regex pro validaci. Striktní RFC validátor by byl overkill.
+function isValidEmail(s) {
+  return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+}
+
+app.get('/api/email-settings', (req, res) => {
+  const row = db.prepare('SELECT email, enabled FROM email_settings WHERE user_id = ?').get(1);
+  res.json({
+    email: row?.email || '',
+    enabled: !!row?.enabled,
+    configured: email ? email.isConfigured() : false,
+  });
+});
+
+app.post('/api/email-settings', (req, res) => {
+  const { email: addr, enabled } = req.body || {};
+  const cleanEmail = addr ? String(addr).trim().slice(0, 200) : null;
+  const cleanEnabled = enabled ? 1 : 0;
+  if (cleanEnabled && !cleanEmail) {
+    return res.status(400).json({ error: 'Pro zapnutí připomínek je potřeba zadat email' });
+  }
+  if (cleanEmail && !isValidEmail(cleanEmail)) {
+    return res.status(400).json({ error: 'Neplatný formát emailu' });
+  }
+  db.prepare(
+    `INSERT INTO email_settings (user_id, email, enabled, updated_at) VALUES (1, ?, ?, datetime('now'))
+     ON CONFLICT(user_id) DO UPDATE SET email=excluded.email, enabled=excluded.enabled, updated_at=datetime('now')`,
+  ).run(cleanEmail, cleanEnabled);
+  const row = db.prepare('SELECT email, enabled FROM email_settings WHERE user_id = ?').get(1);
+  res.json({ email: row?.email || '', enabled: !!row?.enabled });
+});
+
+app.post('/api/email-settings/test', async (req, res) => {
+  if (!email) return res.status(503).json({ error: 'Email modul není dostupný' });
+  if (!email.isConfigured()) {
+    return res.status(503).json({ error: 'Email server není nakonfigurovaný — chybí GMAIL_FROM nebo GMAIL_APP_PASSWORD v .env' });
+  }
+  const addr = (req.body?.email || '').trim()
+    || db.prepare('SELECT email FROM email_settings WHERE user_id = 1').get()?.email;
+  if (!addr) return res.status(400).json({ error: 'Není zadán email' });
+  if (!isValidEmail(addr)) return res.status(400).json({ error: 'Neplatný formát emailu' });
+  try {
+    await email.sendTestEmail(addr);
+    res.json({ ok: true, sent_to: addr });
+  } catch (e) {
+    console.error('[email] test send error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Ruční odeslání týdenního digestu (užitečné pro test / debug)
+app.post('/api/email-settings/send-digest', async (req, res) => {
+  if (!email) return res.status(503).json({ error: 'Email modul není dostupný' });
+  if (!email.isConfigured()) {
+    return res.status(503).json({ error: 'Email server není nakonfigurovaný' });
+  }
+  const addr = (req.body?.email || '').trim()
+    || db.prepare('SELECT email FROM email_settings WHERE user_id = 1').get()?.email;
+  if (!addr) return res.status(400).json({ error: 'Není zadán email' });
+  if (!isValidEmail(addr)) return res.status(400).json({ error: 'Neplatný formát emailu' });
+  try {
+    const r = await email.sendWeeklyDigest(addr);
+    res.json({ ok: true, sent_to: addr, ...r });
+  } catch (e) {
+    console.error('[email] digest send error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ======================= WEATHER =======================
 // Citlivé rostliny — substring match na plant_name (lower-cased, bez diakritiky)
 const SENSITIVE_PLANT_KEYWORDS = [
@@ -1719,4 +1796,9 @@ app.use((err, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Zahradní tracker běží na portu ${PORT}`);
   if (push) push.startDailyCron();
+  if (email && email.isConfigured()) {
+    email.startWeeklyCron();
+  } else if (email) {
+    console.log('[email] Modul načten, ale GMAIL_FROM/GMAIL_APP_PASSWORD chybí — cron neaktivní.');
+  }
 });

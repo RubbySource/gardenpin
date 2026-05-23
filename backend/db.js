@@ -134,12 +134,28 @@ db.exec(`
     total_completed INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT DEFAULT (datetime('now'))
   );
+
+  -- Email připomínky — MVP single-user (user_id=1, jeden řádek)
+  CREATE TABLE IF NOT EXISTS email_settings (
+    user_id INTEGER PRIMARY KEY,
+    email TEXT,
+    enabled INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Inicializace user_stats — jeden řádek pro výchozího uživatele (id=1)
 try {
   db.prepare(
     'INSERT OR IGNORE INTO user_stats (user_id, current_streak, longest_streak, total_completed) VALUES (1, 0, 0, 0)',
+  ).run();
+} catch {}
+
+// Inicializace email_settings — výchozí prázdný / vypnutý řádek pro user_id=1
+try {
+  db.prepare(
+    'INSERT OR IGNORE INTO email_settings (user_id, email, enabled) VALUES (1, NULL, 0)',
   ).run();
 } catch {}
 
