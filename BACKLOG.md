@@ -33,12 +33,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Export sezónního plánu jako PDF — tisk co dělat tento rok měsíc po měsíci — hotovo 2026-05-23
 
-- [~] Pěstební podmínky zahrady — typ půdy, expozice, nadmořská výška
-  Scope:
-  - Pole v tabulce gardens: soil_type (TEXT), exposure (N/S/E/W/mixed), altitude_m (INT)
-  - Editovatelné v nastavení zahrady
-  - Ovlivňuje doporučené termíny úkonů (posunutí o ±2 týdny podle expozice/nadmořšky)
-  - Zobrazení podmínek na přehledové stránce zahrady
+- [x] Pěstební podmínky zahrady — typ půdy, expozice, nadmořská výška — hotovo 2026-05-23
 
 - [ ] Záznam sklizně a výnosů — co sklidil, kolik, datum
   Scope:

@@ -17,20 +17,41 @@ const PRIORITY_META = {
   low:    { label: 'Doplňkové', color: '#6b6b70', bg: 'rgba(107,107,112,0.10)' },
 };
 
-function dateForMonth(month) {
-  const now = new Date();
-  const year = month >= (now.getMonth() + 1) ? now.getFullYear() : now.getFullYear() + 1;
-  return `${year}-${String(month).padStart(2, '0')}-15`;
+// Posun termínů úkonů podle pěstebních podmínek zahrady.
+// Severní expozice / vysoká nadm. výška → chladnější mikroklima → pozdější termíny.
+// Jižní expozice / nížina → teplejší → dřívější termíny.
+// Vrací celé dny (kladné = oddálit, záporné = uspíšit). Max ±14 dní.
+function getConditionShiftDays(conditions) {
+  if (!conditions) return 0;
+  let shift = 0;
+  if (conditions.exposure === 'N') shift += 14;
+  if (conditions.exposure === 'S') shift -= 7;
+  // Nadm. výška: nad 600 m = horské oblasti (pozdější jaro), pod 200 m = nížiny
+  if (typeof conditions.altitude_m === 'number') {
+    if (conditions.altitude_m >= 600) shift += 14;
+    else if (conditions.altitude_m >= 400) shift += 7;
+    else if (conditions.altitude_m <= 200) shift -= 7;
+  }
+  return Math.max(-14, Math.min(14, shift));
 }
 
-function isTaskAlreadyAdded(action, month, existingTasks) {
-  const date = dateForMonth(month);
+function dateForMonth(month, conditions) {
+  const now = new Date();
+  const year = month >= (now.getMonth() + 1) ? now.getFullYear() : now.getFullYear() + 1;
+  // Začni 15. dne měsíce, posuň podle podmínek (±dny)
+  const d = new Date(year, month - 1, 15);
+  d.setDate(d.getDate() + getConditionShiftDays(conditions));
+  return d.toISOString().slice(0, 10);
+}
+
+function isTaskAlreadyAdded(action, month, existingTasks, conditions) {
+  const date = dateForMonth(month, conditions);
   return existingTasks.some(
     (t) => t.specific_date === date && (t.title === action || t.title.endsWith(action)),
   );
 }
 
-export default function RecommendedTasks({ plantName, pinId, existingTasks, onTaskAdded }) {
+export default function RecommendedTasks({ plantName, pinId, existingTasks, gardenConditions, onTaskAdded }) {
   const plant = useMemo(() => findPlantByName(plantName), [plantName]);
   const [adding, setAdding] = useState({});
   const [added, setAdded] = useState({});
@@ -41,8 +62,9 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, onTa
 
   const tasks = plant.seasonalTasks;
   const monthNow = new Date().getMonth() + 1;
+  const shiftDays = getConditionShiftDays(gardenConditions);
   const remaining = tasks.filter(
-    (t) => !isTaskAlreadyAdded(t.action, t.month, existingTasks) && !added[`${t.month}-${t.action}`],
+    (t) => !isTaskAlreadyAdded(t.action, t.month, existingTasks, gardenConditions) && !added[`${t.month}-${t.action}`],
   );
 
   const addTask = async (task) => {
@@ -54,7 +76,7 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, onTa
         title: `${task.emoji} ${task.action}`,
         task_type: 'jine',
         frequency_days: null,
-        specific_date: dateForMonth(task.month),
+        specific_date: dateForMonth(task.month, gardenConditions),
         notes: `Doporučený úkon (${MONTH_NAMES_CZ[task.month]})`,
       });
       setAdded((s) => ({ ...s, [key]: true }));
@@ -77,7 +99,7 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, onTa
           title: `${task.emoji} ${task.action}`,
           task_type: 'jine',
           frequency_days: null,
-          specific_date: dateForMonth(task.month),
+          specific_date: dateForMonth(task.month, gardenConditions),
           notes: `Doporučený úkon (${MONTH_NAMES_CZ[task.month]})`,
         }),
       ));
@@ -116,6 +138,20 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, onTa
 
       {!collapsed && (
         <>
+          {shiftDays !== 0 && (
+            <div
+              className="small muted mb-2"
+              style={{
+                padding: '6px 10px',
+                background: 'rgba(74,124,58,0.08)',
+                borderRadius: 8,
+              }}
+            >
+              {shiftDays > 0
+                ? `🌡️ Chladnější mikroklima zahrady — termíny posunuty o +${shiftDays} dní`
+                : `🌡️ Teplejší mikroklima zahrady — termíny posunuty o ${shiftDays} dní`}
+            </div>
+          )}
           {remaining.length > 1 && (
             <button
               className="btn ghost small block mb-2"
@@ -131,7 +167,7 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, onTa
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {tasks.map((task, i) => {
               const key = `${task.month}-${task.action}`;
-              const isAdded = isTaskAlreadyAdded(task.action, task.month, existingTasks) || added[key];
+              const isAdded = isTaskAlreadyAdded(task.action, task.month, existingTasks, gardenConditions) || added[key];
               const isAdding = adding[key];
               const isPast = task.month < monthNow;
               const prio = PRIORITY_META[task.priority] || PRIORITY_META.medium;

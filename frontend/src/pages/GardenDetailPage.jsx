@@ -275,6 +275,7 @@ export default function GardenDetailPage() {
           <h2 className="section-title" style={{ margin: '4px 0 0' }}>
             🗺️ {garden.name}
           </h2>
+          <GardenConditionsLine garden={garden} />
         </div>
         <div className="row" style={{ gap: 6 }}>
           <button
@@ -1084,8 +1085,32 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
   );
 }
 
+const EXPOSURE_LABELS = {
+  N: '⬆️ sever',
+  S: '⬇️ jih',
+  E: '➡️ východ',
+  W: '⬅️ západ',
+  mixed: '🧭 smíšená',
+};
+
+function GardenConditionsLine({ garden }) {
+  const parts = [];
+  if (garden.soil_type) parts.push(`🪴 ${garden.soil_type}`);
+  if (garden.exposure && EXPOSURE_LABELS[garden.exposure]) parts.push(EXPOSURE_LABELS[garden.exposure]);
+  if (garden.altitude_m) parts.push(`⛰️ ${garden.altitude_m} m`);
+  if (parts.length === 0) return null;
+  return (
+    <div className="small muted" style={{ marginTop: 4 }}>
+      {parts.join(' · ')}
+    </div>
+  );
+}
+
 function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uploading }) {
   const [name, setName] = useState(garden.name);
+  const [soilType, setSoilType] = useState(garden.soil_type || '');
+  const [exposure, setExposure] = useState(garden.exposure || '');
+  const [altitudeM, setAltitudeM] = useState(garden.altitude_m ?? '');
   const [saving, setSaving] = useState(false);
 
   const save = async (e) => {
@@ -1094,6 +1119,9 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
     try {
       const fd = new FormData();
       fd.append('name', name);
+      fd.append('soil_type', soilType.trim());
+      fd.append('exposure', exposure);
+      fd.append('altitude_m', altitudeM === '' ? '' : String(altitudeM));
       const g = await api.updateGarden(garden.id, fd);
       onSaved(g);
     } catch (err) {
@@ -1110,6 +1138,50 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
           <label>Název</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
+
+        <div className="field">
+          <label>🌍 Pěstební podmínky</label>
+          <div className="small muted mb-2">
+            Ovlivňují doporučené termíny úkonů (chladná/teplá poloha posune kalendář).
+          </div>
+        </div>
+
+        <div className="field">
+          <label>Typ půdy</label>
+          <input
+            type="text"
+            value={soilType}
+            placeholder="např. hlinitá, písčitá, jílovitá…"
+            onChange={(e) => setSoilType(e.target.value)}
+            maxLength={80}
+          />
+        </div>
+
+        <div className="field">
+          <label>Expozice (orientace)</label>
+          <select value={exposure} onChange={(e) => setExposure(e.target.value)}>
+            <option value="">— neuvedeno —</option>
+            <option value="N">⬆️ Sever</option>
+            <option value="S">⬇️ Jih</option>
+            <option value="E">➡️ Východ</option>
+            <option value="W">⬅️ Západ</option>
+            <option value="mixed">🧭 Smíšená</option>
+          </select>
+        </div>
+
+        <div className="field">
+          <label>Nadmořská výška (m)</label>
+          <input
+            type="number"
+            min="0"
+            max="3000"
+            step="10"
+            value={altitudeM}
+            placeholder="např. 350"
+            onChange={(e) => setAltitudeM(e.target.value === '' ? '' : Number(e.target.value))}
+          />
+        </div>
+
         <div className="field">
           <label>Nahrát novou mapu</label>
           <label className="btn secondary block">

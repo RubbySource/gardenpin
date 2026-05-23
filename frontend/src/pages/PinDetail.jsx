@@ -138,6 +138,7 @@ export default function PinDetail({ pinId, onClose }) {
             plantName={pin.plant_name}
             pinId={pin.id}
             existingTasks={pin.tasks}
+            gardenConditions={pin.garden_conditions}
             onTaskAdded={load}
           />
           <div className="row mt-3">

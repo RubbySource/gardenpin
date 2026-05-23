@@ -119,12 +119,28 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
   }
   const w = req.body.width ? parseInt(req.body.width, 10) : current.image_width;
   const h = req.body.height ? parseInt(req.body.height, 10) : current.image_height;
-  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=? WHERE id=?').run(
+
+  // Pěstební podmínky — všechna pole volitelná, prázdný string → NULL
+  const soil_type = req.body.soil_type !== undefined
+    ? (req.body.soil_type ? String(req.body.soil_type).slice(0, 80) : null)
+    : current.soil_type;
+  const VALID_EXPOSURE = ['N', 'S', 'E', 'W', 'mixed'];
+  const exposure = req.body.exposure !== undefined
+    ? (VALID_EXPOSURE.includes(req.body.exposure) ? req.body.exposure : null)
+    : current.exposure;
+  const altitude_m = req.body.altitude_m !== undefined
+    ? (req.body.altitude_m === '' || req.body.altitude_m === null ? null : parseInt(req.body.altitude_m, 10) || null)
+    : current.altitude_m;
+
+  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=? WHERE id=?').run(
     name,
     imagePath,
     w,
     h,
     rotation,
+    soil_type,
+    exposure,
+    altitude_m,
     id,
   );
   const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
@@ -253,7 +269,13 @@ app.get('/api/pins/:id', (req, res) => {
   const history = db
     .prepare('SELECT * FROM care_history WHERE pin_id = ? ORDER BY done_at DESC LIMIT 50')
     .all(pin.id);
-  res.json({ ...pin, tasks, history });
+  const garden = db.prepare('SELECT soil_type, exposure, altitude_m FROM gardens WHERE id = ?').get(pin.garden_id);
+  res.json({
+    ...pin,
+    tasks,
+    history,
+    garden_conditions: garden || null,
+  });
 });
 
 app.post('/api/pins', upload.single('photo'), (req, res) => {
