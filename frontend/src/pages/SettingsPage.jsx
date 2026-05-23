@@ -11,6 +11,7 @@ import {
 } from '../push.js';
 import PremiumBadge from '../components/PremiumBadge.jsx';
 import OnboardingTour, { resetOnboarding } from '../components/OnboardingTour.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 export default function SettingsPage() {
   const [notifStatus, setNotifStatus] = useState(
@@ -98,6 +99,10 @@ export default function SettingsPage() {
       <h2 className="section-title">⚙️ Nastavení</h2>
 
       <PremiumBadge />
+
+      <div className="card">
+        <ThemeToggle />
+      </div>
 
       <div className="card">
         <h3 style={{ marginTop: 0 }}>🔔 Notifikace</h3>

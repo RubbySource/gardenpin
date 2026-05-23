@@ -37,7 +37,104 @@
   --primary: var(--forest);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Semantic theme aliases — overridden in [data-theme="dark"] */
+  --bg-primary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-surface: #f5f0e8;
+  --text-primary: #1c1c1e;
+  --text-secondary: #6b6b70;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Dark theme — applied via <html data-theme="dark">.
+   Overrides the canonical variable layer so all existing
+   classes flip palette automatically.
+   ───────────────────────────────────────────────────────────── */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --forest: #6cb05e;
+  --forest-deep: #8bcb7a;
+  --forest-soft: rgba(108, 176, 94, 0.18);
+  --sand: #1f2620;
+  --sand-deep: #2a322b;
+  --charcoal: #e8ece6;
+  --muted: #9ba59a;
+  --divider: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  --green-50: #1a2419;
+  --green-100: rgba(108, 176, 94, 0.16);
+  --green-200: rgba(108, 176, 94, 0.24);
+  --green-300: #8bcb7a;
+  --green-400: #7cb36a;
+  --green-500: #6cb05e;
+  --green-600: #5a9a4d;
+  --green-700: #6cb05e;
+  --green-800: #355d2c;
+  --green-900: #243f1c;
+  --bg: #0e120e;
+  --card: #181d18;
+  --sand-dark: #2f372f;
+  --text: #e8ece6;
+  --text-dim: #9ba59a;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --danger: #ef6b5d;
+  --warning: #e89a4c;
+  --success: #6cb05e;
+  --primary: #6cb05e;
+
+  --bg-primary: #0e120e;
+  --bg-card: #181d18;
+  --bg-surface: #1f2620;
+  --text-primary: #e8ece6;
+  --text-secondary: #9ba59a;
+}
+
+html[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+
+/* Topbar / bottom-nav over dark background — keep readable */
+html[data-theme="dark"] .topbar { background: var(--card); border-bottom-color: var(--divider); }
+html[data-theme="dark"] .bottom-nav { background: var(--card); border-top-color: var(--divider); }
+
+/* Inputs — keep them visually distinct from cards in dark */
+html[data-theme="dark"] .field input[type="text"],
+html[data-theme="dark"] .field input[type="date"],
+html[data-theme="dark"] .field input[type="number"],
+html[data-theme="dark"] .field input[type="color"],
+html[data-theme="dark"] .field select,
+html[data-theme="dark"] .field textarea {
+  background: var(--sand);
+  color: var(--charcoal);
+  border-color: var(--border-strong);
+}
+
+/* Search-modal & modals get card bg automatically via #fff→var(--card) sweep,
+   plus the search-overlay backdrop stays dark */
+html[data-theme="dark"] .search-overlay { background: rgba(0, 0, 0, 0.6); }
+
+/* Warning / today chips — soft-dark variants for legibility */
+html[data-theme="dark"] .gp-pill.warning { background: rgba(232, 154, 76, 0.18); color: #ffd9a6; border-color: rgba(232, 154, 76, 0.28); }
+html[data-theme="dark"] .gp-chip.today { background: rgba(232, 154, 76, 0.18); color: #ffd9a6; }
+html[data-theme="dark"] .gp-chip.overdue { background: rgba(239, 107, 93, 0.18); color: #ff9c92; }
+html[data-theme="dark"] .reminder-banner { background: rgba(232, 154, 76, 0.16); color: #ffd9a6; border-bottom-color: rgba(232, 154, 76, 0.30); }
+html[data-theme="dark"] .reminder-banner.overdue { background: rgba(239, 107, 93, 0.16); color: #ff9c92; border-bottom-color: rgba(239, 107, 93, 0.30); }
+
+/* Task swipe / completion states — keep visible on dark */
+html[data-theme="dark"] .gp-task.is-triggered { background: rgba(108, 176, 94, 0.22); }
+html[data-theme="dark"] .gp-task.is-done { background: var(--sand); opacity: 0.7; }
+
+/* Force task / pin / garden cards to use card bg (already swept) — also
+   knock down hard white selects (calendar-garden-select) using --card */
+html[data-theme="dark"] .calendar-garden-select { color: var(--charcoal); }
+
+/* Frost warning — readable on dark */
+html[data-theme="dark"] .frost-warning { background: linear-gradient(135deg, #1f3346, #16273a); border-color: #2e587e; color: #cfe4ff; }
+
+/* Tester URL box keeps its terminal look — already dark by default */
 
 * {
   box-sizing: border-box;
@@ -91,7 +188,7 @@ input, textarea, select {
 }
 
 .topbar {
-  background: #fff;
+  background: var(--card);
   color: var(--charcoal);
   padding: calc(12px + var(--safe-top)) 16px 12px;
   position: sticky;
@@ -132,7 +229,7 @@ input, textarea, select {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--card);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -331,7 +428,7 @@ input, textarea, select {
   padding: 12px 14px;
   border: 1.5px solid var(--border-strong);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
   color: var(--charcoal);
   width: 100%;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -527,7 +624,7 @@ input, textarea, select {
   border: 3px solid #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.35);
   object-fit: cover;
-  background: #fff;
+  background: var(--card);
   top: -22px;
   left: 22px;
   pointer-events: none;
@@ -645,7 +742,7 @@ input, textarea, select {
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal {
-  background: #fff;
+  background: var(--card);
   width: 100%;
   max-width: 600px;
   max-height: 92vh;
@@ -685,7 +782,7 @@ input, textarea, select {
   gap: 12px;
   align-items: center;
   padding: 14px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--divider);
   border-radius: 14px;
   margin-bottom: 8px;
@@ -720,7 +817,7 @@ input, textarea, select {
   gap: 12px;
   align-items: center;
   padding: 14px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--divider);
   border-radius: 16px;
   margin-bottom: 10px;
@@ -879,7 +976,7 @@ input, textarea, select {
   transition: background 0.15s, color 0.15s;
 }
 .tabs button.active {
-  background: #fff;
+  background: var(--card);
   color: var(--forest);
   font-weight: 700;
 }
@@ -1133,7 +1230,7 @@ input, textarea, select {
   display: flex;
   gap: 12px;
   align-items: center;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
@@ -1175,7 +1272,7 @@ input, textarea, select {
 
 /* Map frame — refined wrap around the existing map-container */
 .gp-map-frame {
-  background: #fff;
+  background: var(--card);
   border-radius: 20px;
   padding: 8px;
   border: 1px solid var(--border);
@@ -1305,7 +1402,7 @@ input, textarea, select {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px 14px;
@@ -1374,7 +1471,7 @@ input, textarea, select {
 .gp-chip.overdue { background: #ffe0db; color: var(--danger); border-color: transparent; }
 .gp-chip.today { background: #fff3cd; color: #805200; border-color: transparent; }
 .gp-chip.week { background: var(--primary); color: #fff; border-color: transparent; }
-.gp-chip.muted { color: var(--muted); background: #fff; }
+.gp-chip.muted { color: var(--muted); background: var(--card); }
 
 /* Welcome banner — forest gradient on home */
 .gp-welcome {
@@ -1438,7 +1535,7 @@ input, textarea, select {
   transition: all 0.15s;
 }
 .gp-tabs button.active {
-  background: #fff;
+  background: var(--card);
   color: var(--primary);
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
@@ -1510,7 +1607,7 @@ input, textarea, select {
   flex-shrink: 0;
 }
 .install-prompt-install {
-  background: #fff;
+  background: var(--card);
   color: var(--green-800);
   border: none;
   border-radius: 999px;
@@ -1604,7 +1701,7 @@ input, textarea, select {
 
 /* Improved stat cards */
 .stat-card-v2 {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px 12px;
@@ -1695,7 +1792,7 @@ input, textarea, select {
 .garden-card-v2 {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
@@ -2042,7 +2139,7 @@ input, textarea, select {
 .garden-card-v2 {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
@@ -2239,7 +2336,7 @@ input, textarea, select {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2px;
@@ -2260,7 +2357,7 @@ input, textarea, select {
 .calendar-garden-select {
   flex: 1;
   min-width: 160px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 8px 12px;
@@ -2381,7 +2478,7 @@ input, textarea, select {
   height: 32px;
   border-radius: 50%;
   border: 1.5px solid var(--primary);
-  background: #fff;
+  background: var(--card);
   color: var(--primary);
   font-size: 1rem;
   font-weight: 700;
@@ -2541,7 +2638,7 @@ input, textarea, select {
 }
 
 .garden-card-v3 {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
@@ -2784,7 +2881,7 @@ input, textarea, select {
   line-height: 1.4;
 }
 .filter-pill:not(.active) .pill-count {
-  background: #fff;
+  background: var(--card);
   color: var(--primary);
   border: 1px solid var(--border);
 }
@@ -2819,7 +2916,7 @@ input, textarea, select {
   gap: 12px;
   align-items: flex-start;
   padding: 14px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow);
@@ -2835,7 +2932,7 @@ input, textarea, select {
   height: 28px;
   border-radius: 50%;
   border: 2px solid var(--border);
-  background: #fff;
+  background: var(--card);
   flex-shrink: 0;
   cursor: pointer;
   font-size: 0.95rem;
@@ -3192,7 +3289,7 @@ input, textarea, select {
   gap: 14px;
 }
 .overview-section {
-  background: #fff;
+  background: var(--card);
   border-radius: 16px;
   border: 1px solid var(--sand-dark);
   overflow: hidden;
@@ -3326,7 +3423,7 @@ input, textarea, select {
 }
 .overview-chip-garden {
   cursor: pointer;
-  background: #fff;
+  background: var(--card);
   border-color: var(--sand-dark);
   font-family: inherit;
 }
@@ -3348,7 +3445,7 @@ input, textarea, select {
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--sand-dark);
   border-radius: 14px;
   text-align: left;
@@ -3430,7 +3527,7 @@ input, textarea, select {
 @keyframes searchFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .search-modal {
-  background: #fff;
+  background: var(--card);
   margin: 0 auto;
   width: 100%;
   max-width: 720px;
@@ -3460,7 +3557,7 @@ input, textarea, select {
   gap: 10px;
   padding: 14px 14px 12px;
   border-bottom: 1px solid var(--sand-dark);
-  background: #fff;
+  background: var(--card);
 }
 .search-icon { font-size: 1.05rem; opacity: 0.75; flex-shrink: 0; }
 .search-input {
@@ -3525,7 +3622,7 @@ input, textarea, select {
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  background: #fff;
+  background: var(--card);
   border: none;
   width: 100%;
   text-align: left;
@@ -3654,7 +3751,7 @@ input, textarea, select {
 }
 .catalog-search:focus {
   outline: none;
-  background: #fff;
+  background: var(--card);
   border-color: var(--forest);
 }
 .catalog-search-icon {
@@ -3700,7 +3797,7 @@ input, textarea, select {
 }
 
 .plant-catalog-card {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--divider);
   border-radius: 16px;
   overflow: hidden;
@@ -3984,7 +4081,7 @@ input, textarea, select {
   gap: 6px;
   padding: 12px 12px 10px;
   border: 1.5px solid rgba(0, 0, 0, 0.08);
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   cursor: pointer;
   text-align: left;
@@ -4028,7 +4125,7 @@ input, textarea, select {
   gap: 6px;
   padding: 6px 10px;
   border: 1.5px solid rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: var(--card);
   border-radius: 999px;
   cursor: pointer;
   font-size: 0.82rem;
@@ -4042,7 +4139,7 @@ input, textarea, select {
 .template-plant-chip.off {
   opacity: 0.45;
   text-decoration: line-through;
-  background: #f6f6f7;
+  background: var(--sand-deep);
 }
 .template-plant-x {
   font-size: 1rem;
@@ -4053,7 +4150,7 @@ input, textarea, select {
 .template-summary {
   margin-top: 12px;
   padding: 10px 12px;
-  background: #f6f6f7;
+  background: var(--sand-deep);
   border-radius: 10px;
 }
 
@@ -4079,7 +4176,7 @@ input, textarea, select {
 }
 .onboarding-card {
   position: relative;
-  background: #fff;
+  background: var(--card);
   width: 100%;
   max-width: 480px;
   max-height: 92vh;
@@ -4411,4 +4508,118 @@ input, textarea, select {
   font-weight: 600;
 }
 
+/* ===== iOS-style theme toggle (Settings) ===== */
+.theme-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.theme-toggle-info { flex: 1; min-width: 0; }
+.theme-toggle-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--charcoal);
+  margin-bottom: 2px;
+}
+.theme-toggle-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.ios-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--sand-dark);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-switch.on {
+  background: var(--forest);
+}
+.ios-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ios-switch.on .ios-switch-knob {
+  transform: translateX(20px);
+}
+.ios-switch:active .ios-switch-knob { width: 28px; }
+
+/* ===== Streak widget & confetti ===== */
+.streak-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+  color: #fff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(238, 9, 121, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+.streak-card.cold {
+  background: linear-gradient(135deg, #4a5560 0%, #2c3640 100%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+.streak-card.weekly {
+  background: linear-gradient(135deg, #f5a623 0%, #ff6a00 60%, #c4361b 100%);
+  box-shadow: 0 6px 18px rgba(245, 166, 35, 0.22);
+}
+.streak-icon {
+  font-size: 2.3rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  flex-shrink: 0;
+}
+.streak-body { flex: 1; min-width: 0; }
+.streak-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.streak-label {
+  font-size: 0.82rem;
+  opacity: 0.92;
+  margin-top: 2px;
+  font-weight: 500;
+}
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+  backdrop-filter: blur(4px);
+}
+
+html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55); }
+
+/* Confetti canvas — full-viewport overlay, non-interactive */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
 

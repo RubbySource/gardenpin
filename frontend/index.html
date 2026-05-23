@@ -8,6 +8,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Zahrada" />
     <title>Zahradní tracker</title>
+    <script>
+      // Bootstrap theme before render to avoid flash of light theme
+      (function () {
+        try {
+          var t = localStorage.getItem('gardenpin.theme');
+          if (t === 'dark' || t === 'light') {
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

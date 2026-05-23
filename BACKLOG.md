@@ -11,6 +11,12 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 ## Fronta
 
+- [x] Dark mode — přepínač světlý/tmavý v Nastavení, uložení do localStorage, iOS-style toggle. Všechny barvy přes CSS variables. — hotovo 2026-05-23
+
+- [ ] Streak a gamifikace — počítadlo "dní v řadě" kdy usis splnil aspoň 1 úkol, badge "Zahradník týdne/měsíce", animace konfety při splnění úkolu. Motivační prvky pro pravidelné používání.
+
+- [ ] Email připomínky — týdenní digest každé pondělí ráno: co tě čeká tento týden v zahradě. Nastavení emailu v Settings, odesílání přes vlastní SMTP nebo Nodemailer + Gmail. Opt-in, ne default.
+
 - [x] Počasí integrace — Open-Meteo API (3denní předpověď + mrazové varování) — hotovo 2026-05-22
 
 - [x] Sdílení zahrady — read-only link pro rodinu/přátele — hotovo 2026-05-22
@@ -45,4 +51,4 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí — hotovo 2026-05-23
 
-- [x] Onboarding průvodce — první spuštění provede uživatele založením první zahrady a rostliny — hotovo 2026-05-23
+- [x] Onboarding průvodce — první spušt
