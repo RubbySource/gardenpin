@@ -969,6 +969,127 @@ app.get('/api/stats/season', (req, res) => {
   });
 });
 
+// ======================= MEZIROČNÍ SROVNÁNÍ =======================
+// Porovnání splněných úkonů letos vs. minulý rok, volitelně pro konkrétní zahradu.
+// Vrací: měsíční pole pro oba roky, celkové součty, % změnu, a seznam loňských
+// úkonů které letos zatím nebyly splněné (do dnešního dne).
+app.get('/api/stats/yoy', (req, res) => {
+  const now = new Date();
+  const thisYear = parseInt(req.query.year, 10) || now.getFullYear();
+  const lastYear = thisYear - 1;
+  const gardenId = req.query.garden_id ? parseInt(req.query.garden_id, 10) : null;
+
+  const thisStart = `${thisYear}-01-01`;
+  const thisEnd = `${thisYear + 1}-01-01`;
+  const lastStart = `${lastYear}-01-01`;
+  const lastEnd = `${thisYear}-01-01`;
+  const today = now.toISOString().slice(0, 10);
+  // "Stejné období loni" — od začátku roku do MM-DD loni
+  const lastYearToDate = `${lastYear}-${today.slice(5)}`;
+
+  // Pro filtr přes zahradu spojíme přes pins.garden_id
+  const gardenJoin = gardenId
+    ? 'JOIN pins p ON p.id = h.pin_id WHERE h.done_at >= ? AND h.done_at < ? AND p.garden_id = ?'
+    : 'WHERE h.done_at >= ? AND h.done_at < ?';
+
+  const gardenJoinDate = gardenId
+    ? 'JOIN pins p ON p.id = h.pin_id WHERE h.done_at >= ? AND h.done_at <= ? AND p.garden_id = ?'
+    : 'WHERE h.done_at >= ? AND h.done_at <= ?';
+
+  function monthlyFor(yStart, yEnd) {
+    const params = gardenId ? [yStart, yEnd, gardenId] : [yStart, yEnd];
+    const rows = db
+      .prepare(
+        `SELECT CAST(strftime('%m', done_at) AS INTEGER) AS m, COUNT(*) AS c
+         FROM care_history h
+         ${gardenJoin}
+         GROUP BY m`,
+      )
+      .all(...params);
+    return Array.from({ length: 12 }, (_, i) => {
+      const row = rows.find((r) => r.m === i + 1);
+      return row ? row.c : 0;
+    });
+  }
+
+  function totalFor(yStart, yEnd) {
+    const params = gardenId ? [yStart, yEnd, gardenId] : [yStart, yEnd];
+    return db
+      .prepare(
+        `SELECT COUNT(*) AS c FROM care_history h ${gardenJoin}`,
+      )
+      .get(...params).c;
+  }
+
+  // "Do stejného data" — kolik bylo splněno od 1.1. do dnešního MM-DD v daném roce
+  function totalToDate(yStart, yEndInclusive) {
+    const params = gardenId ? [yStart, yEndInclusive, gardenId] : [yStart, yEndInclusive];
+    return db
+      .prepare(
+        `SELECT COUNT(*) AS c FROM care_history h ${gardenJoinDate}`,
+      )
+      .get(...params).c;
+  }
+
+  const thisMonthly = monthlyFor(thisStart, thisEnd);
+  const lastMonthly = monthlyFor(lastStart, lastEnd);
+  const thisTotal = totalFor(thisStart, thisEnd);
+  const lastTotal = totalFor(lastStart, lastEnd);
+
+  const thisToDate = totalToDate(thisStart, today);
+  const lastToDateSame = totalToDate(lastStart, lastYearToDate);
+
+  // Procentuální změna — letos vs. loni do stejného data (férové srovnání)
+  let percentChange = null;
+  if (lastToDateSame > 0) {
+    percentChange = Math.round(((thisToDate - lastToDateSame) / lastToDateSame) * 100);
+  } else if (thisToDate > 0) {
+    percentChange = 100; // loni nic, letos něco — "+100%" nový start
+  }
+
+  // Co loni do dnešního dne bylo splněno a letos zatím chybí
+  // Porovnáváme po (pin_id + action) — stejná rostlina, stejný typ úkonu
+  const missingParams = gardenId
+    ? [lastStart, lastYearToDate, gardenId, thisStart, today, gardenId]
+    : [lastStart, lastYearToDate, thisStart, today];
+  const missing = db
+    .prepare(
+      `SELECT h.pin_id, h.action, MAX(h.done_at) AS last_done_at,
+              p.name AS pin_name, p.plant_name, g.name AS garden_name, g.id AS garden_id
+       FROM care_history h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.done_at >= ? AND h.done_at <= ?
+         ${gardenId ? 'AND p.garden_id = ?' : ''}
+         AND NOT EXISTS (
+           SELECT 1 FROM care_history h2
+           JOIN pins p2 ON p2.id = h2.pin_id
+           WHERE h2.pin_id = h.pin_id
+             AND h2.action = h.action
+             AND h2.done_at >= ? AND h2.done_at <= ?
+             ${gardenId ? 'AND p2.garden_id = ?' : ''}
+         )
+       GROUP BY h.pin_id, h.action
+       ORDER BY last_done_at DESC
+       LIMIT 8`,
+    )
+    .all(...missingParams);
+
+  res.json({
+    thisYear,
+    lastYear,
+    gardenId,
+    thisTotal,
+    lastTotal,
+    thisMonthly,
+    lastMonthly,
+    thisToDate,
+    lastToDateSame,
+    percentChange,
+    missing,
+  });
+});
+
 // ======================= UPSCALE =======================
 app.post('/api/gardens/:id/upscale', async (req, res) => {
   if (!sharp) return res.status(501).json({ error: 'Sharp není nainstalován. Spusť: npm install sharp' });

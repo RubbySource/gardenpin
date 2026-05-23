@@ -5,6 +5,7 @@ import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
 import SeasonStats from '../components/SeasonStats.jsx';
+import YearOverYear from '../components/YearOverYear.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
@@ -258,6 +259,9 @@ export default function HomePage({ onTaskComplete }) {
 
       {/* Sezónní statistiky — graf aktivity, top zahrada a rostlina */}
       <SeasonStats />
+
+      {/* Meziroční srovnání — letos vs. loni přes všechny zahrady */}
+      <YearOverYear />
 
       <Link
         to="/premium"

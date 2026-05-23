@@ -43,6 +43,6 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Šablony zahrad — předpřipravené sady rostlin a sezónních úkonů podle typu zahrady (zeleninová / okrasná / ovocná / bylinková) — hotovo 2026-05-23
 
-- [ ] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí
+- [x] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí — hotovo 2026-05-23
 
 - [x] Onboarding průvodce — první spuštění provede uživatele založením první zahrady a rostliny — hotovo 2026-05-23

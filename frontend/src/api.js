@@ -112,6 +112,13 @@ export const api = {
   stats: () => jsonFetch('/api/stats'),
   seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
   harvestStats: (year) => jsonFetch(`/api/stats/harvests${year ? `?year=${year}` : ''}`),
+  yoyStats: ({ year, gardenId } = {}) => {
+    const params = new URLSearchParams();
+    if (year) params.set('year', year);
+    if (gardenId) params.set('garden_id', gardenId);
+    const qs = params.toString();
+    return jsonFetch(`/api/stats/yoy${qs ? '?' + qs : ''}`);
+  },
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),

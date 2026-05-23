@@ -6,6 +6,7 @@ import Modal from '../components/Modal.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import YearOverYear from '../components/YearOverYear.jsx';
 
 export default function GardenDetailPage() {
   const { id } = useParams();
@@ -581,6 +582,9 @@ export default function GardenDetailPage() {
               />
             ))
           )}
+
+          {/* Meziroční srovnání péče v této zahradě */}
+          <YearOverYear gardenId={garden.id} title={`Meziroční srovnání · ${garden.name}`} />
         </>
       )}
 
