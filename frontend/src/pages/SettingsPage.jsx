@@ -10,6 +10,7 @@ import {
   getCurrentSubscription,
 } from '../push.js';
 import PremiumBadge from '../components/PremiumBadge.jsx';
+import OnboardingTour, { resetOnboarding } from '../components/OnboardingTour.jsx';
 
 export default function SettingsPage() {
   const [notifStatus, setNotifStatus] = useState(
@@ -21,6 +22,7 @@ export default function SettingsPage() {
   const [stats, setStats] = useState(null);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const pushSupported = isPushSupported();
 
   useEffect(() => {
@@ -222,11 +224,30 @@ export default function SettingsPage() {
         </div>
       )}
 
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>🌻 Onboarding průvodce</h3>
+        <p className="small muted">
+          Krok-za-krokem průvodce prvním nastavením (zahrada → rostlina → úkon).
+          Hodí se i jako rychlé osvěžení principů aplikace.
+        </p>
+        <button
+          className="btn secondary"
+          onClick={() => {
+            resetOnboarding();
+            setShowOnboarding(true);
+          }}
+        >
+          Spustit průvodce znovu
+        </button>
+      </div>
+
       <div className="card" style={{ textAlign: 'center', color: 'var(--muted)' }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>📍</div>
         <div className="small" style={{ fontWeight: 600 }}>GardenPin</div>
         <div className="small">Správa zahrady v kapse</div>
       </div>
+
+      {showOnboarding && <OnboardingTour onClose={() => setShowOnboarding(false)} />}
     </>
   );
 }

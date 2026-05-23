@@ -13,6 +13,7 @@ import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
+import OnboardingTour, { shouldShowOnboarding } from './components/OnboardingTour.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -26,8 +27,17 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const [searchOpen, setSearchOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const location = useLocation();
   const isSharedView = location.pathname.startsWith('/share/');
+
+  useEffect(() => {
+    if (isSharedView) return;
+    if (shouldShowOnboarding()) {
+      const t = setTimeout(() => setShowOnboarding(true), 400);
+      return () => clearTimeout(t);
+    }
+  }, [isSharedView]);
 
   // Globální shortcut: Cmd/Ctrl+K otevře vyhledávání
   useEffect(() => {
@@ -180,6 +190,7 @@ export default function App() {
 
       {toastMsg && <Toast message={toastMsg} />}
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+      {showOnboarding && <OnboardingTour onClose={() => setShowOnboarding(false)} />}
     </div>
   );
 }

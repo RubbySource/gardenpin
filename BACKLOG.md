@@ -45,4 +45,4 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [ ] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí
 
-- [ ] Onboarding průvodce — první spuštění provede uživatele založením první zahrady a rostliny
+- [x] Onboarding průvodce — první spuštění provede uživatele založením první zahrady a rostliny — hotovo 2026-05-23
