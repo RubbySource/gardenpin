@@ -719,6 +719,57 @@ app.delete('/api/tasks/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// Bump streak counter — den-v-řadě logika, vrací updated row
+function bumpStreakForToday(userId = 1) {
+  const today = new Date().toISOString().slice(0, 10);
+  const stats = db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(userId);
+  if (!stats) {
+    db.prepare(
+      'INSERT INTO user_stats (user_id, current_streak, longest_streak, last_done_date, total_completed) VALUES (?, 1, 1, ?, 1)',
+    ).run(userId, today);
+    return { current_streak: 1, longest_streak: 1, last_done_date: today, total_completed: 1, increased: true };
+  }
+  const last = stats.last_done_date;
+  let current = stats.current_streak || 0;
+  let increased = false;
+  if (last === today) {
+    // už dnes počítáno — jen total++
+  } else {
+    const yest = new Date();
+    yest.setDate(yest.getDate() - 1);
+    const yestStr = yest.toISOString().slice(0, 10);
+    current = last === yestStr ? current + 1 : 1;
+    increased = true;
+  }
+  const longest = Math.max(stats.longest_streak || 0, current);
+  const total = (stats.total_completed || 0) + 1;
+  db.prepare(
+    `UPDATE user_stats SET current_streak=?, longest_streak=?, last_done_date=?, total_completed=?, updated_at=datetime('now') WHERE user_id=?`,
+  ).run(current, longest, today, total, userId);
+  return { current_streak: current, longest_streak: longest, last_done_date: today, total_completed: total, increased };
+}
+
+// GET streak / user stats
+app.get('/api/stats/streak', (req, res) => {
+  const row = db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(1);
+  const today = new Date().toISOString().slice(0, 10);
+  const yest = new Date();
+  yest.setDate(yest.getDate() - 1);
+  const yestStr = yest.toISOString().slice(0, 10);
+  // Pokud poslední splnění není dnes ani včera, current_streak je "spící" → vrať 0
+  let current = row?.current_streak ?? 0;
+  if (row?.last_done_date && row.last_done_date !== today && row.last_done_date !== yestStr) {
+    current = 0;
+  }
+  res.json({
+    current_streak: current,
+    longest_streak: row?.longest_streak ?? 0,
+    last_done_date: row?.last_done_date ?? null,
+    total_completed: row?.total_completed ?? 0,
+    is_weekly_gardener: current >= 7,
+  });
+});
+
 // Mark task as done and reschedule
 app.post('/api/tasks/:id/done', (req, res) => {
   const id = req.params.id;
@@ -730,6 +781,9 @@ app.post('/api/tasks/:id/done', (req, res) => {
   db.prepare(
     `INSERT INTO care_history (task_id, pin_id, action, notes) VALUES (?, ?, ?, ?)`,
   ).run(id, task.pin_id, task.title, req.body?.notes || null);
+
+  // Bump streak
+  const streak = bumpStreakForToday(1);
 
   if (task.specific_date) {
     if (task.recurring && task.recurrence_pattern === 'yearly') {
@@ -743,16 +797,16 @@ app.post('/api/tasks/:id/done', (req, res) => {
         newDate,
         id,
       );
-      return res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+      return res.json({ ...db.prepare('SELECT * FROM tasks WHERE id = ?').get(id), streak });
     }
     // One-time task: delete after completion
     db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
-    return res.json({ ok: true, removed: true });
+    return res.json({ ok: true, removed: true, streak });
   }
   // Recurring: update last_done and compute next
   const next_due = computeNextDue({ ...task, last_done: today });
   db.prepare('UPDATE tasks SET last_done=?, next_due=? WHERE id=?').run(today, next_due, id);
-  res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+  res.json({ ...db.prepare('SELECT * FROM tasks WHERE id = ?').get(id), streak });
 });
 
 // ======================= HISTORY =======================

@@ -124,7 +124,24 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_harvests_pin ON harvests(pin_id);
   CREATE INDEX IF NOT EXISTS idx_harvests_date ON harvests(date);
+
+  -- Streak / gamifikace — jeden řádek na uživatele (MVP: user_id=1)
+  CREATE TABLE IF NOT EXISTS user_stats (
+    user_id INTEGER PRIMARY KEY,
+    current_streak INTEGER NOT NULL DEFAULT 0,
+    longest_streak INTEGER NOT NULL DEFAULT 0,
+    last_done_date TEXT,
+    total_completed INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
 `);
+
+// Inicializace user_stats — jeden řádek pro výchozího uživatele (id=1)
+try {
+  db.prepare(
+    'INSERT OR IGNORE INTO user_stats (user_id, current_streak, longest_streak, total_completed) VALUES (1, 0, 0, 0)',
+  ).run();
+} catch {}
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}

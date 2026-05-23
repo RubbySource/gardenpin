@@ -110,6 +110,7 @@ export const api = {
 
   // Stats
   stats: () => jsonFetch('/api/stats'),
+  streak: () => jsonFetch('/api/stats/streak'),
   seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
   harvestStats: (year) => jsonFetch(`/api/stats/harvests${year ? `?year=${year}` : ''}`),
   yoyStats: ({ year, gardenId } = {}) => {
