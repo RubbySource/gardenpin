@@ -35,12 +35,7 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Pěstební podmínky zahrady — typ půdy, expozice, nadmořská výška — hotovo 2026-05-23
 
-- [ ] Záznam sklizně a výnosů — co sklidil, kolik, datum
-  Scope:
-  - Nová tabulka harvests: garden_id, plant_id, date, amount, unit (kg/ks/litr), note
-  - Formulář pro přidání sklizně u každé rostliny
-  - Stránka /statistics rozšířena o sekci Sklizeň: celkem za sezónu, trend rok-od-roku
-  - Export sklizní v JSON záloze
+- [x] Záznam sklizně a výnosů — co sklidil, kolik, datum — hotovo 2026-05-23
 
 - [ ] Souhrnný přehled přes všechny zahrady — "co dělat tento týden"
   Scope:

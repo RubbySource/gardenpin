@@ -711,6 +711,110 @@ app.post('/api/history', (req, res) => {
   res.json(db.prepare('SELECT * FROM care_history WHERE id = ?').get(info.lastInsertRowid));
 });
 
+// ======================= HARVESTS =======================
+const VALID_HARVEST_UNITS = ['kg', 'g', 'ks', 'l', 'svazek'];
+
+// Všechny sklizně napříč zahradami (pro stats / overview)
+app.get('/api/harvests', (req, res) => {
+  const rows = db
+    .prepare(
+      `SELECT h.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+       FROM harvests h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       ORDER BY h.date DESC, h.id DESC
+       LIMIT 500`,
+    )
+    .all();
+  res.json(rows);
+});
+
+// Sklizně pro konkrétní pin
+app.get('/api/pins/:id/harvests', (req, res) => {
+  const rows = db
+    .prepare('SELECT * FROM harvests WHERE pin_id = ? ORDER BY date DESC, id DESC')
+    .all(req.params.id);
+  res.json(rows);
+});
+
+app.post('/api/harvests', (req, res) => {
+  const { pin_id, date, amount, unit, note } = req.body;
+  if (!pin_id) return res.status(400).json({ error: 'pin_id je povinný' });
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(pin_id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  const amt = parseFloat(amount);
+  if (!Number.isFinite(amt) || amt <= 0) {
+    return res.status(400).json({ error: 'amount musí být kladné číslo' });
+  }
+  const u = VALID_HARVEST_UNITS.includes(unit) ? unit : 'kg';
+  const d = (date || new Date().toISOString().slice(0, 10)).slice(0, 10);
+  const info = db
+    .prepare('INSERT INTO harvests (pin_id, date, amount, unit, note) VALUES (?, ?, ?, ?, ?)')
+    .run(pin_id, d, amt, u, note || null);
+  res.json(db.prepare('SELECT * FROM harvests WHERE id = ?').get(info.lastInsertRowid));
+});
+
+app.delete('/api/harvests/:id', (req, res) => {
+  db.prepare('DELETE FROM harvests WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+// Statistiky sklizně za rok — celkem podle jednotky + top rostliny + trend rok-od-roku
+app.get('/api/stats/harvests', (req, res) => {
+  const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+  const yearStart = `${year}-01-01`;
+  const yearEnd = `${year}-12-31`;
+  const prevStart = `${year - 1}-01-01`;
+  const prevEnd = `${year - 1}-12-31`;
+
+  // Součet podle jednotky pro daný rok
+  const totalsByUnit = db
+    .prepare(
+      `SELECT unit, ROUND(SUM(amount), 2) AS total, COUNT(*) AS entries
+       FROM harvests
+       WHERE date >= ? AND date <= ?
+       GROUP BY unit`,
+    )
+    .all(yearStart, yearEnd);
+
+  const totalsByUnitPrev = db
+    .prepare(
+      `SELECT unit, ROUND(SUM(amount), 2) AS total
+       FROM harvests
+       WHERE date >= ? AND date <= ?
+       GROUP BY unit`,
+    )
+    .all(prevStart, prevEnd);
+
+  // Top rostliny (po jednotce) — která rostlina vynesla nejvíc
+  const topPlants = db
+    .prepare(
+      `SELECT p.id AS pin_id, p.name AS pin_name, p.plant_name, g.name AS garden_name,
+              h.unit, ROUND(SUM(h.amount), 2) AS total
+       FROM harvests h
+       JOIN pins p ON p.id = h.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE h.date >= ? AND h.date <= ?
+       GROUP BY p.id, h.unit
+       ORDER BY total DESC
+       LIMIT 5`,
+    )
+    .all(yearStart, yearEnd);
+
+  // Celkový počet záznamů
+  const entries = db
+    .prepare('SELECT COUNT(*) AS c FROM harvests WHERE date >= ? AND date <= ?')
+    .get(yearStart, yearEnd).c;
+
+  res.json({
+    year,
+    entries,
+    totalsByUnit,
+    totalsByUnitPrev,
+    topPlants,
+  });
+});
+
 // ======================= STATS =======================
 app.get('/api/stats', (req, res) => {
   const gardens = db.prepare('SELECT COUNT(*) AS c FROM gardens').get().c;
@@ -1290,6 +1394,7 @@ app.get('/api/export', (req, res) => {
   const care_history = db.prepare('SELECT * FROM care_history').all();
   const beds = db.prepare('SELECT * FROM beds').all();
   const pin_photos = db.prepare('SELECT * FROM pin_photos').all();
+  const harvests = db.prepare('SELECT * FROM harvests').all();
 
   if (format === 'csv') {
     // Plochá tabulka: jeden řádek = jeden úkol (s informací o pinu a zahradě).
@@ -1345,6 +1450,7 @@ app.get('/api/export', (req, res) => {
     beds,
     tasks,
     care_history,
+    harvests,
     pin_photos: pin_photos.map((ph) => ({
       ...ph,
       url: `${baseUrl}/uploads/pins/${ph.pin_id}/${ph.filename}`,

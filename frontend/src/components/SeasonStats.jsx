@@ -16,15 +16,20 @@ function pluralUkony(n) {
 
 export default function SeasonStats() {
   const [data, setData] = useState(null);
+  const [harvest, setHarvest] = useState(null);
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    api
-      .seasonStats(year)
-      .then(setData)
-      .catch(() => setData(null))
+    Promise.all([
+      api.seasonStats(year).catch(() => null),
+      api.harvestStats(year).catch(() => null),
+    ])
+      .then(([s, h]) => {
+        setData(s);
+        setHarvest(h);
+      })
       .finally(() => setLoading(false));
   }, [year]);
 
@@ -34,10 +39,10 @@ export default function SeasonStats() {
     return Math.max(...data.monthlyDone, 1);
   }, [data]);
 
-  if (loading && !data) return null;
-  if (!data) return null;
+  if (loading && !data && !harvest) return null;
+  if (!data && !harvest) return null;
 
-  const hasAnyActivity = data.doneThisYear > 0;
+  const hasAnyActivity = data && data.doneThisYear > 0;
 
   return (
     <div className="season-stats card">
@@ -143,6 +148,64 @@ export default function SeasonStats() {
             </div>
           )}
         </>
+      )}
+
+      <HarvestSection harvest={harvest} year={year} />
+    </div>
+  );
+}
+
+function HarvestSection({ harvest, year }) {
+  if (!harvest || harvest.entries === 0) return null;
+
+  const prevByUnit = new Map((harvest.totalsByUnitPrev || []).map((r) => [r.unit, r.total]));
+
+  return (
+    <div className="season-harvest" style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--sand-dark, #d8c9a7)' }}>
+      <div className="season-stats-title" style={{ marginBottom: 10 }}>🧺 Sklizeň {year}</div>
+
+      <div className="season-stat-row">
+        {harvest.totalsByUnit.map((row) => {
+          const prev = prevByUnit.get(row.unit);
+          let trendText = null;
+          let trendCls = '';
+          if (prev && prev > 0) {
+            const diff = row.total - prev;
+            const pct = Math.round((diff / prev) * 100);
+            trendText = `${pct >= 0 ? '+' : ''}${pct}% vs ${year - 1}`;
+            trendCls = pct >= 0 ? 'trend-up' : 'trend-down';
+          } else if (prev === 0 || prev === undefined) {
+            trendText = `Nový rok`;
+          }
+          return (
+            <div key={row.unit} className="season-stat-card">
+              <div className="season-stat-value">{row.total} {row.unit}</div>
+              <div className="season-stat-label">
+                {row.entries} {row.entries === 1 ? 'záznam' : (row.entries < 5 ? 'záznamy' : 'záznamů')}
+              </div>
+              {trendText && (
+                <div className={`small muted ${trendCls}`} style={{ marginTop: 4 }}>
+                  {trendText}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {harvest.topPlants && harvest.topPlants.length > 0 && (
+        <div className="season-top" style={{ marginTop: 12 }}>
+          {harvest.topPlants.slice(0, 3).map((p) => (
+            <div key={`${p.pin_id}-${p.unit}`} className="season-top-item">
+              <div className="season-top-icon">🥇</div>
+              <div className="season-top-body">
+                <div className="season-top-label">{p.plant_name || p.pin_name}</div>
+                <div className="season-top-value">{p.total} {p.unit}</div>
+                <div className="season-top-meta small muted">{p.garden_name}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

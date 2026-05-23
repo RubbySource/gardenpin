@@ -95,6 +95,9 @@ export default function PinDetail({ pinId, onClose }) {
         <button className={tab === 'photos' ? 'active' : ''} onClick={() => setTab('photos')}>
           📷 Fotky
         </button>
+        <button className={tab === 'harvests' ? 'active' : ''} onClick={() => setTab('harvests')}>
+          🧺 Sklizeň
+        </button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
           📜 Historie
         </button>
@@ -235,6 +238,8 @@ export default function PinDetail({ pinId, onClose }) {
       )}
 
       {tab === 'photos' && <PhotoGallery pinId={pin.id} />}
+
+      {tab === 'harvests' && <HarvestTab pinId={pin.id} />}
 
       {tab === 'history' && (
         <div>
@@ -787,6 +792,157 @@ function PhotoGallery({ pinId }) {
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ===================== Sklizeň (harvests) =====================
+const HARVEST_UNITS = [
+  { value: 'kg', label: 'kg' },
+  { value: 'g', label: 'g' },
+  { value: 'ks', label: 'ks' },
+  { value: 'l', label: 'l' },
+  { value: 'svazek', label: 'svazek' },
+];
+
+function HarvestTab({ pinId }) {
+  const [harvests, setHarvests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [amount, setAmount] = useState('');
+  const [unit, setUnit] = useState('kg');
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const list = await api.listPinHarvests(pinId);
+      setHarvests(list);
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [pinId]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const amt = parseFloat(String(amount).replace(',', '.'));
+    if (!Number.isFinite(amt) || amt <= 0) return toast('Zadejte množství');
+    setSaving(true);
+    try {
+      await api.createHarvest({ pin_id: pinId, date, amount: amt, unit, note: note || null });
+      toast('🧺 Sklizeň zaznamenána');
+      setAmount('');
+      setNote('');
+      load();
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (h) => {
+    if (!confirm(`Smazat záznam sklizně ze ${formatDate(h.date)}?`)) return;
+    try {
+      await api.deleteHarvest(h.id);
+      toast('Smazáno');
+      load();
+    } catch (e) {
+      toast('Chyba: ' + e.message);
+    }
+  };
+
+  // Součet po jednotkách, jen pro tuto rostlinu
+  const totals = harvests.reduce((acc, h) => {
+    acc[h.unit] = (acc[h.unit] || 0) + Number(h.amount);
+    return acc;
+  }, {});
+  const totalsLine = Object.entries(totals)
+    .map(([u, v]) => `${Math.round(v * 100) / 100} ${u}`)
+    .join(' · ');
+
+  return (
+    <div>
+      <form onSubmit={submit} className="harvest-form" style={{ marginBottom: 12 }}>
+        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <div className="field" style={{ flex: '1 1 130px', marginBottom: 8 }}>
+            <label className="small muted">Datum</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          <div className="field" style={{ flex: '1 1 110px', marginBottom: 8 }}>
+            <label className="small muted">Množství</label>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <div className="field" style={{ flex: '0 1 110px', marginBottom: 8 }}>
+            <label className="small muted">Jednotka</label>
+            <select value={unit} onChange={(e) => setUnit(e.target.value)}>
+              {HARVEST_UNITS.map((u) => (
+                <option key={u.value} value={u.value}>{u.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="field" style={{ marginBottom: 8 }}>
+          <label className="small muted">Poznámka (volitelné)</label>
+          <input
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Např. první sklizeň sezóny"
+          />
+        </div>
+        <button type="submit" className="btn block" disabled={saving}>
+          {saving ? 'Ukládám…' : '🧺 Zaznamenat sklizeň'}
+        </button>
+      </form>
+
+      {totalsLine && (
+        <div className="small muted" style={{ marginBottom: 8 }}>
+          Celkem: <strong>{totalsLine}</strong>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="empty small">Načítám…</div>
+      ) : harvests.length === 0 ? (
+        <div className="empty small">Zatím žádné záznamy sklizně. Zaznamenejte první výnos!</div>
+      ) : (
+        harvests.map((h) => (
+          <div key={h.id} className="history-item">
+            <div className="dot" style={{ background: '#d97a1b' }} />
+            <div className="info">
+              <div>
+                🧺 <strong>{h.amount} {h.unit}</strong>
+              </div>
+              {h.note && <div className="small muted">{h.note}</div>}
+              <div className="date">{formatDate(h.date)}</div>
+            </div>
+            <button
+              className="btn ghost small"
+              onClick={() => remove(h)}
+              aria-label="Smazat sklizeň"
+              title="Smazat sklizeň"
+            >
+              🗑️
+            </button>
+          </div>
+        ))
       )}
     </div>
   );

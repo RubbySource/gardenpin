@@ -93,9 +93,21 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  // Harvests (sklizeň)
+  listHarvests: () => jsonFetch('/api/harvests'),
+  listPinHarvests: (pinId) => jsonFetch(`/api/pins/${pinId}/harvests`),
+  createHarvest: (data) =>
+    jsonFetch('/api/harvests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deleteHarvest: (id) => jsonFetch(`/api/harvests/${id}`, { method: 'DELETE' }),
+
   // Stats
   stats: () => jsonFetch('/api/stats'),
   seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
+  harvestStats: (year) => jsonFetch(`/api/stats/harvests${year ? `?year=${year}` : ''}`),
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),

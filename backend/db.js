@@ -111,6 +111,19 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS harvests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pin_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    amount REAL NOT NULL,
+    unit TEXT NOT NULL DEFAULT 'kg',
+    note TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_harvests_pin ON harvests(pin_id);
+  CREATE INDEX IF NOT EXISTS idx_harvests_date ON harvests(date);
 `);
 
 // Migrations — přidat sloupce pokud neexistují
