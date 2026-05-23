@@ -149,6 +149,20 @@ export default function HomePage({ onTaskComplete }) {
       {/* Weather */}
       <WeatherWidget />
 
+      {/* Souhrnný přehled — odkaz na týdenní přehled napříč všemi zahradami */}
+      {gardens.length > 0 && (
+        <Link to="/tyden" className="overview-link-card" aria-label="Otevřít souhrnný přehled">
+          <span className="overview-link-emoji">📋</span>
+          <div className="overview-link-body">
+            <div className="overview-link-title">Co dělat tento týden</div>
+            <div className="overview-link-sub">
+              Souhrn úkonů přes všechny zahrady · tento + příští týden
+            </div>
+          </div>
+          <span className="overview-link-arrow">›</span>
+        </Link>
+      )}
+
       {/* Garden cards */}
       {gardens.length > 0 ? (
         <>

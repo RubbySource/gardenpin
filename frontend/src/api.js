@@ -64,6 +64,7 @@ export const api = {
   listTasks: () => jsonFetch('/api/tasks'),
   todayTasks: () => jsonFetch('/api/tasks/today'),
   weekTasks: () => jsonFetch('/api/tasks/week'),
+  overviewTasks: (days = 14) => jsonFetch(`/api/tasks/overview?days=${days}`),
   createTask: (data) =>
     jsonFetch('/api/tasks', {
       method: 'POST',

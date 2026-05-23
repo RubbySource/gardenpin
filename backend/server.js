@@ -595,6 +595,27 @@ app.get('/api/tasks/week', (req, res) => {
   res.json({ start: startStr, end: endStr, tasks: rows });
 });
 
+// Souhrnný přehled — všechny úkony přes všechny zahrady, defaultně 14 dní dopředu (+overdue)
+app.get('/api/tasks/overview', (req, res) => {
+  const days = Math.max(1, Math.min(60, parseInt(req.query.days, 10) || 14));
+  const today = new Date();
+  const end = new Date();
+  end.setDate(today.getDate() + days);
+  const startStr = today.toISOString().slice(0, 10);
+  const endStr = end.toISOString().slice(0, 10);
+  const rows = db
+    .prepare(
+      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name, g.image_path AS garden_image
+       FROM tasks t
+       JOIN pins p ON p.id = t.pin_id
+       JOIN gardens g ON g.id = p.garden_id
+       WHERE t.next_due <= ?
+       ORDER BY t.next_due ASC`,
+    )
+    .all(endStr);
+  res.json({ start: startStr, end: endStr, days, tasks: rows });
+});
+
 app.post('/api/tasks', (req, res) => {
   const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence_pattern } = req.body;
   const tmp = { specific_date, frequency_days, last_done: null };

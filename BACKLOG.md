@@ -37,9 +37,4 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Záznam sklizně a výnosů — co sklidil, kolik, datum — hotovo 2026-05-23
 
-- [ ] Souhrnný přehled přes všechny zahrady — "co dělat tento týden"
-  Scope:
-  - Nová stránka /overview nebo widget na hlavní stránce
-  - Agreguje úkony ze všech zahrad pro aktuální týden a příští týden
-  - Seřazeno podle naléhavosti (datum úkonu)
-  - Přístupné bez přepínání mezi zahradami
+- [x] Souhrnný přehled přes všechny zahrady — "co dělat tento týden" — hotovo 2026-05-23
