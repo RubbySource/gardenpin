@@ -8,6 +8,7 @@ import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import SharedGardenPage from './pages/SharedGardenPage.jsx';
 import WeekOverviewPage from './pages/WeekOverviewPage.jsx';
+import PlantCatalogPage from './pages/PlantCatalogPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
@@ -134,6 +135,7 @@ export default function App() {
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
           <Route path="/tyden" element={<WeekOverviewPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
+          <Route path="/katalog" element={<PlantCatalogPage />} />
           <Route path="/kalendar" element={<SeasonalCalendar />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
           <Route path="*" element={<HomePage />} />
@@ -165,6 +167,10 @@ export default function App() {
         <NavLink to="/kalendar">
           <span className="icon">📅</span>
           <span>Kalendář</span>
+        </NavLink>
+        <NavLink to="/katalog">
+          <span className="icon">🌿</span>
+          <span>Katalog</span>
         </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
