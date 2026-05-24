@@ -13,7 +13,7 @@ import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
-import OnboardingTour, { shouldShowOnboarding } from './components/OnboardingTour.jsx';
+import OnboardingFlow, { shouldShowOnboardingFlow } from './components/OnboardingFlow.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -33,7 +33,7 @@ export default function App() {
 
   useEffect(() => {
     if (isSharedView) return;
-    if (shouldShowOnboarding()) {
+    if (shouldShowOnboardingFlow()) {
       const t = setTimeout(() => setShowOnboarding(true), 400);
       return () => clearTimeout(t);
     }
@@ -204,7 +204,7 @@ export default function App() {
 
       {toastMsg && <Toast message={toastMsg} />}
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
-      {showOnboarding && <OnboardingTour onClose={() => setShowOnboarding(false)} />}
+      {showOnboarding && <OnboardingFlow onClose={() => setShowOnboarding(false)} />}
     </div>
   );
 }
