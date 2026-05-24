@@ -5086,3 +5086,362 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
 /* Filter pills (already exist) — make them blend with sticky bar */
 .filter-pills { margin-top: 10px; }
 
+/* ============================================================
+   PinDetail mobile redesign — iOS-style sheet (BACKLOG: pin-detail-mobile)
+   ============================================================ */
+
+.pd-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.pd-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  background: var(--card);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(-110%);
+  transition: opacity 0.18s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+.pd-sticky-header.shown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.pd-sticky-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--charcoal, var(--text));
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-back-floating {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.pd-back-sticky {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 1.5rem;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+}
+
+.pd-hero {
+  padding: 8px 20px 14px;
+  background: var(--card);
+}
+.pd-hero-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.pd-hero-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-50, #eef4e7);
+  border-radius: 16px;
+}
+.pd-hero-text { flex: 1; min-width: 0; }
+.pd-hero-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.pd-hero-plant {
+  font-size: 0.92rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.pd-hero-latin {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 1px;
+}
+.pd-hero-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+.pd-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.pd-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 4px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pd-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.pd-tab-count {
+  background: var(--green-100, rgba(74, 124, 58, 0.14));
+  color: var(--primary);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.pd-content {
+  padding: 14px 16px 100px;
+  flex: 1;
+}
+
+.pd-fab {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 300;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  z-index: 50;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+}
+.pd-fab:active { transform: scale(0.94); }
+
+.pd-care-list {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.pd-care-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.pd-care-row:last-child { border-bottom: none; }
+.pd-care-icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  line-height: 1.3;
+}
+.pd-care-content { flex: 1; min-width: 0; }
+.pd-care-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1px;
+  font-weight: 600;
+}
+.pd-care-value {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.pd-task-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: transform 0.05s ease;
+}
+.pd-task-card.is-overdue { border-color: var(--danger, #c0392b); background: rgba(192, 57, 43, 0.04); }
+.pd-task-card.is-today   { border-color: var(--warning, #f39c12); background: rgba(243, 156, 18, 0.05); }
+.pd-task-icon { font-size: 1.35rem; flex-shrink: 0; }
+.pd-task-body { flex: 1; min-width: 0; }
+.pd-task-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+}
+.pd-task-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.pd-task-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.pd-task-complete {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 1.05rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, transform 0.08s;
+}
+.pd-task-complete:active { transform: scale(0.92); background: var(--primary); color: #fff; }
+.pd-task-edit, .pd-task-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+}
+.pd-task-edit:active, .pd-task-delete:active { background: var(--border); }
+
+.pd-section { margin-bottom: 18px; }
+.pd-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin: 0 4px 8px;
+}
+
+.pd-more {
+  display: block;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 12px;
+  margin: 8px auto 0;
+  width: 100%;
+  text-align: center;
+}
+
+.pd-danger-zone { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); }
+.pd-danger-btn {
+  background: transparent;
+  color: var(--danger, #c0392b);
+  border: 1px solid var(--danger, #c0392b);
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+.pd-danger-btn:active { background: var(--danger, #c0392b); color: #fff; }
+
+.pd-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-dim);
+}
+.pd-empty-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+.pd-empty-text { font-size: 0.92rem; }
+
+.pd-content .photo-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pd-content .photo-thumb {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--green-50);
+}
+.pd-content .photo-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+@media (min-width: 720px) {
+  .pd-sheet { margin: 20px auto; max-height: calc(100vh - 40px); border-radius: 18px; }
+}
+
