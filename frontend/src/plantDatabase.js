@@ -1,6 +1,8 @@
-// Databáze zahradních rostlin — 80+ druhů
-// tasks: pole úkolů které se auto-vytvoří po výběru rostliny
-// frequency_days: opakování | specific_month: 1–12 pro jednorázové sezónní úkoly
+// Databáze zahradních rostlin — 320+ druhů (zelenina, ovoce, byliny, okrasné keře,
+// trvalky, letničky, stromy, cibuloviny, popínavé, vodní, sukulenty, trávy)
+// Starý formát (id ≤ 85): tasks s { title, task_type, frequency_days|specific_date, notes }
+// Nový formát (id ≥ 86): tasks s { month, label, type } — automaticky se promění
+// na sezónní úkony přes buildSeasonalTasks().
 
 export const PLANT_DATABASE = [
   // ==================== ZELENINA ====================
@@ -2334,6 +2336,919 @@ export const PLANT_DATABASE = [
       { month: 8, label: 'Postupné přihrnování pro bílení sloupku', type: 'mulching' },
       { month: 10, label: 'Postupná sklizeň', type: 'harvest' },
     ] },
+
+  // ==================== POPÍNAVÉ — DOPLNĚNÍ ====================
+  { id: 207, nameCz: 'Akébie pětičetná', nameLat: 'Akebia quinata', category: 'climbers',
+    description: 'Exotická popínavka s nezvyklými fialovými čokoládově vonnými květy. Tvoří husté pokrytí pergol a plotů, v teplejších oblastech tvoří jedlé plody.',
+    light: 'Polostín', water: 'Mírná', height: '500-1000 cm', zone: '5-9',
+    tasks: [
+      { month: 3, label: 'Jarní řez', type: 'pruning' },
+      { month: 4, label: 'Opylit ručně pro plody', type: 'protection' },
+      { month: 11, label: 'Zimní mulčování kořenů', type: 'mulching' },
+    ] },
+
+  // ==================== OVOCNÉ STROMY ====================
+  { id: 208, nameCz: 'Jabloň', nameLat: 'Malus domestica', category: 'trees',
+    description: 'Klasický ovocný strom s bílo-růžovými květy na jaře a sladkými plody na podzim. Základ české ovocné zahrady.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-500 cm', zone: '4-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez koruny', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 4, label: 'Ošetření proti škůdcům před květem', type: 'protection' },
+      { month: 8, label: 'Sklizeň letních odrůd', type: 'harvest' },
+      { month: 9, label: 'Sklizeň podzimních odrůd', type: 'harvest' },
+    ] },
+  { id: 209, nameCz: 'Hruška', nameLat: 'Pyrus communis', category: 'trees',
+    description: 'Ovocný strom s bílými květy a šťavnatými sladkými plody. Vyžaduje opylovače — sázet alespoň dvě odrůdy.',
+    light: 'Plné slunce', water: 'Mírná', height: '400-700 cm', zone: '4-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez', type: 'pruning' },
+      { month: 3, label: 'Přihnojit', type: 'fertilizing' },
+      { month: 4, label: 'Ošetření proti škůdcům', type: 'protection' },
+      { month: 8, label: 'Sklizeň raných odrůd', type: 'harvest' },
+      { month: 9, label: 'Sklizeň podzimních odrůd', type: 'harvest' },
+    ] },
+  { id: 210, nameCz: 'Třešeň', nameLat: 'Prunus avium', category: 'trees',
+    description: 'Vysoký ovocný strom s bílými květy a sladkými červenými plody. Sklizeň krátká ale intenzivní — vyžaduje ochranu před ptáky.',
+    light: 'Plné slunce', water: 'Mírná', height: '500-1000 cm', zone: '5-8',
+    tasks: [
+      { month: 6, label: 'Ochrana před ptáky (síť)', type: 'protection' },
+      { month: 6, label: 'Sklizeň raných odrůd', type: 'harvest' },
+      { month: 7, label: 'Sklizeň pozdních odrůd', type: 'harvest' },
+      { month: 7, label: 'Řez po sklizni', type: 'pruning' },
+    ] },
+  { id: 211, nameCz: 'Švestka', nameLat: 'Prunus domestica', category: 'trees',
+    description: 'Tradiční ovocný strom s modrofialovými sladkými plody. Klasika české zahrady, vhodná na povidla i sušení.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-500 cm', zone: '4-9',
+    tasks: [
+      { month: 2, label: 'Zimní řez', type: 'pruning' },
+      { month: 6, label: 'Prořezat přehuštěné větve', type: 'pruning' },
+      { month: 8, label: 'Sklizeň raných odrůd', type: 'harvest' },
+      { month: 9, label: 'Sklizeň pozdních odrůd', type: 'harvest' },
+    ] },
+  { id: 212, nameCz: 'Broskvoň', nameLat: 'Prunus persica', category: 'trees',
+    description: 'Teplomilný ovocný strom s růžovými květy a vonnými šťavnatými plody. Citlivý na kadeřavost broskvoně — vyžaduje preventivní postřik.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-400 cm', zone: '6-9',
+    tasks: [
+      { month: 3, label: 'Jarní řez', type: 'pruning' },
+      { month: 3, label: 'Ochrana před kadeřavostí (postřik)', type: 'protection' },
+      { month: 7, label: 'Sklizeň raných odrůd', type: 'harvest' },
+      { month: 8, label: 'Sklizeň pozdních odrůd', type: 'harvest' },
+    ] },
+  { id: 213, nameCz: 'Meruňka', nameLat: 'Prunus armeniaca', category: 'trees',
+    description: 'Časně kvetoucí ovocný strom s vonnými oranžovými plody. Květy bývají ohroženy pozdními mrazy — vhodné chráněné místo.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-500 cm', zone: '5-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez', type: 'pruning' },
+      { month: 3, label: 'Ochrana před pozdními mrazy', type: 'protection' },
+      { month: 4, label: 'Kontrola po mrazech', type: 'protection' },
+      { month: 7, label: 'Sklizeň', type: 'harvest' },
+    ] },
+  { id: 214, nameCz: 'Ořešák královský', nameLat: 'Juglans regia', category: 'trees',
+    description: 'Mohutný strom s vysoce ceněnými ořechy. Vrhá hustý stín — pod stromem rostou jen některé rostliny. Dorůstá obrovských rozměrů.',
+    light: 'Plné slunce', water: 'Mírná', height: '1500-2500 cm', zone: '5-8',
+    tasks: [
+      { month: 3, label: 'Minimální řez (jen suché větve)', type: 'pruning' },
+      { month: 9, label: 'Sběr opadlých ořechů', type: 'harvest' },
+      { month: 10, label: 'Sběr pozdních ořechů', type: 'harvest' },
+    ] },
+  { id: 215, nameCz: 'Kdouloň', nameLat: 'Cydonia oblonga', category: 'trees',
+    description: 'Drobný strom s velkými aromatickými plody připomínajícími žluté hrušky. Plody se nejí syrové — vaří se na marmeládu a kompoty.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-500 cm', zone: '5-9',
+    tasks: [
+      { month: 3, label: 'Jarní řez', type: 'pruning' },
+      { month: 10, label: 'Sklizeň zralých kdoulí', type: 'harvest' },
+    ] },
+
+  // ==================== OKRASNÉ STROMY — DOPLNĚNÍ ====================
+  { id: 216, nameCz: 'Katalpa trubačovitá', nameLat: 'Catalpa bignonioides', category: 'trees',
+    description: 'Mohutný strom s velkými listy ve tvaru srdce a bílými trubkovitými květy v červnu. Působivý solitér pro velké zahrady.',
+    light: 'Plné slunce', water: 'Mírná', height: '800-1500 cm', zone: '5-9',
+    tasks: [
+      { month: 4, label: 'Jarní tvarování koruny', type: 'pruning' },
+      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 217, nameCz: 'Lípa srdčitá', nameLat: 'Tilia cordata', category: 'trees',
+    description: 'Národní strom s vonnými medonosnými květy v červnu/červenci. Důležitý pro včely. Dorůstá obrovských rozměrů — vhodný do alejí.',
+    light: 'Plné slunce', water: 'Mírná', height: '1500-3000 cm', zone: '3-8',
+    tasks: [
+      { month: 3, label: 'Řez suchých větví', type: 'pruning' },
+      { month: 6, label: 'Kontrola mšic na listech', type: 'protection' },
+    ] },
+
+  // ==================== BYLINKY — DOPLNĚNÍ ====================
+  { id: 218, nameCz: 'Fenykl obecný', nameLat: 'Foeniculum vulgare', category: 'herbs',
+    description: 'Aromatická bylina s jemnými lístky chutnajícími po anýzu. Listy, semena i chrumkavá bulva jsou jedlé. Magnet na otakárky.',
+    light: 'Plné slunce', water: 'Mírná', height: '120-180 cm', zone: '4-9',
+    tasks: [
+      { month: 4, label: 'Výsev přímo do záhonu', type: 'protection' },
+      { month: 6, label: 'Sklizeň čerstvých listů', type: 'harvest' },
+      { month: 9, label: 'Sběr semen po dozrání', type: 'harvest' },
+    ] },
+  { id: 219, nameCz: 'Libeček lékařský', nameLat: 'Levisticum officinale', category: 'herbs',
+    description: 'Vytrvalá bylina s intenzivní celerovou vůní. Listy se používají do polévek a omáček. Velmi nenáročný, jedna rostlina vystačí na rodinu.',
+    light: 'Polostín', water: 'Mírná', height: '100-200 cm', zone: '3-9',
+    tasks: [
+      { month: 3, label: 'Jarní řez staré natě', type: 'pruning' },
+      { month: 4, label: 'Dělení přerostlých trsů', type: 'pruning' },
+      { month: 5, label: 'Sklizeň mladých listů', type: 'harvest' },
+      { month: 7, label: 'Sklizeň pro sušení', type: 'harvest' },
+    ] },
+
+  // ==================== CIBULOVINY — DOPLNĚNÍ ====================
+  { id: 220, nameCz: 'Sněženka podsněžník', nameLat: 'Galanthus nivalis', category: 'bulbs',
+    description: 'První posel jara — drobné bílé květy proráží sněhem v únoru. Naturalizuje se a tvoří koberce pod listnatými stromy.',
+    light: 'Polostín', water: 'Mírná', height: '10-20 cm', zone: '3-7',
+    tasks: [
+      { month: 9, label: 'Výsadba cibulek (5-8 cm hluboko)', type: 'protection' },
+      { month: 5, label: 'Přesazení po odkvětu (v zeleném)', type: 'protection' },
+    ] },
+  { id: 221, nameCz: 'Křivatec žlutý', nameLat: 'Gagea lutea', category: 'bulbs',
+    description: 'Drobná jarní cibulovina se žlutými hvězdovitými květy v březnu a dubnu. Naturalizuje se v trávníku a pod listnatými stromy.',
+    light: 'Polostín', water: 'Mírná', height: '10-20 cm', zone: '3-8',
+    tasks: [
+      { month: 9, label: 'Výsadba cibulek', type: 'protection' },
+      { month: 6, label: 'Sběr semen pro rozmnožení', type: 'harvest' },
+    ] },
+  { id: 222, nameCz: 'Česnek okrasný', nameLat: 'Allium giganteum', category: 'bulbs',
+    description: 'Vysoký okrasný česnek s kulovými fialovými květenstvími. Spolehlivá ozdoba začátku léta, oblíbený u včel.',
+    light: 'Plné slunce', water: 'Nízká', height: '80-150 cm', zone: '4-8',
+    tasks: [
+      { month: 9, label: 'Výsadba cibulí (15-20 cm hluboko)', type: 'protection' },
+      { month: 10, label: 'Pozdní výsadba cibulí', type: 'protection' },
+      { month: 3, label: 'Přihnojit na jaře', type: 'fertilizing' },
+      { month: 6, label: 'Odříznout odkvetlé stvoly', type: 'pruning' },
+    ] },
+
+  // ==================== OKRASNÉ KEŘE ====================
+  { id: 223, nameCz: 'Šeřík obecný', nameLat: 'Syringa vulgaris', category: 'shrubs',
+    description: 'Vonný keř s pyramidálními květenstvími v květnu. Klasická česká okrasná dřevina, voní intenzivně po celé zahradě.',
+    light: 'Plné slunce', water: 'Mírná', height: '200-400 cm', zone: '3-7',
+    tasks: [
+      { month: 6, label: 'Zastřihnout odkvetlá květenství', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 2, label: 'Prořezat staré výhony u země', type: 'pruning' },
+    ] },
+  { id: 224, nameCz: 'Hortenzie velkokvětá', nameLat: 'Hydrangea macrophylla', category: 'shrubs',
+    description: 'Bohatě kvetoucí keř s kulovitými růžovými, modrými nebo bílými květy v létě. Barva závisí na pH půdy — v kyselé modrá, v zásadité růžová.',
+    light: 'Polostín', water: 'Hojná', height: '100-200 cm', zone: '5-9',
+    tasks: [
+      { month: 3, label: 'Jarní řez — zkrátit slabé výhony', type: 'pruning' },
+      { month: 4, label: 'Přihnojit (kyselé hnojivo pro modré květy)', type: 'fertilizing' },
+      { month: 11, label: 'Zazimovat kořenovou krčku mulčem', type: 'protection' },
+    ] },
+  { id: 225, nameCz: 'Hortenzie latnatá', nameLat: 'Hydrangea paniculata', category: 'shrubs',
+    description: 'Otužilá hortenzie s bílými až růžovými latnatými květenstvími od července do října. Snáší řez i mráz lépe než velkokvětá.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '150-300 cm', zone: '3-8',
+    tasks: [
+      { month: 3, label: 'Silný jarní řez — zkrátit o 1/2', type: 'pruning' },
+      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 5, label: 'Mulčování pro udržení vlhkosti', type: 'mulching' },
+    ] },
+  { id: 226, nameCz: 'Zlatice převislá', nameLat: 'Forsythia x intermedia', category: 'shrubs',
+    description: 'Brzce kvetoucí keř se zlatožlutými květy v březnu, ještě před olistěním. První posel jara v české zahradě.',
+    light: 'Plné slunce', water: 'Mírná', height: '200-300 cm', zone: '4-8',
+    tasks: [
+      { month: 4, label: 'Řez odkvetlých výhonů (hned po odkvětu)', type: 'pruning' },
+      { month: 3, label: 'Odstranit přestárlé výhony u země', type: 'pruning' },
+    ] },
+  { id: 227, nameCz: 'Pustoryl věncový', nameLat: 'Philadelphus coronarius', category: 'shrubs',
+    description: 'Vonný keř s krémově bílými květy v červnu — voní jako pomerančovník. Velmi odolný a dlouhověký.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-300 cm', zone: '4-8',
+    tasks: [
+      { month: 7, label: 'Řez po odkvětu', type: 'pruning' },
+      { month: 3, label: 'Prořídit přestárlé větve', type: 'pruning' },
+    ] },
+  { id: 228, nameCz: 'Tavolník van Houttei', nameLat: 'Spiraea x vanhouttei', category: 'shrubs',
+    description: 'Rozložitý keř s převislými větvemi pokrytými bílými květy v květnu. Klasická parková a hřbitovní dřevina.',
+    light: 'Plné slunce', water: 'Mírná', height: '150-200 cm', zone: '3-8',
+    tasks: [
+      { month: 6, label: 'Řez po odkvětu (zachovat tvar)', type: 'pruning' },
+      { month: 3, label: 'Prořídit nejstarší výhony u země', type: 'pruning' },
+    ] },
+  { id: 229, nameCz: 'Pámelník bílý', nameLat: 'Symphoricarpos albus', category: 'shrubs',
+    description: 'Houževnatý keř s drobnými růžovými květy a později nápadnými bílými kuličkovými plody. Snáší stín i městské podmínky.',
+    light: 'Polostín až stín', water: 'Mírná', height: '100-200 cm', zone: '3-7',
+    tasks: [
+      { month: 3, label: 'Jarní řez pro hustotu', type: 'pruning' },
+      { month: 2, label: 'Vyřezat přestárlé výhony', type: 'pruning' },
+    ] },
+  { id: 230, nameCz: 'Bez černý', nameLat: 'Sambucus nigra', category: 'shrubs',
+    description: 'Vysoký keř až malý strom s krémově bílými květy a černými bobulemi. Květy i plody se používají v kuchyni (sirup, marmeláda).',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-700 cm', zone: '4-8',
+    tasks: [
+      { month: 6, label: 'Sklizeň květů na sirup', type: 'harvest' },
+      { month: 9, label: 'Sklizeň bobulí', type: 'harvest' },
+      { month: 2, label: 'Zimní řez (lze zmladit u země)', type: 'pruning' },
+    ] },
+  { id: 231, nameCz: 'Líska obecná', nameLat: 'Corylus avellana', category: 'shrubs',
+    description: 'Velký keř s jedlými oříšky. Kvete v únoru zlatými jehnědami — důležitý zdroj časného pylu pro včely.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-500 cm', zone: '4-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez (prosvětlit korunu)', type: 'pruning' },
+      { month: 9, label: 'Sklizeň oříšků', type: 'harvest' },
+    ] },
+  { id: 232, nameCz: 'Dřín obecný', nameLat: 'Cornus mas', category: 'shrubs',
+    description: 'Žlutě kvetoucí keř/strom velmi brzy na jaře (únor-březen). Červené plody na podzim — jedlé, kyselé, na marmelády a likéry.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-500 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Lehký tvarovací řez', type: 'pruning' },
+      { month: 9, label: 'Sklizeň plodů (na marmelády, džemy)', type: 'harvest' },
+    ] },
+  { id: 233, nameCz: 'Svída krvavá', nameLat: 'Cornus sanguinea', category: 'shrubs',
+    description: 'Keř s nápadně červenými výhony v zimě. Krásný kontrast proti sněhu, oblíbený v zimních zahradách.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-400 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Radikální řez u země pro červené mladé výhony', type: 'pruning' },
+    ] },
+  { id: 234, nameCz: 'Kalina tušalaj', nameLat: 'Viburnum lantana', category: 'shrubs',
+    description: 'Domácí keř s krémově bílými květy v květnu a červenými až černými bobulemi v létě. Odolný a velmi nenáročný.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-400 cm', zone: '4-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez (prosvětlit)', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 235, nameCz: 'Mahónie cesmínolistá', nameLat: 'Mahonia aquifolium', category: 'shrubs',
+    description: 'Stálezelený keř s lesklými ostnitými listy. Žluté květy v dubnu, modré bobule v létě, listy v zimě purpurově červené.',
+    light: 'Polostín', water: 'Mírná', height: '100-200 cm', zone: '5-9',
+    tasks: [
+      { month: 5, label: 'Řez po odkvětu', type: 'pruning' },
+      { month: 11, label: 'Mulčování kůrou', type: 'mulching' },
+    ] },
+  { id: 236, nameCz: 'Pěnišník', nameLat: 'Rhododendron', category: 'shrubs',
+    description: 'Stálezelený keř s velkými barevnými květy v květnu. Vyžaduje kyselou půdu (rašelinu) a polostínné chráněné místo.',
+    light: 'Polostín', water: 'Hojná', height: '100-300 cm', zone: '5-8',
+    tasks: [
+      { month: 6, label: 'Odstranit odkvetlá květenství (vylomit)', type: 'pruning' },
+      { month: 4, label: 'Přihnojit hnojivem pro rododendrony', type: 'fertilizing' },
+      { month: 11, label: 'Mulčování kůrou nebo rašelinou', type: 'mulching' },
+    ] },
+  { id: 237, nameCz: 'Vřes obecný', nameLat: 'Calluna vulgaris', category: 'shrubs',
+    description: 'Nízký stálezelený keřík s drobnými růžovými, fialovými nebo bílými květy od srpna do října. Vyžaduje kyselou půdu.',
+    light: 'Plné slunce', water: 'Mírná', height: '30-60 cm', zone: '4-7',
+    tasks: [
+      { month: 3, label: 'Jarní řez (zkrátit pod odkvetlé části)', type: 'pruning' },
+      { month: 4, label: 'Přihnojit hnojivem pro rododendrony', type: 'fertilizing' },
+    ] },
+  { id: 238, nameCz: 'Skalník vodorovný', nameLat: 'Cotoneaster horizontalis', category: 'shrubs',
+    description: 'Plošně rostoucí keř s drobnými listy a oranžovými až červenými bobulemi v zimě. Ideální na svahy a opěrné zídky.',
+    light: 'Plné slunce až polostín', water: 'Nízká', height: '50-100 cm', zone: '5-8',
+    tasks: [
+      { month: 3, label: 'Tvarovací řez', type: 'pruning' },
+    ] },
+  { id: 239, nameCz: 'Ptačí zob obecný', nameLat: 'Ligustrum vulgare', category: 'shrubs',
+    description: 'Klasický keř pro stříhané živé ploty. Snáší řez, městské podmínky i polostín. Černé bobule pro ptáky.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-400 cm', zone: '4-8',
+    tasks: [
+      { month: 6, label: 'První letní řez živého plotu', type: 'pruning' },
+      { month: 8, label: 'Druhý řez živého plotu', type: 'pruning' },
+      { month: 3, label: 'Jarní formovací řez', type: 'pruning' },
+    ] },
+  { id: 240, nameCz: 'Brslen evropský', nameLat: 'Euonymus europaeus', category: 'shrubs',
+    description: 'Domácí keř s nápadnými růžovými plody s oranžovými semeny v září-říjnu. Spektakulární podzimní dekorace.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-400 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Tvarovací řez', type: 'pruning' },
+    ] },
+  { id: 241, nameCz: 'Janovec metlatý', nameLat: 'Cytisus scoparius', category: 'shrubs',
+    description: 'Keř s drobnými zelenými výhony a sytě žlutými hráškovými květy v květnu. Snáší chudou písčitou půdu.',
+    light: 'Plné slunce', water: 'Nízká', height: '100-200 cm', zone: '5-8',
+    tasks: [
+      { month: 6, label: 'Lehký řez po odkvětu', type: 'pruning' },
+    ] },
+
+  // ==================== OVOCNÉ KEŘE ====================
+  { id: 242, nameCz: 'Rybíz černý', nameLat: 'Ribes nigrum', category: 'fruits',
+    description: 'Keř s aromatickými černými bobulemi. Bohatý zdroj vitamínu C, oblíbený na šťávy, vína a marmelády.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '100-200 cm', zone: '3-7',
+    tasks: [
+      { month: 7, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 2, label: 'Zimní řez — vyřezat 3-4leté výhony u země', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 4, label: 'Mulčování', type: 'mulching' },
+    ] },
+  { id: 243, nameCz: 'Rybíz červený', nameLat: 'Ribes rubrum', category: 'fruits',
+    description: 'Tradiční keř s průsvitnými červenými hrozny. Sladko-kyselé bobule v červenci, dobrý na rosolí a sušení.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '100-150 cm', zone: '3-7',
+    tasks: [
+      { month: 7, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 2, label: 'Zimní řez — vyřezat 4-5leté větve', type: 'pruning' },
+      { month: 3, label: 'Přihnojit', type: 'fertilizing' },
+    ] },
+  { id: 244, nameCz: 'Angrešt', nameLat: 'Ribes uva-crispa', category: 'fruits',
+    description: 'Trnitý keř s velkými zelenými, žlutými nebo červenými bobulemi. Sklizeň červen-červenec, vhodný na kompoty a koláče.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '80-150 cm', zone: '3-8',
+    tasks: [
+      { month: 6, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 2, label: 'Zimní řez (prosvětlit)', type: 'pruning' },
+      { month: 5, label: 'Kontrola amerického padlí angreštového', type: 'protection' },
+    ] },
+  { id: 245, nameCz: 'Aronie', nameLat: 'Aronia melanocarpa', category: 'fruits',
+    description: 'Houževnatý keř s černými bobulemi bohatými na antioxidanty. Bílé květy na jaře, krásné podzimní zbarvení listů.',
+    light: 'Plné slunce', water: 'Mírná', height: '100-200 cm', zone: '3-8',
+    tasks: [
+      { month: 9, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 3, label: 'Jarní řez (vyřezat staré výhony)', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 246, nameCz: 'Borůvka zahradní', nameLat: 'Vaccinium corymbosum', category: 'fruits',
+    description: 'Vyšší kanadská borůvka s velkými sladkými bobulemi. Vyžaduje kyselou půdu (rašelinu) — bez ní neroste.',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '100-200 cm', zone: '3-8',
+    tasks: [
+      { month: 7, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 3, label: 'Přihnojit hnojivem pro rododendrony', type: 'fertilizing' },
+      { month: 4, label: 'Mulčování borovicovými jehličinami nebo kůrou', type: 'mulching' },
+      { month: 2, label: 'Zimní řez starých výhonů', type: 'pruning' },
+    ] },
+  { id: 247, nameCz: 'Rakytník řešetlákový', nameLat: 'Hippophae rhamnoides', category: 'fruits',
+    description: 'Trnitý keř s oranžovými bobulemi velmi bohatými na vitamín C. Pozor: dvojdomá rostlina — nutno sázet samce i samici.',
+    light: 'Plné slunce', water: 'Nízká', height: '200-400 cm', zone: '3-8',
+    tasks: [
+      { month: 9, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 2, label: 'Tvarovací řez', type: 'pruning' },
+      { month: 3, label: 'Přihnojit (snáší i chudou půdu)', type: 'fertilizing' },
+    ] },
+
+  // ==================== TRVALKY ====================
+  { id: 248, nameCz: 'Pivoňka čínská', nameLat: 'Paeonia lactiflora', category: 'ornamental',
+    description: 'Vytrvalá s velkými nádherně vonnými květy v květnu-červnu. Dlouhověká — po výsadbě vydrží desítky let.',
+    light: 'Plné slunce', water: 'Mírná', height: '70-100 cm', zone: '3-8',
+    tasks: [
+      { month: 9, label: 'Výsadba/přesazení (mělce — pupeny max 3 cm pod povrchem)', type: 'protection' },
+      { month: 4, label: 'Postavit opory pro květy', type: 'protection' },
+      { month: 6, label: 'Odstranit odkvetlé květy', type: 'pruning' },
+      { month: 11, label: 'Sříznout natě po prvních mrazících', type: 'pruning' },
+    ] },
+  { id: 249, nameCz: 'Pivoňka stromová', nameLat: 'Paeonia suffruticosa', category: 'ornamental',
+    description: 'Polokeř s velkými talířovitými květy. Větve přezimují — neořezávat na podzim! Dlouhověká, vyžaduje chráněné místo.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '100-200 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Lehký jarní řez — jen suché větve', type: 'pruning' },
+      { month: 6, label: 'Odstranit odkvetlé květy', type: 'pruning' },
+      { month: 11, label: 'Mulčování kořenového balu', type: 'mulching' },
+    ] },
+  { id: 250, nameCz: 'Kosatec německý', nameLat: 'Iris germanica', category: 'ornamental',
+    description: 'Klasický kosatec s mohutnými oddenky. Kvete v květnu-červnu v bohaté paletě barev. Sucho-milovný, snadná péče.',
+    light: 'Plné slunce', water: 'Nízká', height: '60-100 cm', zone: '3-9',
+    tasks: [
+      { month: 7, label: 'Dělení a přesazení po odkvětu', type: 'pruning' },
+      { month: 6, label: 'Odstranit odkvetlé květy', type: 'pruning' },
+      { month: 11, label: 'Sříznout listy do tvaru V (asi 15 cm)', type: 'pruning' },
+    ] },
+  { id: 251, nameCz: 'Kosatec sibiřský', nameLat: 'Iris sibirica', category: 'ornamental',
+    description: 'Drobnější kosatec se štíhlými stvoly a modrofialovými květy. Snáší vlhkou půdu — dobrý k jezírku.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '60-90 cm', zone: '3-8',
+    tasks: [
+      { month: 9, label: 'Dělení velkých trsů', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 252, nameCz: 'Denivka', nameLat: 'Hemerocallis', category: 'ornamental',
+    description: 'Trvalka s lilijovitými květy. Každý květ vydrží jen jeden den, ale rostlina kvete týdny. Velmi nenáročná.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '40-100 cm', zone: '3-9',
+    tasks: [
+      { month: 4, label: 'Dělení velkých trsů na jaře', type: 'pruning' },
+      { month: 7, label: 'Odstranit odkvetlé stvoly', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 253, nameCz: 'Třapatka nachová', nameLat: 'Echinacea purpurea', category: 'ornamental',
+    description: 'Trvalka s velkými růžovo-fialovými květy s prominentním středem. Kvete od července do října. Léčivá, oblíbená u motýlů.',
+    light: 'Plné slunce', water: 'Mírná', height: '70-120 cm', zone: '3-9',
+    tasks: [
+      { month: 4, label: 'Dělení trsů na jaře', type: 'pruning' },
+      { month: 8, label: 'Sklizeň květů pro sušení (čaj)', type: 'harvest' },
+      { month: 11, label: 'Nechat semenné hlavy pro ptáky přes zimu', type: 'protection' },
+    ] },
+  { id: 254, nameCz: 'Třapatka zářivá', nameLat: 'Rudbeckia fulgida', category: 'ornamental',
+    description: 'Trvalka se žlutými okvětními lístky a černým středem. Tvoří kompaktní trsy, kvete srpen-říjen, krásně oživuje pozdní léto.',
+    light: 'Plné slunce', water: 'Mírná', height: '50-80 cm', zone: '3-9',
+    tasks: [
+      { month: 4, label: 'Dělení trsů', type: 'pruning' },
+      { month: 10, label: 'Odstranit odkvetlé stvoly', type: 'pruning' },
+    ] },
+  { id: 255, nameCz: 'Rozchodník Herbstfreude', nameLat: "Sedum 'Herbstfreude'", category: 'ornamental',
+    description: 'Vyšší rozchodník s šedavě zelenými listy a růžovými květenstvími v srpnu-říjnu, na podzim přechází do tmavě červené. Sucho-milovný.',
+    light: 'Plné slunce', water: 'Nízká', height: '40-60 cm', zone: '3-9',
+    tasks: [
+      { month: 3, label: 'Sříznout suché loňské stvoly', type: 'pruning' },
+      { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
+    ] },
+  { id: 256, nameCz: 'Šalvěj hajní', nameLat: 'Salvia nemorosa', category: 'ornamental',
+    description: 'Vytrvalá šalvěj s tmavě modrofialovými klasy. Snáší sucho, krásně barví záhony v červnu, oblíbená u včel.',
+    light: 'Plné slunce', water: 'Nízká', height: '40-60 cm', zone: '4-8',
+    tasks: [
+      { month: 7, label: 'Řez po odkvětu pro druhou vlnu', type: 'pruning' },
+      { month: 3, label: 'Sříznout loňské natě', type: 'pruning' },
+    ] },
+  { id: 257, nameCz: 'Astilba čínská', nameLat: 'Astilbe chinensis', category: 'ornamental',
+    description: 'Trvalka pro polostín s prachově růžovými, bílými nebo červenými péřovitými květenstvími. Vyžaduje vlhkou půdu.',
+    light: 'Polostín', water: 'Hojná', height: '40-80 cm', zone: '4-8',
+    tasks: [
+      { month: 4, label: 'Dělení starších trsů', type: 'pruning' },
+      { month: 4, label: 'Mulčování pro udržení vlhkosti', type: 'mulching' },
+      { month: 11, label: 'Sříznout natě', type: 'pruning' },
+    ] },
+  { id: 258, nameCz: 'Čemeřice černá', nameLat: 'Helleborus niger', category: 'ornamental',
+    description: 'Stálezelená trvalka s velkými bílými květy v zimě (leden-březen). „Vánoční růže" — kvete v nejtemnější části roku.',
+    light: 'Polostín až stín', water: 'Mírná', height: '25-40 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Odstranit staré poškozené listy', type: 'pruning' },
+      { month: 9, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 259, nameCz: 'Bergenie srdčitá', nameLat: 'Bergenia cordifolia', category: 'ornamental',
+    description: 'Stálezelená trvalka s velkými kožovitými listy a růžovými květy v dubnu. Listy se na podzim zbarvují do červena.',
+    light: 'Polostín', water: 'Mírná', height: '30-50 cm', zone: '3-8',
+    tasks: [
+      { month: 5, label: 'Odstranit odkvetlé stvoly', type: 'pruning' },
+      { month: 4, label: 'Dělení starých trsů', type: 'pruning' },
+    ] },
+  { id: 260, nameCz: 'Hosta', nameLat: 'Hosta', category: 'ornamental',
+    description: 'Stinná trvalka s ozdobnými listy v různých odstínech zelené, modré, žluté i bílo-zelené. Klasika polostínových záhonů.',
+    light: 'Polostín až stín', water: 'Hojná', height: '30-80 cm', zone: '3-9',
+    tasks: [
+      { month: 4, label: 'Mulčování proti slimákům (zlomky skořápek, kávová sedlina)', type: 'mulching' },
+      { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
+      { month: 11, label: 'Sříznout zaschlé listy', type: 'pruning' },
+    ] },
+  { id: 261, nameCz: 'Kontryhel měkký', nameLat: 'Alchemilla mollis', category: 'ornamental',
+    description: 'Trvalka s charakteristickými oválnými listy zachycujícími rosu v drobné kuličky. Drobné žlutozelené květy v červnu-červenci.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '30-50 cm', zone: '3-8',
+    tasks: [
+      { month: 7, label: 'Sříznout odkvetlé části (chrání proti samovýsevu)', type: 'pruning' },
+      { month: 4, label: 'Dělení trsů', type: 'pruning' },
+    ] },
+  { id: 262, nameCz: 'Zvonek broskvolistý', nameLat: 'Campanula persicifolia', category: 'ornamental',
+    description: 'Vytrvalý zvonek s modrými nebo bílými zvonkovitými květy v červnu-červenci. Snáší polostín, vhodný do venkovských zahrad.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '60-100 cm', zone: '3-8',
+    tasks: [
+      { month: 7, label: 'Odstranit odkvetlé stvoly pro druhý květ', type: 'pruning' },
+      { month: 4, label: 'Dělení trsů', type: 'pruning' },
+    ] },
+  { id: 263, nameCz: 'Chrpa horská', nameLat: 'Centaurea montana', category: 'ornamental',
+    description: 'Vytrvalá chrpa s velkými modrými hvězdovitými květy v květnu-červnu. Houževnatá a nenáročná, snadno se samovýsevem rozrůstá.',
+    light: 'Plné slunce', water: 'Mírná', height: '40-60 cm', zone: '3-8',
+    tasks: [
+      { month: 7, label: 'Sříznout odkvetlé části pro druhý květ', type: 'pruning' },
+      { month: 4, label: 'Dělení trsů', type: 'pruning' },
+    ] },
+
+  // ==================== LETNIČKY ====================
+  { id: 264, nameCz: 'Pelargonie', nameLat: 'Pelargonium x hortorum', category: 'annuals',
+    description: 'Klasická balkonová letnička s červenými, růžovými nebo bílými květy. Snáší sucho, kvete od května do mrazu.',
+    light: 'Plné slunce', water: 'Mírná', height: '30-50 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit do truhlíků po posledních mrazech', type: 'protection' },
+      { month: 6, label: 'Pravidelně odstraňovat odkvetlé květy', type: 'pruning' },
+      { month: 10, label: 'Před mrazem přenést do chladné místnosti pro přezimování', type: 'protection' },
+    ] },
+  { id: 265, nameCz: 'Petúnie', nameLat: 'Petunia x hybrida', category: 'annuals',
+    description: 'Trumpetovitá letnička s pestrými květy v celé paletě barev. Klasika do truhlíků i záhonů, kvete od května do října.',
+    light: 'Plné slunce', water: 'Mírná', height: '20-40 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit do truhlíků', type: 'protection' },
+      { month: 6, label: 'Týdně hnojit (slabě, často)', type: 'fertilizing' },
+      { month: 7, label: 'Odstřihnout přerostlé výhony pro nový růst', type: 'pruning' },
+    ] },
+  { id: 266, nameCz: 'Begónie hlíznatá', nameLat: 'Begonia x tuberhybrida', category: 'annuals',
+    description: 'Letnička pro stín a polostín s velkými růžemi podobnými květy. Hlízy lze přezimovat a použít znovu příští rok.',
+    light: 'Polostín', water: 'Mírná', height: '20-40 cm', zone: '9-11',
+    tasks: [
+      { month: 3, label: 'Předpěstovat hlízy v chladném skleníku/parapetu', type: 'protection' },
+      { month: 5, label: 'Vysadit na stinné místo po mrazech', type: 'protection' },
+      { month: 10, label: 'Vykopat hlízy a uskladnit v chladu (rašelina)', type: 'protection' },
+    ] },
+  { id: 267, nameCz: 'Surfinie', nameLat: "Petunia 'Surfinia'", category: 'annuals',
+    description: 'Bohatě převislá petúnie pro závěsné koše. Snáší dešťové počasí lépe než klasická petúnie, kvete velmi vydatně.',
+    light: 'Plné slunce', water: 'Hojná', height: '30-80 cm (převislá)', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit do závěsných košů', type: 'protection' },
+      { month: 6, label: 'Pravidelné hnojení (1× týdně)', type: 'fertilizing' },
+      { month: 7, label: 'Zkrátit přerostlé výhony pro nový květ', type: 'pruning' },
+    ] },
+  { id: 268, nameCz: 'Verbena', nameLat: 'Verbena x hybrida', category: 'annuals',
+    description: 'Letnička s drobnými hvězdovitými květy v jásavých barvách. Kvete od června do mrazu, vhodná do truhlíků i záhonů.',
+    light: 'Plné slunce', water: 'Mírná', height: '20-40 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit po mrazech', type: 'protection' },
+      { month: 7, label: 'Sříznout přerostlé výhony pro nový květ', type: 'pruning' },
+    ] },
+  { id: 269, nameCz: 'Lobelka', nameLat: 'Lobelia erinus', category: 'annuals',
+    description: 'Nízká letnička s drobnými modrými, fialovými nebo bílými květy. Klasická „modř" do truhlíků a závěsných košů.',
+    light: 'Polostín', water: 'Mírná', height: '10-25 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit do truhlíků a košů', type: 'protection' },
+      { month: 7, label: 'Sříznout pro druhou vlnu kvetení', type: 'pruning' },
+    ] },
+  { id: 270, nameCz: 'Aksamitník vzpřímený', nameLat: 'Tagetes erecta', category: 'annuals',
+    description: 'Žlutě či oranžově kvetoucí letnička. Vůně odpuzuje škůdce — ideální vysazovat mezi zeleninu jako přirozená ochrana.',
+    light: 'Plné slunce', water: 'Mírná', height: '30-80 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit nebo přímo vysít na záhon', type: 'protection' },
+      { month: 7, label: 'Odstraňovat odkvetlé květy pro dlouhé kvetení', type: 'pruning' },
+      { month: 10, label: 'Sběr semen pro příští rok', type: 'harvest' },
+    ] },
+  { id: 271, nameCz: 'Astra čínská', nameLat: 'Callistephus chinensis', category: 'annuals',
+    description: 'Letnička s hvězdovitými květy podobnými chryzantémám. Kvete srpen-říjen, vhodná na řez do váz.',
+    light: 'Plné slunce', water: 'Mírná', height: '30-80 cm', zone: '9-11',
+    tasks: [
+      { month: 4, label: 'Předpěstovat sazenice v parapetu', type: 'protection' },
+      { month: 5, label: 'Vysadit po mrazech', type: 'protection' },
+      { month: 9, label: 'Sklizeň květů na vázu', type: 'harvest' },
+    ] },
+  { id: 272, nameCz: 'Zinia', nameLat: 'Zinnia elegans', category: 'annuals',
+    description: 'Pestrobarevné letničky s velkými plnokvětými hlavičkami. Sucho-milovná, kvete celé léto až do prvních mrazů.',
+    light: 'Plné slunce', water: 'Mírná', height: '50-100 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Přímý výsev po posledních mrazech', type: 'protection' },
+      { month: 8, label: 'Pravidelně odstraňovat odkvetlé květy', type: 'pruning' },
+      { month: 9, label: 'Sběr semen', type: 'harvest' },
+    ] },
+  { id: 273, nameCz: 'Slunečnice roční', nameLat: 'Helianthus annuus', category: 'annuals',
+    description: 'Vysoká letnička s obřími žlutými květy otáčejícími se za sluncem. Sklizeň jedlých semen na podzim.',
+    light: 'Plné slunce', water: 'Hojná', height: '100-300 cm', zone: '4-10',
+    tasks: [
+      { month: 5, label: 'Přímý výsev po mrazech', type: 'protection' },
+      { month: 7, label: 'Vázat vysoké stvoly k oporám', type: 'protection' },
+      { month: 9, label: 'Sklizeň semen po vyzrání', type: 'harvest' },
+    ] },
+
+  // ==================== ŽIVÉ PLOTY A STROMY ====================
+  { id: 274, nameCz: 'Habr obecný', nameLat: 'Carpinus betulus', category: 'trees',
+    description: 'Listnatý strom snášející řez — ideální pro vysoké stříhané živé ploty. Suché listy přezimují na větvích jako přirozená clona.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '500-1500 cm', zone: '4-8',
+    tasks: [
+      { month: 7, label: 'Hlavní letní řez živého plotu', type: 'pruning' },
+      { month: 2, label: 'Zimní formovací řez', type: 'pruning' },
+    ] },
+  { id: 275, nameCz: 'Tis červený', nameLat: 'Taxus baccata', category: 'shrubs',
+    description: 'Stálezelený jehličnan s tmavě zelenými jehlicemi a červenými míšky. Velmi pomalý růst, snáší i silný řez — klasika pro tvarování.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-1000 cm', zone: '5-8',
+    tasks: [
+      { month: 6, label: 'Řez živého plotu', type: 'pruning' },
+      { month: 9, label: 'Druhý formovací řez', type: 'pruning' },
+    ] },
+  { id: 276, nameCz: 'Buxus zimostráz', nameLat: 'Buxus sempervirens', category: 'shrubs',
+    description: 'Klasický stálezelený keř pro nízké živé ploty a tvarování. POZOR: silně ohrožen zavíječem buxusovým a houbovou nekrózou — vyžaduje pravidelnou kontrolu.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '50-300 cm', zone: '5-9',
+    tasks: [
+      { month: 6, label: 'První tvarovací řez', type: 'pruning' },
+      { month: 8, label: 'Druhý řez', type: 'pruning' },
+      { month: 5, label: 'Kontrola zavíječe buxusového', type: 'protection' },
+      { month: 7, label: 'Druhá kontrola zavíječe', type: 'protection' },
+    ] },
+  { id: 277, nameCz: 'Cesmína ostrolistá', nameLat: 'Ilex aquifolium', category: 'shrubs',
+    description: 'Stálezelený keř s lesklými ostnitými listy a červenými bobulemi v zimě. Vánoční symbol, krásné větvičky na výzdobu.',
+    light: 'Polostín', water: 'Mírná', height: '200-500 cm', zone: '6-9',
+    tasks: [
+      { month: 6, label: 'Tvarovací řez', type: 'pruning' },
+      { month: 11, label: 'Sklizeň větviček s bobulemi na výzdobu', type: 'harvest' },
+    ] },
+  { id: 278, nameCz: 'Hloh jednosemenný', nameLat: 'Crataegus monogyna', category: 'trees',
+    description: 'Trnitý keř/strom s bílými květy v květnu a červenými bobulemi (haw) na podzim. Klasika venkovských živých plotů a remízků.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-800 cm', zone: '4-8',
+    tasks: [
+      { month: 2, label: 'Zimní řez', type: 'pruning' },
+      { month: 9, label: 'Sklizeň plodů (pro čaj, marmeládu)', type: 'harvest' },
+    ] },
+  { id: 279, nameCz: 'Javor mléč', nameLat: 'Acer platanoides', category: 'trees',
+    description: 'Vysoký listnatý strom se žlutou až oranžovou podzimní barvou. Rychle rostoucí, dobrý do parků a větších zahrad.',
+    light: 'Plné slunce', water: 'Mírná', height: '1000-2500 cm', zone: '3-7',
+    tasks: [
+      { month: 7, label: 'Letní řez (zimní řez způsobuje mízotok)', type: 'pruning' },
+    ] },
+  { id: 280, nameCz: 'Bříza bělokorá', nameLat: 'Betula pendula', category: 'trees',
+    description: 'Štíhlý strom s charakteristickou bílou borkou a převislými větvemi. Klasika české krajiny, vhodná do skupinových výsadeb.',
+    light: 'Plné slunce', water: 'Mírná', height: '1500-2500 cm', zone: '3-7',
+    tasks: [
+      { month: 7, label: 'Letní řez (zimní způsobuje silný mízotok)', type: 'pruning' },
+    ] },
+  { id: 281, nameCz: 'Pajasan žláznatý', nameLat: 'Ailanthus altissima', category: 'trees',
+    description: 'POZOR: INVAZIVNÍ druh v ČR, NEdoporučuje se vysazovat. Pokud již roste, je třeba ho aktivně potlačovat — rychle se šíří kořenovými výmladky.',
+    light: 'Plné slunce', water: 'Nízká', height: '1500-2500 cm', zone: '5-9',
+    tasks: [
+      { month: 7, label: 'Řez výmladků', type: 'pruning' },
+      { month: 3, label: 'Likvidace náletů a kořenových výmladků', type: 'protection' },
+    ] },
+
+  // ==================== POPÍNAVÉ — DOPLNĚNÍ ====================
+  { id: 282, nameCz: 'Růže popínavá Rambler', nameLat: 'Rosa multiflora rambler', category: 'climbers',
+    description: 'Bohatě kvetoucí popínavá růže pro pergoly, pavilony a vysoké ploty. Po vykvětu (červen-červenec) tvoří mračna drobných květů. Kvete jednou ročně, ale velkoryse.',
+    light: 'Plné slunce', water: 'Mírná', height: '300-700 cm', zone: '4-9',
+    tasks: [
+      { month: 8, label: 'Řez po odkvětu — odstranit staré výhony', type: 'pruning' },
+      { month: 3, label: 'Přivázat mladé výhony k opoře', type: 'protection' },
+      { month: 3, label: 'Přihnojit speciálním hnojivem pro růže', type: 'fertilizing' },
+      { month: 11, label: 'Zazimovat kořenovou krčku navršenou hlínou', type: 'protection' },
+    ] },
+  { id: 283, nameCz: 'Chmel otáčivý', nameLat: 'Humulus lupulus', category: 'climbers',
+    description: 'Rychle rostoucí trvalka, která každoročně odumírá k zemi a na jaře znovu vyrůstá. Samičí rostliny tvoří aromatické chmelové hlávky (jen ty samičí — nutno vědět při nákupu).',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '500-800 cm (za sezónu)', zone: '3-8',
+    tasks: [
+      { month: 4, label: 'Přivázat mladé výhony k opoře', type: 'protection' },
+      { month: 8, label: 'Sklizeň chmelových hlávek (samičí rostlina)', type: 'harvest' },
+      { month: 11, label: 'Sříznout uschlé výhony u země', type: 'pruning' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 284, nameCz: 'Aktinidie význačná', nameLat: 'Actinidia arguta', category: 'climbers',
+    description: 'Mrazuvzdorné mini-kiwi s hladkou slupkou velikosti hroznového vína. Sladké jedlé plody bohaté na vitamín C. Nutno sázet samce i samici (1 samec na 6-8 samic).',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-800 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Zimní řez (silný — formování ramen)', type: 'pruning' },
+      { month: 6, label: 'Letní řez nadbytečných výhonů', type: 'pruning' },
+      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 9, label: 'Sklizeň plodů (postupně dozrávají)', type: 'harvest' },
+    ] },
+  { id: 285, nameCz: 'Hortenzie popínavá', nameLat: 'Hydrangea petiolaris', category: 'climbers',
+    description: 'Mrazuvzdorná popínavka pro stinné zdi. Drží se vlastními příchytnými kořínky (jako břečťan). Bílé chocholíky květů v červnu. Pomalý začátek, pak bujný růst.',
+    light: 'Polostín až stín', water: 'Mírná', height: '500-1000 cm', zone: '4-8',
+    tasks: [
+      { month: 3, label: 'Lehký jarní tvarovací řez', type: 'pruning' },
+      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
+      { month: 11, label: 'Mulčování kořenového balu', type: 'mulching' },
+    ] },
+  { id: 286, nameCz: 'Křídlatka japonská', nameLat: 'Reynoutria japonica', category: 'climbers',
+    description: 'POZOR: HIGHLY INVAZIVNÍ druh, v ČR vážně regulovaný. NEdoporučuje se vysazovat — vegetativně se šíří oddenky, rozrušuje zdi i základy. Pokud již roste, intenzivně potlačovat.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-300 cm (za sezónu)', zone: '4-9',
+    tasks: [
+      { month: 6, label: 'Pokosit a vykopat oddenky (opakovaně!)', type: 'protection' },
+      { month: 8, label: 'Druhá likvidace náletů', type: 'protection' },
+      { month: 4, label: 'Nahlásit do iNaturalist nebo místní agentuře', type: 'protection' },
+    ] },
+
+  // ==================== DROBNÉ OVOCE — DOPLNĚNÍ ====================
+  { id: 287, nameCz: 'Maliník červený', nameLat: 'Rubus idaeus', category: 'fruits',
+    description: 'Klasický keř s červenými aromatickými plody. Rozlišuje se na letní (plodí na loňských výhonech) a podzimní (plodí na letošních) — způsob řezu se liší.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '150-200 cm', zone: '3-8',
+    tasks: [
+      { month: 7, label: 'Sklizeň plodů letních odrůd', type: 'harvest' },
+      { month: 9, label: 'Sklizeň plodů podzimních odrůd', type: 'harvest' },
+      { month: 11, label: 'Letní odrůdy: vyřezat odplozené výhony', type: 'pruning' },
+      { month: 3, label: 'Podzimní odrůdy: sříznout vše k zemi', type: 'pruning' },
+      { month: 4, label: 'Mulčování (kompost, sláma)', type: 'mulching' },
+    ] },
+  { id: 288, nameCz: 'Maliník žlutý', nameLat: "Rubus idaeus 'Fallgold'", category: 'fruits',
+    description: 'Žluto-oranžové sladké maliny s velmi jemnou chutí. Méně známá ale výnosná podzimní odrůda. Plody se nepoznají kosi tak dobře — výhoda pro pěstitele.',
+    light: 'Plné slunce', water: 'Mírná', height: '150-180 cm', zone: '4-8',
+    tasks: [
+      { month: 9, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 3, label: 'Sříznout všechny výhony k zemi (podzimní typ)', type: 'pruning' },
+      { month: 4, label: 'Mulčování kompostem', type: 'mulching' },
+    ] },
+  { id: 289, nameCz: 'Ostružiník křovitý', nameLat: 'Rubus fruticosus', category: 'fruits',
+    description: 'Trnitý keř s černými aromatickými plody. Velmi výnosný, ale ostnité výhony vyžadují opatrnost. Sklizeň od srpna do října.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '150-250 cm', zone: '4-8',
+    tasks: [
+      { month: 8, label: 'Sklizeň plodů (postupně)', type: 'harvest' },
+      { month: 11, label: 'Vyřezat odplozené výhony u země', type: 'pruning' },
+      { month: 3, label: 'Přivázat mladé výhony k drátěnce', type: 'protection' },
+      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 290, nameCz: 'Ostružiník beztrnný', nameLat: "Rubus fruticosus 'Thornfree'", category: 'fruits',
+    description: 'Bezostnitá kulturní odrůda ostružiníku — bezpečné sklizení i pro děti. Velké sladké černé plody, výnos srovnatelný s trnitými.',
+    light: 'Plné slunce', water: 'Mírná', height: '200-300 cm', zone: '5-8',
+    tasks: [
+      { month: 8, label: 'Sklizeň plodů', type: 'harvest' },
+      { month: 11, label: 'Vyřezat odplozené výhony', type: 'pruning' },
+      { month: 3, label: 'Přivázat mladé výhony k opoře', type: 'protection' },
+    ] },
+  { id: 291, nameCz: 'Jahoda lesní', nameLat: 'Fragaria vesca', category: 'fruits',
+    description: 'Drobná divoká jahoda s intenzivní vůní a chutí. Naturalizuje se na okrajích zahrady a v polostínu. Sklizeň dlouhá, od června do podzimu.',
+    light: 'Polostín', water: 'Mírná', height: '15-25 cm', zone: '4-8',
+    tasks: [
+      { month: 6, label: 'Sklizeň plodů (postupně celé léto)', type: 'harvest' },
+      { month: 4, label: 'Mulčování kořenového balu slámou', type: 'mulching' },
+      { month: 8, label: 'Sázení nových rostlin ze šlahounů', type: 'protection' },
+    ] },
+  { id: 292, nameCz: 'Jahoda měsíční', nameLat: 'Fragaria vesca var. semperflorens', category: 'fruits',
+    description: 'Vyšlechtěná jahoda lesní, která kvete a plodí nepřetržitě od května do října. Vhodná na okraje záhonů, v truhlících i jako půdokrytná.',
+    light: 'Polostín', water: 'Mírná', height: '15-25 cm', zone: '4-8',
+    tasks: [
+      { month: 5, label: 'Sklizeň plodů (začátek sezóny)', type: 'harvest' },
+      { month: 9, label: 'Pozdní sklizeň plodů', type: 'harvest' },
+      { month: 4, label: 'Mulčování (sláma proti hlíně na plodech)', type: 'mulching' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+  { id: 293, nameCz: 'Jeřáb obecný', nameLat: 'Sorbus aucuparia', category: 'fruits',
+    description: 'Tradiční český strom s bílými květy a oranžově-červenými plody (jeřabinami). Plody jsou jedlé po prvním mraze (snižuje hořkost) — vhodné na marmelády a likéry.',
+    light: 'Plné slunce', water: 'Mírná', height: '500-1000 cm', zone: '3-7',
+    tasks: [
+      { month: 11, label: 'Sklizeň plodů po prvních mrazících', type: 'harvest' },
+      { month: 2, label: 'Zimní formovací řez', type: 'pruning' },
+    ] },
+  { id: 294, nameCz: 'Jeřáb oskeruše', nameLat: 'Sorbus domestica', category: 'fruits',
+    description: 'Vzácný ovocný strom se sladkými plody hruškovitého tvaru. Tradiční moravská dřevina, plody se používají na pálenku (oskerušová slivovice).',
+    light: 'Plné slunce', water: 'Mírná', height: '800-1500 cm', zone: '5-8',
+    tasks: [
+      { month: 10, label: 'Sklizeň plodů (na ležení do měkka nebo na pálenku)', type: 'harvest' },
+      { month: 2, label: 'Zimní řez (jen suchých větví)', type: 'pruning' },
+    ] },
+  { id: 295, nameCz: 'Kdoulovec japonský', nameLat: 'Chaenomeles japonica', category: 'fruits',
+    description: 'Trnitý keř s nápadnými oranžovo-červenými květy v dubnu a žlutými aromatickými plody na podzim. Plody tvrdé, kyselé — vhodné na čaj, marmeládu, likéry.',
+    light: 'Plné slunce až polostín', water: 'Mírná', height: '80-150 cm', zone: '5-8',
+    tasks: [
+      { month: 5, label: 'Řez po odkvětu', type: 'pruning' },
+      { month: 10, label: 'Sklizeň plodů (po prvních mrazících)', type: 'harvest' },
+      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
+    ] },
+
+  // ==================== BYLINY — DOPLNĚNÍ ====================
+  { id: 296, nameCz: 'Saturejka zahradní', nameLat: 'Satureja hortensis', category: 'herbs',
+    description: 'Aromatická letní bylina podobná tymiánu, ale jemnější. Klasické koření k fazolím (proto „fazolová bylina"), masu a houbám. Velmi snadné pěstování ze semínek.',
+    light: 'Plné slunce', water: 'Nízká', height: '20-40 cm', zone: '5-10',
+    tasks: [
+      { month: 5, label: 'Přímý výsev po posledních mrazech', type: 'protection' },
+      { month: 7, label: 'Sklizeň před květem (nejvíc aroma)', type: 'harvest' },
+      { month: 8, label: 'Sušení svazečků ve stínu', type: 'harvest' },
+    ] },
+  { id: 297, nameCz: 'Yzop lékařský', nameLat: 'Hyssopus officinalis', category: 'herbs',
+    description: 'Vytrvalá keříčkovitá bylina s modrými/růžovými/bílými klasy. Léčivá, aromatická, sucho-milovná. Dobrá včelařská bylina.',
+    light: 'Plné slunce', water: 'Nízká', height: '40-60 cm', zone: '4-9',
+    tasks: [
+      { month: 3, label: 'Sříznout loňské stvoly o 1/3', type: 'pruning' },
+      { month: 6, label: 'Sklizeň kvetoucích vršků pro sušení', type: 'harvest' },
+      { month: 8, label: 'Druhá sklizeň po druhém květu', type: 'harvest' },
+    ] },
+  { id: 298, nameCz: 'Majoránka zahradní', nameLat: 'Origanum majorana', category: 'herbs',
+    description: 'Jemnější a sladší než dobromysl/oregano. Klasické koření k masu, paštikám, polévkám. V ČR se obvykle pěstuje jako letnička (citlivá na mráz).',
+    light: 'Plné slunce', water: 'Nízká', height: '20-40 cm', zone: '9-11',
+    tasks: [
+      { month: 5, label: 'Vysadit po posledních mrazech', type: 'protection' },
+      { month: 7, label: 'První sklizeň před květem', type: 'harvest' },
+      { month: 9, label: 'Druhá sklizeň', type: 'harvest' },
+    ] },
+  { id: 299, nameCz: 'Kerblík třebule', nameLat: 'Anthriscus cerefolium', category: 'herbs',
+    description: 'Jemná aromatická letnička podobná petrželi, ale s anýzovou vůní. Klasická složka francouzské bylinky „fines herbes". Snáší polostín.',
+    light: 'Polostín', water: 'Mírná', height: '30-50 cm', zone: '6-9',
+    tasks: [
+      { month: 4, label: 'Přímý výsev (postupně do podzimu)', type: 'protection' },
+      { month: 6, label: 'Sklizeň mladých listů', type: 'harvest' },
+      { month: 9, label: 'Pozdní výsev pro podzimní sklizeň', type: 'protection' },
+    ] },
+  { id: 300, nameCz: 'Bedrník anýz', nameLat: 'Pimpinella anisum', category: 'herbs',
+    description: 'Letnička s charakteristickou anýzovou vůní. Semena se používají do pečení, do likérů, do čajů. Vyžaduje teplé a slunné stanoviště.',
+    light: 'Plné slunce', water: 'Nízká', height: '30-50 cm', zone: '6-10',
+    tasks: [
+      { month: 5, label: 'Přímý výsev (vyžaduje teplou půdu)', type: 'protection' },
+      { month: 8, label: 'Sklizeň semen po vyzrání (hnědnutí)', type: 'harvest' },
+    ] },
+  { id: 301, nameCz: 'Kopr vonný', nameLat: 'Anethum graveolens', category: 'herbs',
+    description: 'Aromatická letnička s jemnou peříčkovou natí. Nezbytný ke kvašeným okurkám, rybám, bramborám. Snadno se rozsévá samovýsevem.',
+    light: 'Plné slunce', water: 'Mírná', height: '60-120 cm', zone: '3-11',
+    tasks: [
+      { month: 4, label: 'Postupný výsev (každé 3 týdny do července)', type: 'protection' },
+      { month: 6, label: 'Sklizeň natě', type: 'harvest' },
+      { month: 8, label: 'Sklizeň semen pro koření', type: 'harvest' },
+    ] },
+  { id: 302, nameCz: 'Agastache anýzová', nameLat: 'Agastache foeniculum', category: 'herbs',
+    description: 'Vytrvalá bylina s fialovými klasy a anýzovou vůní listů. Skvělá včelařská bylina, listy do čaje. Snáší sucho.',
+    light: 'Plné slunce', water: 'Nízká', height: '60-100 cm', zone: '4-9',
+    tasks: [
+      { month: 3, label: 'Sříznout loňské stvoly', type: 'pruning' },
+      { month: 7, label: 'Sklizeň kvetoucích vršků pro sušení', type: 'harvest' },
+      { month: 4, label: 'Dělení starších trsů', type: 'pruning' },
+    ] },
+  { id: 303, nameCz: 'Kostival lékařský', nameLat: 'Symphytum officinale', category: 'herbs',
+    description: 'Vytrvalá léčivá bylina s drsnými listy a fialovými zvonkovitými květy. Listy se používají na obklady, kořen na masti. Také vynikající aktivátor kompostu.',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '60-120 cm', zone: '3-9',
+    tasks: [
+      { month: 5, label: 'První sklizeň listů na zelené hnojení', type: 'harvest' },
+      { month: 7, label: 'Druhá sklizeň listů (kompost)', type: 'harvest' },
+      { month: 9, label: 'Vykopání kořene pro masti (3. rok)', type: 'harvest' },
+    ] },
+
+  // ==================== VODNÍ A MOKŘADNÍ ====================
+  { id: 304, nameCz: 'Kosatec žlutý', nameLat: 'Iris pseudacorus', category: 'water',
+    description: 'Domácí mokřadní kosatec s velkými žlutými květy v květnu-červnu. Roste na okrajích jezírek až do 30 cm hluboko. Velmi expanzivní — vhodný do velkých jezírek.',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '80-150 cm', zone: '4-9',
+    tasks: [
+      { month: 7, label: 'Dělení trsů po odkvětu', type: 'pruning' },
+      { month: 11, label: 'Sříznout odumřelé listy', type: 'pruning' },
+    ] },
+  { id: 305, nameCz: 'Blatouch bahenní', nameLat: 'Caltha palustris', category: 'water',
+    description: 'První mokřadní květina jara — žluté pohárky v dubnu, ještě než vyrazí listy. Roste na okrajích jezírek a v podmáčených místech.',
+    light: 'Polostín', water: 'Hojná', height: '20-40 cm', zone: '3-7',
+    tasks: [
+      { month: 5, label: 'Odstranit odkvetlé květy (zabránit samovýsevu)', type: 'pruning' },
+      { month: 4, label: 'Dělení starých trsů', type: 'pruning' },
+    ] },
+  { id: 306, nameCz: 'Rákos obecný', nameLat: 'Phragmites australis', category: 'water',
+    description: 'POZOR: velmi expanzivní mokřadní tráva — sázet pouze do uzavřených částí jezírka nebo do filtračních polí. Tvoří husté kolonie, dobré přístřeší pro vodní ptactvo.',
+    light: 'Plné slunce', water: 'Hojná', height: '200-400 cm', zone: '3-10',
+    tasks: [
+      { month: 3, label: 'Sříznout loňské stvoly před novým růstem', type: 'pruning' },
+      { month: 7, label: 'Kontrola — vyřezávat výhony překračující hranice', type: 'protection' },
+    ] },
+  { id: 307, nameCz: 'Orobinec úzkolistý', nameLat: 'Typha angustifolia', category: 'water',
+    description: 'Vodní rostlina s nápadnými hnědými „doutníky" (palicemi) na podzim. Roste v hloubce do 50 cm. Listy lze plést, kořeny jedlé.',
+    light: 'Plné slunce', water: 'Hojná', height: '150-250 cm', zone: '3-9',
+    tasks: [
+      { month: 3, label: 'Sříznout odumřelé loňské stvoly', type: 'pruning' },
+      { month: 4, label: 'Dělení rozrůstajících se trsů', type: 'pruning' },
+    ] },
+  { id: 308, nameCz: 'Leknín bílý', nameLat: 'Nymphaea alba', category: 'water',
+    description: 'Klasický bílý leknín domácí v ČR. Plovoucí kruhové listy a velké voskovité květy v červenci-srpnu. Sázet do hloubky 50-150 cm.',
+    light: 'Plné slunce', water: 'Hojná', height: 'Plovoucí (hloubka 50-150 cm)', zone: '4-10',
+    tasks: [
+      { month: 4, label: 'Sázení nebo přesazení (před rašením)', type: 'protection' },
+      { month: 6, label: 'Odstranit zaschlé listy', type: 'pruning' },
+      { month: 4, label: 'Přihnojit speciálním hnojivem pro lekníny', type: 'fertilizing' },
+    ] },
+  { id: 309, nameCz: 'Stulík žlutý', nameLat: 'Nuphar lutea', category: 'water',
+    description: 'Mokřadní rostlina s žlutými polootevřenými květy a velkými plovoucími listy. Domácí v ČR, vhodný do přírodních jezírek. Snáší i mělčí vodu (30-150 cm).',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: 'Plovoucí (hloubka 30-150 cm)', zone: '4-10',
+    tasks: [
+      { month: 4, label: 'Sázení/dělení (před rašením)', type: 'protection' },
+      { month: 6, label: 'Odstranit zaschlé listy', type: 'pruning' },
+    ] },
+  { id: 310, nameCz: 'Šípatka vodní', nameLat: 'Sagittaria sagittifolia', category: 'water',
+    description: 'Mokřadní rostlina s charakteristickými šípovitými listy nad vodou a bílými trojčetnými květy. Roste v mělké vodě (5-30 cm).',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '40-80 cm', zone: '5-10',
+    tasks: [
+      { month: 5, label: 'Sázení do mělčí vody', type: 'protection' },
+      { month: 11, label: 'Sříznout odumřelé listy', type: 'pruning' },
+    ] },
+  { id: 311, nameCz: 'Žabník jitrocelový', nameLat: 'Alisma plantago-aquatica', category: 'water',
+    description: 'Mokřadní rostlina s jitrocelovitými listy a drobnými bílo-růžovými květy v latách. Vyrostá na okrajích jezírek do hloubky 20 cm.',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '50-80 cm', zone: '5-10',
+    tasks: [
+      { month: 7, label: 'Sříznout odkvetlé stvoly (zabránit samovýsevu)', type: 'pruning' },
+      { month: 4, label: 'Dělení rozrůstajících se trsů', type: 'pruning' },
+    ] },
+  { id: 312, nameCz: 'Vrbina penízková', nameLat: 'Lysimachia nummularia', category: 'water',
+    description: 'Plazivá trvalka s kulatými listy a žlutými poháročnými květy. Vynikající na okraje jezírka i jako půdokrytná v mokrých záhonech. Snáší i ponoření.',
+    light: 'Polostín', water: 'Hojná', height: '5-10 cm (plazivá)', zone: '4-9',
+    tasks: [
+      { month: 4, label: 'Dělení rozrůstajících se polštářů', type: 'pruning' },
+      { month: 7, label: 'Tvarovací řez (omezit šíření)', type: 'pruning' },
+    ] },
+
+  // ==================== SUKULENTY VENKOVNÍ ====================
+  { id: 313, nameCz: 'Agáve americké', nameLat: 'Agave americana', category: 'succulents',
+    description: 'Mohutný sukulent s šedo-zelenými mečovitými listy s ostnatými okraji. NENÍ mrazuvzdorné — pěstuje se v nádobě a v zimě stěhuje do chladu (5-10 °C).',
+    light: 'Plné slunce', water: 'Nízká', height: '100-200 cm', zone: '8-11',
+    tasks: [
+      { month: 5, label: 'Vystavit na zahradu po posledních mrazech', type: 'protection' },
+      { month: 10, label: 'Přenést na zimu do chladné světlé místnosti', type: 'protection' },
+      { month: 4, label: 'Přesadit do větší nádoby (každé 3-4 roky)', type: 'pruning' },
+    ] },
+  { id: 314, nameCz: 'Juka vláknitá', nameLat: 'Yucca filamentosa', category: 'succulents',
+    description: 'Mrazuvzdorná juka s tuhými mečovitými listy a vysokým květenstvím bílých zvonků v červenci-srpnu. Snáší až −25 °C, ideální do suchých alpinek.',
+    light: 'Plné slunce', water: 'Nízká', height: '100-200 cm (s květenstvím)', zone: '4-9',
+    tasks: [
+      { month: 8, label: 'Sříznout odkvetlé květenství', type: 'pruning' },
+      { month: 4, label: 'Odstranit suché loňské listy', type: 'pruning' },
+    ] },
+  { id: 315, nameCz: 'Opuncie nízká', nameLat: 'Opuntia humifusa', category: 'succulents',
+    description: 'Mrazuvzdorný kaktus snášející až −20 °C. Žluté květy v červnu, jedlé červené plody (po opálení trny). Vyžaduje dokonale propustnou suchou půdu.',
+    light: 'Plné slunce', water: 'Nízká', height: '15-30 cm', zone: '5-9',
+    tasks: [
+      { month: 5, label: 'Odhrnout zimní mulč', type: 'protection' },
+      { month: 9, label: 'Sklizeň plodů (opál trnů svíčkou)', type: 'harvest' },
+      { month: 11, label: 'Zazimovat suchým mulčem proti vlhkosti', type: 'protection' },
+    ] },
+  { id: 316, nameCz: 'Netřesk střešní', nameLat: 'Sempervivum tectorum', category: 'succulents',
+    description: 'Klasický mrazuvzdorný sukulent — kompaktní růžice na střechách, zídkách, alpinkách. Po vykvětení mateřská růžice odumírá, ale zanechává mnoho potomků.',
+    light: 'Plné slunce', water: 'Nízká', height: '5-15 cm (s květem do 30 cm)', zone: '3-9',
+    tasks: [
+      { month: 8, label: 'Odstranit odkvetlé mateřské růžice', type: 'pruning' },
+      { month: 5, label: 'Přesazení odsazenců', type: 'pruning' },
+    ] },
+  { id: 317, nameCz: 'Rozchodník bílý', nameLat: 'Sedum album', category: 'succulents',
+    description: 'Plazivá mrazuvzdorná trvalka s drobnými listy a bílými hvězdovitými květy v červnu-červenci. Ideální půdokryvná do suchých alpinek, na zídky a zelené střechy.',
+    light: 'Plné slunce', water: 'Nízká', height: '5-15 cm', zone: '3-9',
+    tasks: [
+      { month: 8, label: 'Sříznout odkvetlé stvoly', type: 'pruning' },
+      { month: 4, label: 'Dělení rozrůstajících se polštářů', type: 'pruning' },
+    ] },
+  { id: 318, nameCz: 'Rozchodník španělský', nameLat: 'Sedum hispanicum', category: 'succulents',
+    description: 'Drobný plazivý sukulent s šedavě zelenými listy a růžovými květy v červnu. Velmi nenáročný, vhodný do skalek, mezi dlažbu a na zelené střechy.',
+    light: 'Plné slunce', water: 'Nízká', height: '3-8 cm', zone: '5-9',
+    tasks: [
+      { month: 7, label: 'Sříznout odkvetlé části', type: 'pruning' },
+      { month: 4, label: 'Dělení polštářů', type: 'pruning' },
+    ] },
+
+  // ==================== OKRASNÉ TRÁVY — DOPLNĚNÍ ====================
+  { id: 319, nameCz: 'Metlice trsnatá', nameLat: 'Deschampsia cespitosa', category: 'grasses',
+    description: 'Domácí trsnatá tráva s jemnými klasy vznášejícími se nad listy. Snáší polostín i vlhčí půdu — ideální do přírodních zahrad a okrajů jezírek.',
+    light: 'Polostín', water: 'Mírná', height: '60-120 cm (s květy)', zone: '4-9',
+    tasks: [
+      { month: 3, label: 'Sříznout loňské listy', type: 'pruning' },
+      { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
+    ] },
+  { id: 320, nameCz: 'Ostřice Morrowova', nameLat: 'Carex morrowii', category: 'grasses',
+    description: 'Stálezelená trsnatá tráva (vlastně ostřice) s vícebarevnými variegátami. Ideální do polostínových záhonů a jako akcent celoroční zelené.',
+    light: 'Polostín', water: 'Mírná', height: '20-40 cm', zone: '5-9',
+    tasks: [
+      { month: 4, label: 'Vyčesat zaschlé listy hřebenem', type: 'pruning' },
+      { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
+    ] },
+  { id: 321, nameCz: 'Sítina rozkladitá', nameLat: 'Juncus effusus', category: 'grasses',
+    description: 'Trsnatá rostlina s rovnými oblými stvoly. Roste na mokrých půdách — ideální na okraje jezírek a v podmáčených místech. Existují i kroucené odrůdy ozdobné.',
+    light: 'Plné slunce až polostín', water: 'Hojná', height: '60-100 cm', zone: '4-9',
+    tasks: [
+      { month: 3, label: 'Sříznout loňské stvoly u země', type: 'pruning' },
+      { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
+    ] },
 ];
 
 // ==================== KATEGORIE ROSTLIN ====================
@@ -2348,6 +3263,9 @@ export const CATEGORY_DEFS = {
   shrubs: { key: 'kere', label: 'Keře', icon: '🌳', color: '#2d5a27' },
   trees: { key: 'stromy', label: 'Stromy', icon: '🌲', color: '#1f3e1a' },
   climbers: { key: 'popinave', label: 'Popínavé', icon: '🌿', color: '#4f7a3d' },
+  annuals: { key: 'letnicky', label: 'Letničky', icon: '🌺', color: '#e91e63' },
+  water: { key: 'vodni', label: 'Vodní a mokřadní', icon: '💧', color: '#2196f3' },
+  succulents: { key: 'sukulenty', label: 'Sukulenty', icon: '🌵', color: '#7cb342' },
 };
 
 // Mapování task.type (nový formát) → emoji pro careActions chip
@@ -2631,6 +3549,188 @@ const PLANT_META = {
           { text: 'Jarní seč na 5-10 cm', month: 3, emoji: '✂️' },
           { text: 'Nechat odkvetlé hlavy pro ptáky', month: 10, emoji: '🐦' },
         ] },
+
+  // — Doplněné záznamy: zelenina / ovoce / bylinky bez záznamu v původním META —
+  16: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '60-90 cm',
+        careActions: [
+          { text: 'Hnojení dusíkem', month: 6, emoji: '🌱' },
+          { text: 'Postupné obrývání pro bílení', month: 8, emoji: '🪴' },
+        ] },
+  18: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '40-60 cm',
+        careActions: [
+          { text: 'Sklizeň vnějších listů', month: 6, emoji: '🧺' },
+        ] },
+  19: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '20-30 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Pletí mezi řádky', month: 6, emoji: '✂️' },
+        ] },
+  20: { zone: '4-10', light: 'Plné slunce', water: 'Hojná', height: '50-80 cm',
+        careActions: [
+          { text: 'Vysadit po mrazech', month: 5, emoji: '🌱' },
+          { text: 'Sklizeň mladých plodů', month: 7, emoji: '🧺' },
+        ] },
+  26: { zone: '4-9', light: 'Plné slunce', water: 'Mírná', height: '150-300 cm',
+        careActions: [
+          { text: 'Odstranit dvouleté výhony po sklizni', month: 8, emoji: '✂️' },
+          { text: 'Přivázat nové výhony k drátěnce', month: 4, emoji: '🪵' },
+        ] },
+  33: { zone: '4-9', light: 'Plné slunce', water: 'Nízká', height: '20-40 cm',
+        careActions: [
+          { text: 'Seč před kvetením (nejlepší aroma)', month: 6, emoji: '✂️' },
+        ] },
+  36: { zone: '3-10', light: 'Plné slunce', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'První výsev', month: 4, emoji: '🌱' },
+          { text: 'Opakovaný výsev (každé 3 týdny)', month: 6, emoji: '🌱' },
+          { text: 'Sklizeň horních lístků', month: 6, emoji: '🧺' },
+        ] },
+  37: { zone: '5-9', light: 'Plné slunce', water: 'Nízká', height: '60-100 cm',
+        careActions: [
+          { text: 'Seč před kvetením', month: 6, emoji: '✂️' },
+        ] },
+  38: { zone: '4-10', light: 'Plné slunce', water: 'Nízká', height: '20-40 cm',
+        careActions: [
+          { text: 'Sklizeň květů (ráno)', month: 6, emoji: '🧺' },
+        ] },
+  39: { zone: '4-9', light: 'Plné slunce', water: 'Nízká', height: '60-100 cm',
+        careActions: [
+          { text: 'Sklizeň kvetoucích vrcholků', month: 7, emoji: '🧺' },
+        ] },
+  45: { zone: '9-11', light: 'Polostín', water: 'Mírná', height: '20-40 cm',
+        careActions: [
+          { text: 'Vysadit hlízy', month: 3, emoji: '🌱' },
+          { text: 'Vykopat hlízy před mrazem', month: 10, emoji: '🛡️' },
+        ] },
+  46: { zone: '8-11', light: 'Plné slunce', water: 'Hojná', height: '60-180 cm',
+        careActions: [
+          { text: 'Vysadit hlízy', month: 5, emoji: '🌱' },
+          { text: 'Pinzovat první výhony pro větvení', month: 6, emoji: '✂️' },
+          { text: 'Vykopat hlízy po prvním mrazu', month: 10, emoji: '🛡️' },
+        ] },
+  48: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '30-80 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Deadheading pro prodloužení kvetení', month: 7, emoji: '✂️' },
+        ] },
+  49: { zone: '4-10', light: 'Plné slunce', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Sklizeň květů na mast', month: 7, emoji: '🧺' },
+          { text: 'Intenzivní deadheading', month: 8, emoji: '✂️' },
+        ] },
+  53: { zone: '3-9', light: 'Plné slunce', water: 'Nízká', height: '20-50 cm',
+        careActions: [
+          { text: 'Sázet cibule (10-15 cm hluboko)', month: 9, emoji: '🌱' },
+          { text: 'Odříznout odkvetlý stonek', month: 5, emoji: '✂️' },
+        ] },
+  54: { zone: '4-8', light: 'Plné slunce', water: 'Nízká', height: '20-30 cm',
+        careActions: [
+          { text: 'Sázet cibule (10 cm hluboko)', month: 10, emoji: '🌱' },
+          { text: 'Deadheading po odkvětu', month: 5, emoji: '✂️' },
+        ] },
+  56: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '60-180 cm',
+        careActions: [
+          { text: 'Sázet cibule (15-20 cm hluboko)', month: 10, emoji: '🌱' },
+          { text: 'Sběr červených brouků (lilkožravec)', month: 5, emoji: '🐛' },
+        ] },
+  58: { zone: '5-9', light: 'Polostín', water: 'Mírná', height: '100-300 cm',
+        careActions: [
+          { text: 'První tvarování', month: 6, emoji: '✂️' },
+          { text: 'Druhé tvarování', month: 8, emoji: '✂️' },
+          { text: 'Kontrola housenky buxusové', month: 5, emoji: '🐛' },
+        ] },
+  59: { zone: '5-8', light: 'Polostín', water: 'Hojná', height: '100-300 cm',
+        careActions: [
+          { text: 'Kyselé hnojivo na jaře', month: 4, emoji: '🌱' },
+          { text: 'Deadheading po odkvětu', month: 6, emoji: '✂️' },
+        ] },
+  62: { zone: '4-8', light: 'Plné slunce', water: 'Nízká', height: '60-300 cm',
+        careActions: [
+          { text: 'Jarní prosvětlovací řez', month: 3, emoji: '✂️' },
+        ] },
+  63: { zone: '4-8', light: 'Plné slunce', water: 'Mírná', height: '300-600 cm',
+        careActions: [
+          { text: 'Zimní řez (prosvětlení)', month: 2, emoji: '✂️' },
+          { text: 'Sklizeň ořechů', month: 9, emoji: '🧺' },
+        ] },
+  65: { zone: '5-9', light: 'Plné slunce', water: 'Mírná', height: '300-1000 cm',
+        careActions: [
+          { text: 'Kyselé hnojivo na jaře', month: 4, emoji: '🌱' },
+        ] },
+  66: { zone: '5-9', light: 'Polostín', water: 'Mírná', height: '200-500 cm',
+        careActions: [
+          { text: 'Odstranit staré hnědé kulmy u kořene', month: 4, emoji: '✂️' },
+          { text: 'Dusíkaté hnojivo', month: 4, emoji: '🌱' },
+        ] },
+  67: { zone: '5-9', light: 'Plné slunce', water: 'Hojná', height: '500-1000 cm',
+        careActions: [
+          { text: 'Zimní řez (na 2-3 oka)', month: 2, emoji: '✂️' },
+          { text: 'Letní řez (na 5 oček)', month: 7, emoji: '✂️' },
+        ] },
+  68: { zone: '3-8', light: 'Plné slunce', water: 'Mírná', height: '150-300 cm',
+        careActions: [
+          { text: 'Zimní řez na 2-3 oka', month: 3, emoji: '✂️' },
+          { text: 'Hnojivo pro kvetoucí dřeviny', month: 4, emoji: '🌱' },
+        ] },
+  69: { zone: '3-8', light: 'Polostín', water: 'Nízká', height: '30-50 cm',
+        careActions: [
+          { text: 'Odříznout poničené zimní listy', month: 3, emoji: '✂️' },
+        ] },
+  72: { zone: '4-8', light: 'Polostín', water: 'Hojná', height: '40-100 cm',
+        careActions: [
+          { text: 'Sekat staré výhony', month: 3, emoji: '✂️' },
+          { text: 'Kompost na jaře', month: 4, emoji: '🌱' },
+        ] },
+  74: { zone: '5-9', light: 'Plné slunce', water: 'Nízká', height: '100-200 cm',
+        careActions: [
+          { text: 'Jarní seč na 10 cm', month: 3, emoji: '✂️' },
+          { text: 'Dusíkaté hnojivo', month: 4, emoji: '🌱' },
+        ] },
+  75: { zone: '4-9', light: 'Polostín', water: 'Mírná', height: '30-60 cm',
+        careActions: [
+          { text: 'Odříznout staré listy před kvetením', month: 2, emoji: '✂️' },
+        ] },
+  77: { zone: '3-9', light: 'Plné slunce', water: 'Nízká', height: '40-100 cm',
+        careActions: [
+          { text: 'Sázet / dělit oddenky', month: 7, emoji: '🪴' },
+          { text: 'Zkrátit listy na 15 cm', month: 10, emoji: '✂️' },
+        ] },
+  78: { zone: '3-8', light: 'Stín', water: 'Mírná', height: '15-25 cm',
+        careActions: [
+          { text: 'Sázet oddenky', month: 10, emoji: '🌱' },
+          { text: 'Podzimní hnojení kompostem', month: 10, emoji: '🌱' },
+        ] },
+  79: { zone: '3-9', light: 'Plné slunce', water: 'Mírná', height: '60-100 cm',
+        careActions: [
+          { text: 'Podzimní seč na 10 cm', month: 10, emoji: '✂️' },
+          { text: 'Jarní hnojení', month: 4, emoji: '🌱' },
+        ] },
+  80: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '10-20 cm',
+        careActions: [
+          { text: 'Nastřihnout po první vlně kvetení', month: 7, emoji: '✂️' },
+        ] },
+  81: { zone: '3-10', light: 'Plné slunce', water: 'Nízká', height: '30-50 cm',
+        careActions: [
+          { text: 'Přímý výsev', month: 4, emoji: '🌱' },
+          { text: 'Deadheading pro delší kvetení', month: 7, emoji: '✂️' },
+        ] },
+  82: { zone: '4-9', light: 'Polostín', water: 'Mírná', height: '20-60 cm',
+        careActions: [
+          { text: 'Kontrola invazivního šíření', month: 7, emoji: '🛡️' },
+        ] },
+  83: { zone: '7-10', light: 'Plné slunce', water: 'Mírná', height: '200-500 cm',
+        careActions: [
+          { text: 'Letní řez (zkracování)', month: 7, emoji: '✂️' },
+          { text: 'Sklizeň zralých fíků', month: 9, emoji: '🧺' },
+          { text: 'Zimní ochrana (juta / chlad)', month: 10, emoji: '🛡️' },
+        ] },
+  85: { zone: '9-11', light: 'Plné slunce', water: 'Hojná', height: '50-100 cm',
+        careActions: [
+          { text: 'Vynést ven', month: 5, emoji: '🌱' },
+          { text: 'Draselné hnojivo', month: 6, emoji: '🌱' },
+          { text: 'Přezimovat v chladu 5-10 °C', month: 10, emoji: '🛡️' },
+        ] },
 };
 
 // Odvození zjednodušeného popisku světla z původního "sun" textu
@@ -2658,6 +3758,125 @@ function isNewTaskFormat(tasks) {
     && typeof tasks[0].label === 'string';
 }
 
+// Priorita ukonu — high = klíčové sezónní okno (řez, výsadba cibulovin, zimní zábal,
+// kontrola škůdců), medium = standardní zahradnická péče, low = drobné monitorovací úkony.
+// Odvozeno z emoji/typu; jakákoli ručně nastavená priority v dat má přednost.
+const PRIORITY_BY_EMOJI = {
+  '✂️': 'high',     // řez / pasínkování
+  '🛡️': 'high',     // ochrana / zimování
+  '🐛': 'high',     // kontrola škůdců
+  '🌱': 'medium',   // výsadba / hnojení
+  '🌾': 'medium',   // mulčování
+  '🧺': 'medium',   // sklizeň
+  '🥒': 'medium',
+  '🎃': 'medium',
+  '🍓': 'medium',
+  '🪴': 'medium',   // dělení / přesazování
+  '🪵': 'medium',   // opory
+  '💜': 'low',
+  '🌿': 'low',
+  '🐦': 'low',
+  '☀️': 'low',
+};
+
+const PRIORITY_BY_TYPE = {
+  pruning: 'high',
+  protection: 'high',
+  fertilizing: 'medium',
+  mulching: 'medium',
+  harvest: 'medium',
+  watering: 'low',
+};
+
+function pickPriority(emoji, type) {
+  return PRIORITY_BY_EMOJI[emoji] || PRIORITY_BY_TYPE[type] || 'medium';
+}
+
+// Sjednocený formát sezónních úkolů: { month, action, priority, emoji }.
+// Zdrojem dat jsou (v pořadí):
+//   1) plant.tasks v novém formátu (id ≥ 86) — pole { month, label, type }
+//   2) PLANT_META[plant.id].careActions — pole { text, month, emoji }
+function buildSeasonalTasks(plant, meta) {
+  const fromNewTasks = isNewTaskFormat(plant.tasks)
+    ? plant.tasks.map((t) => {
+        const emoji = TASK_TYPE_EMOJI[t.type] || '🌿';
+        return {
+          month: t.month,
+          action: t.label,
+          priority: pickPriority(emoji, t.type),
+          emoji,
+        };
+      })
+    : [];
+  const fromMeta = (meta.careActions || []).map((c) => ({
+    month: c.month,
+    action: c.text,
+    priority: c.priority || pickPriority(c.emoji),
+    emoji: c.emoji || '🌿',
+  }));
+  // Plus: pokud má rostlina ve starém formátu úkoly s frequency_days = 365 a notes
+  // obsahuje měsíc, vytáhneme je jako sezónní (fallback pro plants 1-85 bez META).
+  const fromAnnual = (!isNewTaskFormat(plant.tasks) && Array.isArray(plant.tasks))
+    ? plant.tasks
+        .filter((t) => t.frequency_days === 365 && t.notes)
+        .map((t) => {
+          const month = extractMonthFromNote(t.notes);
+          if (!month) return null;
+          const emoji = TASK_TYPE_EMOJI_BY_TYPE[t.task_type] || '🌿';
+          return {
+            month,
+            action: t.title,
+            priority: pickPriority(emoji, t.task_type),
+            emoji,
+          };
+        })
+        .filter(Boolean)
+    : [];
+
+  // META má přednost před fallbackem z plant.tasks, takže pokud existuje META, ignorujeme fromAnnual.
+  const merged = fromNewTasks.length > 0
+    ? fromNewTasks
+    : (fromMeta.length > 0 ? fromMeta : fromAnnual);
+
+  // Seřaď podle měsíce
+  return merged.sort((a, b) => a.month - b.month);
+}
+
+const TASK_TYPE_EMOJI_BY_TYPE = {
+  strihani: '✂️',
+  hnojeni: '🌱',
+  zalivka: '💧',
+  kontrola: '🐛',
+  presazeni: '🪴',
+  sklizen: '🧺',
+  plet: '✂️',
+  jine: '🌿',
+};
+
+const MONTH_KEYWORDS = [
+  { m: 1, kw: ['leden', 'lednu', 'ledna'] },
+  { m: 2, kw: ['únor', 'únoru', 'února'] },
+  { m: 3, kw: ['březen', 'březnu', 'března'] },
+  { m: 4, kw: ['duben', 'dubnu', 'dubna'] },
+  { m: 5, kw: ['květen', 'květnu', 'května'] },
+  { m: 6, kw: ['červen', 'červnu', 'června'] },
+  { m: 7, kw: ['červenec', 'červenci', 'července'] },
+  { m: 8, kw: ['srpen', 'srpnu', 'srpna'] },
+  { m: 9, kw: ['září'] },
+  { m: 10, kw: ['říjen', 'říjnu', 'října'] },
+  { m: 11, kw: ['listopad', 'listopadu'] },
+  { m: 12, kw: ['prosinec', 'prosinci', 'prosince'] },
+];
+
+function extractMonthFromNote(note) {
+  if (!note) return null;
+  const lower = note.toLowerCase();
+  for (const { m, kw } of MONTH_KEYWORDS) {
+    if (kw.some((k) => lower.includes(k))) return m;
+  }
+  return null;
+}
+
 // Obohať záznam o nové vlastnosti pro karty (volat všude, kde se používá v UI)
 export function enrichPlant(plant) {
   if (!plant) return null;
@@ -2681,6 +3900,8 @@ export function enrichPlant(plant) {
     tasks = [];
   }
 
+  const seasonalTasks = buildSeasonalTasks(plant, meta);
+
   return {
     ...plant,
     tasks,
@@ -2691,7 +3912,15 @@ export function enrichPlant(plant) {
     height: plant.height || meta.height || null,
     notes: plant.notes || plant.description || null,
     careActions,
+    seasonalTasks,
   };
+}
+
+// Veřejný helper: vrátí sezónní úkoly pro rostlinu podle českého jména.
+// Vrací prázdné pole, pokud rostlinu nenajde nebo nemá sezónní data.
+export function getSeasonalTasksForPlant(plantName) {
+  const plant = findPlantByName(plantName);
+  return plant?.seasonalTasks || [];
 }
 
 // Vyhledávání v databázi (case-insensitive, hledá v nameCz i nameLat)

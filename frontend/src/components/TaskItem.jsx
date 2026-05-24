@@ -1,8 +1,9 @@
 // Task list item with complete button
 import React from 'react';
 import { dueBadge, taskIcon, taskLabel } from '../utils.js';
+import SnoozeButton from './SnoozeButton.jsx';
 
-export default function TaskItem({ task, onComplete, onClick, showGarden }) {
+export default function TaskItem({ task, onComplete, onClick, showGarden, onSnoozed }) {
   const badge = dueBadge(task.next_due);
   const cls = badge ? badge.cls : '';
   return (
@@ -46,11 +47,14 @@ export default function TaskItem({ task, onComplete, onClick, showGarden }) {
               Jednorázově
             </span>
           ) : null}
-          <span className="badge" style={{ marginLeft: 6, background: '#eef', color: '#334' }}>
+          <span className="badge type" style={{ marginLeft: 6 }}>
             {taskLabel(task.task_type)}
           </span>
         </div>
       </div>
+      {onSnoozed && (task.next_due || task.specific_date) && (
+        <SnoozeButton task={task} onSnoozed={onSnoozed} />
+      )}
     </div>
   );
 }

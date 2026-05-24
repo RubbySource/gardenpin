@@ -83,13 +83,32 @@ async function sendToAll(payload) {
   };
 }
 
-// Sestaví obsah denního upozornění z úkolů na dnes a zítra
+// Imperativní sloveso podle typu úkonu pro hezky čitelnou notifikaci
+const TASK_VERBS = {
+  zalivka: 'zalej',
+  hnojeni: 'pohnoj',
+  strihani: 'zastřihni',
+  presazeni: 'přesaď',
+  plet: 'vypleň',
+  sklizen: 'sklízej',
+  kontrola: 'zkontroluj',
+  jine: null,
+};
+
+// "Dnes zastřihni levanduli v Zahradě u domu"
+function formatTaskLine(t) {
+  const verb = TASK_VERBS[t.task_type];
+  const what = t.plant_name || t.pin_name || 'rostlinu';
+  const where = t.garden_name ? ` v ${t.garden_name}` : '';
+  // Vlastní úkon (task_type "jine") nemá pevné sloveso — použij název úkolu
+  if (!verb) return `${t.title}${where}`;
+  return `${verb} ${what}${where}`;
+}
+
+// Sestaví obsah denního upozornění — POUZE úkoly s next_due <= dnes (dnešní + zameškané).
+// Backlog: "každý den ráno v 7:00 zkontrolovat task_date = dnes".
 function buildDailyDigest() {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const todayStr = today.toISOString().slice(0, 10);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   const rows = db
     .prepare(
@@ -97,24 +116,28 @@ function buildDailyDigest() {
        FROM tasks t
        JOIN pins p ON p.id = t.pin_id
        JOIN gardens g ON g.id = p.garden_id
-       WHERE t.next_due <= ?
-       ORDER BY t.next_due ASC`,
+       WHERE t.next_due IS NOT NULL AND t.next_due <= ?
+       ORDER BY t.next_due ASC, t.id ASC`,
     )
-    .all(tomorrowStr);
+    .all(todayStr);
 
-  const todayCount = rows.filter((r) => r.next_due <= todayStr).length;
-  const tomorrowCount = rows.filter((r) => r.next_due === tomorrowStr).length;
-  if (todayCount + tomorrowCount === 0) return null;
+  if (rows.length === 0) return null;
 
-  const parts = [];
-  if (todayCount > 0) parts.push(`Dnes: ${todayCount}`);
-  if (tomorrowCount > 0) parts.push(`Zítra: ${tomorrowCount}`);
+  let body;
+  if (rows.length === 1) {
+    // Jeden úkol → konkrétní formulace dle backlogu
+    body = `Dnes ${formatTaskLine(rows[0])}`;
+  } else {
+    // Více úkolů → souhrn s prvními třemi pro náhled
+    const top = rows.slice(0, 3).map(formatTaskLine).join(' · ');
+    const more = rows.length > 3 ? ` (+${rows.length - 3} dalších)` : '';
+    body = `Dnes ${rows.length} úkonů: ${top}${more}`;
+  }
 
-  const top = rows.slice(0, 3).map((r) => r.plant_name || r.pin_name).join(', ');
   return {
-    title: '🌿 GardenPin – úkoly v zahradě',
-    body: parts.join(' · ') + (top ? ` — ${top}` : ''),
-    url: '/',
+    title: '🌿 GardenPin',
+    body,
+    url: '/tasks',
   };
 }
 
@@ -132,15 +155,15 @@ async function runDailyDigest() {
 let cronTask = null;
 function startDailyCron() {
   if (cronTask) return;
-  // Každý den v 08:00 lokálního času (Europe/Prague)
+  // Každý den v 07:00 lokálního času (Europe/Prague)
   cronTask = cron.schedule(
-    '0 8 * * *',
+    '0 7 * * *',
     () => {
       runDailyDigest().catch((e) => console.error('[push] cron error', e));
     },
     { timezone: 'Europe/Prague' },
   );
-  console.log('[push] Daily 08:00 cron aktivní (Europe/Prague)');
+  console.log('[push] Daily 07:00 cron aktivní (Europe/Prague)');
 }
 
 module.exports = {

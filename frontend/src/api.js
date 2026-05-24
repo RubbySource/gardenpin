@@ -18,6 +18,11 @@ export const api = {
     fetch(`/api/gardens/${id}`, { method: 'PUT', body: formData }).then(handle),
   deleteGarden: (id) => jsonFetch(`/api/gardens/${id}`, { method: 'DELETE' }),
 
+  // Sharing
+  createShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),
+  revokeShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'DELETE' }),
+  getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
+
   // Pins
   listPins: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/pins`),
   getPin: (id) => jsonFetch(`/api/pins/${id}`),
@@ -32,6 +37,22 @@ export const api = {
       body: JSON.stringify({ photo: dataUrl }),
     }),
 
+  // Beds (záhony)
+  listBeds: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/beds`),
+  createBed: (data) =>
+    jsonFetch('/api/beds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updateBed: (id, data) =>
+    jsonFetch(`/api/beds/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deleteBed: (id) => jsonFetch(`/api/beds/${id}`, { method: 'DELETE' }),
+
   // Galerie fotek pinu
   listPinPhotos: (id) => jsonFetch(`/api/pins/${id}/photos`),
   uploadPinPhotos: (id, formData) =>
@@ -44,6 +65,7 @@ export const api = {
   listTasks: () => jsonFetch('/api/tasks'),
   todayTasks: () => jsonFetch('/api/tasks/today'),
   weekTasks: () => jsonFetch('/api/tasks/week'),
+  overviewTasks: (days = 14) => jsonFetch(`/api/tasks/overview?days=${days}`),
   createTask: (data) =>
     jsonFetch('/api/tasks', {
       method: 'POST',
@@ -63,6 +85,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes }),
     }),
+  snoozeTask: (id, payload) =>
+    jsonFetch(`/api/tasks/${id}/snooze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
 
   // History
   listHistory: () => jsonFetch('/api/history'),
@@ -73,11 +101,36 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  // Harvests (sklizeň)
+  listHarvests: () => jsonFetch('/api/harvests'),
+  listPinHarvests: (pinId) => jsonFetch(`/api/pins/${pinId}/harvests`),
+  createHarvest: (data) =>
+    jsonFetch('/api/harvests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deleteHarvest: (id) => jsonFetch(`/api/harvests/${id}`, { method: 'DELETE' }),
+
+  // Search
+  search: (q) => jsonFetch(`/api/search?q=${encodeURIComponent(q)}`),
+
   // Stats
   stats: () => jsonFetch('/api/stats'),
+  streak: () => jsonFetch('/api/stats/streak'),
+  seasonStats: (year) => jsonFetch(`/api/stats/season${year ? `?year=${year}` : ''}`),
+  harvestStats: (year) => jsonFetch(`/api/stats/harvests${year ? `?year=${year}` : ''}`),
+  yoyStats: ({ year, gardenId } = {}) => {
+    const params = new URLSearchParams();
+    if (year) params.set('year', year);
+    if (gardenId) params.set('garden_id', gardenId);
+    const qs = params.toString();
+    return jsonFetch(`/api/stats/yoy${qs ? '?' + qs : ''}`);
+  },
 
   // Weather
   weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
+  sensitivePins: () => jsonFetch('/api/pins/sensitive'),
 
   // Stripe
   stripeStatus: () => jsonFetch('/api/stripe/status'),
@@ -85,9 +138,49 @@ export const api = {
 
   // Push notifications
   pushVapidKey: () => jsonFetch('/api/push/vapid-public-key'),
-  pushSubscribe: (sub) => jsonFetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) }),
-  pushUnsubscribe: () => jsonFetch('/api/push/unsubscribe', { method: 'POST' }),
-  pushSendTest: () => jsonFetch('/api/push/send-test', { method: 'POST' }),
+  pushSubscribe: (sub) =>
+    jsonFetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub),
+    }),
+  pushUnsubscribe: (endpoint) =>
+    jsonFetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    }),
+  pushSendTest: () =>
+    jsonFetch('/api/push/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '🌿 GardenPin',
+        body: 'Testovací notifikace funguje 🎉',
+        url: '/',
+      }),
+    }),
+
+  // Email připomínky (týdenní digest)
+  getEmailSettings: () => jsonFetch('/api/email-settings'),
+  saveEmailSettings: (data) =>
+    jsonFetch('/api/email-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  sendEmailTest: (addr) =>
+    jsonFetch('/api/email-settings/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: addr || undefined }),
+    }),
+  sendEmailDigest: (addr) =>
+    jsonFetch('/api/email-settings/send-digest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: addr || undefined }),
+    }),
 };
 
 async function handle(res) {

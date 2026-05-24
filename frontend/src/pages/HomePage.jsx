@@ -4,11 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
+import StreakWidget from '../components/StreakWidget.jsx';
+import SeasonStats from '../components/SeasonStats.jsx';
+import YearOverYear from '../components/YearOverYear.jsx';
 import Icon from '../components/Icon.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, taskIcon, dueBadge } from '../utils.js';
 import { useSwipeToComplete } from '../hooks/useSwipeToComplete.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
+import { fireConfetti } from '../utils/confetti.js';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -45,6 +49,7 @@ export default function HomePage({ onTaskComplete }) {
   const [recentPhotos, setRecentPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [streakRefresh, setStreakRefresh] = useState(0);
   const nav = useNavigate();
 
   const userName = localStorage.getItem(USER_NAME_KEY) || DEFAULT_NAME;
@@ -93,8 +98,16 @@ export default function HomePage({ onTaskComplete }) {
 
   const completeTask = async (t) => {
     try {
-      await api.completeTask(t.id);
+      const res = await api.completeTask(t.id);
       toast('✅ Úkol označen jako hotový');
+      // Konfety jen když přibyl den ve streaku (ne pro každý další task v ten samý den)
+      if (res?.streak?.increased) {
+        fireConfetti({
+          count: res.streak.current_streak >= 7 ? 120 : 80,
+          duration: res.streak.current_streak >= 7 ? 1800 : 1400,
+        });
+      }
+      setStreakRefresh((k) => k + 1);
       load();
       onTaskComplete?.();
     } catch (e) {
@@ -171,6 +184,9 @@ export default function HomePage({ onTaskComplete }) {
           </div>
         )}
       </div>
+
+      {/* Streak / gamifikace */}
+      <StreakWidget refreshKey={streakRefresh} />
 
       {/* Weather */}
       <WeatherWidget />
@@ -295,6 +311,10 @@ export default function HomePage({ onTaskComplete }) {
           </div>
         </>
       )}
+
+      {/* Sezónní statistiky + meziroční srovnání */}
+      <SeasonStats />
+      <YearOverYear />
 
       <Link to="/premium" className="ios-premium-link">
         <span className="ios-premium-icon" aria-hidden="true">

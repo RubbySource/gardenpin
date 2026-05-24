@@ -6,9 +6,14 @@ import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import SharedGardenPage from './pages/SharedGardenPage.jsx';
+import WeekOverviewPage from './pages/WeekOverviewPage.jsx';
+import PlantCatalogPage from './pages/PlantCatalogPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
 import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
+import SearchOverlay from './components/SearchOverlay.jsx';
+import OnboardingTour, { shouldShowOnboarding } from './components/OnboardingTour.jsx';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -21,7 +26,31 @@ export function toast(message) {
 export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const location = useLocation();
+  const isSharedView = location.pathname.startsWith('/share/');
+
+  useEffect(() => {
+    if (isSharedView) return;
+    if (shouldShowOnboarding()) {
+      const t = setTimeout(() => setShowOnboarding(true), 400);
+      return () => clearTimeout(t);
+    }
+  }, [isSharedView]);
+
+  // Globální shortcut: Cmd/Ctrl+K otevře vyhledávání
+  useEffect(() => {
+    if (isSharedView) return;
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isSharedView]);
 
   toastHandler = (m) => {
     setToastMsg(m);
@@ -30,14 +59,16 @@ export default function App() {
 
   // Load stats for reminder banner and nav badge
   useEffect(() => {
+    if (isSharedView) return;
     const loadStats = () => api.stats().then((s) => setPendingStats(s)).catch(() => {});
     loadStats();
     const interval = setInterval(loadStats, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isSharedView]);
 
   // Periodic notification check — fires for tasks due within user-configured advance days
   useEffect(() => {
+    if (isSharedView) return;
     let lastNotified = JSON.parse(localStorage.getItem('lastNotified') || '{}');
     const check = async () => {
       try {
@@ -71,14 +102,26 @@ export default function App() {
     check();
     const interval = setInterval(check, 60 * 60 * 1000); // every hour
     return () => clearInterval(interval);
-  }, []);
+  }, [isSharedView]);
 
+  // Sdílený read-only pohled — bez topbar/nav/banneru
+  if (isSharedView) {
+    return (
+      <Routes>
+        <Route path="/share/:token" element={<SharedGardenPage />} />
+      </Routes>
+    );
+  }
+
+  // iOS-style dynamický titulek v topbaru (převzato z hlavní větve)
   const routeTitle = (() => {
     const p = location.pathname;
     if (p === '/' || p === '') return 'Přehled';
     if (p.startsWith('/zahrady')) return 'Zahrady';
     if (p.startsWith('/zahrada/')) return 'Detail zahrady';
     if (p.startsWith('/ukoly')) return 'Úkoly';
+    if (p.startsWith('/tyden')) return 'Týden';
+    if (p.startsWith('/katalog')) return 'Katalog rostlin';
     if (p.startsWith('/kalendar')) return 'Kalendář';
     if (p.startsWith('/nastaveni')) return 'Nastavení';
     return 'GardenPin';
@@ -91,8 +134,19 @@ export default function App() {
           <span className="leaf">📍</span>
           <span>{routeTitle}</span>
         </h1>
-        <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
-          {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+        <div className="topbar-actions">
+          <button
+            type="button"
+            className="topbar-search-btn"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Vyhledávání"
+            title="Vyhledávání (Ctrl+K)"
+          >
+            🔍
+          </button>
+          <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
+            {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+          </div>
         </div>
       </header>
 
@@ -104,6 +158,8 @@ export default function App() {
           <Route path="/zahrady" element={<GardensPage />} />
           <Route path="/zahrada/:id" element={<GardenDetailPage />} />
           <Route path="/ukoly" element={<TasksPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
+          <Route path="/tyden" element={<WeekOverviewPage onTaskComplete={() => api.stats().then(setPendingStats).catch(() => {})} />} />
+          <Route path="/katalog" element={<PlantCatalogPage />} />
           <Route path="/kalendar" element={<SeasonalCalendar />} />
           <Route path="/nastaveni" element={<SettingsPage />} />
           <Route path="*" element={<HomePage />} />
@@ -136,6 +192,10 @@ export default function App() {
           <span className="icon">📅</span>
           <span>Kalendář</span>
         </NavLink>
+        <NavLink to="/katalog">
+          <span className="icon">🌿</span>
+          <span>Katalog</span>
+        </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
           <span>Nastavení</span>
@@ -143,6 +203,8 @@ export default function App() {
       </nav>
 
       {toastMsg && <Toast message={toastMsg} />}
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+      {showOnboarding && <OnboardingTour onClose={() => setShowOnboarding(false)} />}
     </div>
   );
 }
