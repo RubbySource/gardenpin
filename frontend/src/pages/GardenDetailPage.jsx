@@ -9,7 +9,11 @@ import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import { CLIMATE_ZONES, getClimateZone, describeZone } from '../data/climateZones.js';
-import PolygonEditor, { isPointInPolygon } from '../components/PolygonEditor.jsx';
+import PolygonEditor, {
+  isPointInPolygon,
+  DEFAULT_POLYGON_POINTS,
+  polygonAreaFraction,
+} from '../components/PolygonEditor.jsx';
 
 // Otevře Google Maps v satelitním pohledu (parametr t=k). Bez API klíče.
 function openSatelliteView(address) {
@@ -63,6 +67,9 @@ export default function GardenDetailPage() {
   const [polygonMode, setPolygonMode] = useState(false);
   const [croppingPolygon, setCroppingPolygon] = useState(false);
   const [adhocAddress, setAdhocAddress] = useState('');
+  // Body polygonu drží rodič — tlačítka jsou MIMO mapu (v normálním flow),
+  // takže musí mít přístup ke stavu.
+  const [polygonPoints, setPolygonPoints] = useState(null);
 
   const load = async () => {
     try {
@@ -292,6 +299,27 @@ export default function GardenDetailPage() {
       x: bed.width_m / bed.width, // m na 1 % šířky mapy
       y: bed.height_m / bed.height, // m na 1 % výšky mapy
     };
+  })();
+
+  // Inicializace bodů polygonu při zapnutí editoru (existující polygon nebo defaultní 4 body)
+  useEffect(() => {
+    if (polygonMode) {
+      setPolygonPoints(parsePolygon(garden?.garden_polygon) || DEFAULT_POLYGON_POINTS);
+    } else {
+      setPolygonPoints(null);
+    }
+  }, [polygonMode, garden?.garden_polygon]);
+
+  // Stats polygonu pro toolbar pod mapou
+  const polygonStats = (() => {
+    if (!polygonPoints || polygonPoints.length < 3) return null;
+    const frac = polygonAreaFraction(polygonPoints);
+    const percent = frac * 100;
+    let m2 = null;
+    if (scaleHints.x > 0 && scaleHints.y > 0) {
+      m2 = frac * (100 * scaleHints.x) * (100 * scaleHints.y);
+    }
+    return { percent, m2 };
   })();
 
   const handleUploadMap = async (e) => {
@@ -645,17 +673,11 @@ export default function GardenDetailPage() {
                   <div className="pin-body" />
                 </div>
               )}
-              {polygonMode && (
+              {polygonMode && polygonPoints && (
                 <PolygonEditor
                   containerRef={mapStageRef}
-                  initialPoints={parsePolygon(garden.garden_polygon)}
-                  imageWidth={garden.image_width}
-                  imageHeight={garden.image_height}
-                  scaleMPerPercentX={scaleHints.x}
-                  scaleMPerPercentY={scaleHints.y}
-                  saving={croppingPolygon}
-                  onCancel={() => setPolygonMode(false)}
-                  onSave={handleCropPolygon}
+                  points={polygonPoints}
+                  onPointsChange={setPolygonPoints}
                 />
               )}
               </div>
@@ -670,8 +692,48 @@ export default function GardenDetailPage() {
                   margin: '6px 0 4px',
                 }}
               >
-                ✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik na bod = smazat.
+                ✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik = smazat.
               </p>
+            )}
+            {polygonMode && polygonStats && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                <div
+                  style={{
+                    fontSize: '0.82rem',
+                    color: 'var(--text-dim)',
+                    textAlign: 'center',
+                  }}
+                >
+                  📐 {polygonStats.percent.toFixed(1)} % mapy
+                  {polygonStats.m2 != null && polygonStats.m2 > 0 && (
+                    <> · ~{polygonStats.m2.toFixed(polygonStats.m2 < 10 ? 1 : 0)} m²</>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                  <button
+                    type="button"
+                    className="btn ghost small"
+                    onClick={() => setPolygonPoints(DEFAULT_POLYGON_POINTS)}
+                  >
+                    ↩ Reset
+                  </button>
+                  <button
+                    type="button"
+                    className="btn ghost small"
+                    onClick={() => setPolygonMode(false)}
+                  >
+                    Zrušit
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => handleCropPolygon(polygonPoints)}
+                  disabled={croppingPolygon || polygonPoints.length < 3}
+                >
+                  {croppingPolygon ? '⏳ Ořezávám…' : '✂️ Oříznout & uložit'}
+                </button>
+              </div>
             )}
           </div>
 
