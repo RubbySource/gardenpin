@@ -5445,3 +5445,139 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   .pd-sheet { margin: 20px auto; max-height: calc(100vh - 40px); border-radius: 18px; }
 }
 
+/* ============================================================
+   OnboardingFlow — iOS-style fullscreen průvodce
+   (BACKLOG: onboarding-flow)
+   ============================================================ */
+
+.ob-flow {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: linear-gradient(180deg, var(--cream, #f7f3eb) 0%, #fff 60%);
+  display: flex;
+  flex-direction: column;
+  padding: max(24px, env(safe-area-inset-top, 0px)) 24px max(24px, env(safe-area-inset-bottom, 0px));
+  animation: ob-overlay-in 0.28s ease both;
+}
+
+@keyframes ob-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ob-skip {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 4px;
+  letter-spacing: -0.01em;
+}
+.ob-skip:active { color: var(--primary); }
+
+.ob-track {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: pan-y; /* povol jen vertikální scroll, horizontální nech pro swipe handler */
+}
+
+.ob-slide {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  padding: 12px;
+  animation: ob-slide-in 0.32s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+@keyframes ob-slide-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ob-icon {
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 28px;
+  display: inline-block;
+  animation: ob-icon-pop 0.5s cubic-bezier(0.34, 1.6, 0.5, 1) both;
+}
+
+@keyframes ob-icon-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.ob-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: var(--charcoal, var(--text));
+}
+
+.ob-text {
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0 auto;
+  max-width: 360px;
+}
+
+.ob-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 8px;
+}
+
+.ob-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.ob-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border, #d6d2c4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: width 0.22s ease, background 0.22s ease, transform 0.22s ease;
+}
+.ob-dot.active {
+  width: 22px;
+  border-radius: 4px;
+  background: var(--primary);
+}
+.ob-dot:not(.active):active { transform: scale(1.4); }
+
+.ob-cta {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 16px 32px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  min-width: 240px;
+  box-shadow: 0 6px 18px rgba(74, 124, 58, 0.32);
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+.ob-cta:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px rgba(74, 124, 58, 0.36);
+}
+
