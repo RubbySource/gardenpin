@@ -1,4 +1,4 @@
-// Pin detail modal: info, tasks, history editing
+// PinDetail — iOS-style mobile sheet: hero, tabs (URL hash), FAB, scroll-aware sticky header
 import React, { useEffect, useRef, useState } from 'react';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
@@ -10,13 +10,55 @@ import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 
+// Tab keys odrážejí URL hash; pořadí = pořadí v tab baru.
+const PD_TABS = ['ukony', 'pece', 'fotky', 'info'];
+const PD_DEFAULT_TAB = 'ukony';
+
+function readTabFromHash() {
+  if (typeof window === 'undefined') return PD_DEFAULT_TAB;
+  const h = window.location.hash.replace(/^#/, '');
+  return PD_TABS.includes(h) ? h : PD_DEFAULT_TAB;
+}
+
+// Emoji ikona dle kategorie rostliny v plantDatabase.
+const CATEGORY_ICONS = {
+  vegetables: '🥕',
+  fruits: '🍓',
+  herbs: '🌿',
+  ornamental: '🌸',
+  bulbs: '🌷',
+  climbers: '🌱',
+  shrubs: '🌳',
+  trees: '🌳',
+  grasses: '🌾',
+  water: '💧',
+  succulents: '🌵',
+  annuals: '🌻',
+};
+function categoryIcon(plant) {
+  if (plant?.category && CATEGORY_ICONS[plant.category]) return CATEGORY_ICONS[plant.category];
+  return '📍';
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
 export default function PinDetail({ pinId, onClose }) {
   const [pin, setPin] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('info');
+  const [tab, setTab] = useState(readTabFromHash);
   const [editing, setEditing] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+
+  // Sticky header se objeví, když uživatel posune scroll dolů (a zmizí při zpětném scrollu).
+  const sheetRef = useRef(null);
+  const lastScrollY = useRef(0);
+  const [headerShown, setHeaderShown] = useState(false);
 
   const load = async () => {
     try {
@@ -28,9 +70,48 @@ export default function PinDetail({ pinId, onClose }) {
       setLoading(false);
     }
   };
+  useEffect(() => { load(); }, [pinId]);
+
+  // ESC zavírá. Body scroll lock po dobu otevření sheetu.
   useEffect(() => {
-    load();
-  }, [pinId]);
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  // Sync stavu tabu s URL hash (← / → v prohlížeči zachová tab).
+  useEffect(() => {
+    const onHash = () => setTab(readTabFromHash());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // Scroll detector: zobraz sticky header při scroll-down, schovej při scroll-up nahoru.
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const y = el.scrollTop;
+      if (y < 60) setHeaderShown(false);
+      else if (y > lastScrollY.current + 4) setHeaderShown(true);
+      else if (y < lastScrollY.current - 6) setHeaderShown(true);
+      lastScrollY.current = y;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [pin]);
+
+  const changeTab = (t) => {
+    setTab(t);
+    try {
+      window.history.replaceState(null, '', `#${t}`);
+    } catch {}
+  };
 
   const completeTask = async (t) => {
     try {
@@ -66,189 +147,335 @@ export default function PinDetail({ pinId, onClose }) {
 
   if (loading || !pin) {
     return (
-      <Modal title="Detail místa" onClose={onClose}>
-        <div className="empty">Načítám...</div>
-      </Modal>
+      <div className="pd-backdrop" onClick={onClose}>
+        <div className="pd-sheet" onClick={(e) => e.stopPropagation()}>
+          <div className="empty" style={{ padding: 40 }}>Načítám…</div>
+        </div>
+      </div>
     );
   }
 
+  // Edit formulář otevíráme stále jako Modal (drží se původní UX).
   if (editing) {
     return (
       <EditPinForm
         pin={pin}
         onClose={() => setEditing(false)}
-        onSaved={() => {
-          setEditing(false);
-          load();
-        }}
+        onSaved={() => { setEditing(false); load(); }}
       />
     );
   }
 
-  return (
-    <Modal title={`📍 ${pin.name}`} onClose={onClose}>
-      <div className="tabs">
-        <button className={tab === 'info' ? 'active' : ''} onClick={() => setTab('info')}>
-          ℹ️ Info
-        </button>
-        <button className={tab === 'tasks' ? 'active' : ''} onClick={() => setTab('tasks')}>
-          ✅ Úkoly ({pin.tasks.length})
-        </button>
-        <button className={tab === 'photos' ? 'active' : ''} onClick={() => setTab('photos')}>
-          📷 Fotky
-        </button>
-        <button className={tab === 'harvests' ? 'active' : ''} onClick={() => setTab('harvests')}>
-          🧺 Sklizeň
-        </button>
-        <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
-          📜 Historie
-        </button>
-      </div>
+  const plant = findPlantByName(pin.plant_name);
+  const icon = categoryIcon(plant);
+  const since = daysSince(pin.planting_date);
 
-      {tab === 'info' && (
-        <div>
-          {pin.photo_path && (
-            <img src={pin.photo_path} alt="" className="pin-photo-preview mb-2" />
-          )}
-          <div className="field">
-            <label>Rostlina</label>
-            <div>{pin.plant_name || <span className="muted">—</span>}</div>
-          </div>
-          <div className="field">
-            <label>Datum výsadby</label>
-            <div>
-              {pin.planting_date ? (
-                <>
-                  {formatDate(pin.planting_date)}
-                  {(() => {
-                    const d = new Date(pin.planting_date);
-                    const days = Math.floor((new Date() - d) / 86400000);
-                    return days >= 0 ? (
-                      <span className="muted small"> (před {days} dny)</span>
-                    ) : null;
-                  })()}
-                </>
-              ) : (
-                <span className="muted">—</span>
+  return (
+    <div className="pd-backdrop" onClick={onClose}>
+      <div
+        className="pd-sheet"
+        ref={sheetRef}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Sticky compact header — vrátí se při scrollu nahoru */}
+        <div className={`pd-sticky-header ${headerShown ? 'shown' : ''}`}>
+          <button className="pd-back-sticky" onClick={onClose} aria-label="Zpět">‹</button>
+          <span className="pd-sticky-title">{pin.name}</span>
+        </div>
+
+        {/* Hero */}
+        <div className="pd-hero">
+          <button type="button" className="pd-back-floating" onClick={onClose}>
+            ‹ Zpět
+          </button>
+          <div className="pd-hero-row">
+            <div className="pd-hero-icon" aria-hidden="true">{icon}</div>
+            <div className="pd-hero-text">
+              <h1 className="pd-hero-name">{pin.name}</h1>
+              {pin.plant_name && <div className="pd-hero-plant">{pin.plant_name}</div>}
+              {plant?.nameLat && <div className="pd-hero-latin">{plant.nameLat}</div>}
+              {pin.planting_date && (
+                <div className="pd-hero-meta">
+                  📅 Vysazeno {formatDate(pin.planting_date)}
+                  {since != null && since >= 0 && <> · před {since} {sinceLabel(since)}</>}
+                </div>
               )}
             </div>
           </div>
-          <div className="field">
-            <label>Poznámky</label>
-            <div style={{ whiteSpace: 'pre-wrap' }}>
-              {pin.notes || <span className="muted">—</span>}
+        </div>
+
+        {/* Tabs (sticky) */}
+        <div className="pd-tabs">
+          <TabBtn id="ukony" active={tab} onSelect={changeTab}>
+            ✅ Úkony{pin.tasks.length > 0 && <span className="pd-tab-count">{pin.tasks.length}</span>}
+          </TabBtn>
+          <TabBtn id="pece" active={tab} onSelect={changeTab}>🌿 Péče</TabBtn>
+          <TabBtn id="fotky" active={tab} onSelect={changeTab}>📷 Fotky</TabBtn>
+          <TabBtn id="info" active={tab} onSelect={changeTab}>ℹ️ Info</TabBtn>
+        </div>
+
+        <div className="pd-content">
+          {tab === 'ukony' && (
+            <UkonyTab
+              pin={pin}
+              onComplete={completeTask}
+              onSnoozed={load}
+              onEdit={setEditingTask}
+              onDelete={deleteTask}
+            />
+          )}
+          {tab === 'pece' && <PeceTab pin={pin} plant={plant} onEditPin={() => setEditing(true)} />}
+          {tab === 'fotky' && <PhotoGallery pinId={pin.id} />}
+          {tab === 'info' && (
+            <InfoTab
+              pin={pin}
+              plant={plant}
+              onReload={load}
+              onDeletePin={deletePin}
+            />
+          )}
+        </div>
+
+        {/* FAB — palec ho vždy dosáhne */}
+        {tab === 'ukony' && (
+          <button
+            type="button"
+            className="pd-fab"
+            onClick={() => setShowNewTask(true)}
+            aria-label="Přidat úkon"
+            title="Přidat úkon"
+          >
+            +
+          </button>
+        )}
+
+        {showNewTask && (
+          <NewTaskForm
+            pinId={pin.id}
+            onClose={() => setShowNewTask(false)}
+            onCreated={() => { setShowNewTask(false); load(); }}
+          />
+        )}
+        {editingTask && (
+          <EditTaskForm
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+            onSaved={() => { setEditingTask(null); load(); }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function sinceLabel(n) {
+  if (n === 1) return 'dnem';
+  if (n < 5) return 'dny';
+  return 'dny';
+}
+
+function TabBtn({ id, active, onSelect, children }) {
+  return (
+    <button
+      type="button"
+      className={`pd-tab-btn${active === id ? ' active' : ''}`}
+      onClick={() => onSelect(id)}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ===================== Úkony tab =====================
+function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
+  if (pin.tasks.length === 0) {
+    return (
+      <div className="pd-empty">
+        <span className="pd-empty-icon">✅</span>
+        <div className="pd-empty-text">Žádné úkony. Přidejte zálivku, hnojení, sklizeň…</div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      {pin.tasks.map((t) => {
+        const badge = dueBadge(t.next_due);
+        const cls = badge?.cls || '';
+        return (
+          <div key={t.id} className={`pd-task-card ${cls}`}>
+            <span className="pd-task-icon" aria-hidden="true">{taskIcon(t.task_type)}</span>
+            <div className="pd-task-body">
+              <div className="pd-task-title">{t.title}</div>
+              <div className="pd-task-meta">
+                {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
+                {t.frequency_days ? <span>Každých {t.frequency_days} dní</span> : null}
+                {t.specific_date && !t.frequency_days ? <span>Jednorázově</span> : null}
+              </div>
+            </div>
+            <div className="pd-task-actions">
+              {(t.next_due || t.specific_date) && (
+                <SnoozeButton task={t} onSnoozed={onSnoozed} compact />
+              )}
+              <button
+                type="button"
+                className="pd-task-edit"
+                onClick={() => onEdit(t)}
+                aria-label="Upravit úkon"
+                title="Upravit"
+              >
+                ✏️
+              </button>
+              <button
+                type="button"
+                className="pd-task-delete"
+                onClick={() => onDelete(t)}
+                aria-label="Smazat úkon"
+                title="Smazat"
+              >
+                🗑️
+              </button>
+              <button
+                type="button"
+                className="pd-task-complete"
+                onClick={() => onComplete(t)}
+                aria-label="Splnit"
+                title="Splnit"
+              >
+                ✓
+              </button>
             </div>
           </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ===================== Péče tab — kompaktní řádky =====================
+function CareRow({ icon, label, value }) {
+  if (!value) return null;
+  return (
+    <div className="pd-care-row">
+      <span className="pd-care-icon" aria-hidden="true">{icon}</span>
+      <div className="pd-care-content">
+        <div className="pd-care-label">{label}</div>
+        <div className="pd-care-value">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function PeceTab({ pin, plant, onEditPin }) {
+  const hasAny =
+    pin.photo_path ||
+    pin.planting_date ||
+    pin.notes ||
+    plant?.soil || plant?.sun || plant?.watering || plant?.fertilizing || plant?.pruning || plant?.planting || plant?.notes;
+  return (
+    <div>
+      {pin.photo_path && (
+        <img
+          src={pin.photo_path}
+          alt={pin.name}
+          className="pin-photo-preview"
+          style={{ borderRadius: 14, marginBottom: 14 }}
+        />
+      )}
+
+      {!hasAny ? (
+        <div className="pd-empty">
+          <span className="pd-empty-icon">🌿</span>
+          <div className="pd-empty-text">
+            Žádné info o péči. Přiřaďte rostlinu z katalogu nebo upravte poznámky.
+          </div>
+        </div>
+      ) : (
+        <div className="pd-care-list">
+          <CareRow icon="🪴" label="Půda" value={plant?.soil} />
+          <CareRow icon="☀️" label="Slunce" value={plant?.sun} />
+          <CareRow icon="💧" label="Zálivka" value={plant?.watering} />
+          <CareRow icon="🌱" label="Hnojení" value={plant?.fertilizing} />
+          <CareRow icon="✂️" label="Řez / pasínkování" value={plant?.pruning} />
+          <CareRow icon="📅" label="Výsadba" value={plant?.planting} />
+          <CareRow icon="ℹ️" label="Pozn. ke druhu" value={plant?.notes} />
+          <CareRow icon="📝" label="Vlastní poznámky" value={pin.notes} />
+        </div>
+      )}
+
+      <button type="button" className="btn ghost block" onClick={onEditPin}>
+        ✏️ Upravit místo
+      </button>
+    </div>
+  );
+}
+
+// ===================== Info tab =====================
+function InfoTab({ pin, plant, onReload, onDeletePin }) {
+  const [showMore, setShowMore] = useState(false);
+  const cond = pin.garden_conditions;
+  const condParts = [];
+  if (cond) {
+    if (cond.soil_type) condParts.push(`🪴 ${cond.soil_type}`);
+    if (cond.exposure) {
+      const map = { N: '⬆️ sever', S: '⬇️ jih', E: '➡️ východ', W: '⬅️ západ', mixed: '🧭 smíšená' };
+      condParts.push(map[cond.exposure] || cond.exposure);
+    }
+    if (cond.altitude_m) condParts.push(`⛰️ ${cond.altitude_m} m`);
+    if (cond.climate_zone) condParts.push(`📍 ${cond.climate_zone}`);
+  }
+
+  return (
+    <div>
+      {/* Pěstební podmínky */}
+      {condParts.length > 0 && (
+        <div className="pd-section">
+          <div className="pd-section-title">🌍 Pěstební podmínky</div>
+          <div className="pd-care-list">
+            <div className="pd-care-row">
+              <div className="pd-care-content">
+                <div className="pd-care-value">{condParts.join(' · ')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Choroby / škůdci */}
+      {pin.plant_name && (
+        <div className="pd-section">
+          <PlantWarnings plantName={pin.plant_name} />
+        </div>
+      )}
+
+      {/* Sezónní doporučení (RecommendedTasks slouží jako sezónní kalendář pro tuto rostlinu) */}
+      {pin.plant_name && (
+        <div className="pd-section">
           <RecommendedTasks
             plantName={pin.plant_name}
             pinId={pin.id}
             existingTasks={pin.tasks}
             gardenConditions={pin.garden_conditions}
-            onTaskAdded={load}
+            onTaskAdded={onReload}
           />
-          <PlantWarnings plantName={pin.plant_name} />
-          <div className="row mt-3">
-            <button className="btn danger" onClick={deletePin}>
-              🗑️ Smazat
-            </button>
-            <button className="btn" onClick={() => setEditing(true)}>
-              ✏️ Upravit
-            </button>
-          </div>
         </div>
       )}
 
-      {tab === 'tasks' && (
-        <div>
-          <button className="btn block mb-2" onClick={() => setShowNewTask(true)}>
-            + Přidat úkol
-          </button>
-          {pin.tasks.length === 0 ? (
-            <div className="empty small">Žádné úkoly. Přidejte zálivku, hnojení apod.</div>
-          ) : (
-            pin.tasks.map((t) => {
-              const badge = dueBadge(t.next_due);
-              return (
-                <div key={t.id} className={`task-item ${badge?.cls || ''}`}>
-                  <button
-                    className="task-complete-btn"
-                    onClick={() => completeTask(t)}
-                    aria-label="Hotovo"
-                  >
-                    ✓
-                  </button>
-                  <div className="info">
-                    <div className="title">
-                      {taskIcon(t.task_type)} {t.title}
-                    </div>
-                    <div className="meta">
-                      {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-                      {t.frequency_days ? (
-                        <span className="badge" style={{ marginLeft: 6 }}>
-                          Každých {t.frequency_days} dní
-                        </span>
-                      ) : null}
-                      {t.last_done && (
-                        <span className="muted small" style={{ marginLeft: 6 }}>
-                          · Naposledy: {formatDate(t.last_done)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {(t.next_due || t.specific_date) && (
-                      <SnoozeButton task={t} onSnoozed={load} compact />
-                    )}
-                    <button
-                      className="btn ghost small"
-                      onClick={() => setEditingTask(t)}
-                      aria-label="Upravit"
-                      title="Upravit úkol"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="btn ghost small"
-                      onClick={() => deleteTask(t)}
-                      aria-label="Smazat"
-                      title="Smazat úkol"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-          {showNewTask && (
-            <NewTaskForm
-              pinId={pin.id}
-              onClose={() => setShowNewTask(false)}
-              onCreated={() => {
-                setShowNewTask(false);
-                load();
-              }}
-            />
-          )}
-          {editingTask && (
-            <EditTaskForm
-              task={editingTask}
-              onClose={() => setEditingTask(null)}
-              onSaved={() => {
-                setEditingTask(null);
-                load();
-              }}
-            />
-          )}
-        </div>
-      )}
+      {/* Sklizeň */}
+      <div className="pd-section">
+        <div className="pd-section-title">🧺 Sklizeň</div>
+        <HarvestTab pinId={pin.id} />
+      </div>
 
-      {tab === 'photos' && <PhotoGallery pinId={pin.id} />}
-
-      {tab === 'harvests' && <HarvestTab pinId={pin.id} />}
-
-      {tab === 'history' && (
-        <div>
+      {/* Více — historie péče */}
+      {!showMore ? (
+        <button type="button" className="pd-more" onClick={() => setShowMore(true)}>
+          ▾ Více · Historie péče ({pin.history.length})
+        </button>
+      ) : (
+        <div className="pd-section">
+          <div className="pd-section-title">📜 Historie péče</div>
           {pin.history.length === 0 ? (
             <div className="empty small">Zatím žádná historie péče</div>
           ) : (
@@ -263,9 +490,19 @@ export default function PinDetail({ pinId, onClose }) {
               </div>
             ))
           )}
+          <button type="button" className="pd-more" onClick={() => setShowMore(false)}>
+            ▴ Skrýt
+          </button>
         </div>
       )}
-    </Modal>
+
+      {/* Danger zone */}
+      <div className="pd-danger-zone">
+        <button type="button" className="pd-danger-btn" onClick={onDeletePin}>
+          🗑️ Smazat toto místo
+        </button>
+      </div>
+    </div>
   );
 }
 
