@@ -52,16 +52,23 @@ function groupByMonth(items, getDate) {
 export default function TasksPage({ onTaskComplete }) {
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
+  const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
+  const [gardenFilter, setGardenFilter] = useState('all');
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
 
   const load = async () => {
     try {
-      const [t, h] = await Promise.all([api.listTasks(), api.listHistory()]);
+      const [t, h, g] = await Promise.all([
+        api.listTasks(),
+        api.listHistory(),
+        api.listGardens(),
+      ]);
       setTasks(t);
       setHistory(h);
+      setGardens(g);
     } catch (e) {
       toast('Chyba: ' + e.message);
     } finally {
@@ -92,24 +99,35 @@ export default function TasksPage({ onTaskComplete }) {
     }
   };
 
-  const overdueCount = tasks.filter((t) => daysFromToday(t.next_due) < 0).length;
-  const todayCount = tasks.filter((t) => daysFromToday(t.next_due) === 0).length;
+  // Filtr zahrady aplikujeme nejdřív, ať se z něj počítají i statistiky v hero.
+  const gardenFilteredTasks = useMemo(() => {
+    if (gardenFilter === 'all') return tasks;
+    return tasks.filter((t) => String(t.garden_id) === String(gardenFilter));
+  }, [tasks, gardenFilter]);
+
+  const gardenFilteredHistory = useMemo(() => {
+    if (gardenFilter === 'all') return history;
+    return history.filter((h) => String(h.garden_id) === String(gardenFilter));
+  }, [history, gardenFilter]);
+
+  const overdueCount = gardenFilteredTasks.filter((t) => daysFromToday(t.next_due) < 0).length;
+  const todayCount = gardenFilteredTasks.filter((t) => daysFromToday(t.next_due) === 0).length;
   const urgentCount = overdueCount + todayCount;
 
   const visibleTasks = useMemo(() => {
-    if (filter === 'all') return tasks;
+    if (filter === 'all') return gardenFilteredTasks;
     if (filter === 'thisMonth') {
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
-      return tasks.filter((t) => {
+      return gardenFilteredTasks.filter((t) => {
         if (!t.next_due) return false;
         const d = new Date(t.next_due);
         return d.getFullYear() === y && d.getMonth() === m;
       });
     }
     return [];
-  }, [tasks, filter]);
+  }, [gardenFilteredTasks, filter]);
 
   const taskGroups = useMemo(() => {
     if (filter === 'done') return [];
@@ -120,10 +138,10 @@ export default function TasksPage({ onTaskComplete }) {
 
   const historyGroups = useMemo(() => {
     if (filter !== 'done') return [];
-    return groupByMonth(history, (h) => h.done_at).sort(
+    return groupByMonth(gardenFilteredHistory, (h) => h.done_at).sort(
       ([a], [b]) => b.localeCompare(a),
     );
-  }, [history, filter]);
+  }, [gardenFilteredHistory, filter]);
 
   if (loading) return <div className="empty">🌱 Načítám...</div>;
 
@@ -136,7 +154,7 @@ export default function TasksPage({ onTaskComplete }) {
             <div className="tasks-hero-title">
               {urgentCount > 0
                 ? `${urgentCount} ${urgentCount === 1 ? 'úkol' : urgentCount < 5 ? 'úkoly' : 'úkolů'} čeká`
-                : tasks.length > 0
+                : gardenFilteredTasks.length > 0
                 ? 'Vše pod kontrolou 🌿'
                 : 'Žádné úkoly'}
             </div>
@@ -150,7 +168,7 @@ export default function TasksPage({ onTaskComplete }) {
         </div>
         <div className="tasks-hero-stats">
           <div className="tasks-hero-stat">
-            <div className="val">{tasks.length}</div>
+            <div className="val">{gardenFilteredTasks.length}</div>
             <div className="lbl">Naplánováno</div>
           </div>
           <div className="tasks-hero-stat">
@@ -158,11 +176,31 @@ export default function TasksPage({ onTaskComplete }) {
             <div className="lbl">Po termínu</div>
           </div>
           <div className="tasks-hero-stat">
-            <div className="val">{history.length}</div>
+            <div className="val">{gardenFilteredHistory.length}</div>
             <div className="lbl">Hotovo</div>
           </div>
         </div>
       </div>
+
+      {gardens.length > 1 && (
+        <div className="filter-pills overview-filter">
+          <button
+            className={`filter-pill ${gardenFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setGardenFilter('all')}
+          >
+            🗺️ Všechny
+          </button>
+          {gardens.map((g) => (
+            <button
+              key={g.id}
+              className={`filter-pill ${String(gardenFilter) === String(g.id) ? 'active' : ''}`}
+              onClick={() => setGardenFilter(g.id)}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="filter-pills">
         <button
@@ -175,13 +213,13 @@ export default function TasksPage({ onTaskComplete }) {
           className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          Vše {tasks.length > 0 && <span className="pill-count">{tasks.length}</span>}
+          Vše {gardenFilteredTasks.length > 0 && <span className="pill-count">{gardenFilteredTasks.length}</span>}
         </button>
         <button
           className={`filter-pill ${filter === 'done' ? 'active' : ''}`}
           onClick={() => setFilter('done')}
         >
-          Dokončené {history.length > 0 && <span className="pill-count">{history.length}</span>}
+          Dokončené {gardenFilteredHistory.length > 0 && <span className="pill-count">{gardenFilteredHistory.length}</span>}
         </button>
       </div>
 
