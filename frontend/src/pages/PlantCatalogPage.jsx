@@ -123,9 +123,15 @@ export default function PlantCatalogPage() {
           }),
         );
       });
-      // Všechny sezónní akce
+      // Všechny sezónní akce — s posunem podle podmínek vybrané zahrady
       const allCare = new Set((plant.careActions || []).map((_, i) => i));
-      buildSeasonalTaskPayloads(plant, allCare, pin.id).forEach((payload) => {
+      const gardenConditions = {
+        soil_type: garden.soil_type,
+        exposure: garden.exposure,
+        altitude_m: garden.altitude_m,
+        climate_zone: garden.climate_zone,
+      };
+      buildSeasonalTaskPayloads(plant, allCare, pin.id, gardenConditions).forEach((payload) => {
         promises.push(api.createTask(payload));
       });
       await Promise.all(promises);

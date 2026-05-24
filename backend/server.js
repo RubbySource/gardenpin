@@ -138,8 +138,12 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
   const altitude_m = req.body.altitude_m !== undefined
     ? (req.body.altitude_m === '' || req.body.altitude_m === null ? null : parseInt(req.body.altitude_m, 10) || null)
     : current.altitude_m;
+  const VALID_CLIMATE_ZONE = ['PHA', 'STC', 'JHC', 'PLK', 'KVK', 'ULK', 'LBK', 'HKK', 'PAK', 'VYS', 'JHM', 'OLK', 'ZLK', 'MSK'];
+  const climate_zone = req.body.climate_zone !== undefined
+    ? (VALID_CLIMATE_ZONE.includes(req.body.climate_zone) ? req.body.climate_zone : null)
+    : current.climate_zone;
 
-  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=? WHERE id=?').run(
+  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=? WHERE id=?').run(
     name,
     imagePath,
     w,
@@ -148,6 +152,7 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
     soil_type,
     exposure,
     altitude_m,
+    climate_zone,
     id,
   );
   const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
@@ -276,7 +281,7 @@ app.get('/api/pins/:id', (req, res) => {
   const history = db
     .prepare('SELECT * FROM care_history WHERE pin_id = ? ORDER BY done_at DESC LIMIT 50')
     .all(pin.id);
-  const garden = db.prepare('SELECT soil_type, exposure, altitude_m FROM gardens WHERE id = ?').get(pin.garden_id);
+  const garden = db.prepare('SELECT soil_type, exposure, altitude_m, climate_zone FROM gardens WHERE id = ?').get(pin.garden_id);
   res.json({
     ...pin,
     tasks,
@@ -1565,6 +1570,16 @@ app.get('/api/gardens/:id/season-plan', (req, res) => {
     conditions.push(`Expozice: ${htmlEscape(expMap[garden.exposure] || garden.exposure)}`);
   }
   if (garden.altitude_m) conditions.push(`Nadm. výška: ${garden.altitude_m} m`);
+  if (garden.climate_zone) {
+    const zoneMap = {
+      PHA: 'Hlavní město Praha', STC: 'Středočeský kraj', JHC: 'Jihočeský kraj',
+      PLK: 'Plzeňský kraj', KVK: 'Karlovarský kraj', ULK: 'Ústecký kraj',
+      LBK: 'Liberecký kraj', HKK: 'Královéhradecký kraj', PAK: 'Pardubický kraj',
+      VYS: 'Kraj Vysočina', JHM: 'Jihomoravský kraj', OLK: 'Olomoucký kraj',
+      ZLK: 'Zlínský kraj', MSK: 'Moravskoslezský kraj',
+    };
+    conditions.push(`Klimatická zóna: ${htmlEscape(zoneMap[garden.climate_zone] || garden.climate_zone)}`);
+  }
   const conditionsHtml = conditions.length > 0
     ? `<div class="conditions">${conditions.join(' · ')}</div>`
     : '';

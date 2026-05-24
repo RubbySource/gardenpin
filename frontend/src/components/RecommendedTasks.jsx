@@ -5,6 +5,7 @@ import React, { useMemo, useState } from 'react';
 import { findPlantByName } from '../plantDatabase.js';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
+import { getClimateZone, getZoneOffsetDays } from '../data/climateZones.js';
 
 const MONTH_NAMES_CZ = [
   '', 'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
@@ -18,12 +19,15 @@ const PRIORITY_META = {
 };
 
 // Posun termínů úkonů podle pěstebních podmínek zahrady.
+// Klimatická zóna ČR (kraj) → regionální nástup vegetace.
 // Severní expozice / vysoká nadm. výška → chladnější mikroklima → pozdější termíny.
 // Jižní expozice / nížina → teplejší → dřívější termíny.
-// Vrací celé dny (kladné = oddálit, záporné = uspíšit). Max ±14 dní.
+// Vrací celé dny (kladné = oddálit, záporné = uspíšit). Max ±21 dní.
 function getConditionShiftDays(conditions) {
   if (!conditions) return 0;
   let shift = 0;
+  // Klimatická zóna ČR — regionální posun jara (jižní Morava dříve, Vysočina později)
+  shift += getZoneOffsetDays(conditions.climate_zone);
   if (conditions.exposure === 'N') shift += 14;
   if (conditions.exposure === 'S') shift -= 7;
   // Nadm. výška: nad 600 m = horské oblasti (pozdější jaro), pod 200 m = nížiny
@@ -32,7 +36,7 @@ function getConditionShiftDays(conditions) {
     else if (conditions.altitude_m >= 400) shift += 7;
     else if (conditions.altitude_m <= 200) shift -= 7;
   }
-  return Math.max(-14, Math.min(14, shift));
+  return Math.max(-21, Math.min(21, shift));
 }
 
 function dateForMonth(month, conditions) {
@@ -63,6 +67,7 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
   const tasks = plant.seasonalTasks;
   const monthNow = new Date().getMonth() + 1;
   const shiftDays = getConditionShiftDays(gardenConditions);
+  const zone = getClimateZone(gardenConditions?.climate_zone);
   const remaining = tasks.filter(
     (t) => !isTaskAlreadyAdded(t.action, t.month, existingTasks, gardenConditions) && !added[`${t.month}-${t.action}`],
   );
@@ -147,9 +152,11 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
                 borderRadius: 8,
               }}
             >
-              {shiftDays > 0
-                ? `🌡️ Chladnější mikroklima zahrady — termíny posunuty o +${shiftDays} dní`
-                : `🌡️ Teplejší mikroklima zahrady — termíny posunuty o ${shiftDays} dní`}
+              {zone
+                ? `📍 Upraveno pro tvou lokalitu (${zone.label}) — termíny ${shiftDays > 0 ? `posunuty o +${shiftDays} dní` : `uspíšeny o ${-shiftDays} dní`}`
+                : (shiftDays > 0
+                    ? `🌡️ Chladnější mikroklima zahrady — termíny posunuty o +${shiftDays} dní`
+                    : `🌡️ Teplejší mikroklima zahrady — termíny posunuty o ${shiftDays} dní`)}
             </div>
           )}
           {remaining.length > 1 && (

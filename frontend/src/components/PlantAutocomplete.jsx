@@ -1,6 +1,7 @@
 // Autocomplete input pro výběr rostliny + plant info card v GardenPin designu
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
+import { getZoneOffsetDays } from '../data/climateZones.js';
 
 // Design tokeny — GardenPin paleta (Claude Design plant card spec)
 const PALETTE = {
@@ -19,24 +20,44 @@ const MONTH_NAMES_CZ = [
   'črc', 'srp', 'zář', 'říj', 'lis', 'pro',
 ];
 
+// Posun ve dnech daný pěstebními podmínkami zahrady (klima, expozice, nadm. výška).
+// Sjednoceno s RecommendedTasks — držet logiku v souladu s tou v components/RecommendedTasks.jsx.
+function conditionShiftDays(conditions) {
+  if (!conditions) return 0;
+  let shift = 0;
+  shift += getZoneOffsetDays(conditions.climate_zone);
+  if (conditions.exposure === 'N') shift += 14;
+  if (conditions.exposure === 'S') shift -= 7;
+  if (typeof conditions.altitude_m === 'number') {
+    if (conditions.altitude_m >= 600) shift += 14;
+    else if (conditions.altitude_m >= 400) shift += 7;
+    else if (conditions.altitude_m <= 200) shift -= 7;
+  }
+  return Math.max(-21, Math.min(21, shift));
+}
+
 // Convert selected care chips into POST /api/tasks payloads (sezónní úkoly s konkrétním datem 15. v měsíci).
 // Reused by PlantInfoCard's CTA i NewPinModal submit, aby se chovaly stejně.
-export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId) {
+// gardenConditions je volitelný — když přijde, datum se posune dle klimatu/expozice/výšky.
+export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId, gardenConditions = null) {
   if (!plant?.careActions?.length || !selectedCareSet?.size) return [];
   const now = new Date();
   const year = now.getFullYear();
   const monthNow = now.getMonth() + 1;
+  const shift = conditionShiftDays(gardenConditions);
   const out = [];
   plant.careActions.forEach((care, idx) => {
     if (!selectedCareSet.has(idx)) return;
     const targetYear = care.month >= monthNow ? year : year + 1;
-    const m = String(care.month).padStart(2, '0');
+    const base = new Date(targetYear, care.month - 1, 15);
+    if (shift) base.setDate(base.getDate() + shift);
+    const specific = base.toISOString().slice(0, 10);
     out.push({
       pin_id: pinId,
       title: `${care.emoji} ${care.text}`,
       task_type: 'jine',
       frequency_days: null,
-      specific_date: `${targetYear}-${m}-15`,
+      specific_date: specific,
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
       recurring: true,
       recurrence_pattern: 'yearly',

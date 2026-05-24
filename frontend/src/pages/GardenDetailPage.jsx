@@ -1,4 +1,5 @@
 // Garden detail: interactive map with pins + pin detail modal
+// (climate zones: per-region seasonal task shifting)
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
@@ -7,6 +8,7 @@ import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
+import { CLIMATE_ZONES, getClimateZone, describeZone } from '../data/climateZones.js';
 
 export default function GardenDetailPage() {
   const { id } = useParams();
@@ -591,6 +593,12 @@ export default function GardenDetailPage() {
       {addingPinAt && (
         <NewPinModal
           gardenId={garden.id}
+          gardenConditions={{
+            soil_type: garden.soil_type,
+            exposure: garden.exposure,
+            altitude_m: garden.altitude_m,
+            climate_zone: garden.climate_zone,
+          }}
           x={addingPinAt.x}
           y={addingPinAt.y}
           onClose={() => setAddingPinAt(null)}
@@ -921,7 +929,7 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
   );
 }
 
-function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
+function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
   const [name, setName] = useState('');
   const [plantName, setPlantName] = useState('');
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -974,7 +982,7 @@ function NewPinModal({ gardenId, x, y, onClose, onCreated }) {
             );
           });
         }
-        const seasonal = buildSeasonalTaskPayloads(selectedPlant, selectedCare, pin.id);
+        const seasonal = buildSeasonalTaskPayloads(selectedPlant, selectedCare, pin.id, gardenConditions);
         seasonalCount = seasonal.length;
         seasonal.forEach((payload) => {
           promises.push(
@@ -1102,6 +1110,8 @@ function GardenConditionsLine({ garden }) {
   if (garden.soil_type) parts.push(`🪴 ${garden.soil_type}`);
   if (garden.exposure && EXPOSURE_LABELS[garden.exposure]) parts.push(EXPOSURE_LABELS[garden.exposure]);
   if (garden.altitude_m) parts.push(`⛰️ ${garden.altitude_m} m`);
+  const zone = getClimateZone(garden.climate_zone);
+  if (zone) parts.push(`📍 ${zone.label}`);
   if (parts.length === 0) return null;
   return (
     <div className="small muted" style={{ marginTop: 4 }}>
@@ -1115,6 +1125,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
   const [soilType, setSoilType] = useState(garden.soil_type || '');
   const [exposure, setExposure] = useState(garden.exposure || '');
   const [altitudeM, setAltitudeM] = useState(garden.altitude_m ?? '');
+  const [climateZone, setClimateZone] = useState(garden.climate_zone || '');
   const [saving, setSaving] = useState(false);
 
   const save = async (e) => {
@@ -1126,6 +1137,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
       fd.append('soil_type', soilType.trim());
       fd.append('exposure', exposure);
       fd.append('altitude_m', altitudeM === '' ? '' : String(altitudeM));
+      fd.append('climate_zone', climateZone);
       const g = await api.updateGarden(garden.id, fd);
       onSaved(g);
     } catch (err) {
@@ -1184,6 +1196,21 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
             placeholder="např. 350"
             onChange={(e) => setAltitudeM(e.target.value === '' ? '' : Number(e.target.value))}
           />
+        </div>
+
+        <div className="field">
+          <label>Klimatická zóna (kraj)</label>
+          <select value={climateZone} onChange={(e) => setClimateZone(e.target.value)}>
+            <option value="">— neuvedeno —</option>
+            {CLIMATE_ZONES.map((z) => (
+              <option key={z.id} value={z.id}>{z.label}</option>
+            ))}
+          </select>
+          {climateZone && (
+            <div className="small muted" style={{ marginTop: 4 }}>
+              {describeZone(climateZone)} — doporučené termíny úkonů se upraví pro tvou lokalitu.
+            </div>
+          )}
         </div>
 
         <div className="field">
