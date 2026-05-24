@@ -96,10 +96,80 @@ db.exec(`
     uploaded_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS beds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    garden_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    width REAL NOT NULL,
+    height REAL NOT NULL,
+    width_m REAL,
+    height_m REAL,
+    color TEXT DEFAULT '#8b6f47',
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS harvests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pin_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    amount REAL NOT NULL,
+    unit TEXT NOT NULL DEFAULT 'kg',
+    note TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_harvests_pin ON harvests(pin_id);
+  CREATE INDEX IF NOT EXISTS idx_harvests_date ON harvests(date);
+
+  -- Streak / gamifikace — jeden řádek na uživatele (MVP: user_id=1)
+  CREATE TABLE IF NOT EXISTS user_stats (
+    user_id INTEGER PRIMARY KEY,
+    current_streak INTEGER NOT NULL DEFAULT 0,
+    longest_streak INTEGER NOT NULL DEFAULT 0,
+    last_done_date TEXT,
+    total_completed INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  -- Email připomínky — MVP single-user (user_id=1, jeden řádek)
+  CREATE TABLE IF NOT EXISTS email_settings (
+    user_id INTEGER PRIMARY KEY,
+    email TEXT,
+    enabled INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
 `);
+
+// Inicializace user_stats — jeden řádek pro výchozího uživatele (id=1)
+try {
+  db.prepare(
+    'INSERT OR IGNORE INTO user_stats (user_id, current_streak, longest_streak, total_completed) VALUES (1, 0, 0, 0)',
+  ).run();
+} catch {}
+
+// Inicializace email_settings — výchozí prázdný / vypnutý řádek pro user_id=1
+try {
+  db.prepare(
+    'INSERT OR IGNORE INTO email_settings (user_id, email, enabled) VALUES (1, NULL, 0)',
+  ).run();
+} catch {}
 
 // Migrations — přidat sloupce pokud neexistují
 try { db.exec('ALTER TABLE gardens ADD COLUMN rotation INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN share_token TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN shared_at TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN soil_type TEXT'); } catch {}
+try { db.exec("ALTER TABLE gardens ADD COLUMN exposure TEXT"); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN altitude_m INTEGER'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN climate_zone TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN location TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN garden_polygon TEXT'); } catch {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}

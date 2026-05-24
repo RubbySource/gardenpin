@@ -1,4 +1,4 @@
-// Weather widget — Open-Meteo current_weather via backend proxy
+// Weather widget — Open-Meteo current_weather + 3denní předpověď s mrazovým varováním
 import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api.js';
 
@@ -17,6 +17,16 @@ function wmoToIcon(code) {
   return { icon: '🌡️', label: 'Počasí' };
 }
 
+const FROST_THRESHOLD = 2; // °C — pod touto hodnotou varujeme
+
+const DOW = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
+function dayLabel(iso, idx) {
+  if (idx === 0) return 'Dnes';
+  if (idx === 1) return 'Zítra';
+  const d = new Date(iso);
+  return DOW[d.getDay()];
+}
+
 export default function WeatherWidget() {
   const [loc, setLoc] = useState(() => {
     try {
@@ -26,6 +36,8 @@ export default function WeatherWidget() {
     return PRAGUE;
   });
   const [weather, setWeather] = useState(null);
+  const [daily, setDaily] = useState(null);
+  const [sensitive, setSensitive] = useState({ count: 0, plants: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [locating, setLocating] = useState(false);
@@ -34,8 +46,13 @@ export default function WeatherWidget() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.weather(l.lat, l.lon);
+      const [data, sens] = await Promise.all([
+        api.weather(l.lat, l.lon),
+        api.sensitivePins().catch(() => ({ count: 0, plants: [] })),
+      ]);
       setWeather(data.current_weather);
+      setDaily(data.daily || null);
+      setSensitive(sens);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -77,6 +94,7 @@ export default function WeatherWidget() {
     setLoc(PRAGUE);
   };
 
+  // Offline / fetch fail — schovat widget (per Vize: offline fallback)
   if (loading && !weather) {
     return (
       <div className="weather-widget">
@@ -86,48 +104,104 @@ export default function WeatherWidget() {
   }
 
   if (error && !weather) {
-    return (
-      <div className="weather-widget">
-        <div className="weather-error">⚠️ {error}</div>
-        <button className="btn secondary weather-btn" onClick={() => load(loc)}>
-          Zkusit znovu
-        </button>
-      </div>
-    );
+    // Offline / API down — schovat widget
+    return null;
   }
 
   const { icon, label } = wmoToIcon(weather?.weathercode ?? -1);
   const temp = Math.round(weather?.temperature ?? 0);
   const wind = Math.round(weather?.windspeed ?? 0);
 
+  // Mrazové varování — pokud min teplota v některém z následujících 3 dnů < 2°C
+  // a uživatel má citlivé rostliny
+  let frostWarning = null;
+  if (daily && daily.temperature_2m_min && sensitive.count > 0) {
+    const mins = daily.temperature_2m_min;
+    let coldestIdx = -1;
+    let coldestTemp = Infinity;
+    for (let i = 0; i < mins.length; i++) {
+      if (mins[i] < FROST_THRESHOLD && mins[i] < coldestTemp) {
+        coldestTemp = mins[i];
+        coldestIdx = i;
+      }
+    }
+    if (coldestIdx >= 0) {
+      const when = dayLabel(daily.time[coldestIdx], coldestIdx).toLowerCase();
+      frostWarning = {
+        temp: Math.round(coldestTemp),
+        when,
+        plantsCount: sensitive.count,
+      };
+    }
+  }
+
   return (
-    <div className="weather-widget">
-      <div className="weather-main">
-        <div className="weather-icon">{icon}</div>
-        <div className="weather-info">
-          <div className="weather-temp">{temp}°C</div>
-          <div className="weather-label">{label}</div>
-          <div className="weather-meta">
-            <span>📍 {loc.label}</span>
-            <span>💨 {wind} km/h</span>
+    <>
+      {frostWarning && (
+        <div className="frost-warning" role="alert">
+          <div className="frost-warning-icon">❄️</div>
+          <div className="frost-warning-body">
+            <div className="frost-warning-title">
+              ⚠️ Mráz {frostWarning.when} ({frostWarning.temp}°C)
+            </div>
+            <div className="frost-warning-text">
+              Přikryj citlivé rostliny — máš jich {frostWarning.plantsCount}
+              {frostWarning.plantsCount === 1 ? '' : frostWarning.plantsCount < 5 ? ' citlivé' : ' citlivých'}.
+            </div>
           </div>
         </div>
-      </div>
-      <div className="weather-actions">
-        <button
-          className="btn secondary weather-btn"
-          onClick={useGeolocation}
-          disabled={locating}
-          title="Použít moji polohu"
-        >
-          {locating ? '…' : '📍 Moje poloha'}
-        </button>
-        {loc.label !== PRAGUE.label && (
-          <button className="btn secondary weather-btn" onClick={resetToPrague} title="Praha">
-            Praha
-          </button>
+      )}
+      <div className="weather-widget">
+        <div className="weather-main">
+          <div className="weather-icon">{icon}</div>
+          <div className="weather-info">
+            <div className="weather-temp">{temp}°C</div>
+            <div className="weather-label">{label}</div>
+            <div className="weather-meta">
+              <span>📍 {loc.label}</span>
+              <span>💨 {wind} km/h</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3denní předpověď */}
+        {daily && daily.time && (
+          <div className="weather-forecast">
+            {daily.time.map((iso, i) => {
+              const ic = wmoToIcon(daily.weathercode?.[i] ?? -1);
+              const min = Math.round(daily.temperature_2m_min?.[i] ?? 0);
+              const max = Math.round(daily.temperature_2m_max?.[i] ?? 0);
+              const isCold = (daily.temperature_2m_min?.[i] ?? 99) < FROST_THRESHOLD;
+              return (
+                <div key={iso} className={`forecast-day${isCold ? ' is-cold' : ''}`}>
+                  <div className="forecast-dow">{dayLabel(iso, i)}</div>
+                  <div className="forecast-icon">{ic.icon}</div>
+                  <div className="forecast-temps">
+                    <span className="t-max">{max}°</span>
+                    <span className="t-min">{min}°</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
+
+        <div className="weather-actions">
+          <button
+            className="btn secondary weather-btn"
+            onClick={useGeolocation}
+            disabled={locating}
+            title="Použít moji polohu"
+          >
+            {locating ? '…' : '📍 Moje poloha'}
+          </button>
+          {loc.label !== PRAGUE.label && (
+            <button className="btn secondary weather-btn" onClick={resetToPrague} title="Praha">
+              Praha
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
