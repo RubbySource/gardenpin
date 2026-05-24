@@ -3,16 +3,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
 import { getZoneOffsetDays } from '../data/climateZones.js';
 
-// Design tokeny — GardenPin paleta (Claude Design plant card spec)
+// Design tokeny — GardenPin paleta (Claude Design plant card spec).
+// Hodnoty jsou CSS proměnné, ať se v dark mode automaticky přebarví.
 const PALETTE = {
-  forest: '#2d5a27',
-  forestDark: '#1f4019',
-  sand: '#f5f0e8',
-  sandDark: '#ebe2d2',
-  white: '#ffffff',
-  charcoal: '#1c1c1e',
-  muted: '#6b6b70',
-  border: 'rgba(0,0,0,0.06)',
+  forest: 'var(--forest)',
+  forestDark: 'var(--forest-deep)',
+  sand: 'var(--sand)',
+  sandDark: 'var(--sand-dark)',
+  white: 'var(--card)',
+  charcoal: 'var(--charcoal)',
+  muted: 'var(--muted)',
+  border: 'var(--border)',
 };
 
 const MONTH_NAMES_CZ = [

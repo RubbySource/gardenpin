@@ -12,10 +12,11 @@ const MONTH_NAMES_CZ = [
   'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec',
 ];
 
+// Barvy přes CSS proměnné, ať se v dark mode přebarví automaticky.
 const PRIORITY_META = {
-  high:   { label: 'Důležité', color: '#c0392b', bg: 'rgba(192,57,43,0.10)' },
-  medium: { label: 'Standardní', color: '#2d5a27', bg: 'rgba(45,90,39,0.10)' },
-  low:    { label: 'Doplňkové', color: '#6b6b70', bg: 'rgba(107,107,112,0.10)' },
+  high:   { label: 'Důležité',   color: 'var(--danger)',    bg: 'rgba(192,57,43,0.10)' },
+  medium: { label: 'Standardní', color: 'var(--primary)',   bg: 'var(--forest-soft)' },
+  low:    { label: 'Doplňkové',  color: 'var(--text-dim)',  bg: 'rgba(107,107,112,0.10)' },
 };
 
 // Posun termínů úkonů podle pěstebních podmínek zahrady.
@@ -187,8 +188,8 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
                     alignItems: 'center',
                     gap: 8,
                     padding: '8px 10px',
-                    background: isAdded ? '#f5f0e8' : '#fff',
-                    border: '1px solid rgba(0,0,0,0.06)',
+                    background: isAdded ? 'var(--sand)' : 'var(--card)',
+                    border: '1px solid var(--border)',
                     borderRadius: 10,
                     opacity: isAdded ? 0.6 : 1,
                   }}

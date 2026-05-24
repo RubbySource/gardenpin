@@ -931,7 +931,7 @@ function HarvestTab({ pinId }) {
       ) : (
         harvests.map((h) => (
           <div key={h.id} className="history-item">
-            <div className="dot" style={{ background: '#d97a1b' }} />
+            <div className="dot" style={{ background: 'var(--warning)' }} />
             <div className="info">
               <div>
                 🧺 <strong>{h.amount} {h.unit}</strong>
