@@ -142,8 +142,11 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
   const climate_zone = req.body.climate_zone !== undefined
     ? (VALID_CLIMATE_ZONE.includes(req.body.climate_zone) ? req.body.climate_zone : null)
     : current.climate_zone;
+  const location = req.body.location !== undefined
+    ? (req.body.location ? String(req.body.location).slice(0, 240) : null)
+    : current.location;
 
-  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=? WHERE id=?').run(
+  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=?, location=? WHERE id=?').run(
     name,
     imagePath,
     w,
@@ -153,6 +156,7 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
     exposure,
     altitude_m,
     climate_zone,
+    location,
     id,
   );
   const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
@@ -1214,6 +1218,73 @@ app.post('/api/gardens/:id/upscale', async (req, res) => {
     const newImagePath = '/uploads/' + newFilename;
     db.prepare('UPDATE gardens SET image_path=?, image_width=?, image_height=? WHERE id=?').run(
       newImagePath, newW, newH, id,
+    );
+    res.json(db.prepare('SELECT * FROM gardens WHERE id = ?').get(id));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ======================= CROP TO POLYGON =======================
+// Vstup: body { points: [{x, y}, ...] } v procentech (0–100) vůči rozměrům obrázku.
+// Server vytvoří SVG masku, aplikuje ji přes sharp composite (dest-in) a uloží oříznutý obrázek.
+// Body polygonu se ukládají do gardens.garden_polygon jako JSON pro validaci pinů.
+app.post('/api/gardens/:id/crop-polygon', async (req, res) => {
+  if (!sharp) return res.status(501).json({ error: 'Sharp není nainstalován. Spusť: npm install sharp' });
+  const id = req.params.id;
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!garden || !garden.image_path) return res.status(404).json({ error: 'Zahrada nebo obrázek nenalezen' });
+
+  const points = Array.isArray(req.body?.points) ? req.body.points : null;
+  if (!points || points.length < 3) {
+    return res.status(400).json({ error: 'Polygon musí mít alespoň 3 body' });
+  }
+  for (const p of points) {
+    if (typeof p?.x !== 'number' || typeof p?.y !== 'number'
+        || p.x < 0 || p.x > 100 || p.y < 0 || p.y > 100) {
+      return res.status(400).json({ error: 'Souřadnice musí být čísla 0–100 (procenta)' });
+    }
+  }
+
+  const srcPath = path.join(__dirname, garden.image_path);
+  if (!fs.existsSync(srcPath)) return res.status(404).json({ error: 'Soubor nenalezen' });
+
+  try {
+    const meta = await sharp(srcPath).metadata();
+    const W = meta.width;
+    const H = meta.height;
+
+    // Pixelové souřadnice polygonu pro masku
+    const px = points.map((p) => ({ x: (p.x / 100) * W, y: (p.y / 100) * H }));
+    const polyPath = px.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
+
+    // SVG maska: bílá = zachovat, černá = odříznout. PNG s alfa kanálem.
+    const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+      <rect width="100%" height="100%" fill="black"/>
+      <path d="${polyPath}" fill="white"/>
+    </svg>`;
+
+    // Vyrobíme alfa-masku jako PNG (jeden kanál) a aplikujeme přes dest-in.
+    const maskPng = await sharp(Buffer.from(maskSvg)).png().toBuffer();
+
+    const ext = '.png'; // dest-in vrací s průhledností → uložíme jako PNG
+    const newFilename = Date.now() + '-cropped' + ext;
+    const destPath = path.join(__dirname, 'uploads', newFilename);
+
+    await sharp(srcPath)
+      .ensureAlpha()
+      .composite([{ input: maskPng, blend: 'dest-in' }])
+      .png()
+      .toFile(destPath);
+
+    // Smaž starý soubor
+    try { fs.unlinkSync(srcPath); } catch {}
+
+    const newImagePath = '/uploads/' + newFilename;
+    const polygonJson = JSON.stringify(points);
+    db.prepare('UPDATE gardens SET image_path=?, garden_polygon=? WHERE id=?').run(
+      newImagePath, polygonJson, id,
     );
     res.json(db.prepare('SELECT * FROM gardens WHERE id = ?').get(id));
   } catch (e) {

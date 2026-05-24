@@ -9,6 +9,26 @@ import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import { CLIMATE_ZONES, getClimateZone, describeZone } from '../data/climateZones.js';
+import PolygonEditor, { isPointInPolygon } from '../components/PolygonEditor.jsx';
+
+// Otevře Google Maps v satelitním pohledu (parametr t=k). Bez API klíče.
+function openSatelliteView(address) {
+  const trimmed = (address || '').trim();
+  const url = trimmed
+    ? `https://www.google.com/maps?q=${encodeURIComponent(trimmed)}&t=k`
+    : 'https://www.google.com/maps?t=k';
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+// Parsuje JSON string s body polygonu, vrátí pole nebo null.
+function parsePolygon(json) {
+  if (!json) return null;
+  try {
+    const arr = JSON.parse(json);
+    if (Array.isArray(arr) && arr.length >= 3) return arr;
+  } catch {}
+  return null;
+}
 
 export default function GardenDetailPage() {
   const { id } = useParams();
@@ -36,6 +56,10 @@ export default function GardenDetailPage() {
   const [drawingBed, setDrawingBed] = useState(null); // { x, y, w, h } v %
   const drawStartRef = useRef(null);
   const mapRef = useRef();
+  // P6: Polygon editor — režim ohraničení zahrady + ad-hoc adresa pro satelit
+  const [polygonMode, setPolygonMode] = useState(false);
+  const [croppingPolygon, setCroppingPolygon] = useState(false);
+  const [adhocAddress, setAdhocAddress] = useState('');
 
   const load = async () => {
     try {
@@ -103,7 +127,7 @@ export default function GardenDetailPage() {
   };
 
   const handlePinPointerDown = (e, pin) => {
-    if (bedMode) return; // V režimu kreslení záhonu pin nepřesouváme
+    if (bedMode || polygonMode) return; // V režimu kreslení záhonu / polygonu pin nepřesouváme
     e.preventDefault();
     e.stopPropagation();
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
@@ -150,6 +174,7 @@ export default function GardenDetailPage() {
   // P5: Záhony — pointer handlery na mapě
   const handleMapPointerDown = (e) => {
     if (!garden || !garden.image_path) return;
+    if (polygonMode) return; // V režimu polygonu mapa neovládá nic
     if (!bedMode) return;
     // Pouze primární tlačítko / dotyk
     if (e.button !== undefined && e.button !== 0) return;
@@ -222,11 +247,49 @@ export default function GardenDetailPage() {
   };
 
   const handleMapClick = (e) => {
-    if (draggingPin || drawingBed || bedMode) return;
+    if (draggingPin || drawingBed || bedMode || polygonMode) return;
     if (!garden || !garden.image_path) return;
     const pos = getMapPercent(e.clientX, e.clientY);
+    // Pokud má zahrada ohraničení, povol pin jen uvnitř
+    const poly = parsePolygon(garden.garden_polygon);
+    if (poly && !isPointInPolygon(pos, poly)) {
+      toast('Umísti pin dovnitř zahrady');
+      return;
+    }
     setAddingPinAt(pos);
   };
+
+  // P6: Crop podle polygonu
+  const handleCropPolygon = async (points) => {
+    if (!points || points.length < 3) return;
+    setCroppingPolygon(true);
+    try {
+      const res = await fetch(`/api/gardens/${garden.id}/crop-polygon`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ points }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Chyba');
+      const updated = await res.json();
+      setGarden(updated);
+      setPolygonMode(false);
+      toast('✅ Zahrada oříznuta');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setCroppingPolygon(false);
+    }
+  };
+
+  // Odvozené měřítko z prvního záhonu, který má rozměry v metrech (orientačně pro m²)
+  const scaleHints = (() => {
+    const bed = beds.find((b) => b.width_m && b.height_m && b.width && b.height);
+    if (!bed) return { x: 0, y: 0 };
+    return {
+      x: bed.width_m / bed.width, // m na 1 % šířky mapy
+      y: bed.height_m / bed.height, // m na 1 % výšky mapy
+    };
+  })();
 
   const handleUploadMap = async (e) => {
     const file = e.target.files?.[0];
@@ -311,6 +374,30 @@ export default function GardenDetailPage() {
                 onChange={handleUploadMap}
               />
             </label>
+            <div style={{ marginTop: 20, padding: '14px 12px 4px', borderTop: '1px dashed var(--border)' }}>
+              <div className="small muted mb-2">
+                💡 Nemáte vlastní leteckou fotku? Otevřete adresu v Google Maps satelitním pohledu, udělejte screenshot a nahrajte ho.
+              </div>
+              {!garden.location && (
+                <input
+                  type="text"
+                  value={adhocAddress}
+                  onChange={(e) => setAdhocAddress(e.target.value)}
+                  placeholder="Adresa zahrady (např. Květinová 12, Praha)"
+                  style={{ marginBottom: 8 }}
+                />
+              )}
+              <button
+                type="button"
+                className="btn secondary"
+                onClick={() => openSatelliteView(garden.location || adhocAddress)}
+              >
+                🛰️ Otevřít satelit {garden.location ? '— ' + garden.location : ''}
+              </button>
+              <div className="small muted" style={{ marginTop: 6 }}>
+                Udělej screenshot a nahraj jako mapu.
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -377,11 +464,20 @@ export default function GardenDetailPage() {
               {/* Záhon */}
               <button
                 className={`btn ghost small${bedMode ? ' active' : ''}`}
-                onClick={() => setBedMode((v) => !v)}
+                onClick={() => { setBedMode((v) => !v); setPolygonMode(false); }}
                 style={bedMode ? { background: 'rgba(139,111,71,0.18)', border: '1px solid #8b6f47' } : {}}
                 title="Vytvořit záhon (klik a táhni přes mapu)"
               >
                 {bedMode ? '✋ Zrušit kreslení' : '🟫 Záhon'}
+              </button>
+              {/* Ohraničení zahrady (polygon) */}
+              <button
+                className={`btn ghost small${polygonMode ? ' active' : ''}`}
+                onClick={() => { setPolygonMode((v) => !v); setBedMode(false); }}
+                style={polygonMode ? { background: 'rgba(74,124,58,0.18)', border: '1px solid #4a7c3a' } : {}}
+                title={garden.garden_polygon ? 'Znovu ohraničit zahradu' : 'Ohraničit zahradu polygonem'}
+              >
+                {polygonMode ? '✋ Zrušit polygon' : (garden.garden_polygon ? '✂️ Znovu ohraničit' : '✂️ Ohraničit zahradu')}
               </button>
               {/* Upscale */}
               <button
@@ -397,7 +493,9 @@ export default function GardenDetailPage() {
 
           <div className="card">
             <div className="small muted mb-2">
-              {bedMode
+              {polygonMode
+                ? '✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik na bod = smazat.'
+                : bedMode
                 ? '🟫 Klikněte a táhněte pro vytvoření záhonu.'
                 : '💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.'}
             </div>
@@ -528,6 +626,19 @@ export default function GardenDetailPage() {
                 >
                   <div className="pin-body" />
                 </div>
+              )}
+              {polygonMode && (
+                <PolygonEditor
+                  containerRef={mapRef}
+                  initialPoints={parsePolygon(garden.garden_polygon)}
+                  imageWidth={garden.image_width}
+                  imageHeight={garden.image_height}
+                  scaleMPerPercentX={scaleHints.x}
+                  scaleMPerPercentY={scaleHints.y}
+                  saving={croppingPolygon}
+                  onCancel={() => setPolygonMode(false)}
+                  onSave={handleCropPolygon}
+                />
               )}
             </div>
           </div>
@@ -1122,6 +1233,7 @@ function GardenConditionsLine({ garden }) {
 
 function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uploading }) {
   const [name, setName] = useState(garden.name);
+  const [location, setLocation] = useState(garden.location || '');
   const [soilType, setSoilType] = useState(garden.soil_type || '');
   const [exposure, setExposure] = useState(garden.exposure || '');
   const [altitudeM, setAltitudeM] = useState(garden.altitude_m ?? '');
@@ -1134,6 +1246,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
     try {
       const fd = new FormData();
       fd.append('name', name);
+      fd.append('location', location.trim());
       fd.append('soil_type', soilType.trim());
       fd.append('exposure', exposure);
       fd.append('altitude_m', altitudeM === '' ? '' : String(altitudeM));
@@ -1153,6 +1266,27 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
         <div className="field">
           <label>Název</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+
+        <div className="field">
+          <label>📍 Adresa zahrady</label>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="např. Květinová 12, 250 88 Čelákovice"
+            maxLength={240}
+          />
+          <div className="row" style={{ gap: 6, marginTop: 6, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn ghost small"
+              onClick={() => openSatelliteView(location)}
+            >
+              🛰️ Otevřít satelit
+            </button>
+            <span className="small muted">Udělej screenshot a nahraj jako mapu.</span>
+          </div>
         </div>
 
         <div className="field">
