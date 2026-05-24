@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
+import PlantWarnings from '../components/PlantWarnings.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 
@@ -359,6 +360,8 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
                     </div>
                   </div>
                 )}
+
+                <PlantWarnings plantName={plant.nameCz} />
               </>
             )}
           </div>

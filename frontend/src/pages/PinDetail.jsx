@@ -7,6 +7,7 @@ import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskIcon, taskLabel }
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
+import PlantWarnings from '../components/PlantWarnings.jsx';
 
 export default function PinDetail({ pinId, onClose }) {
   const [pin, setPin] = useState(null);
@@ -144,6 +145,7 @@ export default function PinDetail({ pinId, onClose }) {
             gardenConditions={pin.garden_conditions}
             onTaskAdded={load}
           />
+          <PlantWarnings plantName={pin.plant_name} />
           <div className="row mt-3">
             <button className="btn danger" onClick={deletePin}>
               🗑️ Smazat

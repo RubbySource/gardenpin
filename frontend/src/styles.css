@@ -2567,6 +2567,124 @@ input, textarea, select {
 }
 .seasonal-pin-chip:hover { background: var(--green-100); }
 
+/* ── CHOROBY A ŠKŮDCI — „Na co si dát pozor" ─────────────────── */
+.plant-warnings {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(217, 122, 27, 0.07);
+  border: 1px solid rgba(217, 122, 27, 0.22);
+}
+.plant-warnings-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.plant-warnings-icon { font-size: 1.05rem; }
+.plant-warnings-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--warning);
+}
+.plant-warnings-count {
+  margin-left: auto;
+  font-size: 0.74rem;
+  font-weight: 700;
+  background: var(--warning);
+  color: #fff;
+  border-radius: 99px;
+  padding: 1px 8px;
+}
+.plant-warnings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pest-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.pest-card-head {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.pest-card-icon { font-size: 1.15rem; line-height: 1.2; flex-shrink: 0; }
+.pest-card-main { flex: 1; min-width: 0; }
+.pest-card-name {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+.pest-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.pest-kind-badge,
+.pest-month-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 99px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.pest-kind-badge {
+  background: var(--sand);
+  color: var(--muted);
+}
+.pest-card.pest-pest .pest-kind-badge {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--danger);
+}
+.pest-card.pest-disease .pest-kind-badge {
+  background: rgba(217, 122, 27, 0.14);
+  color: var(--warning);
+}
+.pest-month-badge {
+  background: var(--forest-soft);
+  color: var(--forest);
+  margin-left: 6px;
+}
+.pest-card-chevron {
+  font-size: 0.8rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.pest-card-body {
+  padding: 0 10px 10px 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pest-card-row {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--charcoal);
+}
+.pest-card-row strong { color: var(--muted); }
+
+/* Sezónní kalendář — varovná sekce */
+.warning-section { border-top-color: rgba(217, 122, 27, 0.35); }
+.warning-toggle-label { color: var(--warning); font-weight: 600; }
+.seasonal-task.warning-task {
+  background: rgba(217, 122, 27, 0.09);
+}
+
 /* ── GARDENS PAGE V3 ─────────────────────────────────────────── */
 .gardens-hero {
   background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);

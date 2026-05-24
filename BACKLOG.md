@@ -51,3 +51,10 @@ Stack: React 18 + Vite, Node.js Express + SQLite, PM2 WSL port 3000. Po změně:
 
 - [x] Meziroční srovnání — co jsem dělal loni touto dobou a co letos ještě chybí — hotovo 2026-05-23
 
+
+
+- [x] Choroby a škůdci rostlin — databáze běžných chorob a škůdců vázaná na konkrétní rostlinu, se sezónním varováním („V červnu hlídej mšice na růžích"). Karta rostliny dostane sekci „Na co si dát pozor" s ikonou a měsíčním rozsahem rizika. Návrhy se objeví v sezónním kalendáři jako preventivní úkony. Vše offline, lokální datová sada. — hotovo 2026-05-24
+
+- [ ] Klimatické zóny ČR — posun termínů sezónních úkonů podle regionu a nadmořské výšky zahrady (jaro v horách přichází o 2-4 týdny později). V Pěstebních podmínkách se zvolí kraj/zóna, databáze úkonů automaticky posune doporučené měsíce. Vizuální indikace „upraveno pro tvou lokalitu".
+
+- [ ] Spolupráce na zahradě — pozvánka člena rodiny s edit právy (dnes je sdílení jen read-only). Úkony lze přiřadit konkrétní osobě, kdo splnil úkol se zaznamená, společný streak. iOS-style správa členů v Nastavení zahrady.

@@ -5,6 +5,7 @@ import { toast } from '../App.jsx';
 import { taskIcon, taskLabel } from '../utils.js';
 import PinDetail from '../pages/PinDetail.jsx';
 import seasonalData from '../data/seasonal.json';
+import { getWarningsForMonth, monthRangeLabel } from '../pestDatabase.js';
 
 const MONTH_NAMES = [
   'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
@@ -32,6 +33,7 @@ export default function SeasonalCalendar() {
   const [loading, setLoading] = useState(true);
   const [openPin, setOpenPin] = useState(null);
   const [expandedSeasonal, setExpandedSeasonal] = useState({});
+  const [expandedWarnings, setExpandedWarnings] = useState({});
   const [completing, setCompleting] = useState(null);
   const currentMonthRef = useRef(null);
 
@@ -163,11 +165,19 @@ export default function SeasonalCalendar() {
           const seasonal = seasonalData.months[idx];
           const seasonalTasks = seasonal?.tasks || [];
           const isExpanded = !!expandedSeasonal[idx] || isCurrent;
+          // Preventivní varování — choroby/škůdci aktivní v tomto měsíci,
+          // omezené na rostliny, které uživatel skutečně pěstuje.
+          const monthWarnings = getWarningsForMonth(idx + 1)
+            .map((w) => ({ ...w, pins: matchPinsByTags(allPins, w.plantTags) }))
+            .filter((w) => w.pins.length > 0);
+          const warningsExpanded = !!expandedWarnings[idx] || isCurrent;
+          const isEmptyMonth =
+            monthTasks.length === 0 && seasonalTasks.length === 0 && monthWarnings.length === 0;
           return (
             <div
               key={idx}
               ref={isCurrent ? currentMonthRef : null}
-              className={`month-card${isCurrent ? ' current' : ''}${monthTasks.length === 0 && seasonalTasks.length === 0 ? ' empty-month' : ''}`}
+              className={`month-card${isCurrent ? ' current' : ''}${isEmptyMonth ? ' empty-month' : ''}`}
             >
               <div className="month-header">
                 <span className="month-emoji">{MONTH_EMOJI[idx]}</span>
@@ -272,7 +282,60 @@ export default function SeasonalCalendar() {
                 </div>
               )}
 
-              {monthTasks.length === 0 && seasonalTasks.length === 0 && (
+              {/* Preventivní varování — choroby a škůdci */}
+              {monthWarnings.length > 0 && (
+                <div className="seasonal-section warning-section">
+                  <button
+                    type="button"
+                    className="seasonal-toggle"
+                    onClick={() =>
+                      setExpandedWarnings((prev) => ({ ...prev, [idx]: !warningsExpanded }))
+                    }
+                    aria-expanded={warningsExpanded}
+                  >
+                    <span className="small warning-toggle-label">
+                      ⚠️ Na co si dát pozor ({monthWarnings.length})
+                    </span>
+                    <span className="small muted">{warningsExpanded ? '▴' : '▾'}</span>
+                  </button>
+                  {warningsExpanded && (
+                    <ul className="seasonal-tasks">
+                      {monthWarnings.map((w) => (
+                        <li key={w.id} className="seasonal-task warning-task">
+                          <span className="seasonal-icon">{w.icon}</span>
+                          <div className="seasonal-info">
+                            <div className="seasonal-title">
+                              {w.name}
+                              <span className="pest-month-badge">
+                                🗓️ {monthRangeLabel(w.months)}
+                              </span>
+                            </div>
+                            <div className="seasonal-desc small muted">{w.prevention}</div>
+                            <div className="seasonal-pins">
+                              {w.pins.slice(0, 6).map((p) => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  className="seasonal-pin-chip"
+                                  onClick={() => setOpenPin(p.id)}
+                                  title={`Otevřít ${p.name}`}
+                                >
+                                  📍 {p.plant_name || p.name}
+                                </button>
+                              ))}
+                              {w.pins.length > 6 && (
+                                <span className="small muted">+{w.pins.length - 6}</span>
+                              )}
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {isEmptyMonth && (
                 <div className="month-empty small muted">—</div>
               )}
             </div>
