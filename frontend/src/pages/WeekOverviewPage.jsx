@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
+import SnoozeButton from '../components/SnoozeButton.jsx';
 import { daysFromToday, taskIcon, taskLabel, formatDate } from '../utils.js';
 
 const DAY_NAMES = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
@@ -217,6 +218,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
                       onComplete={() => completeTask(t)}
                       onOpen={() => setOpenPin(t.pin_id)}
                       onOpenGarden={() => nav(`/zahrada/${t.garden_id}`)}
+                      onSnoozed={load}
                     />
                   ))}
                 </div>
@@ -270,7 +272,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
   );
 }
 
-function OverviewTaskRow({ task, completing, onComplete, onOpen, onOpenGarden }) {
+function OverviewTaskRow({ task, completing, onComplete, onOpen, onOpenGarden, onSnoozed }) {
   const diff = daysFromToday(task.next_due);
   const dueLabel = useMemo(() => {
     if (diff === null) return '';
@@ -324,6 +326,9 @@ function OverviewTaskRow({ task, completing, onComplete, onOpen, onOpenGarden })
           <span className="overview-chip overview-chip-type">{taskLabel(task.task_type)}</span>
         </div>
       </div>
+      {(task.next_due || task.specific_date) && (
+        <SnoozeButton task={task} onSnoozed={onSnoozed} compact />
+      )}
     </div>
   );
 }

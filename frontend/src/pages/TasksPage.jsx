@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
+import SnoozeButton from '../components/SnoozeButton.jsx';
 import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
 
 const MONTH_NAMES = [
@@ -209,6 +210,7 @@ export default function TasksPage({ onTaskComplete }) {
                   completing={completingIds.has(t.id)}
                   onComplete={() => completeTask(t)}
                   onOpen={() => setOpenPin(t.pin_id)}
+                  onSnoozed={load}
                 />
               ))}
             </div>
@@ -253,7 +255,7 @@ export default function TasksPage({ onTaskComplete }) {
   );
 }
 
-function TaskRow({ task, completing, onComplete, onOpen }) {
+function TaskRow({ task, completing, onComplete, onOpen, onSnoozed }) {
   const badge = dueBadge(task.next_due);
   const cls = badge ? badge.cls : '';
   return (
@@ -288,6 +290,9 @@ function TaskRow({ task, completing, onComplete, onOpen }) {
           <span className="badge type">{taskLabel(task.task_type)}</span>
         </div>
       </div>
+      {(task.next_due || task.specific_date) && (
+        <SnoozeButton task={task} onSnoozed={onSnoozed} />
+      )}
     </div>
   );
 }

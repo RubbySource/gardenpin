@@ -8,6 +8,7 @@ import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplet
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
+import SnoozeButton from '../components/SnoozeButton.jsx';
 
 export default function PinDetail({ pinId, onClose }) {
   const [pin, setPin] = useState(null);
@@ -194,7 +195,10 @@ export default function PinDetail({ pinId, onClose }) {
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    {(t.next_due || t.specific_date) && (
+                      <SnoozeButton task={t} onSnoozed={load} compact />
+                    )}
                     <button
                       className="btn ghost small"
                       onClick={() => setEditingTask(t)}

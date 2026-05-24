@@ -821,6 +821,37 @@ app.post('/api/tasks/:id/done', (req, res) => {
   res.json({ ...db.prepare('SELECT * FROM tasks WHERE id = ?').get(id), streak });
 });
 
+// Odložit úkol o N dní nebo na konkrétní datum.
+// Body: { days?: number, until?: 'YYYY-MM-DD' } — jeden z těchto musí přijít.
+// Aplikace: posun next_due a (pokud existuje) specific_date. Last_done se nemění.
+// Vrací aktualizovaný task.
+app.post('/api/tasks/:id/snooze', (req, res) => {
+  const id = req.params.id;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return res.status(404).json({ error: 'Úkol nenalezen' });
+
+  const { days, until } = req.body || {};
+  let newDate;
+  if (until && /^\d{4}-\d{2}-\d{2}$/.test(until)) {
+    newDate = until;
+  } else if (Number.isInteger(days) && days > 0 && days <= 365) {
+    const base = task.next_due || task.specific_date || new Date().toISOString().slice(0, 10);
+    const d = new Date(base);
+    if (isNaN(d)) return res.status(400).json({ error: 'Nelze odložit úkol bez termínu' });
+    d.setDate(d.getDate() + days);
+    newDate = d.toISOString().slice(0, 10);
+  } else {
+    return res.status(400).json({ error: 'Zadej days (1–365) nebo until (YYYY-MM-DD)' });
+  }
+
+  if (task.specific_date) {
+    db.prepare('UPDATE tasks SET specific_date=?, next_due=? WHERE id=?').run(newDate, newDate, id);
+  } else {
+    db.prepare('UPDATE tasks SET next_due=? WHERE id=?').run(newDate, id);
+  }
+  res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+});
+
 // ======================= HISTORY =======================
 app.get('/api/history', (req, res) => {
   const rows = db

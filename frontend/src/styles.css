@@ -3079,6 +3079,85 @@ input, textarea, select {
 .task-row-tags .badge.type { background: var(--sand); color: var(--charcoal); }
 .task-row-tags .badge.done-badge { background: var(--green-100); color: var(--primary); text-transform: none; letter-spacing: 0; }
 
+/* ======================= Snooze button — popover for postponing a task ======================= */
+.snooze-wrap { position: relative; display: inline-block; flex-shrink: 0; }
+.snooze-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+.snooze-btn:hover { background: var(--sand); border-color: var(--sand-dark); color: var(--charcoal); }
+.snooze-btn:active { transform: scale(0.92); }
+.snooze-btn.compact { width: 28px; height: 28px; font-size: 0.85rem; }
+.snooze-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  padding: 12px;
+}
+.snooze-popover-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.snooze-quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.snooze-quick-btn {
+  padding: 8px 6px;
+  background: var(--sand);
+  border: 1px solid var(--sand-dark);
+  border-radius: 10px;
+  color: var(--charcoal);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.snooze-quick-btn:hover:not(:disabled) { background: var(--sand-dark); }
+.snooze-quick-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.snooze-custom { border-top: 1px solid var(--border); padding-top: 10px; }
+.snooze-custom-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.snooze-custom-row { display: flex; gap: 6px; }
+.snooze-custom-row input[type="date"] {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--charcoal);
+  font-size: 0.85rem;
+}
+
 /* ======================= Season stats — bar chart + top cards ======================= */
 .season-stats {
   padding: 18px 16px;
