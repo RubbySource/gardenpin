@@ -56,6 +56,9 @@ export default function GardenDetailPage() {
   const [drawingBed, setDrawingBed] = useState(null); // { x, y, w, h } v %
   const drawStartRef = useRef(null);
   const mapRef = useRef();
+  // Vnitřní wrapper kolem fotky — když je aktivní polygon editor, zmenší se na 84 %
+  // a vytvoří odsazení okolo fotky, aby rohové body šly chytit prsty.
+  const mapStageRef = useRef();
   // P6: Polygon editor — režim ohraničení zahrady + ad-hoc adresa pro satelit
   const [polygonMode, setPolygonMode] = useState(false);
   const [croppingPolygon, setCroppingPolygon] = useState(false);
@@ -511,10 +514,22 @@ export default function GardenDetailPage() {
                 aspectRatio: garden.image_width && garden.image_height
                   ? `${garden.image_width} / ${garden.image_height}`
                   : undefined,
-                cursor: bedMode ? 'crosshair' : draggingPin ? 'grabbing' : 'crosshair',
+                cursor: polygonMode ? 'default' : bedMode ? 'crosshair' : draggingPin ? 'grabbing' : 'crosshair',
                 touchAction: bedMode || draggingPin ? 'none' : 'manipulation',
               }}
             >
+              <div
+                className="map-stage"
+                ref={mapStageRef}
+                style={{
+                  position: 'absolute',
+                  top: polygonMode ? '8%' : 0,
+                  bottom: polygonMode ? '8%' : 0,
+                  left: polygonMode ? '8%' : 0,
+                  right: polygonMode ? '8%' : 0,
+                  transition: 'top 0.18s ease, bottom 0.18s ease, left 0.18s ease, right 0.18s ease',
+                }}
+              >
               <img
                 src={garden.image_path}
                 alt={garden.name}
@@ -629,7 +644,7 @@ export default function GardenDetailPage() {
               )}
               {polygonMode && (
                 <PolygonEditor
-                  containerRef={mapRef}
+                  containerRef={mapStageRef}
                   initialPoints={parsePolygon(garden.garden_polygon)}
                   imageWidth={garden.image_width}
                   imageHeight={garden.image_height}
@@ -640,6 +655,7 @@ export default function GardenDetailPage() {
                   onSave={handleCropPolygon}
                 />
               )}
+              </div>
             </div>
           </div>
 
