@@ -495,13 +495,13 @@ export default function GardenDetailPage() {
           </div>
 
           <div className="card">
-            <div className="small muted mb-2">
-              {polygonMode
-                ? '✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik na bod = smazat.'
-                : bedMode
-                ? '🟫 Klikněte a táhněte pro vytvoření záhonu.'
-                : '💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.'}
-            </div>
+            {!polygonMode && (
+              <div className="small muted mb-2">
+                {bedMode
+                  ? '🟫 Klikněte a táhněte pro vytvoření záhonu.'
+                  : '💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.'}
+              </div>
+            )}
             <div
               className="map-container"
               ref={mapRef}
@@ -516,6 +516,9 @@ export default function GardenDetailPage() {
                   : undefined,
                 cursor: polygonMode ? 'default' : bedMode ? 'crosshair' : draggingPin ? 'grabbing' : 'crosshair',
                 touchAction: bedMode || draggingPin ? 'none' : 'manipulation',
+                padding: polygonMode ? '20px 0' : 0,
+                boxSizing: 'border-box',
+                transition: 'padding 0.18s ease',
               }}
             >
               <div
@@ -523,10 +526,10 @@ export default function GardenDetailPage() {
                 ref={mapStageRef}
                 style={{
                   position: 'absolute',
-                  top: polygonMode ? '8%' : 0,
-                  bottom: polygonMode ? '8%' : 0,
-                  left: polygonMode ? '8%' : 0,
-                  right: polygonMode ? '8%' : 0,
+                  top: polygonMode ? '18%' : 0,
+                  bottom: polygonMode ? '18%' : 0,
+                  left: polygonMode ? '18%' : 0,
+                  right: polygonMode ? '18%' : 0,
                   transition: 'top 0.18s ease, bottom 0.18s ease, left 0.18s ease, right 0.18s ease',
                 }}
               >
@@ -657,6 +660,19 @@ export default function GardenDetailPage() {
               )}
               </div>
             </div>
+            {polygonMode && (
+              <p
+                className="polygon-hint"
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-dim)',
+                  textAlign: 'center',
+                  margin: '6px 0 4px',
+                }}
+              >
+                ✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik na bod = smazat.
+              </p>
+            )}
           </div>
 
           {beds.length > 0 && (
