@@ -268,11 +268,10 @@ export default function HomePage({ onTaskComplete }) {
       {/* Upcoming */}
       <div className="section-header">
         <div className="title">📅 Nadcházející</div>
-        {upcoming.length > 0 ? (
-          <span className="count-badge">{upcoming.length}</span>
-        ) : (
-          <Link to="/ukoly" className="gp-section-link">Vše →</Link>
-        )}
+        <div className="section-header-actions">
+          {upcoming.length > 0 && <span className="count-badge">{upcoming.length}</span>}
+          <Link to="/tyden" className="gp-section-link">Týden →</Link>
+        </div>
       </div>
       {upcoming.length === 0 ? (
         <div className="gp-empty" style={{ padding: '20px 16px' }}>
@@ -316,7 +315,7 @@ export default function HomePage({ onTaskComplete }) {
       <SeasonStats />
       <YearOverYear />
 
-      <Link to="/premium" className="ios-premium-link">
+      <Link to="/nastaveni" className="ios-premium-link">
         <span className="ios-premium-icon" aria-hidden="true">
           <Icon name="sparkles" size={18} />
         </span>
