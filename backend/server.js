@@ -1477,7 +1477,246 @@ app.get('/api/pins/sensitive', (req, res) => {
   });
 });
 
-// ======================= ICAL EXPORT =======================
+// ======================= ICAL EXPORT (live calendar subscription) =======================
+// Globální token pro all-gardens kalendář — uložen v souboru, přežije restart serveru.
+// Per-garden tokeny jsou v gardens.ical_token.
+function getDataDir() {
+  return process.env.DATABASE_PATH
+    ? path.dirname(path.resolve(process.env.DATABASE_PATH))
+    : path.join(__dirname, 'data');
+}
+function getGlobalIcalToken() {
+  const f = path.join(getDataDir(), '.ical-global-token');
+  try {
+    if (fs.existsSync(f)) {
+      const t = fs.readFileSync(f, 'utf-8').trim();
+      if (t.length >= 12) return t;
+    }
+  } catch {}
+  const token = generateShareToken(20);
+  try {
+    if (!fs.existsSync(getDataDir())) fs.mkdirSync(getDataDir(), { recursive: true });
+    fs.writeFileSync(f, token, { mode: 0o600 });
+  } catch (e) {
+    console.warn('[ical] could not persist global token:', e.message);
+  }
+  return token;
+}
+function getOrCreateGardenIcalToken(gardenId) {
+  const g = db.prepare('SELECT ical_token FROM gardens WHERE id = ?').get(gardenId);
+  if (!g) return null;
+  if (g.ical_token) return g.ical_token;
+  // Generate unique token (retry on collision)
+  let token;
+  for (let i = 0; i < 5; i++) {
+    token = generateShareToken(14);
+    const exists = db.prepare('SELECT 1 FROM gardens WHERE ical_token = ?').get(token);
+    if (!exists) break;
+    token = null;
+  }
+  if (!token) return null;
+  db.prepare('UPDATE gardens SET ical_token = ? WHERE id = ?').run(token, gardenId);
+  return token;
+}
+
+// Filtruj task: úkony, které NEexportujeme do kalendáře (per user spec).
+// - zalivka a kontrola jsou zbytečně časté pro kalendář
+// - frequency_days < 7 = zaplaví kalendář
+function eligibleForIcal(task) {
+  if (!task) return false;
+  if (task.task_type === 'zalivka' || task.task_type === 'kontrola') return false;
+  if (task.frequency_days && task.frequency_days < 7) return false;
+  // Musí mít aspoň nějaký datum (next_due nebo specific_date)
+  return !!(task.next_due || task.specific_date);
+}
+
+// Helpers pro iCal generaci
+function icalFoldLine(line) {
+  const out = [];
+  while (line.length > 75) {
+    out.push(line.slice(0, 75));
+    line = ' ' + line.slice(75);
+  }
+  out.push(line);
+  return out.join('\r\n');
+}
+function icalEscape(s) {
+  return (s || '').toString()
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n');
+}
+function icalDate(dateStr) {
+  // 'YYYY-MM-DD' → 'YYYYMMDD' (pro DTSTART;VALUE=DATE)
+  return (dateStr || '').replace(/-/g, '').slice(0, 8);
+}
+function icalNowUtc() {
+  return new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
+}
+function firstOfMonth(dateStr) {
+  // Vrať 1. den téhož měsíce ve formátu YYYYMMDD
+  return (dateStr || '').slice(0, 7).replace('-', '') + '01';
+}
+function firstOfNextMonth(dateStr) {
+  const y = parseInt(dateStr.slice(0, 4), 10);
+  const m = parseInt(dateStr.slice(5, 7), 10);
+  const next = m === 12 ? { y: y + 1, m: 1 } : { y, m: m + 1 };
+  return `${next.y}${String(next.m).padStart(2, '0')}01`;
+}
+
+const ICAL_TYPE_EMOJI = {
+  zalivka: '💧', hnojeni: '🌱', strihani: '✂️', presazeni: '🪴',
+  plet: '🌿', sklizen: '🧺', kontrola: '🔍', jine: '📋',
+};
+
+// Vykreslí jeden VEVENT pro task. All-day events, VALARM -P1D.
+// Speciální chování:
+// - task_type='sklizen' → multi-day spanning celého měsíce
+// - recurring + yearly → DTSTART 1. den měsíce + RRULE FREQ=YEARLY
+// - frequency_days >= 7 → RRULE FREQ=DAILY;INTERVAL=N
+// - jednorázový → all-day na specific_date / next_due
+function icalEventLines(task, nowStamp) {
+  const date = task.specific_date || task.next_due;
+  if (!date) return [];
+  const emoji = ICAL_TYPE_EMOJI[task.task_type] || '📋';
+  const title = task.title || (task.plant_name || task.pin_name);
+  const summary = `${emoji} ${title} — ${task.garden_name}`;
+  const descParts = [];
+  if (task.notes) descParts.push(icalEscape(task.notes));
+  descParts.push(`Zahrada: ${icalEscape(task.garden_name)}.`);
+  if (task.pin_name) descParts.push(`Místo: ${icalEscape(task.pin_name)}.`);
+  if (task.plant_name && task.plant_name !== task.pin_name) {
+    descParts.push(`Rostlina: ${icalEscape(task.plant_name)}.`);
+  }
+  const desc = descParts.join(' ');
+
+  const isHarvest = task.task_type === 'sklizen';
+  const isYearly = task.recurring && task.recurrence_pattern === 'yearly';
+  const isFrequency = task.frequency_days && task.frequency_days >= 7;
+
+  let dtstart;
+  let dtend;
+  let rrule;
+
+  if (isHarvest) {
+    dtstart = firstOfMonth(date);
+    dtend = firstOfNextMonth(date);
+    if (isYearly) rrule = 'FREQ=YEARLY';
+  } else if (isYearly) {
+    // Sezónní (jako z plantDatabase) — normalizovat na 1. den měsíce
+    dtstart = firstOfMonth(date);
+    rrule = 'FREQ=YEARLY';
+  } else if (isFrequency) {
+    dtstart = icalDate(date);
+    rrule = `FREQ=DAILY;INTERVAL=${task.frequency_days}`;
+  } else {
+    dtstart = icalDate(date);
+  }
+
+  const lines = ['BEGIN:VEVENT'];
+  lines.push(icalFoldLine(`UID:gardenpin-task-${task.id}@gardenpin`));
+  lines.push(`DTSTAMP:${nowStamp}`);
+  lines.push(`DTSTART;VALUE=DATE:${dtstart}`);
+  if (dtend) lines.push(`DTEND;VALUE=DATE:${dtend}`);
+  lines.push(icalFoldLine(`SUMMARY:${icalEscape(summary)}`));
+  if (task.garden_name) lines.push(icalFoldLine(`LOCATION:${icalEscape(task.garden_name)}`));
+  if (desc) lines.push(icalFoldLine(`DESCRIPTION:${desc}`));
+  if (rrule) lines.push(`RRULE:${rrule}`);
+  // VALARM — 1 den předem
+  lines.push('BEGIN:VALARM');
+  lines.push('ACTION:DISPLAY');
+  lines.push(icalFoldLine(`DESCRIPTION:Připomínka: ${icalEscape(summary)}`));
+  lines.push('TRIGGER:-P1D');
+  lines.push('END:VALARM');
+  lines.push('END:VEVENT');
+  return lines;
+}
+
+// Postaví VCALENDAR string z pole tasks (joinů s pin/garden už uvnitř SQL).
+function buildIcalCalendar(tasks, calName) {
+  const now = icalNowUtc();
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//GardenPin//GardenPin Calendar//CS',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    icalFoldLine(`X-WR-CALNAME:${icalEscape(calName)}`),
+    'X-WR-TIMEZONE:Europe/Prague',
+    'REFRESH-INTERVAL;VALUE=DURATION:P1D',
+    'X-PUBLISHED-TTL:P1D',
+  ];
+  for (const t of tasks) {
+    if (!eligibleForIcal(t)) continue;
+    lines.push(...icalEventLines(t, now));
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+// SQL — vrať tasks pro jednu zahradu nebo všechny (gardenId=null)
+function fetchIcalTasks(gardenId) {
+  const sql = `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id,
+                      g.name AS garden_name
+               FROM tasks t
+               JOIN pins p ON p.id = t.pin_id
+               JOIN gardens g ON g.id = p.garden_id
+               WHERE (t.next_due IS NOT NULL OR t.specific_date IS NOT NULL)
+                 ${gardenId ? 'AND g.id = ?' : ''}
+               ORDER BY COALESCE(t.next_due, t.specific_date) ASC`;
+  return gardenId ? db.prepare(sql).all(gardenId) : db.prepare(sql).all();
+}
+
+// Endpoint: GET token pro zahradu (auto-create pokud neexistuje)
+app.get('/api/gardens/:id/ical-token', (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT id, name FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  const token = getOrCreateGardenIcalToken(id);
+  if (!token) return res.status(500).json({ error: 'Nepodařilo se vygenerovat token' });
+  res.json({ token, garden_id: Number(id), garden_name: g.name });
+});
+
+// Endpoint: GET globální token (pro all-gardens kalendář)
+app.get('/api/ical-token', (req, res) => {
+  res.json({ token: getGlobalIcalToken() });
+});
+
+// Endpoint: živý iCal pro jednu zahradu
+app.get('/api/gardens/:id/calendar.ics', (req, res) => {
+  const id = req.params.id;
+  const token = req.query.token;
+  const g = db.prepare('SELECT id, name, ical_token FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).send('Garden not found');
+  if (!token || token !== g.ical_token) return res.status(403).send('Invalid or missing token');
+
+  const tasks = fetchIcalTasks(id);
+  const ics = buildIcalCalendar(tasks, `GardenPin — ${g.name}`);
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  if (req.query.download === '1') {
+    const safeName = g.name.replace(/[^a-zA-Z0-9_-]+/g, '-').slice(0, 40) || 'garden';
+    res.setHeader('Content-Disposition', `attachment; filename="gardenpin-${safeName}.ics"`);
+  }
+  res.send(ics);
+});
+
+// Endpoint: živý iCal pro všechny zahrady (user-wide)
+app.get('/api/calendar.ics', (req, res) => {
+  const token = req.query.token;
+  if (!token || token !== getGlobalIcalToken()) {
+    return res.status(403).send('Invalid or missing token');
+  }
+  const tasks = fetchIcalTasks(null);
+  const ics = buildIcalCalendar(tasks, 'GardenPin — vše');
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  if (req.query.download === '1') {
+    res.setHeader('Content-Disposition', 'attachment; filename="gardenpin.ics"');
+  }
+  res.send(ics);
+});
+
+// ======================= ICAL EXPORT (legacy, dochází jednorázový download) =======================
 app.get('/api/export/ical', (req, res) => {
   const tasks = db.prepare(
     `SELECT t.*, p.name AS pin_name, p.plant_name, g.name AS garden_name

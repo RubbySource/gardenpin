@@ -24,7 +24,13 @@ export default function SettingsPage() {
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // Globální iCal token — pro odběr "vše" kalendáře
+  const [globalIcalToken, setGlobalIcalToken] = useState(null);
   const pushSupported = isPushSupported();
+
+  useEffect(() => {
+    api.globalIcalToken().then((r) => setGlobalIcalToken(r.token)).catch(() => {});
+  }, []);
 
   // Email připomínky — týdenní digest
   const [emailAddr, setEmailAddr] = useState('');
@@ -334,11 +340,52 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
-        <h3 style={{ marginTop: 0 }}>📤 Export dat</h3>
+        <h3 style={{ marginTop: 0 }}>📅 Živý kalendář (všechny zahrady)</h3>
+        <p className="small muted">
+          Přidej GardenPin do iOS / Google Kalendáře jako odběr. Sezónní úkony, výsadba,
+          řez a sklizeň ze všech zahrad se automaticky aktualizují (refresh 1× denně).
+          Zálivka a kontroly nejsou v kalendáři — zaplnily by ho.
+        </p>
+        {globalIcalToken ? (
+          <>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+              <a
+                className="btn"
+                href={`webcal://${window.location.host}/api/calendar.ics?token=${globalIcalToken}`}
+                style={{ flex: '1 1 200px' }}
+              >
+                📲 Přidat do iOS Kalendáře
+              </a>
+              <a
+                className="btn secondary"
+                href={`/api/calendar.ics?token=${globalIcalToken}&download=1`}
+                style={{ flex: '1 1 200px' }}
+              >
+                💾 Stáhnout .ics soubor
+              </a>
+            </div>
+            <div className="field" style={{ marginTop: 12 }}>
+              <label className="small muted">URL pro Google Kalendář</label>
+              <input
+                type="text"
+                value={`${window.location.origin}/api/calendar.ics?token=${globalIcalToken}`}
+                readOnly
+                onFocus={(e) => e.target.select()}
+                style={{ fontSize: '0.78rem' }}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="small muted">Načítám token…</div>
+        )}
+      </div>
+
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>📤 Export dat (jednorázový)</h3>
         <p className="small muted">
           Zálohujte si zahrady, rostliny a úkoly. JSON obsahuje úplná data včetně
-          URL fotek, CSV je tabulka rostlin a úkonů pro Excel. iCal otevřete v
-          kalendáři (iOS / Google).
+          URL fotek, CSV je tabulka rostlin a úkonů pro Excel. iCal stáhne kalendář
+          k jednorázovému importu (pro živé propojení použijte sekci výše).
         </p>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="btn secondary" onClick={() => handleExport('json')}>

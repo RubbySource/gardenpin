@@ -46,6 +46,7 @@ export default function GardenDetailPage() {
   const [editingBed, setEditingBed] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
@@ -381,6 +382,13 @@ export default function GardenDetailPage() {
             title="Stáhnout sezónní plán jako PDF (přes tisk)"
           >
             📄 Plán PDF
+          </button>
+          <button
+            className="btn ghost small"
+            onClick={() => setShowCalendar(true)}
+            title="Přidat do iOS / Google kalendáře (živý odkaz)"
+          >
+            📅 Kalendář
           </button>
           <button className="btn ghost small" onClick={() => setShowShare(true)} title="Sdílet zahradu">
             🔗 Sdílet
@@ -846,6 +854,13 @@ export default function GardenDetailPage() {
         />
       )}
 
+      {showCalendar && (
+        <CalendarSubscribeModal
+          garden={garden}
+          onClose={() => setShowCalendar(false)}
+        />
+      )}
+
       {editingBed && (
         <BedEditModal
           bed={editingBed}
@@ -1054,6 +1069,83 @@ function ShareGardenModal({ garden, onClose }) {
             <button type="button" className="btn ghost" onClick={onClose}>
               Zavřít
             </button>
+          </div>
+        </>
+      )}
+    </Modal>
+  );
+}
+
+function CalendarSubscribeModal({ garden, onClose }) {
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.gardenIcalToken(garden.id)
+      .then((r) => { if (!cancelled) setToken(r.token); })
+      .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [garden.id]);
+
+  const host = typeof window !== 'undefined' ? window.location.host : '';
+  const httpsUrl = token ? `https://${host}/api/gardens/${garden.id}/calendar.ics?token=${token}` : '';
+  // webcal:// říká iOS / Google Kalendáři, že má URL přidat jako odběr, ne stáhnout
+  const webcalUrl = token ? `webcal://${host}/api/gardens/${garden.id}/calendar.ics?token=${token}` : '';
+  const downloadUrl = token ? `${httpsUrl}&download=1` : '';
+
+  const copy = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(httpsUrl);
+        toast('📋 URL zkopírováno');
+      }
+    } catch (e) {
+      toast('Nelze kopírovat: ' + e.message);
+    }
+  };
+
+  return (
+    <Modal title="📅 Přidat do kalendáře" onClose={onClose}>
+      {loading ? (
+        <div className="empty small">Načítám…</div>
+      ) : !token ? (
+        <div className="empty small">Token nedostupný</div>
+      ) : (
+        <>
+          <div className="small muted mb-2">
+            Živý odkaz — kalendář se sám aktualizuje (refresh interval 1 den). Změny v
+            úkonech, snooze, nové sezónní akce se promítnou do tvého kalendáře automaticky.
+          </div>
+
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+            <a className="btn" href={webcalUrl} style={{ flex: '1 1 200px' }}>
+              📲 Přidat do iOS Kalendáře
+            </a>
+            <a className="btn secondary" href={downloadUrl} style={{ flex: '1 1 200px' }}>
+              💾 Stáhnout .ics soubor
+            </a>
+          </div>
+
+          <div className="field" style={{ marginTop: 16 }}>
+            <label>URL pro Google Kalendář (přidej přes „Z URL")</label>
+            <input
+              type="text"
+              value={httpsUrl}
+              readOnly
+              onFocus={(e) => e.target.select()}
+              style={{ fontSize: '0.78rem' }}
+            />
+            <button type="button" className="btn ghost small mt-2" onClick={copy}>
+              📋 Zkopírovat URL
+            </button>
+          </div>
+
+          <div className="small muted" style={{ marginTop: 10 }}>
+            Co se exportuje: sezónní úkony (řez, hnojení, výsadba, sklizeň), jednorázové úkoly
+            s datem, opakované úkony s frekvencí 7+ dní. <strong>Zálivka a kontroly se
+            nepřenášejí</strong> — zaplnily by kalendář.
           </div>
         </>
       )}

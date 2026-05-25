@@ -169,6 +169,8 @@ try { db.exec('ALTER TABLE gardens ADD COLUMN altitude_m INTEGER'); } catch {}
 try { db.exec('ALTER TABLE gardens ADD COLUMN climate_zone TEXT'); } catch {}
 try { db.exec('ALTER TABLE gardens ADD COLUMN location TEXT'); } catch {}
 try { db.exec('ALTER TABLE gardens ADD COLUMN garden_polygon TEXT'); } catch {}
+try { db.exec('ALTER TABLE gardens ADD COLUMN ical_token TEXT'); } catch {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_ical_token ON gardens(ical_token) WHERE ical_token IS NOT NULL'); } catch {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
