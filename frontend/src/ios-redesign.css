@@ -632,6 +632,187 @@ main .card {
   box-shadow: var(--ios-shadow-card);
 }
 
+/* iOS-green toggles per design system (on = #34C759) */
+.ios-switch.on { background: var(--ios-green); }
+
+/* ===== Settings grouped list (iOS table view) ===== */
+.settings-page .ios-large-title {
+  margin: 6px 4px 4px;
+  font-size: 2.05rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* Account hero card */
+.settings-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+.settings-account-avatar {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+}
+.settings-account-info { flex: 1; min-width: 0; }
+.settings-account-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+}
+.settings-account-sub {
+  font-size: 0.82rem;
+  color: var(--ios-label-secondary);
+}
+.settings-premium-pill {
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FFCC00, #FF9500);
+}
+
+/* Group = caption header + card + footnote */
+.settings-group { margin-top: 22px; }
+.settings-group-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ios-label-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 16px 7px;
+}
+.settings-group-label.danger { color: var(--ios-red); }
+.settings-group-card {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  overflow: hidden;
+}
+.settings-group-foot {
+  font-size: 0.76rem;
+  color: var(--ios-label-secondary);
+  padding: 7px 16px 0;
+  line-height: 1.4;
+}
+
+/* Row */
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  min-height: 50px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ios-label);
+  font-family: var(--ios-font);
+}
+button.settings-row { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button.settings-row:active { background: var(--ios-fill-secondary); }
+/* Hairline indented past the icon (matches design system ml-[58px]) */
+.settings-sep {
+  height: 0.5px;
+  background: var(--ios-separator);
+  margin-left: 58px;
+}
+.settings-row-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.settings-row-icon svg { width: 17px; height: 17px; }
+.settings-row-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.settings-row-label.danger { color: var(--ios-red); font-weight: 600; }
+.settings-row-value {
+  font-size: 0.95rem;
+  color: var(--ios-label-secondary);
+  white-space: nowrap;
+}
+.settings-row-chevron {
+  color: var(--ios-label-tertiary);
+  font-size: 1.25rem;
+  line-height: 1;
+  flex: none;
+}
+
+/* Expanded sub-content inside a row group (chips, inputs, helper buttons) */
+.settings-subrow {
+  padding: 4px 16px 14px 58px;
+}
+.settings-subrow input[type="text"] {
+  width: 100%;
+  background: var(--ios-fill-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--ios-r-sm);
+  padding: 11px 12px;
+  font-size: 16px;
+  color: var(--ios-label);
+}
+.settings-subrow input[type="text"]:focus {
+  background: var(--ios-bg-elev);
+  border-color: var(--ios-accent);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(74, 110, 87, 0.12);
+}
+.settings-chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.settings-chip {
+  background: var(--ios-fill);
+  border: none;
+  color: var(--ios-label);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms var(--ios-ease), color 160ms var(--ios-ease),
+              transform 100ms var(--ios-ease);
+}
+.settings-chip:active { transform: scale(0.96); }
+.settings-chip.active {
+  background: var(--ios-accent);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(74, 110, 87, 0.2);
+}
+.settings-mini-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+.settings-foot-brand {
+  text-align: center;
+  margin: 26px 0 8px;
+  color: var(--ios-label-secondary);
+}
+.settings-foot-brand .name { font-weight: 700; color: var(--ios-label); font-size: 0.95rem; }
+.settings-foot-brand .claim { font-size: 0.8rem; }
+
 /* ---------- Calendar / seasonal ---------- */
 .calendar-controls { gap: 10px; }
 .calendar-year-switch {

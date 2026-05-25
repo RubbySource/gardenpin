@@ -17,6 +17,8 @@ export const api = {
   updateGarden: (id, formData) =>
     fetch(`/api/gardens/${id}`, { method: 'PUT', body: formData }).then(handle),
   deleteGarden: (id) => jsonFetch(`/api/gardens/${id}`, { method: 'DELETE' }),
+  // Nebezpečná zóna — smazat všechna zahradní data (zahrady + kaskáda)
+  deleteAllData: () => jsonFetch('/api/all-data', { method: 'DELETE' }),
 
   // Sharing
   createShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),

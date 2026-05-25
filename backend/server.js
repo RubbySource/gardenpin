@@ -183,6 +183,34 @@ app.delete('/api/gardens/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// Smazat VŠECHNA zahradní data (nebezpečná zóna v Nastavení).
+// Smaže všechny zahrady — FK ON DELETE CASCADE pokryje piny, úkoly, historii,
+// fotky, záhony a sklizně. Nemaže účet/Premium ani push subscriptions.
+app.delete('/api/all-data', (req, res) => {
+  try {
+    // Posbírej cesty k souborům před smazáním DB řádků
+    const gardenImgs = db.prepare('SELECT image_path FROM gardens WHERE image_path IS NOT NULL').all();
+    const pinImgs = db.prepare('SELECT photo_path FROM pins WHERE photo_path IS NOT NULL').all();
+
+    const result = db.prepare('DELETE FROM gardens').run();
+
+    // Úklid souborů — chyby u jednotlivých souborů ignoruj (data už jsou pryč)
+    for (const row of [...gardenImgs, ...pinImgs]) {
+      const rel = row.image_path || row.photo_path;
+      if (!rel) continue;
+      const p = path.join(__dirname, rel);
+      try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch {}
+    }
+    // Galerie fotek pinů — celý strom uploads/pins/
+    const pinsDir = path.join(uploadsDir, 'pins');
+    try { if (fs.existsSync(pinsDir)) fs.rmSync(pinsDir, { recursive: true, force: true }); } catch {}
+
+    res.json({ ok: true, gardensDeleted: result.changes });
+  } catch (e) {
+    res.status(500).json({ error: 'Smazání selhalo: ' + e.message });
+  }
+});
+
 // ======================= SHARING =======================
 // URL-safe random token, alfanum, 10 znaků (kolize prakticky nemožná)
 function generateShareToken(length = 10) {
