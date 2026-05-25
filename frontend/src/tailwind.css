@@ -1,0 +1,6 @@
+/* Tailwind layers — preflight is disabled in tailwind.config.js, so this adds
+   utility classes (for the per-screen redesign) without resetting the existing
+   hand-written CSS. Imported last in main.jsx so utilities win when used. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

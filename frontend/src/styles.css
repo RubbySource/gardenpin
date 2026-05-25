@@ -1,49 +1,107 @@
-/* GardenPin — Claude Design plant card system: flat premium iOS, FOREST + SAND palette */
+/* ============================================================
+   GardenPin — Design tokens · iOS design system (SAGE + CREAM)
+   Source of truth: docs/design-system.md §2–§7.
+   Tokens live here as CSS variables; tailwind.config.js mirrors the
+   static scale (sage / ios-* / radius / shadow / motion) and maps the
+   semantic names (bg-surface, text-label-2, …) to these var()s.
+   Light = :root, dark = html[data-theme="dark"] (set by ThemeToggle).
+   The whole legacy UI is variable-driven, so the old forest/sand
+   aliases are re-pointed at these tokens — the app adopts the new
+   palette without rewriting thousands of rule bodies.
+   ============================================================ */
 :root {
-  /* Canonical palette */
-  --forest: #2d5a27;
-  --forest-deep: #1f4019;
-  --forest-soft: rgba(45, 90, 39, 0.10);
-  --sand: #f5f0e8;
-  --sand-deep: #ebe2d2;
-  --charcoal: #1c1c1e;
-  --muted: #6b6b70;
-  --divider: rgba(0, 0, 0, 0.06);
-  --border-strong: rgba(0, 0, 0, 0.15);
+  /* — Brand: sage scale (static, identical in light & dark) — */
+  --sage-50:  #F2F6F0;
+  --sage-100: #E5EDE3;
+  --sage-200: #CBDBC7;
+  --sage-300: #A9C3A4;
+  --sage-400: #8DB089;
+  --sage-500: #7BA889;
+  --sage-600: #5F8C6E;
+  --sage-700: #4A6E57;
+  --sage-800: #38543F;
 
-  /* Legacy aliases — keep so existing class names keep working */
-  --green-50: #f1f7ee;
-  --green-100: #e2efdc;
-  --green-200: #c4dfb9;
-  --green-300: #a0ca8d;
-  --green-400: #7cb36a;
-  --green-500: #5a9a4d;
-  --green-600: #4a7c3a;
-  --green-700: #386129;
-  --green-800: #2d5a27;
-  --green-900: #1f4019;
-  --bg: #ffffff;
-  --card: #ffffff;
-  --sand-dark: var(--sand-deep);
-  --text: var(--charcoal);
-  --text-dim: var(--muted);
-  --border: var(--divider);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --danger: #c0392b;
-  --warning: #d97a1b;
-  --success: var(--forest);
-  --radius: 16px;
-  --primary: var(--forest);
+  /* — iOS system accents (state semantics) — */
+  --ios-blue:   #0A84FF;
+  --ios-green:  #34C759;
+  --ios-orange: #FF9500;
+  --ios-red:    #FF3B30;
+  --ios-yellow: #FFCC00;
+
+  /* — Semantic palette (light) — */
+  --brand:        #7BA889;  /* sage-500 — identity: logo, hero, active state */
+  --brand-strong: #4A6E57;  /* sage-700 — active text / links (WCAG-AA on cream) */
+  --brand-action:       #4A6E57;  /* primary button fill (white text passes AA) */
+  --brand-action-hover: #38543F;  /* pressed / hover */
+  --cream:     #FAF7F2;     /* app background */
+  --surface:   #FFFFFF;     /* cards, sheets, grouped list */
+  --surface-2: #F4F0E9;     /* nested surfaces, inputs */
+  --label:   #1C1C1E;
+  --label-2: rgba(60, 60, 67, 0.60);
+  --label-3: rgba(60, 60, 67, 0.32);
+  --separator: rgba(60, 60, 67, 0.10);
+  --fill:      rgba(120, 120, 128, 0.12);
+
+  /* — Radius (iOS scale, 8pt-friendly) — */
+  --r-ios-sm: 8px;
+  --r-ios:    12px;
+  --r-ios-md: 16px;
+  --r-ios-lg: 20px;
+  --r-ios-xl: 24px;
+
+  /* — Shadows (soft, multi-layer) — */
+  --shadow-ios-sm:   0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --shadow-ios-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-ios-md:   0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-ios-lg:   0 10px 40px rgba(0, 0, 0, 0.12);
+
+  /* — Motion (iOS spring) — */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Legacy aliases — routed through the tokens above. ── */
+  --forest: var(--brand-action);
+  --forest-deep: var(--brand-action-hover);
+  --forest-soft: rgba(123, 168, 137, 0.12);
+  --sand: var(--surface-2);
+  --sand-deep: #ECE6DC;
+  --charcoal: var(--label);
+  --muted: var(--label-2);
+  --divider: var(--separator);
+  --border-strong: rgba(60, 60, 67, 0.18);
+
+  --green-50:  var(--sage-50);
+  --green-100: var(--sage-100);
+  --green-200: var(--sage-200);
+  --green-300: var(--sage-300);
+  --green-400: var(--sage-400);
+  --green-500: var(--sage-500);
+  --green-600: var(--sage-600);
+  --green-700: var(--sage-700);
+  --green-800: var(--sage-700);
+  --green-900: var(--sage-800);
+  --bg: var(--cream);
+  --card: var(--surface);
+  --sand-dark: var(--surface-2);
+  --text: var(--label);
+  --text-dim: var(--label-2);
+  --border: var(--separator);
+  --shadow: var(--shadow-ios-sm);
+  --shadow-lg: var(--shadow-ios-md);
+  --danger: var(--ios-red);
+  --warning: var(--ios-orange);
+  --success: var(--ios-green);
+  --radius: var(--r-ios-lg);
+  --primary: var(--brand-action);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   /* Semantic theme aliases — overridden in [data-theme="dark"] */
-  --bg-primary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-surface: #f5f0e8;
-  --text-primary: #1c1c1e;
-  --text-secondary: #6b6b70;
+  --bg-primary: var(--cream);
+  --bg-card: var(--surface);
+  --bg-surface: var(--surface-2);
+  --text-primary: var(--label);
+  --text-secondary: var(--label-2);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -54,44 +112,65 @@
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  --forest: #6cb05e;
-  --forest-deep: #8bcb7a;
-  --forest-soft: rgba(108, 176, 94, 0.18);
-  --sand: #1f2620;
-  --sand-deep: #2a322b;
-  --charcoal: #e8ece6;
-  --muted: #9ba59a;
-  --divider: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  /* — Semantic palette (dark) — */
+  --brand:        #8FC0A0;  /* lightened sage identity for dark surfaces */
+  --brand-strong: #A9C3A4;  /* active text / links on dark bg */
+  --brand-action:       #5F8C6E;  /* primary button fill (white text stays legible) */
+  --brand-action-hover: #4A6E57;
+  --cream:     #16181A;
+  --surface:   #1F2123;
+  --surface-2: #2A2D30;
+  --label:   #F5F3EF;
+  --label-2: rgba(235, 235, 245, 0.62);
+  --label-3: rgba(235, 235, 245, 0.34);
+  --separator: rgba(235, 235, 245, 0.12);
+  --fill:      rgba(120, 120, 128, 0.24);
 
-  --green-50: #1a2419;
-  --green-100: rgba(108, 176, 94, 0.16);
-  --green-200: rgba(108, 176, 94, 0.24);
-  --green-300: #8bcb7a;
-  --green-400: #7cb36a;
-  --green-500: #6cb05e;
-  --green-600: #5a9a4d;
-  --green-700: #6cb05e;
-  --green-800: #355d2c;
+  /* Soften shadows in dark — depth is carried by the surface, not the shadow */
+  --shadow-ios-sm:   0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-ios-card: 0 1px 3px rgba(0, 0, 0, 0.40);
+  --shadow-ios-md:   0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-ios-lg:   0 12px 40px rgba(0, 0, 0, 0.55);
+
+  /* ── Legacy aliases — re-pointed at the dark tokens above. ── */
+  --forest: var(--brand-action);
+  --forest-deep: var(--brand-action-hover);
+  --forest-soft: rgba(143, 192, 160, 0.18);
+  --sand: var(--surface-2);
+  --sand-deep: var(--surface-2);
+  --charcoal: var(--label);
+  --muted: var(--label-2);
+  --divider: var(--separator);
+  --border-strong: rgba(235, 235, 245, 0.20);
+
+  --green-50:  rgba(143, 192, 160, 0.10);
+  --green-100: rgba(143, 192, 160, 0.16);
+  --green-200: rgba(143, 192, 160, 0.24);
+  --green-300: var(--brand);
+  --green-400: var(--sage-400);
+  --green-500: var(--brand);
+  --green-600: var(--sage-600);
+  --green-700: var(--brand-action);
+  --green-800: var(--sage-800);
   --green-900: #243f1c;
-  --bg: #0e120e;
-  --card: #181d18;
-  --sand-dark: #2f372f;
-  --text: #e8ece6;
-  --text-dim: #9ba59a;
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --bg: var(--cream);
+  --card: var(--surface);
+  --sand-dark: var(--surface-2);
+  --text: var(--label);
+  --text-dim: var(--label-2);
+  --border: var(--separator);
+  --shadow: var(--shadow-ios-sm);
+  --shadow-lg: var(--shadow-ios-md);
   --danger: #ef6b5d;
   --warning: #e89a4c;
-  --success: #6cb05e;
-  --primary: #6cb05e;
+  --success: var(--ios-green);
+  --primary: var(--brand-action);
 
-  --bg-primary: #0e120e;
-  --bg-card: #181d18;
-  --bg-surface: #1f2620;
-  --text-primary: #e8ece6;
-  --text-secondary: #9ba59a;
+  --bg-primary: var(--cream);
+  --bg-card: var(--surface);
+  --bg-surface: var(--surface-2);
+  --text-primary: var(--label);
+  --text-secondary: var(--label-2);
 }
 
 html[data-theme="dark"] body { background: var(--bg); color: var(--text); }
@@ -1001,7 +1080,7 @@ input, textarea, select {
   color: #fff;
   border: none;
   font-size: 1.6rem;
-  box-shadow: 0 8px 20px rgba(45, 90, 39, 0.30);
+  box-shadow: 0 8px 20px rgba(74, 110, 87, 0.30);
   z-index: 15;
   transition: background 0.15s, transform 0.05s;
 }
@@ -1094,11 +1173,11 @@ input, textarea, select {
   background: var(--primary);
   color: #fff;
   min-height: 48px;
-  box-shadow: 0 6px 16px rgba(45, 90, 39, 0.25);
+  box-shadow: 0 6px 16px rgba(74, 110, 87, 0.25);
   transition: transform 0.05s, box-shadow 0.15s, background 0.15s;
   cursor: pointer;
 }
-.btn-cta:hover { background: var(--green-900); box-shadow: 0 8px 22px rgba(45, 90, 39, 0.32); }
+.btn-cta:hover { background: var(--green-900); box-shadow: 0 8px 22px rgba(74, 110, 87, 0.32); }
 .btn-cta:active { transform: scale(0.98); }
 .btn-cta.block { width: 100%; }
 .btn-cta:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -1880,7 +1959,7 @@ input, textarea, select {
 
 /* Weather widget */
 .weather-widget {
-  background: linear-gradient(135deg, #6cb2ea, #4a7c3a);
+  background: linear-gradient(135deg, #6cb2ea, #5F8C6E);
   color: #fff;
   border-radius: 16px;
   padding: 14px 16px;
@@ -2289,7 +2368,7 @@ input, textarea, select {
 .gp-task-swipe-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #4a7c3a 0%, #6aa356 100%);
+  background: linear-gradient(90deg, #5F8C6E 0%, #7BA889 100%);
   color: #fff;
   display: flex;
   align-items: center;
@@ -3266,7 +3345,7 @@ input, textarea, select {
 }
 .season-bar {
   width: 78%;
-  background: linear-gradient(180deg, #5a9a4d 0%, var(--forest) 100%);
+  background: linear-gradient(180deg, #7BA889 0%, var(--forest) 100%);
   border-radius: 6px 6px 0 0;
   min-height: 4px;
   transition: height 0.4s ease;
@@ -3275,8 +3354,8 @@ input, textarea, select {
   background: transparent;
 }
 .season-bar-wrap.current .season-bar {
-  background: linear-gradient(180deg, #7cb36a 0%, var(--forest-deep) 100%);
-  box-shadow: 0 0 0 2px rgba(45, 90, 39, 0.18);
+  background: linear-gradient(180deg, #8DB089 0%, var(--forest-deep) 100%);
+  box-shadow: 0 0 0 2px rgba(74, 110, 87, 0.18);
 }
 .season-bar-label {
   font-size: 0.7rem;
@@ -4607,7 +4686,7 @@ input, textarea, select {
   border-radius: 3px;
 }
 .yoy-swatch.this {
-  background: linear-gradient(180deg, #5a9a4d, var(--forest));
+  background: linear-gradient(180deg, #7BA889, var(--forest));
 }
 .yoy-swatch.last {
   background: var(--sand-dark);
@@ -4645,14 +4724,14 @@ input, textarea, select {
   transition: height 0.4s ease;
 }
 .yoy-bar.this {
-  background: linear-gradient(180deg, #5a9a4d 0%, var(--forest) 100%);
+  background: linear-gradient(180deg, #7BA889 0%, var(--forest) 100%);
 }
 .yoy-bar.last {
   background: var(--sand-dark);
 }
 .yoy-bar-wrap.current .yoy-bar-track {
-  background: rgba(45, 90, 39, 0.08);
-  box-shadow: inset 0 0 0 1.5px rgba(45, 90, 39, 0.25);
+  background: rgba(74, 110, 87, 0.08);
+  box-shadow: inset 0 0 0 1.5px rgba(74, 110, 87, 0.25);
 }
 .yoy-bar-label {
   font-size: 0.7rem;
@@ -4934,7 +5013,7 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   width: 30px;
   height: 30px;
   border-radius: 10px;
-  background: rgba(45, 90, 39, 0.10);
+  background: rgba(74, 110, 87, 0.10);
   color: var(--forest);
 }
 .ios-premium-link span:nth-child(2) { flex: 1; }
@@ -5250,7 +5329,7 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   border-bottom-color: var(--primary);
 }
 .pd-tab-count {
-  background: var(--green-100, rgba(74, 124, 58, 0.14));
+  background: var(--green-100, rgba(123, 168, 137, 0.14));
   color: var(--primary);
   border-radius: 10px;
   padding: 1px 6px;
@@ -5555,7 +5634,7 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--green-100, rgba(74, 124, 58, 0.14));
+  background: var(--green-100, rgba(123, 168, 137, 0.14));
   color: var(--primary);
   font-size: 0.72rem;
   font-weight: 800;
@@ -5606,12 +5685,12 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   letter-spacing: -0.005em;
   cursor: pointer;
   min-width: 240px;
-  box-shadow: 0 6px 18px rgba(74, 124, 58, 0.32);
+  box-shadow: 0 6px 18px rgba(123, 168, 137, 0.32);
   transition: transform 0.08s ease, box-shadow 0.15s ease;
 }
 .ob-cta:active {
   transform: scale(0.97);
-  box-shadow: 0 3px 10px rgba(74, 124, 58, 0.36);
+  box-shadow: 0 3px 10px rgba(123, 168, 137, 0.36);
 }
 
 /* ============================================================
@@ -5842,11 +5921,11 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
 }
 .companion-pill:active { transform: scale(0.95); }
 .companion-pill.good {
-  color: #2d5a27;
-  border-color: rgba(74, 124, 58, 0.4);
-  background: rgba(74, 124, 58, 0.08);
+  color: var(--brand-strong);
+  border-color: rgba(123, 168, 137, 0.4);
+  background: rgba(123, 168, 137, 0.08);
 }
-.companion-pill.good:hover { background: rgba(74, 124, 58, 0.16); }
+.companion-pill.good:hover { background: rgba(123, 168, 137, 0.16); }
 .companion-pill.bad {
   color: #c0392b;
   border-color: rgba(192, 57, 43, 0.4);

@@ -5,45 +5,42 @@
    ============================================================ */
 
 :root {
-  /* iOS system palette */
-  --ios-bg: #f2f2f7;             /* systemGroupedBackground */
-  --ios-bg-elev: #ffffff;        /* card / sheet background */
-  --ios-bg-secondary: #ffffff;
-  --ios-bg-tertiary: #f9f9fb;
-  --ios-separator: rgba(60, 60, 67, 0.12);
+  /* iOS system palette — routed through the design-system tokens in
+     styles.css so light/dark and the sage/cream shift apply here too. */
+  --ios-bg: var(--cream);             /* app / grouped background */
+  --ios-bg-elev: var(--surface);      /* card / sheet background */
+  --ios-bg-secondary: var(--surface);
+  --ios-bg-tertiary: var(--surface-2);
+  --ios-separator: var(--separator);
   --ios-separator-opaque: #c6c6c8;
-  --ios-label: #1c1c1e;
-  --ios-label-secondary: rgba(60, 60, 67, 0.60);
-  --ios-label-tertiary: rgba(60, 60, 67, 0.30);
-  --ios-fill: rgba(120, 120, 128, 0.12);
+  --ios-label: var(--label);
+  --ios-label-secondary: var(--label-2);
+  --ios-label-tertiary: var(--label-3);
+  --ios-fill: var(--fill);
   --ios-fill-secondary: rgba(120, 120, 128, 0.08);
 
-  /* Accent (brand-aware: GardenPin forest paired with iOS green) */
-  --ios-accent: #2d5a27;
-  --ios-accent-hover: #1f4019;
-  --ios-green: #34c759;
-  --ios-blue: #007aff;
-  --ios-red: #ff3b30;
-  --ios-orange: #ff9500;
-  --ios-yellow: #ffcc00;
+  /* Accent — GardenPin sage (action shade keeps white text legible) */
+  --ios-accent: var(--brand-action);
+  --ios-accent-hover: var(--brand-action-hover);
+  --ios-blue: #0A84FF;
 
   /* Glass / blur */
   --ios-glass-bg: rgba(255, 255, 255, 0.72);
   --ios-glass-bg-strong: rgba(255, 255, 255, 0.85);
   --ios-glass-blur: saturate(180%) blur(20px);
 
-  /* Shadows */
-  --ios-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
-  --ios-shadow-md: 0 2px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-  --ios-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.06);
-  --ios-shadow-card: 0 2px 14px rgba(0, 0, 0, 0.06);
+  /* Shadows — routed through the design-system shadow tokens (soften in dark) */
+  --ios-shadow-sm: var(--shadow-ios-sm);
+  --ios-shadow-md: var(--shadow-ios-md);
+  --ios-shadow-lg: var(--shadow-ios-lg);
+  --ios-shadow-card: var(--shadow-ios-card);
 
-  /* Radii */
-  --ios-r-xs: 8px;
-  --ios-r-sm: 10px;
-  --ios-r-md: 14px;
-  --ios-r-lg: 18px;
-  --ios-r-xl: 22px;
+  /* Radii — aligned to the design-system iOS scale (8 · 12 · 16 · 20 · 24) */
+  --ios-r-xs: var(--r-ios-sm);
+  --ios-r-sm: var(--r-ios);
+  --ios-r-md: var(--r-ios-md);
+  --ios-r-lg: var(--r-ios-lg);
+  --ios-r-xl: var(--r-ios-xl);
   --ios-r-2xl: 28px;
 
   /* Animations */
@@ -69,7 +66,7 @@
   --sand-dark: var(--ios-fill);
   --forest: var(--ios-accent);
   --forest-deep: var(--ios-accent-hover);
-  --forest-soft: rgba(45, 90, 39, 0.10);
+  --forest-soft: rgba(123, 168, 137, 0.12);
   --primary: var(--ios-accent);
   --danger: var(--ios-red);
   --warning: var(--ios-orange);
@@ -226,10 +223,10 @@ h1, h2, h3, h4, h5 {
 .btn-cta {
   background: var(--ios-accent);
   color: #fff;
-  box-shadow: 0 6px 18px rgba(45, 90, 39, 0.24);
+  box-shadow: 0 6px 18px rgba(74, 110, 87, 0.24);
   font-weight: 600;
 }
-.btn-cta:hover { background: var(--ios-accent-hover); box-shadow: 0 10px 24px rgba(45, 90, 39, 0.30); }
+.btn-cta:hover { background: var(--ios-accent-hover); box-shadow: 0 10px 24px rgba(74, 110, 87, 0.30); }
 .btn-cta:active { transform: scale(0.97); }
 
 /* ---------- Form fields ---------- */
@@ -258,7 +255,7 @@ h1, h2, h3, h4, h5 {
 .field input:focus, .field textarea:focus, .field select:focus {
   background: #fff;
   border-color: var(--ios-accent);
-  box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.12);
+  box-shadow: 0 0 0 4px rgba(74, 110, 87, 0.12);
 }
 .file-input-wrap {
   background: var(--ios-fill-secondary);
@@ -290,7 +287,7 @@ h1, h2, h3, h4, h5 {
 .gardens-hero,
 .tasks-hero {
   border-radius: var(--ios-r-2xl);
-  box-shadow: 0 12px 36px rgba(45, 90, 39, 0.18);
+  box-shadow: 0 12px 36px rgba(74, 110, 87, 0.18);
   padding: 22px 20px 20px;
 }
 .home-hero .hero-stat,
@@ -490,7 +487,7 @@ h1, h2, h3, h4, h5 {
   background: var(--ios-accent);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.20);
+  box-shadow: 0 4px 12px rgba(74, 110, 87, 0.20);
 }
 .filter-pill .pill-count {
   background: rgba(255, 255, 255, 0.30);
@@ -579,7 +576,7 @@ h1, h2, h3, h4, h5 {
   width: 56px;
   height: 56px;
   background: var(--ios-accent);
-  box-shadow: 0 10px 30px rgba(45, 90, 39, 0.40), 0 4px 12px rgba(45, 90, 39, 0.25);
+  box-shadow: 0 10px 30px rgba(74, 110, 87, 0.40), 0 4px 12px rgba(74, 110, 87, 0.25);
   border-radius: 50%;
   bottom: calc(82px + var(--safe-bottom));
   font-size: 1.7rem;
@@ -587,7 +584,7 @@ h1, h2, h3, h4, h5 {
   transition: transform 200ms var(--ios-spring), background 200ms var(--ios-ease),
               box-shadow 200ms var(--ios-ease);
 }
-.floating-fab:hover { background: var(--ios-accent-hover); box-shadow: 0 14px 36px rgba(45, 90, 39, 0.45); }
+.floating-fab:hover { background: var(--ios-accent-hover); box-shadow: 0 14px 36px rgba(74, 110, 87, 0.45); }
 .floating-fab:active { transform: scale(0.92); }
 
 /* ---------- Toast ---------- */
@@ -666,8 +663,8 @@ main .card {
 .month-card:hover { box-shadow: var(--ios-shadow-md); transform: translateY(-1px); }
 .month-card.current {
   border: none;
-  background: linear-gradient(180deg, rgba(45, 90, 39, 0.06), var(--ios-bg-elev));
-  box-shadow: 0 0 0 2px rgba(45, 90, 39, 0.22), var(--ios-shadow-card);
+  background: linear-gradient(180deg, rgba(74, 110, 87, 0.06), var(--ios-bg-elev));
+  box-shadow: 0 0 0 2px rgba(74, 110, 87, 0.22), var(--ios-shadow-card);
 }
 .month-card.empty-month {
   background: var(--ios-bg-elev);
@@ -683,7 +680,7 @@ main .card {
 }
 .month-task { background: var(--ios-fill-secondary); transition: background 160ms var(--ios-ease); }
 .month-task:hover { background: var(--ios-fill); }
-.seasonal-task { background: rgba(45, 90, 39, 0.07); border-radius: var(--ios-r-sm); }
+.seasonal-task { background: rgba(74, 110, 87, 0.07); border-radius: var(--ios-r-sm); }
 .seasonal-pin-chip {
   background: var(--ios-bg-elev);
   border: 0.5px solid var(--ios-separator);
@@ -812,7 +809,7 @@ main .card {
   border-radius: var(--ios-r-lg);
 }
 .shared-header {
-  background: linear-gradient(180deg, rgba(45, 90, 39, 0.08), transparent);
+  background: linear-gradient(180deg, rgba(74, 110, 87, 0.08), transparent);
   border-radius: 0 0 var(--ios-r-2xl) var(--ios-r-2xl);
 }
 
@@ -891,4 +888,4 @@ input[type="range"]::-moz-range-thumb {
 .page-header .subtitle { color: var(--ios-label-secondary); }
 
 /* Selection */
-::selection { background: rgba(45, 90, 39, 0.25); color: var(--ios-label); }
+::selection { background: rgba(74, 110, 87, 0.25); color: var(--ios-label); }
