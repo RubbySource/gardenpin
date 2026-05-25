@@ -508,18 +508,6 @@ app.get('/api/photos/recent', (req, res) => {
   res.json(photos);
 });
 
-app.get('/api/pins/:id/photo', (req, res) => {
-  const pin = db.prepare('SELECT photo_path FROM pins WHERE id = ?').get(req.params.id);
-  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
-  if (!pin.photo_path) return res.json({ photo: null });
-  const p = path.join(__dirname, pin.photo_path);
-  if (!fs.existsSync(p)) return res.json({ photo: null });
-  const ext = path.extname(p).toLowerCase().replace('.', '') || 'jpeg';
-  const mime = ext === 'jpg' ? 'jpeg' : ext;
-  const buf = fs.readFileSync(p);
-  res.json({ photo: `data:image/${mime};base64,${buf.toString('base64')}` });
-});
-
 // ======================= BEDS (zahony) =======================
 // Záhon je obdélníková plocha v zahradě s rozměry v procentech mapy
 // a volitelně velikostí v metrech (pro orientační měřítko).

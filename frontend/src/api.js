@@ -96,17 +96,10 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
-  // History
+  // History (zápis vzniká serverstranně jako vedlejší efekt dokončení úkolu)
   listHistory: () => jsonFetch('/api/history'),
-  addHistory: (data) =>
-    jsonFetch('/api/history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }),
 
-  // Harvests (sklizeň)
-  listHarvests: () => jsonFetch('/api/harvests'),
+  // Harvests (sklizeň) — globální výpis se nepoužívá, UI čte per-pin
   listPinHarvests: (pinId) => jsonFetch(`/api/pins/${pinId}/harvests`),
   createHarvest: (data) =>
     jsonFetch('/api/harvests', {
@@ -179,6 +172,8 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: addr || undefined }),
     }),
+  // Bez volání z UI — digest běžně spouští cron/PM2 serverstranně.
+  // Wrapper ponechán pro manuální/ladící trigger (endpoint je legitimní).
   sendEmailDigest: (addr) =>
     jsonFetch('/api/email-settings/send-digest', {
       method: 'POST',
