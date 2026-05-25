@@ -37,6 +37,10 @@ export const api = {
       body: JSON.stringify({ photo: dataUrl }),
     }),
 
+  // iCal — živý kalendářní odkaz (webcal://) + jednorázový download
+  gardenIcalToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/ical-token`),
+  globalIcalToken: () => jsonFetch('/api/ical-token'),
+
   // Beds (záhony)
   listBeds: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/beds`),
   createBed: (data) =>
