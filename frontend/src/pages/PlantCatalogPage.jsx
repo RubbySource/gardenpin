@@ -1,11 +1,19 @@
 ﻿// Katalog rostlin — procházení DB rostlin s filtry, sezónním přehledem a přidáním do zahrady
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
+import { PLANT_DATABASE, enrichPlant, CATEGORY_DEFS } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
+
+// Pevné pořadí pillů — iOS-style, ne dynamicky podle počtu.
+// Climbers / Popínavé jdou poslední (uživatel je v spec vynechal, ale máme je v DB).
+const CATEGORY_ORDER = [
+  'vegetables', 'fruits', 'herbs', 'ornamental', 'annuals',
+  'trees', 'conifers', 'shrubs', 'water', 'succulents',
+  'bulbs', 'grasses', 'climbers',
+];
 
 const MONTH_NAMES_CZ = [
   '', 'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
@@ -42,6 +50,8 @@ function nextSeasonalAction(plant, currentMonth) {
 
 export default function PlantCatalogPage() {
   const [query, setQuery] = useState('');
+  // Debounced query — filter běží proti tomuhle, ne proti syrovému inputu (200 ms).
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
   const [pickerPlant, setPickerPlant] = useState(null);
@@ -52,35 +62,61 @@ export default function PlantCatalogPage() {
     api.listGardens().then(setGardens).catch(() => setGardens([]));
   }, []);
 
+  // Debounce search input (200 ms) — předejdeme zbytečnému přefilování 421 plantů při každé klávese
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 200);
+    return () => clearTimeout(t);
+  }, [query]);
+
   // Obohacený seznam s kategoriemi a sezónními tasky
   const allPlants = useMemo(
     () => PLANT_DATABASE.map(enrichPlant).filter(Boolean),
     [],
   );
 
-  // Dostupné kategorie (dynamicky z dat, seřazené podle počtu)
-  const categories = useMemo(() => {
-    const map = new Map();
+  // Spočítej rostliny per kategorie pro pill badge
+  const countsByCategory = useMemo(() => {
+    const m = {};
     for (const p of allPlants) {
-      const key = p.category?.key || 'other';
-      if (!map.has(key)) {
-        map.set(key, { key, label: p.category?.label || 'Ostatní', icon: p.category?.icon || '🌿', color: p.category?.color || '#6b6b70', count: 0 });
-      }
-      map.get(key).count += 1;
+      const k = p.category?.key;
+      if (!k) continue;
+      m[k] = (m[k] || 0) + 1;
     }
-    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+    return m;
   }, [allPlants]);
 
+  // Pills — pevné pořadí dle CATEGORY_ORDER, ikona + label z CATEGORY_DEFS,
+  // skip kategorie, kde není žádná rostlina (kdyby přibyla v CATEGORY_DEFS ale ne v DB).
+  const categories = useMemo(() => {
+    const out = [];
+    for (const defKey of Object.values(CATEGORY_DEFS)) {
+      // CATEGORY_DEFS používá string klíče jako vegetables/fruits/…; defKey je objekt {key,label,icon,color}
+    }
+    // Iterujeme přímo přes CATEGORY_ORDER, klíče v CATEGORY_DEFS jsou stringy (vegetables atd.)
+    for (const cdKey of CATEGORY_ORDER) {
+      const def = CATEGORY_DEFS[cdKey];
+      if (!def) continue;
+      const count = countsByCategory[def.key] || 0;
+      if (count === 0) continue;
+      out.push({ ...def, count, defsKey: cdKey });
+    }
+    return out;
+  }, [countsByCategory]);
+
   const filtered = useMemo(() => {
-    const q = normalize(query);
-    return allPlants.filter((p) => {
+    const q = normalize(debouncedQuery);
+    const matches = allPlants.filter((p) => {
       if (categoryFilter !== 'all' && p.category?.key !== categoryFilter) return false;
       if (!q) return true;
       const cz = normalize(p.nameCz);
       const lat = normalize(p.nameLat);
-      return cz.includes(q) || lat.includes(q);
+      const notes = normalize(p.notes);
+      return cz.includes(q) || lat.includes(q) || notes.includes(q);
     });
-  }, [allPlants, query, categoryFilter]);
+    // Seřadit abecedně podle českého názvu (locale-aware pro diakritiku)
+    matches.sort((a, b) => a.nameCz.localeCompare(b.nameCz, 'cs'));
+    return matches;
+  }, [allPlants, debouncedQuery, categoryFilter]);
 
   const currentMonth = new Date().getMonth() + 1;
 
@@ -144,60 +180,56 @@ export default function PlantCatalogPage() {
 
   return (
     <>
-      <div className="catalog-hero">
-        <div className="catalog-hero-row">
-          <div>
-            <div className="catalog-hero-eyebrow">🌿 Katalog rostlin</div>
-            <div className="catalog-hero-title">
-              {filtered.length} {filtered.length === 1 ? 'rostlina' : filtered.length < 5 ? 'rostliny' : 'rostlin'}
-            </div>
-            <div className="catalog-hero-sub">
-              Procházej, prohlédni si nároky a přidej do zahrady
-            </div>
+      {/* Sticky stack — search bar + kategorie pills se posouvají dohromady při scrollu */}
+      <div className="catalog-sticky">
+        <div className="ios-search-wrap" style={{ position: 'static', margin: 0, paddingBottom: 6 }}>
+          <div className="ios-search-bar">
+            <span className="ios-search-icon" aria-hidden="true">🔍</span>
+            <input
+              type="search"
+              inputMode="search"
+              className="ios-search-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Hledat rostlinu…"
+              aria-label="Hledat rostlinu"
+            />
+            {query && (
+              <button
+                type="button"
+                className="ios-search-clear"
+                onClick={() => setQuery('')}
+                aria-label="Vymazat"
+              >
+                ×
+              </button>
+            )}
           </div>
+        </div>
+
+        <div className="filter-pills catalog-filter no-scrollbar">
+          <button
+            className={`filter-pill ${categoryFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setCategoryFilter('all')}
+          >
+            🌍 Vše
+            <span className="pill-count">{allPlants.length}</span>
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.defsKey}
+              className={`filter-pill ${categoryFilter === c.key ? 'active' : ''}`}
+              onClick={() => setCategoryFilter(c.key)}
+            >
+              {c.icon} {c.label}
+              <span className="pill-count">{c.count}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="catalog-search-wrap">
-        <span className="catalog-search-icon">🔍</span>
-        <input
-          type="search"
-          className="catalog-search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Hledat rostlinu (česky nebo latinsky)…"
-          aria-label="Hledat rostlinu"
-        />
-        {query && (
-          <button
-            type="button"
-            className="catalog-search-clear"
-            onClick={() => setQuery('')}
-            aria-label="Vymazat"
-          >
-            ×
-          </button>
-        )}
-      </div>
-
-      <div className="filter-pills catalog-filter">
-        <button
-          className={`filter-pill ${categoryFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setCategoryFilter('all')}
-        >
-          🌍 Vše
-          <span className="pill-count">{allPlants.length}</span>
-        </button>
-        {categories.map((c) => (
-          <button
-            key={c.key}
-            className={`filter-pill ${categoryFilter === c.key ? 'active' : ''}`}
-            onClick={() => setCategoryFilter(c.key)}
-          >
-            {c.icon} {c.label}
-            <span className="pill-count">{c.count}</span>
-          </button>
-        ))}
+      <div className="catalog-result-count small muted">
+        Nalezeno {filtered.length} {filtered.length === 1 ? 'rostlina' : filtered.length < 5 ? 'rostliny' : 'rostlin'}
       </div>
 
       {filtered.length === 0 ? (
@@ -249,58 +281,66 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
   }, [plant]);
 
   return (
-    <div className={`plant-catalog-card ${expanded ? 'expanded' : ''}`}>
+    <div className={`plant-catalog-card ${expanded ? 'expanded' : ' compact'}`}>
       <button
         type="button"
         className="plant-catalog-card-body"
         onClick={onToggle}
         aria-expanded={expanded}
       >
-        <div className="plant-catalog-head">
+        <div className="plant-catalog-compact-row">
+          <span
+            className="plant-catalog-compact-icon"
+            style={{ background: cat.color + '22', color: cat.color }}
+            aria-hidden="true"
+          >
+            {cat.icon}
+          </span>
           <div className="plant-catalog-titles">
             <div className="plant-catalog-name">{plant.nameCz}</div>
             <div className="plant-catalog-lat">{plant.nameLat}</div>
           </div>
-          <span
-            className="plant-catalog-cat-badge"
-            style={{ background: cat.color }}
-          >
-            {cat.icon} {cat.label}
+          <span className="plant-catalog-chev" aria-hidden="true">
+            {expanded ? '▴' : '›'}
           </span>
         </div>
 
-        <div className="plant-catalog-months" aria-label="Sezónní přehled">
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
-            const items = byMonth.get(m);
-            const has = items && items.length > 0;
-            const isNow = m === currentMonth;
-            const tip = has
-              ? `${MONTH_SHORT_CZ[m]}: ${items.map((t) => `${t.emoji} ${t.action}`).join(', ')}`
-              : MONTH_SHORT_CZ[m];
-            return (
-              <span
-                key={m}
-                className={`plant-month-box ${has ? 'has' : ''} ${isNow ? 'now' : ''}`}
-                title={tip}
-                style={has ? { background: cat.color } : undefined}
-              >
-                {has && items.length > 1 ? items.length : ''}
+        {expanded && (
+          <>
+            <div className="plant-catalog-months" aria-label="Sezónní přehled">
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                const items = byMonth.get(m);
+                const has = items && items.length > 0;
+                const isNow = m === currentMonth;
+                const tip = has
+                  ? `${MONTH_SHORT_CZ[m]}: ${items.map((t) => `${t.emoji} ${t.action}`).join(', ')}`
+                  : MONTH_SHORT_CZ[m];
+                return (
+                  <span
+                    key={m}
+                    className={`plant-month-box ${has ? 'has' : ''} ${isNow ? 'now' : ''}`}
+                    title={tip}
+                    style={has ? { background: cat.color } : undefined}
+                  >
+                    {has && items.length > 1 ? items.length : ''}
+                  </span>
+                );
+              })}
+            </div>
+
+            <div className="plant-catalog-meta">
+              <span className="plant-catalog-meta-item">
+                📋 {yearlyCount} {yearlyCount === 1 ? 'úkon' : yearlyCount < 5 ? 'úkony' : 'úkonů'} ročně
               </span>
-            );
-          })}
-        </div>
-
-        <div className="plant-catalog-meta">
-          <span className="plant-catalog-meta-item">
-            📋 {yearlyCount} {yearlyCount === 1 ? 'úkon' : yearlyCount < 5 ? 'úkony' : 'úkonů'} ročně
-          </span>
-          {next && (
-            <span className="plant-catalog-meta-item">
-              ⏭️ {next.emoji} {next.action} v {MONTH_NAMES_CZ[next.month].toLowerCase()}
-              {next.monthsAhead === 0 ? ' (tento měsíc)' : ` (za ${next.monthsAhead} ${next.monthsAhead === 1 ? 'měsíc' : next.monthsAhead < 5 ? 'měsíce' : 'měsíců'})`}
-            </span>
-          )}
-        </div>
+              {next && (
+                <span className="plant-catalog-meta-item">
+                  ⏭️ {next.emoji} {next.action} v {MONTH_NAMES_CZ[next.month].toLowerCase()}
+                  {next.monthsAhead === 0 ? ' (tento měsíc)' : ` (za ${next.monthsAhead} ${next.monthsAhead === 1 ? 'měsíc' : next.monthsAhead < 5 ? 'měsíce' : 'měsíců'})`}
+                </span>
+              )}
+            </div>
+          </>
+        )}
 
         {expanded && (
           <div className="plant-catalog-detail">
@@ -374,26 +414,28 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
         )}
       </button>
 
-      <div className="plant-catalog-card-cta">
-        <button
-          type="button"
-          className="btn small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdd();
-          }}
-        >
-          + Přidat do zahrady
-        </button>
-        <button
-          type="button"
-          className="plant-catalog-expand-btn"
-          onClick={onToggle}
-          aria-label={expanded ? 'Skrýt detail' : 'Zobrazit detail'}
-        >
-          {expanded ? '▴ Skrýt' : '▾ Detail'}
-        </button>
-      </div>
+      {expanded && (
+        <div className="plant-catalog-card-cta">
+          <button
+            type="button"
+            className="btn small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+          >
+            + Přidat do zahrady
+          </button>
+          <button
+            type="button"
+            className="plant-catalog-expand-btn"
+            onClick={onToggle}
+            aria-label="Skrýt detail"
+          >
+            ▴ Skrýt
+          </button>
+        </div>
+      )}
     </div>
   );
 }
