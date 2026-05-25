@@ -5532,6 +5532,39 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   max-width: 360px;
 }
 
+.ob-bullets {
+  list-style: none;
+  margin: 22px auto 0;
+  padding: 0;
+  max-width: 360px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ob-bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--charcoal, var(--text));
+}
+.ob-bullet-dot {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green-100, rgba(74, 124, 58, 0.14));
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
 .ob-bottom {
   display: flex;
   flex-direction: column;

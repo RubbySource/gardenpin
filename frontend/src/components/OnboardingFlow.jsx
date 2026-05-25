@@ -11,19 +11,34 @@ const SLIDES = [
   {
     icon: '🌱',
     title: 'Vítej v GardenPinu',
-    text: 'Tvůj zahradní deník. Připomene ti co a kdy dělat.',
+    text: 'Tvůj zahradní deník. Pohlídá ti hlavní zahradnické úkony po celý rok.',
+    bullets: [
+      'Zahrada = místo, kde pěstuješ (záhon, květináče, sad)',
+      'Rostlina = pin v zahradě s vlastní historií péče',
+      'Úkon = sezónní akce vázaná na rostlinu (zástřih, hnojení, výsadba)',
+    ],
     cta: 'Začít',
   },
   {
     icon: '🗺️',
     title: 'Nejdřív si přidej zahradu',
-    text: "Dej jí jméno — třeba „Záhon za domem“. Každá zahrada má svou mapu a rostliny.",
+    text: 'Pojmenuj ji a nahraj fotku z leteckého pohledu — pomůže ti orientovat se mezi rostlinami.',
+    bullets: [
+      'Jméno — třeba „Záhon za domem“ nebo „Skleník“',
+      'Fotka layoutu (volitelná, ale doporučená)',
+      'Můžeš použít i šablonu (zeleninová / okrasná / ovocná / bylinková)',
+    ],
     cta: 'Dál →',
   },
   {
     icon: '🌿',
     title: 'Přidej první rostlinu',
-    text: 'Vyber ze 321 druhů nebo napiš vlastní. GardenPin sám navrhne co a kdy dělat.',
+    text: 'V detailu zahrady klikni na mapu pro přidání pinu. Vyber ze 321 druhů — GardenPin sám navrhne co a kdy dělat.',
+    bullets: [
+      'Pin = jedna rostlina nebo skupina (např. „Levandule u plotu“)',
+      'Po výběru rostliny se automaticky nabídnou hlavní úkony',
+      'Úkon má frekvenci (každý rok v srpnu) nebo konkrétní datum',
+    ],
     cta: 'Dál →',
   },
   {
@@ -132,6 +147,16 @@ export default function OnboardingFlow({ onClose }) {
           <div className="ob-icon" aria-hidden="true">{slide.icon}</div>
           <h1 className="ob-title">{slide.title}</h1>
           <p className="ob-text">{slide.text}</p>
+          {slide.bullets && (
+            <ul className="ob-bullets">
+              {slide.bullets.map((b, i) => (
+                <li key={i}>
+                  <span className="ob-bullet-dot" aria-hidden="true">✓</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 

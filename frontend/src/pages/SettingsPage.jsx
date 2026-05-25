@@ -10,7 +10,7 @@ import {
   getCurrentSubscription,
 } from '../push.js';
 import PremiumBadge from '../components/PremiumBadge.jsx';
-import OnboardingTour, { resetOnboarding } from '../components/OnboardingTour.jsx';
+import OnboardingFlow, { resetOnboardingFlow } from '../components/OnboardingFlow.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 
 export default function SettingsPage() {
@@ -429,7 +429,7 @@ export default function SettingsPage() {
         <button
           className="btn secondary"
           onClick={() => {
-            resetOnboarding();
+            resetOnboardingFlow();
             setShowOnboarding(true);
           }}
         >
@@ -443,7 +443,7 @@ export default function SettingsPage() {
         <div className="small">Správa zahrady v kapse</div>
       </div>
 
-      {showOnboarding && <OnboardingTour onClose={() => setShowOnboarding(false)} />}
+      {showOnboarding && <OnboardingFlow onClose={() => setShowOnboarding(false)} />}
     </>
   );
 }
