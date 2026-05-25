@@ -38,26 +38,9 @@ export function dueBadge(dateStr) {
   return { cls: 'done', text: formatDate(dateStr) };
 }
 
-export const TASK_TYPES = [
-  { value: 'zalivka', label: 'Zálivka', icon: '💧' },
-  { value: 'hnojeni', label: 'Hnojení', icon: '🌱' },
-  { value: 'strihani', label: 'Stříhání', icon: '✂️' },
-  { value: 'presazeni', label: 'Přesazení', icon: '🪴' },
-  { value: 'plet', label: 'Plení', icon: '🌿' },
-  { value: 'sklizen', label: 'Sklizeň', icon: '🧺' },
-  { value: 'kontrola', label: 'Kontrola', icon: '🔍' },
-  { value: 'jine', label: 'Jiné', icon: '📋' },
-];
-
-export function taskIcon(type) {
-  const t = TASK_TYPES.find((x) => x.value === type);
-  return t ? t.icon : '📋';
-}
-
-export function taskLabel(type) {
-  const t = TASK_TYPES.find((x) => x.value === type);
-  return t ? t.label : type;
-}
+// Taxonomie typů úkonů žije v jednom zdroji pravdy — data/taskTypes.js.
+// Re-export zachovává zpětně kompatibilní importy `from './utils.js'`.
+export { TASK_TYPES, taskIcon, taskLabel, taskIconName, taskTypeFromEmoji } from './data/taskTypes.js';
 
 // Request browser notification permission
 export async function requestNotificationPermission() {

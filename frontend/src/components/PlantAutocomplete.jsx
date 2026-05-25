@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
 import { getZoneOffsetDays } from '../data/climateZones.js';
+import { taskTypeFromEmoji } from '../data/taskTypes.js';
 
 // Design tokeny — GardenPin paleta (Claude Design plant card spec).
 // Hodnoty jsou CSS proměnné, ať se v dark mode automaticky přebarví.
@@ -56,7 +57,8 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId, gardenC
     out.push({
       pin_id: pinId,
       title: `${care.emoji} ${care.text}`,
-      task_type: 'jine',
+      // Reálný task_type odvozený z emoji (audit §3 bod 3+4) — fallback 'jine'.
+      task_type: taskTypeFromEmoji(care.emoji),
       frequency_days: null,
       specific_date: specific,
       notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,

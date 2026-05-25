@@ -9,6 +9,7 @@ import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import { CLIMATE_ZONES, getClimateZone, describeZone } from '../data/climateZones.js';
+import { ICAL_CATEGORIES } from '../data/taskTypes.js';
 import PolygonEditor, {
   isPointInPolygon,
   DEFAULT_POLYGON_POINTS,
@@ -1077,15 +1078,8 @@ function ShareGardenModal({ garden, onClose }) {
 }
 
 // Typy úkonů, které lze v kalendáři filtrovat (label v UI ↔ key v URL `types=`).
-const ICAL_TYPE_OPTIONS = [
-  { key: 'pruning',     label: 'Stříhání a řez', icon: '✂️' },
-  { key: 'fertilizing', label: 'Hnojení', icon: '🌱' },
-  { key: 'planting',    label: 'Výsadba a přesazování', icon: '🪴' },
-  { key: 'sowing',      label: 'Předpěstování / výsev', icon: '🌰' },
-  { key: 'protection',  label: 'Ochrana před zimou', icon: '🛡️' },
-  { key: 'prevention',  label: 'Preventivní ošetření', icon: '🐛' },
-  { key: 'harvest',     label: 'Sklizeň', icon: '🧺' },
-];
+// Zdroj pravdy: data/taskTypes.js → ICAL_CATEGORIES.
+const ICAL_TYPE_OPTIONS = ICAL_CATEGORIES;
 const ALL_TYPE_KEYS = ICAL_TYPE_OPTIONS.map((t) => t.key);
 
 // Kategorie nabízené v "Jen vybrané kategorie" módu — podmnožina relevantní pro zahradníky.

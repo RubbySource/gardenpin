@@ -7,7 +7,7 @@ import Icon from '../components/Icon.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import SnoozeButton from '../components/SnoozeButton.jsx';
-import { daysFromToday, taskIcon, taskLabel, dueBadge } from '../utils.js';
+import { daysFromToday, taskLabel, dueBadge, taskIconName } from '../utils.js';
 
 const MONTH_NAMES = [
   'Leden',
@@ -23,20 +23,6 @@ const MONTH_NAMES = [
   'Listopad',
   'Prosinec',
 ];
-
-const TASK_TYPE_ICON = {
-  zaliti: 'droplet',
-  hnojeni: 'sparkles',
-  rez: 'scissors',
-  sklizen: 'leaf',
-  vysadba: 'leaf',
-  prihnojit: 'sparkles',
-  default: 'leaf',
-};
-
-function taskIconName(type) {
-  return TASK_TYPE_ICON[type] || TASK_TYPE_ICON.default;
-}
 
 function monthKey(dateStr) {
   if (!dateStr) return 'unknown';

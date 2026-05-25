@@ -1554,7 +1554,9 @@ function loadPlantCategoryMap() {
 }
 
 // Mapování user-facing typů (URL `types=`) na podmínky filtru.
-// Sezónní tasky se ukládají jako task_type='jine' s emoji v titulu, proto match přes emoji.
+// Zrcadlí frontend/src/data/taskTypes.js (TASK_TYPES.icalCategory + ICAL_CATEGORIES) — drž v souladu.
+// Match je dvoufázový: primárně přes kanonický task_type, fallback přes emoji v titulu
+// (kvůli starším sezónním úkonům uloženým jako task_type='jine').
 const ICAL_TYPE_FILTERS = {
   pruning:     { task_types: ['strihani'], title_emojis: ['✂️'] },
   fertilizing: { task_types: ['hnojeni'], title_emojis: ['🌱'] },

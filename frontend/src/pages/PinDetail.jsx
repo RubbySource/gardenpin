@@ -643,7 +643,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
   useEffect(() => {
     // Auto-fill title from type
     if (!title) {
-      const t = TASK_TYPES.find((x) => x.value === taskType);
+      const t = TASK_TYPES.find((x) => x.id === taskType);
       if (t) setTitle(t.label);
     }
   }, [taskType]);
@@ -681,7 +681,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
           <label>Typ úkolu</label>
           <select value={taskType} onChange={(e) => setTaskType(e.target.value)}>
             {TASK_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
+              <option key={t.id} value={t.id}>
                 {t.icon} {t.label}
               </option>
             ))}
@@ -793,7 +793,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
           <label>Typ úkolu</label>
           <select value={taskType} onChange={(e) => setTaskType(e.target.value)}>
             {TASK_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
+              <option key={t.id} value={t.id}>
                 {t.icon} {t.label}
               </option>
             ))}
