@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-plant-categories.js && vite build",
+    "build:categories": "node scripts/build-plant-categories.js",
     "preview": "vite preview"
   },
   "dependencies": {

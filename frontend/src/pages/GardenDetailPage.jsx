@@ -1076,24 +1076,96 @@ function ShareGardenModal({ garden, onClose }) {
   );
 }
 
+// Typy úkonů, které lze v kalendáři filtrovat (label v UI ↔ key v URL `types=`).
+const ICAL_TYPE_OPTIONS = [
+  { key: 'pruning',     label: 'Stříhání a řez', icon: '✂️' },
+  { key: 'fertilizing', label: 'Hnojení', icon: '🌱' },
+  { key: 'planting',    label: 'Výsadba a přesazování', icon: '🪴' },
+  { key: 'sowing',      label: 'Předpěstování / výsev', icon: '🌰' },
+  { key: 'protection',  label: 'Ochrana před zimou', icon: '🛡️' },
+  { key: 'prevention',  label: 'Preventivní ošetření', icon: '🐛' },
+  { key: 'harvest',     label: 'Sklizeň', icon: '🧺' },
+];
+const ALL_TYPE_KEYS = ICAL_TYPE_OPTIONS.map((t) => t.key);
+
+// Kategorie nabízené v "Jen vybrané kategorie" módu — podmnožina relevantní pro zahradníky.
+const ICAL_CATEGORY_OPTIONS = [
+  { key: 'vegetables', label: 'Zelenina', icon: '🥕' },
+  { key: 'fruits',     label: 'Ovoce', icon: '🍓' },
+  { key: 'herbs',      label: 'Byliny', icon: '🌿' },
+  { key: 'trees',      label: 'Stromy', icon: '🌳' },
+  { key: 'shrubs',     label: 'Keře', icon: '🪴' },
+  { key: 'conifers',   label: 'Jehličnany', icon: '🌲' },
+  { key: 'ornamental', label: 'Trvalky', icon: '🌼' },
+  { key: 'annuals',    label: 'Letničky', icon: '🌺' },
+  { key: 'bulbs',      label: 'Cibuloviny', icon: '🌷' },
+  { key: 'grasses',    label: 'Trávy', icon: '🌾' },
+];
+
 function CalendarSubscribeModal({ garden, onClose }) {
+  // Krok 1 = config formulář; krok 2 = vygenerovaný odkaz
+  const [step, setStep] = useState('config');
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pins, setPins] = useState([]);
+
+  // Config state
+  const [selectedTypes, setSelectedTypes] = useState(() => new Set(ALL_TYPE_KEYS));
+  const [pinMode, setPinMode] = useState('all'); // 'all' | 'categories' | 'pins'
+  const [selectedCategories, setSelectedCategories] = useState(() => new Set());
+  const [selectedPinIds, setSelectedPinIds] = useState(() => new Set());
+  const [reminderDays, setReminderDays] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
-    api.gardenIcalToken(garden.id)
-      .then((r) => { if (!cancelled) setToken(r.token); })
+    Promise.all([
+      api.gardenIcalToken(garden.id),
+      api.listPins(garden.id).catch(() => []),
+    ])
+      .then(([tokRes, pinsList]) => {
+        if (cancelled) return;
+        setToken(tokRes.token);
+        setPins(pinsList || []);
+      })
       .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [garden.id]);
 
-  const host = typeof window !== 'undefined' ? window.location.host : '';
-  const httpsUrl = token ? `https://${host}/api/gardens/${garden.id}/calendar.ics?token=${token}` : '';
-  // webcal:// říká iOS / Google Kalendáři, že má URL přidat jako odběr, ne stáhnout
-  const webcalUrl = token ? `webcal://${host}/api/gardens/${garden.id}/calendar.ics?token=${token}` : '';
-  const downloadUrl = token ? `${httpsUrl}&download=1` : '';
+  // Postaví finální URL z konfigurace. Defaultní hodnoty (vše/1den) se do URL nepíší,
+  // aby odkaz zůstal stručný a backend default-handlery fungovaly.
+  const buildUrl = (download = false) => {
+    if (!token) return '';
+    const host = window.location.host;
+    const params = new URLSearchParams({ token });
+    if (selectedTypes.size < ALL_TYPE_KEYS.length && selectedTypes.size > 0) {
+      params.set('types', [...selectedTypes].join(','));
+    }
+    if (pinMode === 'categories' && selectedCategories.size > 0) {
+      params.set('categories', [...selectedCategories].join(','));
+    }
+    if (pinMode === 'pins' && selectedPinIds.size > 0) {
+      params.set('pins', [...selectedPinIds].join(','));
+    }
+    if (reminderDays !== 1) {
+      params.set('reminder', String(reminderDays));
+    }
+    if (download) params.set('download', '1');
+    const scheme = download ? `https://${host}` : `https://${host}`;
+    return `${scheme}/api/gardens/${garden.id}/calendar.ics?${params.toString()}`;
+  };
+  const httpsUrl = step === 'link' ? buildUrl(false) : '';
+  const webcalUrl = httpsUrl.replace(/^https:/, 'webcal:');
+  const downloadUrl = step === 'link' ? buildUrl(true) : '';
+
+  const toggleSet = (setter, key) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const copy = async () => {
     try {
@@ -1106,17 +1178,149 @@ function CalendarSubscribeModal({ garden, onClose }) {
     }
   };
 
+  // Validace: pokud uživatel zvolil "vybrané kategorie/piny" ale nic nezaškrtl, varuj
+  const canGenerate =
+    selectedTypes.size > 0 &&
+    !(pinMode === 'categories' && selectedCategories.size === 0) &&
+    !(pinMode === 'pins' && selectedPinIds.size === 0);
+
   return (
     <Modal title="📅 Přidat do kalendáře" onClose={onClose}>
       {loading ? (
         <div className="empty small">Načítám…</div>
       ) : !token ? (
         <div className="empty small">Token nedostupný</div>
+      ) : step === 'config' ? (
+        <>
+          <div className="small muted mb-2">
+            Vyber co chceš mít v kalendáři. Pak ti vygenerujeme živý odkaz (webcal://).
+          </div>
+
+          <div className="field">
+            <label>Typy úkonů</label>
+            <div className="ical-check-grid">
+              {ICAL_TYPE_OPTIONS.map((t) => (
+                <label key={t.key} className="ical-check">
+                  <input
+                    type="checkbox"
+                    checked={selectedTypes.has(t.key)}
+                    onChange={() => toggleSet(setSelectedTypes, t.key)}
+                  />
+                  <span>{t.icon} {t.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Rostliny</label>
+            <div className="ical-radio-list">
+              <label className="ical-radio">
+                <input
+                  type="radio"
+                  name="pinMode"
+                  value="all"
+                  checked={pinMode === 'all'}
+                  onChange={() => setPinMode('all')}
+                />
+                <span>Všechny moje rostliny ({pins.length})</span>
+              </label>
+              <label className="ical-radio">
+                <input
+                  type="radio"
+                  name="pinMode"
+                  value="categories"
+                  checked={pinMode === 'categories'}
+                  onChange={() => setPinMode('categories')}
+                />
+                <span>Jen vybrané kategorie</span>
+              </label>
+              {pinMode === 'categories' && (
+                <div className="ical-pill-row">
+                  {ICAL_CATEGORY_OPTIONS.map((c) => {
+                    const active = selectedCategories.has(c.key);
+                    return (
+                      <button
+                        key={c.key}
+                        type="button"
+                        className={`filter-pill ${active ? 'active' : ''}`}
+                        onClick={() => toggleSet(setSelectedCategories, c.key)}
+                      >
+                        {c.icon} {c.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <label className="ical-radio">
+                <input
+                  type="radio"
+                  name="pinMode"
+                  value="pins"
+                  checked={pinMode === 'pins'}
+                  onChange={() => setPinMode('pins')}
+                />
+                <span>Jen konkrétní rostliny</span>
+              </label>
+              {pinMode === 'pins' && (
+                <div className="ical-pin-list">
+                  {pins.length === 0 ? (
+                    <div className="small muted">V této zahradě zatím nejsou žádné rostliny.</div>
+                  ) : pins.map((p) => (
+                    <label key={p.id} className="ical-check">
+                      <input
+                        type="checkbox"
+                        checked={selectedPinIds.has(p.id)}
+                        onChange={() => toggleSet(setSelectedPinIds, p.id)}
+                      />
+                      <span>{p.plant_name || p.name}{p.plant_name && p.plant_name !== p.name ? ` (${p.name})` : ''}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Předstih připomínky</label>
+            <div className="ical-segmented">
+              {[
+                { v: 1, label: '1 den předem' },
+                { v: 3, label: '3 dny' },
+                { v: 7, label: '1 týden' },
+                { v: 0, label: 'Žádná' },
+              ].map((opt) => (
+                <button
+                  key={opt.v}
+                  type="button"
+                  className={`ical-segment ${reminderDays === opt.v ? 'active' : ''}`}
+                  onClick={() => setReminderDays(opt.v)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Zrušit
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setStep('link')}
+              disabled={!canGenerate}
+            >
+              Vygenerovat odkaz →
+            </button>
+          </div>
+        </>
       ) : (
         <>
           <div className="small muted mb-2">
-            Živý odkaz — kalendář se sám aktualizuje (refresh interval 1 den). Změny v
-            úkonech, snooze, nové sezónní akce se promítnou do tvého kalendáře automaticky.
+            Živý odkaz — kalendář se sám aktualizuje (refresh 1 den). Změny v
+            úkonech se automaticky promítnou.
           </div>
 
           <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
@@ -1142,10 +1346,13 @@ function CalendarSubscribeModal({ garden, onClose }) {
             </button>
           </div>
 
-          <div className="small muted" style={{ marginTop: 10 }}>
-            Co se exportuje: sezónní úkony (řez, hnojení, výsadba, sklizeň), jednorázové úkoly
-            s datem, opakované úkony s frekvencí 7+ dní. <strong>Zálivka a kontroly se
-            nepřenášejí</strong> — zaplnily by kalendář.
+          <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
+            <button type="button" className="btn ghost" onClick={() => setStep('config')}>
+              ← Upravit konfiguraci
+            </button>
+            <button type="button" className="btn ghost" onClick={onClose}>
+              Hotovo
+            </button>
           </div>
         </>
       )}
