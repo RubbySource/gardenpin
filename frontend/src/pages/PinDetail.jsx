@@ -372,7 +372,8 @@ function PeceTab({ pin, plant, onEditPin }) {
     pin.photo_path ||
     pin.planting_date ||
     pin.notes ||
-    plant?.soil || plant?.sun || plant?.watering || plant?.fertilizing || plant?.pruning || plant?.planting || plant?.notes;
+    plant?.soil || plant?.sun || plant?.watering || plant?.fertilizing || plant?.pruning || plant?.planting || plant?.notes ||
+    plant?.hardy || plant?.height || plant?.spread;
   return (
     <div>
       {pin.photo_path && (
@@ -399,6 +400,9 @@ function PeceTab({ pin, plant, onEditPin }) {
           <CareRow icon="🌱" label="Hnojení" value={plant?.fertilizing} />
           <CareRow icon="✂️" label="Řez / pasínkování" value={plant?.pruning} />
           <CareRow icon="📅" label="Výsadba" value={plant?.planting} />
+          <CareRow icon="❄️" label="Mrazuvzdornost" value={plant?.hardy} />
+          <CareRow icon="📏" label="Výška" value={plant?.height} />
+          <CareRow icon="↔️" label="Šíře / průměr" value={plant?.spread} />
           <CareRow icon="ℹ️" label="Pozn. ke druhu" value={plant?.notes} />
           <CareRow icon="📝" label="Vlastní poznámky" value={pin.notes} />
         </div>

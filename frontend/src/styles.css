@@ -5692,6 +5692,18 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.plant-catalog-hardy {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  background: rgba(118, 118, 128, 0.14);
+  color: var(--text-dim);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 600;
+  vertical-align: 1px;
+}
 .plant-catalog-chev {
   color: var(--text-dim);
   font-size: 1.25rem;
