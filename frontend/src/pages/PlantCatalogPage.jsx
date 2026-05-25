@@ -298,7 +298,12 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
           </span>
           <div className="plant-catalog-titles">
             <div className="plant-catalog-name">{plant.nameCz}</div>
-            <div className="plant-catalog-lat">{plant.nameLat}</div>
+            <div className="plant-catalog-lat">
+              {plant.nameLat}
+              {plant.hardy && (
+                <span className="plant-catalog-hardy" title="Mrazuvzdornost">❄️ {plant.hardy}</span>
+              )}
+            </div>
           </div>
           <span className="plant-catalog-chev" aria-hidden="true">
             {expanded ? '▴' : '›'}

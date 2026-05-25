@@ -5699,10 +5699,22 @@ function extractMonthFromNote(note) {
   return null;
 }
 
+// Mrazuvzdornost / výška / šíře — sidecar mapa keyed by plant.id.
+// Drží data odděleně od PLANT_DATABASE entries, aby nemusela být inlined v každém záznamu.
+// Pokud rostlina má hardy/height/spread přímo v entry, ten má přednost (viz enrichPlant).
+// Doplňuje se po dávkách (id 1-100, 101-200, 201-300, 301-421).
+export const PLANT_HARDINESS = {
+  // === Batch 1: id 1-100 (vegetables, fruits, herbs, ornamentals, grasses) ===
+  // === Batch 2: id 101-200 (grasses, perennials, shrubs, climbers) ===
+  // === Batch 3: id 201-300 (vegetable + fruit cultivars, shrubs, trees) ===
+  // === Batch 4: id 301-421 (grasses, vegetables, conifers, trees) ===
+};
+
 // Obohať záznam o nové vlastnosti pro karty (volat všude, kde se používá v UI)
 export function enrichPlant(plant) {
   if (!plant) return null;
   const meta = PLANT_META[plant.id] || {};
+  const hardiness = PLANT_HARDINESS[plant.id] || {};
 
   // Resolve kategorie: string → CATEGORY_DEFS, jinak ID-range fallback
   const category = (typeof plant.category === 'string' && CATEGORY_DEFS[plant.category])
@@ -5731,7 +5743,10 @@ export function enrichPlant(plant) {
     zone: plant.zone || meta.zone || '5-8',
     light: plant.light || meta.light || deriveLight(plant.sun),
     water: plant.water || meta.water || deriveWater(plant.watering),
-    height: plant.height || meta.height || null,
+    // Pořadí preference: přímý field v entry > PLANT_HARDINESS sidecar > PLANT_META fallback
+    height: plant.height || hardiness.height || meta.height || null,
+    spread: plant.spread || hardiness.spread || null,
+    hardy: plant.hardy || hardiness.hardy || null,
     notes: plant.notes || plant.description || null,
     careActions,
     seasonalTasks,
