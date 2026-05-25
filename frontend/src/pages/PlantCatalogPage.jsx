@@ -1,6 +1,6 @@
 ﻿// Katalog rostlin — procházení DB rostlin s filtry, sezónním přehledem a přidáním do zahrady
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PLANT_DATABASE, enrichPlant, CATEGORY_DEFS } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
@@ -49,9 +49,12 @@ function nextSeasonalAction(plant, currentMonth) {
 }
 
 export default function PlantCatalogPage() {
-  const [query, setQuery] = useState('');
+  // Init query from URL ?q=… (např. po kliknutí na companion pill v PinDetail nebo katalogu)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+  const [query, setQuery] = useState(initialQ);
   // Debounced query — filter běží proti tomuhle, ne proti syrovému inputu (200 ms).
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQ);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
   const [pickerPlant, setPickerPlant] = useState(null);
@@ -61,6 +64,24 @@ export default function PlantCatalogPage() {
   useEffect(() => {
     api.listGardens().then(setGardens).catch(() => setGardens([]));
   }, []);
+
+  // Sync URL ?q= když uživatel mění query — replace, ať se nemnoží history položky
+  useEffect(() => {
+    const current = searchParams.get('q') || '';
+    if (query !== current) {
+      const next = new URLSearchParams(searchParams);
+      if (query) next.set('q', query); else next.delete('q');
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  // Když přijde nová URL (např. zpět z PinDetail companion pillu), sync zpět do query
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    if (q !== query) setQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Debounce search input (200 ms) — předejdeme zbytečnému přefilování 421 plantů při každé klávese
   useEffect(() => {
@@ -248,6 +269,12 @@ export default function PlantCatalogPage() {
               expanded={expandedId === p.id}
               onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)}
               onAdd={() => handleAddToGarden(p)}
+              onCompanionClick={(name) => {
+                // Stejná stránka — jen překlik filtru. Sbalíme expanded a scrollneme nahoru.
+                setQuery(name);
+                setExpandedId(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             />
           ))}
         </div>
@@ -265,7 +292,7 @@ export default function PlantCatalogPage() {
   );
 }
 
-function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
+function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCompanionClick }) {
   const cat = plant.category || { label: 'Rostlina', icon: '🌿', color: '#6b6b70' };
   const yearlyCount = countYearlyTasks(plant);
   const next = nextSeasonalAction(plant, currentMonth);
@@ -410,6 +437,58 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd }) {
                       {plant.notes && <div><strong>Poznámky:</strong> {plant.notes}</div>}
                     </div>
                   </div>
+                )}
+
+                {plant.companions && (
+                  (plant.companions.good?.length > 0 || plant.companions.bad?.length > 0) && (
+                    <div className="plant-catalog-detail-section">
+                      <div className="plant-catalog-detail-title">🤝 Doprovodné rostliny</div>
+                      <div className="companion-section" style={{ marginTop: 4 }}>
+                        {plant.companions.good?.length > 0 && (
+                          <div className="companion-row">
+                            <span className="companion-label">Dobře se snáší:</span>
+                            <div className="companion-pills">
+                              {plant.companions.good.map((name) => (
+                                <button
+                                  key={name}
+                                  type="button"
+                                  className="companion-pill good"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCompanionClick?.(name);
+                                  }}
+                                  title={`Filtrovat ${name}`}
+                                >
+                                  {name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {plant.companions.bad?.length > 0 && (
+                          <div className="companion-row">
+                            <span className="companion-label">Nesadit vedle:</span>
+                            <div className="companion-pills">
+                              {plant.companions.bad.map((name) => (
+                                <button
+                                  key={name}
+                                  type="button"
+                                  className="companion-pill bad"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCompanionClick?.(name);
+                                  }}
+                                  title={`Filtrovat ${name}`}
+                                >
+                                  {name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
                 )}
 
                 <PlantWarnings plantName={plant.nameCz} />

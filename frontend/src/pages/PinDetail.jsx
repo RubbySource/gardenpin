@@ -1,5 +1,6 @@
 // PinDetail — iOS-style mobile sheet: hero, tabs (URL hash), FAB, scroll-aware sticky header
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
@@ -368,12 +369,17 @@ function CareRow({ icon, label, value }) {
 }
 
 function PeceTab({ pin, plant, onEditPin }) {
+  const nav = useNavigate();
+  const companions = plant?.companions;
+  const hasCompanions = companions && ((companions.good?.length > 0) || (companions.bad?.length > 0));
   const hasAny =
     pin.photo_path ||
     pin.planting_date ||
     pin.notes ||
     plant?.soil || plant?.sun || plant?.watering || plant?.fertilizing || plant?.pruning || plant?.planting || plant?.notes ||
-    plant?.hardy || plant?.height || plant?.spread;
+    plant?.hardy || plant?.height || plant?.spread ||
+    hasCompanions;
+  const goToCatalog = (name) => nav(`/katalog?q=${encodeURIComponent(name)}`);
   return (
     <div>
       {pin.photo_path && (
@@ -405,6 +411,48 @@ function PeceTab({ pin, plant, onEditPin }) {
           <CareRow icon="↔️" label="Šíře / průměr" value={plant?.spread} />
           <CareRow icon="ℹ️" label="Pozn. ke druhu" value={plant?.notes} />
           <CareRow icon="📝" label="Vlastní poznámky" value={pin.notes} />
+        </div>
+      )}
+
+      {hasCompanions && (
+        <div className="companion-section">
+          <div className="companion-title">🤝 Doprovodné rostliny</div>
+          {companions.good?.length > 0 && (
+            <div className="companion-row">
+              <span className="companion-label">Dobře se snáší:</span>
+              <div className="companion-pills">
+                {companions.good.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className="companion-pill good"
+                    onClick={() => goToCatalog(name)}
+                    title={`Hledat ${name} v katalogu`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {companions.bad?.length > 0 && (
+            <div className="companion-row">
+              <span className="companion-label">Nesadit vedle:</span>
+              <div className="companion-pills">
+                {companions.bad.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className="companion-pill bad"
+                    onClick={() => goToCatalog(name)}
+                    title={`Hledat ${name} v katalogu`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

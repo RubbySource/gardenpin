@@ -5794,3 +5794,69 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
+/* ============================================================
+   Companion planting — zelené/červené pills (BACKLOG: companion-planting)
+   ============================================================ */
+.companion-section {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.companion-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.companion-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.companion-row:last-child { margin-bottom: 0; }
+.companion-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.companion-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.companion-pill {
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+  background: transparent;
+  letter-spacing: -0.005em;
+}
+.companion-pill:active { transform: scale(0.95); }
+.companion-pill.good {
+  color: #2d5a27;
+  border-color: rgba(74, 124, 58, 0.4);
+  background: rgba(74, 124, 58, 0.08);
+}
+.companion-pill.good:hover { background: rgba(74, 124, 58, 0.16); }
+.companion-pill.bad {
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.4);
+  background: rgba(192, 57, 43, 0.07);
+}
+.companion-pill.bad:hover { background: rgba(192, 57, 43, 0.15); }
+/* V katalogovém detailu nepotřebujeme zdvojený rámeček (sekce má svůj border) */
+.plant-catalog-detail-section .companion-section {
+  border: none;
+  padding: 0;
+  margin-top: 0;
+}
+
