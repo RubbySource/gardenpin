@@ -1290,3 +1290,174 @@ input[type="range"]::-moz-range-thumb {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+/* ============================================================
+   GardenDetail redesign (BACKLOG: GardenDetail redesign)
+   iOS nav header · mapa nahoře · segmented control Mapa/Seznam/Statistiky
+   ============================================================ */
+
+/* Sticky iOS nav bar pod globálním topbarem (56px) */
+.gd-nav {
+  position: sticky;
+  top: calc(56px + var(--safe-top, 0px));
+  z-index: 18;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: -12px -12px 0;
+  padding: 8px 8px;
+  background: color-mix(in srgb, var(--ios-bg) 80%, transparent);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  border-bottom: 1px solid var(--ios-separator);
+}
+.gd-nav-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  border: none;
+  background: transparent;
+  color: var(--ios-accent);
+  font-size: 1.02rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: 6px 6px 6px 2px;
+  cursor: pointer;
+  transition: opacity 120ms var(--ios-ease);
+}
+.gd-nav-back:active { opacity: 0.55; }
+.gd-nav-title {
+  justify-self: center;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+  max-width: 56vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gd-nav-menu-wrap { justify-self: end; position: relative; }
+.gd-nav-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), background 120ms var(--ios-ease);
+}
+.gd-nav-action:active { transform: scale(0.9); }
+
+/* Dropdown akcí (iOS context menu styl) */
+.gd-action-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.18));
+  border: 0.5px solid var(--ios-separator);
+  overflow: hidden;
+  z-index: 30;
+  animation: gd-menu-pop 180ms var(--ios-spring) both;
+  transform-origin: top right;
+}
+@keyframes gd-menu-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.gd-action-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 0.97rem;
+  font-weight: 500;
+  color: var(--ios-label);
+  cursor: pointer;
+}
+.gd-action-menu button + button { border-top: 0.5px solid var(--ios-separator); }
+.gd-action-menu button:active { background: var(--ios-fill); }
+
+/* Map card + floating hint */
+.gd-map-card { padding: 10px; margin-bottom: 14px; }
+.gd-map-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--ios-r-sm);
+  background: rgba(0, 0, 0, 0.46);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  pointer-events: none;
+  z-index: 12;
+}
+
+/* Segmented control wrapper */
+.gd-seg-wrap { margin: 0 0 16px; }
+.gd-seg-wrap .ios-segmented { width: 100%; }
+
+/* Map tools card spacing */
+.gd-tools { padding: 10px 14px; }
+
+/* Stats tab — quick counts */
+.gd-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.gd-stat {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-card);
+  padding: 16px 14px;
+  text-align: center;
+}
+.gd-stat .val {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ios-accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.gd-stat .lbl {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ios-label-secondary);
+}
+.gd-area-banner {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-card);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ios-label);
+}

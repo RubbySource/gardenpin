@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
+import Icon from '../components/Icon.jsx';
 import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
@@ -49,6 +50,10 @@ export default function GardenDetailPage() {
   const [showShare, setShowShare] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
+  // Redesign: segmented control (Mapa / Seznam / Statistiky) + akční menu v hlavičce
+  const [tab, setTab] = useState('map'); // 'map' | 'list' | 'stats'
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef();
   // P3: Map toolbar state
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
@@ -359,46 +364,106 @@ export default function GardenDetailPage() {
     }
   };
 
+  // Přepnutí sekce — při odchodu z „Mapa" vypneme editační režimy, ať uživatele
+  // nepřekvapí aktivní kreslení záhonu / polygonu na jiné záložce.
+  const changeTab = (next) => {
+    if (next !== 'map') {
+      setBedMode(false);
+      setPolygonMode(false);
+    }
+    setTab(next);
+  };
+
+  // Zavřít akční menu při kliknutí mimo / Esc
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+
+  // Rychlé statistiky pro záložku Statistiky
+  const TABS = [
+    { key: 'map', label: 'Mapa' },
+    { key: 'list', label: 'Seznam' },
+    { key: 'stats', label: 'Statistiky' },
+  ];
+  const tabIdx = TABS.findIndex((t) => t.key === tab);
+  const plantCount = pins.filter((p) => p.plant_name).length;
+  const photoCount = pins.filter((p) => p.photo_path).length;
+  // Plocha zahrady z uloženého polygonu (pokud máme měřítko ze záhonu)
+  const gardenAreaM2 = (() => {
+    const poly = parsePolygon(garden?.garden_polygon);
+    if (!poly) return null;
+    const frac = polygonAreaFraction(poly);
+    if (scaleHints.x > 0 && scaleHints.y > 0) {
+      return frac * (100 * scaleHints.x) * (100 * scaleHints.y);
+    }
+    return null;
+  })();
+
   if (loading) return <div className="empty">Načítám...</div>;
   if (!garden) return <div className="empty">Zahrada nenalezena</div>;
 
   return (
     <>
-      <div className="row spread mb-2">
-        <div>
-          <div style={{ fontSize: '0.85rem' }}>
-            <button className="btn ghost small" onClick={() => nav('/zahrady')}>
-              ← Zpět
-            </button>
-          </div>
-          <h2 className="section-title" style={{ margin: '4px 0 0' }}>
-            🗺️ {garden.name}
-          </h2>
-          <GardenConditionsLine garden={garden} />
-        </div>
-        <div className="row" style={{ gap: 6 }}>
+      {/* iOS nav header — sticky pod globálním topbarem */}
+      <header className="gd-nav">
+        <button className="gd-nav-back" onClick={() => nav('/zahrady')}>
+          <Icon name="chevronLeft" size={22} stroke={2.4} />
+          <span>Zahrady</span>
+        </button>
+        <span className="gd-nav-title">{garden.name}</span>
+        <div className="gd-nav-menu-wrap" ref={menuRef}>
           <button
-            className="btn ghost small"
-            onClick={() => window.open(`/api/gardens/${garden.id}/season-plan?print=1`, '_blank')}
-            title="Stáhnout sezónní plán jako PDF (přes tisk)"
+            type="button"
+            className="gd-nav-action"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Akce zahrady"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
           >
-            📄 Plán PDF
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <circle cx="5" cy="12" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="19" cy="12" r="2" />
+            </svg>
           </button>
-          <button
-            className="btn ghost small"
-            onClick={() => setShowCalendar(true)}
-            title="Přidat do iOS / Google kalendáře (živý odkaz)"
-          >
-            📅 Kalendář
-          </button>
-          <button className="btn ghost small" onClick={() => setShowShare(true)} title="Sdílet zahradu">
-            🔗 Sdílet
-          </button>
-          <button className="btn ghost small" onClick={() => setShowEdit(true)}>
-            ✏️ Upravit
-          </button>
+          {menuOpen && (
+            <div className="gd-action-menu" role="menu">
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowEdit(true); }}>
+                ✏️ Upravit zahradu
+              </button>
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowShare(true); }}>
+                🔗 Sdílet zahradu
+              </button>
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowCalendar(true); }}>
+                📅 Přidat do kalendáře
+              </button>
+              <button
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  window.open(`/api/gardens/${garden.id}/season-plan?print=1`, '_blank');
+                }}
+              >
+                📄 Sezónní plán (PDF)
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      </header>
+
+      <GardenConditionsLine garden={garden} />
 
       {!garden.image_path ? (
         <div className="card">
@@ -442,103 +507,8 @@ export default function GardenDetailPage() {
         </div>
       ) : (
         <>
-          {/* P3: Toolbar nad mapou */}
-          <div className="card" style={{ padding: '10px 14px' }}>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Rotace */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 200px' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>🔄 {rotation}°</span>
-                <input
-                  type="range"
-                  min="-180"
-                  max="180"
-                  step="1"
-                  value={rotation}
-                  onChange={(e) => handleRotationChange(Number(e.target.value))}
-                  style={{ flex: 1 }}
-                />
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange((rotation - 90 + 360) % 360)}
-                  title="-90°"
-                >
-                  ↺
-                </button>
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange((rotation + 90) % 360)}
-                  title="+90°"
-                >
-                  ↻
-                </button>
-                <button
-                  className="btn ghost small"
-                  onClick={() => handleRotationChange(0)}
-                  title="Reset"
-                >
-                  ⊙
-                </button>
-              </div>
-              {/* Mřížka */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <button
-                  className={`btn ghost small${showGrid ? ' active' : ''}`}
-                  onClick={() => setShowGrid((v) => !v)}
-                  style={showGrid ? { background: 'rgba(74,124,58,0.15)', border: '1px solid #4a7c3a' } : {}}
-                >
-                  ⊞ Mřížka
-                </button>
-                {showGrid && (
-                  <input
-                    type="range"
-                    min="20"
-                    max="150"
-                    step="5"
-                    value={gridSize}
-                    onChange={(e) => setGridSize(Number(e.target.value))}
-                    style={{ width: 70 }}
-                    title={`${gridSize}px`}
-                  />
-                )}
-              </div>
-              {/* Záhon */}
-              <button
-                className={`btn ghost small${bedMode ? ' active' : ''}`}
-                onClick={() => { setBedMode((v) => !v); setPolygonMode(false); }}
-                style={bedMode ? { background: 'rgba(139,111,71,0.18)', border: '1px solid #8b6f47' } : {}}
-                title="Vytvořit záhon (klik a táhni přes mapu)"
-              >
-                {bedMode ? '✋ Zrušit kreslení' : '🟫 Záhon'}
-              </button>
-              {/* Ohraničení zahrady (polygon) */}
-              <button
-                className={`btn ghost small${polygonMode ? ' active' : ''}`}
-                onClick={() => { setPolygonMode((v) => !v); setBedMode(false); }}
-                style={polygonMode ? { background: 'rgba(74,124,58,0.18)', border: '1px solid #4a7c3a' } : {}}
-                title={garden.garden_polygon ? 'Znovu ohraničit zahradu' : 'Ohraničit zahradu polygonem'}
-              >
-                {polygonMode ? '✋ Zrušit polygon' : (garden.garden_polygon ? '✂️ Znovu ohraničit' : '✂️ Ohraničit zahradu')}
-              </button>
-              {/* Upscale */}
-              <button
-                className="btn ghost small"
-                onClick={handleUpscale}
-                disabled={upscaling}
-                title="Zvětšit rozlišení 4× (bicubic)"
-              >
-                {upscaling ? '⏳' : '🔍'} Upscale 4×
-              </button>
-            </div>
-          </div>
-
-          <div className="card">
-            {!polygonMode && (
-              <div className="small muted mb-2">
-                {bedMode
-                  ? '🟫 Klikněte a táhněte pro vytvoření záhonu.'
-                  : '💡 Klikněte na mapu pro přidání místa. Přetáhněte pin pro přesun.'}
-              </div>
-            )}
+          {/* MAP — vždy nahoře */}
+          <div className="card gd-map-card">
             <div
               className="map-container"
               ref={mapRef}
@@ -690,6 +660,14 @@ export default function GardenDetailPage() {
                 />
               )}
               </div>
+              {!polygonMode && (
+                <div className="gd-map-hint">
+                  <Icon name="plus" size={15} stroke={2.4} />
+                  {bedMode
+                    ? 'Klepni a táhni pro vytvoření záhonu'
+                    : 'Klepni na mapu pro přidání · táhni pin pro přesun'}
+                </div>
+              )}
             </div>
             {polygonMode && (
               <p
@@ -746,6 +724,122 @@ export default function GardenDetailPage() {
             )}
           </div>
 
+          {/* Segmented control: Mapa / Seznam / Statistiky */}
+          <div className="gd-seg-wrap">
+            <div className="ios-segmented" role="tablist" aria-label="Sekce zahrady">
+              {tabIdx >= 0 && (
+                <span
+                  className="ios-seg-thumb"
+                  style={{ transform: `translateX(${tabIdx * 100}%)` }}
+                  aria-hidden="true"
+                />
+              )}
+              {TABS.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === t.key}
+                  className={`ios-seg-btn ${tab === t.key ? 'active' : ''}`}
+                  onClick={() => changeTab(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {tab === 'map' && (
+          <>
+          {/* Nástroje mapy */}
+          <div className="card gd-tools">
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Rotace */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 200px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>🔄 {rotation}°</span>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value={rotation}
+                  onChange={(e) => handleRotationChange(Number(e.target.value))}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  className="btn ghost small"
+                  onClick={() => handleRotationChange((rotation - 90 + 360) % 360)}
+                  title="-90°"
+                >
+                  ↺
+                </button>
+                <button
+                  className="btn ghost small"
+                  onClick={() => handleRotationChange((rotation + 90) % 360)}
+                  title="+90°"
+                >
+                  ↻
+                </button>
+                <button
+                  className="btn ghost small"
+                  onClick={() => handleRotationChange(0)}
+                  title="Reset"
+                >
+                  ⊙
+                </button>
+              </div>
+              {/* Mřížka */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  className={`btn ghost small${showGrid ? ' active' : ''}`}
+                  onClick={() => setShowGrid((v) => !v)}
+                  style={showGrid ? { background: 'rgba(74,124,58,0.15)', border: '1px solid #4a7c3a' } : {}}
+                >
+                  ⊞ Mřížka
+                </button>
+                {showGrid && (
+                  <input
+                    type="range"
+                    min="20"
+                    max="150"
+                    step="5"
+                    value={gridSize}
+                    onChange={(e) => setGridSize(Number(e.target.value))}
+                    style={{ width: 70 }}
+                    title={`${gridSize}px`}
+                  />
+                )}
+              </div>
+              {/* Záhon */}
+              <button
+                className={`btn ghost small${bedMode ? ' active' : ''}`}
+                onClick={() => { setBedMode((v) => !v); setPolygonMode(false); }}
+                style={bedMode ? { background: 'rgba(139,111,71,0.18)', border: '1px solid #8b6f47' } : {}}
+                title="Vytvořit záhon (klik a táhni přes mapu)"
+              >
+                {bedMode ? '✋ Zrušit kreslení' : '🟫 Záhon'}
+              </button>
+              {/* Ohraničení zahrady (polygon) */}
+              <button
+                className={`btn ghost small${polygonMode ? ' active' : ''}`}
+                onClick={() => { setPolygonMode((v) => !v); setBedMode(false); }}
+                style={polygonMode ? { background: 'rgba(74,124,58,0.18)', border: '1px solid #4a7c3a' } : {}}
+                title={garden.garden_polygon ? 'Znovu ohraničit zahradu' : 'Ohraničit zahradu polygonem'}
+              >
+                {polygonMode ? '✋ Zrušit polygon' : (garden.garden_polygon ? '✂️ Znovu ohraničit' : '✂️ Ohraničit zahradu')}
+              </button>
+              {/* Upscale */}
+              <button
+                className="btn ghost small"
+                onClick={handleUpscale}
+                disabled={upscaling}
+                title="Zvětšit rozlišení 4× (bicubic)"
+              >
+                {upscaling ? '⏳' : '🔍'} Upscale 4×
+              </button>
+            </div>
+          </div>
+
           {beds.length > 0 && (
             <>
               <h3 className="section-title">
@@ -776,7 +870,11 @@ export default function GardenDetailPage() {
               </div>
             </>
           )}
+          </>
+          )}
 
+          {tab === 'list' && (
+          <>
           <h3 className="section-title">
             📍 Místa v zahradě ({pins.length})
           </h3>
@@ -798,9 +896,38 @@ export default function GardenDetailPage() {
               />
             ))
           )}
+          </>
+          )}
 
-          {/* Meziroční srovnání péče v této zahradě */}
-          <YearOverYear gardenId={garden.id} title={`Meziroční srovnání · ${garden.name}`} />
+          {tab === 'stats' && (
+          <>
+            <div className="gd-stat-grid">
+              <div className="gd-stat">
+                <div className="val">{pins.length}</div>
+                <div className="lbl">Míst</div>
+              </div>
+              <div className="gd-stat">
+                <div className="val">{plantCount}</div>
+                <div className="lbl">Rostlin</div>
+              </div>
+              <div className="gd-stat">
+                <div className="val">{beds.length}</div>
+                <div className="lbl">Záhonů</div>
+              </div>
+              <div className="gd-stat">
+                <div className="val">{photoCount}</div>
+                <div className="lbl">S fotkou</div>
+              </div>
+            </div>
+            {gardenAreaM2 != null && gardenAreaM2 > 0 && (
+              <div className="gd-area-banner">
+                📐 Plocha zahrady ~{gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0)} m²
+              </div>
+            )}
+            {/* Meziroční srovnání péče v této zahradě */}
+            <YearOverYear gardenId={garden.id} title={`Meziroční srovnání · ${garden.name}`} />
+          </>
+          )}
         </>
       )}
 
