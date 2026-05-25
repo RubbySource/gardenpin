@@ -1,13 +1,12 @@
-// All tasks page with month grouping + filters
+// All tasks page — iOS segmented control (Dnes / Týden / Vše) + Hotovo historie.
 import React, { useEffect, useState, useMemo } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import Icon from '../components/Icon.jsx';
-import { useSwipeActions } from '../hooks/useSwipeActions.js';
+import TaskRow from '../components/TaskRow.jsx';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
-import SnoozeButton from '../components/SnoozeButton.jsx';
-import { daysFromToday, taskLabel, dueBadge, taskIconName } from '../utils.js';
+import { daysFromToday } from '../utils.js';
 
 const MONTH_NAMES = [
   'Leden',
@@ -22,6 +21,22 @@ const MONTH_NAMES = [
   'Říjen',
   'Listopad',
   'Prosinec',
+];
+
+const CZ_WEEKDAYS = [
+  'Neděle',
+  'Pondělí',
+  'Úterý',
+  'Středa',
+  'Čtvrtek',
+  'Pátek',
+  'Sobota',
+];
+
+const SEGMENTS = [
+  { key: 'today', label: 'Dnes' },
+  { key: 'week', label: 'Týden' },
+  { key: 'all', label: 'Vše' },
 ];
 
 function monthKey(dateStr) {
@@ -42,6 +57,21 @@ function monthLabel(key) {
   return (isCurrent ? 'Tento měsíc · ' : '') + MONTH_NAMES[monthIdx] + yearLabel;
 }
 
+// Relativní „den" bucket pro filtry Dnes / Týden (Po termínu, Dnes, Zítra, název dne).
+function dayBucket(dateStr) {
+  const diff = daysFromToday(dateStr);
+  if (diff === null) return { key: 'none', label: 'Bez termínu', order: 9999 };
+  if (diff < 0) return { key: 'overdue', label: 'Po termínu', order: -1 };
+  if (diff === 0) return { key: 'd0', label: 'Dnes', order: 0 };
+  if (diff === 1) return { key: 'd1', label: 'Zítra', order: 1 };
+  const d = new Date(dateStr);
+  return { key: `d${diff}`, label: CZ_WEEKDAYS[d.getDay()], order: diff };
+}
+
+function byDueAsc(a, b) {
+  return new Date(a.next_due || 0) - new Date(b.next_due || 0);
+}
+
 function groupByMonth(items, getDate) {
   const groups = new Map();
   items.forEach((it) => {
@@ -50,6 +80,25 @@ function groupByMonth(items, getDate) {
     groups.get(key).push(it);
   });
   return Array.from(groups.entries());
+}
+
+// Sjednocený výstup: [{ key, label, items }] — renderuje se stejným markupem
+// nezávisle na tom, jestli grupujeme podle dne (Dnes/Týden) nebo měsíce (Vše).
+function buildActiveSections(tasks, filter) {
+  if (filter === 'all') {
+    return groupByMonth(tasks, (t) => t.next_due)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, items]) => ({ key, label: monthLabel(key), items: [...items].sort(byDueAsc) }));
+  }
+  const map = new Map();
+  tasks.forEach((t) => {
+    const b = dayBucket(t.next_due);
+    if (!map.has(b.key)) map.set(b.key, { key: b.key, label: b.label, order: b.order, items: [] });
+    map.get(b.key).items.push(t);
+  });
+  return Array.from(map.values())
+    .sort((a, b) => a.order - b.order)
+    .map((s) => ({ ...s, items: [...s.items].sort(byDueAsc) }));
 }
 
 function matchesQuery(t, q) {
@@ -65,7 +114,7 @@ export default function TasksPage({ onTaskComplete }) {
   const [history, setHistory] = useState([]);
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('thisMonth'); // thisMonth | all | done
+  const [filter, setFilter] = useState('today'); // today | week | all | done
   const [gardenFilter, setGardenFilter] = useState('all');
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
@@ -150,14 +199,15 @@ export default function TasksPage({ onTaskComplete }) {
 
   const visibleTasks = useMemo(() => {
     let base = gardenFilteredTasks;
-    if (filter === 'thisMonth') {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = now.getMonth();
-      base = gardenFilteredTasks.filter((t) => {
-        if (!t.next_due) return false;
-        const d = new Date(t.next_due);
-        return d.getFullYear() === y && d.getMonth() === m;
+    if (filter === 'today') {
+      base = base.filter((t) => {
+        const d = daysFromToday(t.next_due);
+        return d !== null && d <= 0;
+      });
+    } else if (filter === 'week') {
+      base = base.filter((t) => {
+        const d = daysFromToday(t.next_due);
+        return d !== null && d <= 7;
       });
     } else if (filter === 'done') {
       base = [];
@@ -165,20 +215,29 @@ export default function TasksPage({ onTaskComplete }) {
     return base.filter((t) => matchesQuery(t, query));
   }, [gardenFilteredTasks, filter, query]);
 
-  const taskGroups = useMemo(() => {
+  const taskSections = useMemo(() => {
     if (filter === 'done') return [];
-    return groupByMonth(visibleTasks, (t) => t.next_due).sort(
-      ([a], [b]) => a.localeCompare(b),
-    );
+    return buildActiveSections(visibleTasks, filter);
   }, [visibleTasks, filter]);
 
   const historyGroups = useMemo(() => {
     if (filter !== 'done') return [];
     const filtered = gardenFilteredHistory.filter((h) => matchesQuery(h, query));
-    return groupByMonth(filtered, (h) => h.done_at).sort(
-      ([a], [b]) => b.localeCompare(a),
-    );
+    return groupByMonth(filtered, (h) => h.done_at)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([key, items]) => ({ key, label: monthLabel(key), items }));
   }, [gardenFilteredHistory, filter, query]);
+
+  const activeIdx = SEGMENTS.findIndex((s) => s.key === filter);
+
+  const emptyText = () => {
+    if (query) return { title: 'Žádné výsledky', sub: 'Zkuste jiný výraz.', icon: '🔍' };
+    if (filter === 'today')
+      return { title: 'Na dnešek máš hotovo', sub: 'Žádný úkol po termínu ani na dnes 🌿', icon: '🌿' };
+    if (filter === 'week')
+      return { title: 'Tento týden klid', sub: 'Žádné úkoly v příštích 7 dnech.', icon: '🌤️' };
+    return { title: 'Žádné úkoly', sub: 'Přidejte je v detailu místa v zahradě.', icon: '🌼' };
+  };
 
   if (loading) return <div className="empty">🌱 Načítám...</div>;
 
@@ -280,53 +339,53 @@ export default function TasksPage({ onTaskComplete }) {
         </div>
       )}
 
-      <div className="filter-pills">
+      {/* iOS segmented control: Dnes / Týden / Vše + Hotovo toggle */}
+      <div className="tasks-filter-bar">
+        <div className="ios-segmented" role="tablist" aria-label="Filtr úkolů">
+          {activeIdx >= 0 && (
+            <span
+              className="ios-seg-thumb"
+              style={{ transform: `translateX(${activeIdx * 100}%)` }}
+              aria-hidden="true"
+            />
+          )}
+          {SEGMENTS.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              role="tab"
+              aria-selected={filter === s.key}
+              className={`ios-seg-btn ${filter === s.key ? 'active' : ''}`}
+              onClick={() => setFilter(s.key)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
         <button
-          className={`filter-pill ${filter === 'thisMonth' ? 'active' : ''}`}
-          onClick={() => setFilter('thisMonth')}
+          type="button"
+          className={`tasks-done-toggle ${filter === 'done' ? 'active' : ''}`}
+          onClick={() => setFilter((f) => (f === 'done' ? 'all' : 'done'))}
+          aria-pressed={filter === 'done'}
+          title="Dokončené úkoly"
         >
-          Tento měsíc
-        </button>
-        <button
-          className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          Vše {gardenFilteredTasks.length > 0 && <span className="pill-count">{gardenFilteredTasks.length}</span>}
-        </button>
-        <button
-          className={`filter-pill ${filter === 'done' ? 'active' : ''}`}
-          onClick={() => setFilter('done')}
-        >
-          Dokončené {gardenFilteredHistory.length > 0 && <span className="pill-count">{gardenFilteredHistory.length}</span>}
+          <Icon name="check" size={16} stroke={2.5} />
+          {gardenFilteredHistory.length > 0 && (
+            <span className="tasks-done-count">{gardenFilteredHistory.length}</span>
+          )}
         </button>
       </div>
 
-      {filter !== 'done' && taskGroups.length === 0 && (
-        <div className="card empty">
-          <div className="icon">🌼</div>
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>
-            {query
-              ? 'Žádné výsledky'
-              : filter === 'thisMonth'
-              ? 'Žádné úkoly tento měsíc'
-              : 'Žádné úkoly'}
-          </div>
-          <div className="small muted">
-            {query ? 'Zkuste jiný výraz.' : 'Přidejte je v detailu místa v zahradě.'}
-          </div>
-        </div>
-      )}
-
       {filter !== 'done' &&
-        taskGroups.map(([key, items]) => (
-          <div key={key} className="task-month-group">
+        taskSections.map((section) => (
+          <div key={section.key} className="task-month-group">
             <div className="task-month-header">
-              <span className="task-month-name">{monthLabel(key)}</span>
-              <span className="task-month-count">{items.length}</span>
+              <span className="task-month-name">{section.label}</span>
+              <span className="task-month-count">{section.items.length}</span>
             </div>
             <div className="task-month-body">
-              {items.map((t) => (
-                <SwipeableTaskRow
+              {section.items.map((t) => (
+                <TaskRow
                   key={t.id}
                   task={t}
                   completing={completingIds.has(t.id)}
@@ -341,6 +400,14 @@ export default function TasksPage({ onTaskComplete }) {
           </div>
         ))}
 
+      {filter !== 'done' && taskSections.length === 0 && (
+        <div className="card empty">
+          <div className="icon">{emptyText().icon}</div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>{emptyText().title}</div>
+          <div className="small muted">{emptyText().sub}</div>
+        </div>
+      )}
+
       {filter === 'done' && historyGroups.length === 0 && (
         <div className="card empty">
           <div className="icon">📭</div>
@@ -354,14 +421,14 @@ export default function TasksPage({ onTaskComplete }) {
       )}
 
       {filter === 'done' &&
-        historyGroups.map(([key, items]) => (
-          <div key={key} className="task-month-group">
+        historyGroups.map((section) => (
+          <div key={section.key} className="task-month-group">
             <div className="task-month-header">
-              <span className="task-month-name">{monthLabel(key)}</span>
-              <span className="task-month-count">{items.length}</span>
+              <span className="task-month-name">{section.label}</span>
+              <span className="task-month-count">{section.items.length}</span>
             </div>
             <div className="task-month-body">
-              {items.map((h) => (
+              {section.items.map((h) => (
                 <DoneRow key={h.id} item={h} onOpen={() => setOpenPin(h.pin_id)} />
               ))}
             </div>
@@ -376,79 +443,6 @@ export default function TasksPage({ onTaskComplete }) {
             load();
           }}
         />
-      )}
-    </div>
-  );
-}
-
-function SwipeableTaskRow({ task, completing, deleting, onComplete, onDelete, onOpen, onSnoozed }) {
-  const { handlers, itemStyle, triggeredLeft, triggeredRight, drag } = useSwipeActions({
-    onSwipeRight: () => onComplete?.(),
-    onSwipeLeft: () => onDelete?.(),
-  });
-  const badge = dueBadge(task.next_due);
-  const cls = badge ? badge.cls : '';
-  const iconName = taskIconName(task.task_type);
-  const overlayDir = drag < 0 ? 'left' : drag > 0 ? 'right' : '';
-  return (
-    <div className="swipe-row-wrap">
-      <div
-        className={`swipe-action-bg swipe-action-complete ${triggeredRight ? 'triggered' : ''}`}
-        style={{ opacity: drag > 0 ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <Icon name="check" size={22} />
-        <span>{triggeredRight ? 'Hotovo' : 'Posuňte →'}</span>
-      </div>
-      <div
-        className={`swipe-action-bg swipe-action-delete ${triggeredLeft ? 'triggered' : ''}`}
-        style={{ opacity: drag < 0 ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <Icon name="trash" size={22} />
-        <span>{triggeredLeft ? 'Smazat' : '← Smazat'}</span>
-      </div>
-      <div
-        className={`task-row ios-task-row ${cls} ${completing ? 'completing' : ''} ${deleting ? 'deleting' : ''} swipe-${overlayDir}`}
-        style={itemStyle}
-        {...handlers}
-      >
-        <button
-          className={`task-checkbox ${completing ? 'checked' : ''}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onComplete();
-          }}
-          aria-label="Označit jako hotové"
-          title="Označit jako hotové"
-        >
-          {completing ? <Icon name="check" size={14} stroke={2.5} /> : ''}
-        </button>
-        <div className="task-row-info" onClick={onOpen} style={{ cursor: 'pointer' }}>
-          <div className="task-row-title">
-            <span className="task-row-icon-svg" aria-hidden="true">
-              <Icon name={iconName} size={16} />
-            </span>
-            <span className="task-row-name">{task.title}</span>
-          </div>
-          <div className="task-row-meta">
-            {task.pin_name}
-            {task.plant_name ? ` · ${task.plant_name}` : ''}
-            {task.garden_name ? ` · ${task.garden_name}` : ''}
-          </div>
-          <div className="task-row-tags">
-            {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-            {task.frequency_days ? (
-              <span className="badge">Každých {task.frequency_days} dní</span>
-            ) : null}
-            {task.specific_date ? <span className="badge">Jednorázově</span> : null}
-            <span className="badge type">{taskLabel(task.task_type)}</span>
-          </div>
-        </div>
-        <Icon name="chevronRight" size={16} className="task-row-chev" />
-      </div>
-      {(task.next_due || task.specific_date) && (
-        <SnoozeButton task={task} onSnoozed={onSnoozed} />
       )}
     </div>
   );

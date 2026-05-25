@@ -1070,3 +1070,223 @@ input[type="range"]::-moz-range-thumb {
 
 /* Selection */
 ::selection { background: rgba(74, 110, 87, 0.25); color: var(--ios-label); }
+
+/* ============================================================
+   Tasks redesign (BACKLOG: Tasks redesign)
+   iOS segmented control · Hotovo toggle · snooze action sheet
+   ============================================================ */
+
+/* Filter bar: segmented control + Hotovo history toggle */
+.tasks-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+
+.ios-segmented {
+  position: relative;
+  flex: 1;
+  display: flex;
+  background: var(--ios-fill);
+  border-radius: var(--ios-r-sm);
+  padding: 3px;
+  isolation: isolate;
+}
+.ios-seg-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  background: var(--ios-bg-elev);
+  border-radius: calc(var(--ios-r-sm) - 3px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  transition: transform 280ms var(--ios-spring);
+  z-index: 0;
+}
+.ios-seg-btn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 7px 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ios-label-secondary);
+  cursor: pointer;
+  border-radius: calc(var(--ios-r-sm) - 3px);
+  transition: color 200ms var(--ios-ease), transform 100ms var(--ios-ease);
+}
+.ios-seg-btn.active { color: var(--ios-label); }
+.ios-seg-btn:active { transform: scale(0.97); }
+
+.tasks-done-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  padding: 0 13px;
+  border: none;
+  border-radius: var(--ios-r-sm);
+  background: var(--ios-fill);
+  color: var(--ios-label-secondary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 180ms var(--ios-ease), color 180ms var(--ios-ease),
+              transform 100ms var(--ios-ease);
+}
+.tasks-done-toggle:active { transform: scale(0.96); }
+.tasks-done-toggle.active {
+  background: var(--ios-green);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.28);
+}
+.tasks-done-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+
+/* ---------- Swipe cell: snooze layer sits OUTSIDE the transformed/clipped
+   row so its action sheet (position:fixed) is not clipped or offset. ---------- */
+.task-swipe-cell { position: relative; }
+
+.ios-task-row.has-trailing { padding-right: 46px; }
+
+.task-snooze-layer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  transition: opacity 160ms var(--ios-ease);
+}
+.task-snooze-layer .snooze-btn {
+  width: 34px;
+  height: 34px;
+  background: var(--ios-fill);
+  border: none;
+  color: var(--ios-accent);
+}
+.task-snooze-layer .snooze-btn:hover {
+  background: var(--forest-soft);
+  color: var(--ios-accent-hover);
+}
+
+/* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
+.snooze-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.38);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: snooze-fade 200ms var(--ios-ease);
+}
+.snooze-sheet {
+  width: 100%;
+  max-width: 520px;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-2xl) var(--ios-r-2xl) 0 0;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.28);
+  animation: snooze-slide 320ms var(--ios-spring);
+}
+.snooze-sheet-grip {
+  width: 38px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ios-separator-opaque);
+  margin: 2px auto 10px;
+}
+.snooze-sheet-head { text-align: center; margin-bottom: 12px; }
+.snooze-sheet-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.02em;
+}
+.snooze-sheet-sub {
+  font-size: 0.82rem;
+  color: var(--ios-label-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.snooze-sheet-list {
+  background: var(--ios-fill-secondary);
+  border-radius: var(--ios-r-md);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.snooze-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ios-label);
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  transition: background 120ms var(--ios-ease);
+}
+.snooze-sheet-item + .snooze-sheet-item::before,
+.snooze-sheet-custom::before {
+  content: '';
+  position: absolute;
+  left: 46px;
+  right: 0;
+  top: 0;
+  height: 0.5px;
+  background: var(--ios-separator);
+}
+.snooze-sheet-item:active { background: var(--ios-fill); }
+.snooze-sheet-item:disabled { opacity: 0.5; cursor: default; }
+.snooze-sheet-item-ic { color: var(--ios-accent); flex-shrink: 0; }
+.snooze-sheet-custom { cursor: default; }
+.snooze-sheet-custom span { flex: 1; }
+.snooze-sheet-custom input[type="date"] {
+  border: none;
+  background: transparent;
+  color: var(--ios-accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0;
+}
+.snooze-sheet-cancel {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--ios-r-md);
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms var(--ios-ease);
+}
+.snooze-sheet-cancel:active { background: var(--ios-fill-secondary); }
+
+@keyframes snooze-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes snooze-slide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
