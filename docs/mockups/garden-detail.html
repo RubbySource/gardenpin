@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GardenPin · Detail zahrady</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: {
+    fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','"SF Pro Display"','"Inter"','system-ui','sans-serif'] },
+    colors: {
+      sage: {50:'#F2F6F0',100:'#E5EDE3',200:'#CBDBC7',300:'#A9C3A4',400:'#8DB089',500:'#7BA889',600:'#5F8C6E',700:'#4A6E57',800:'#38543F'},
+      brand:'var(--brand)','brand-strong':'var(--brand-strong)', cream:'var(--cream)', surface:'var(--surface)','surface-2':'var(--surface-2)',
+      label:'var(--label)','label-2':'var(--label-2)','label-3':'var(--label-3)', separator:'var(--separator)', fill:'var(--fill)',
+      'ios-blue':'#0A84FF','ios-red':'#FF3B30','ios-green':'#34C759','ios-orange':'#FF9500','ios-yellow':'#FFCC00'
+    },
+    borderRadius: { 'ios-sm':'8px','ios':'12px','ios-md':'16px','ios-lg':'20px','ios-xl':'24px' },
+    boxShadow: { 'ios-sm':'0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.02)','ios-card':'0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)','ios-md':'0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08)','ios-lg':'0 10px 40px rgba(0,0,0,0.12)' },
+    transitionTimingFunction: { 'spring':'cubic-bezier(0.22,1,0.36,1)','bounce':'cubic-bezier(0.34,1.56,0.64,1)' }
+  } }
+}
+</script>
+<style>
+  :root{ --brand:#7BA889; --brand-strong:#4A6E57; --cream:#FAF7F2; --surface:#FFFFFF; --surface-2:#F4F0E9; --label:#1C1C1E; --label-2:rgba(60,60,67,0.60); --label-3:rgba(60,60,67,0.32); --separator:rgba(60,60,67,0.10); --fill:rgba(120,120,128,0.12); }
+  .device.dark{ --brand:#8FC0A0; --brand-strong:#A9C3A4; --cream:#16181A; --surface:#1F2123; --surface-2:#2A2D30; --label:#F5F3EF; --label-2:rgba(235,235,245,0.62); --label-3:rgba(235,235,245,0.34); --separator:rgba(235,235,245,0.12); --fill:rgba(120,120,128,0.24); }
+  body{ background:#E8E6E1; }
+  .device{ width:393px; height:852px; background:var(--cream); position:relative; border-radius:55px; overflow:hidden; box-shadow:0 50px 100px -20px rgba(0,0,0,.35), 0 0 0 12px #1b1b1d, 0 0 0 13px #2c2c2e; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif; color:var(--label); letter-spacing:-0.01em; -webkit-font-smoothing:antialiased; }
+  .island{ position:absolute; top:11px; left:50%; transform:translateX(-50%); width:124px; height:35px; background:#000; border-radius:20px; z-index:60; }
+  .statusbar{ position:absolute; top:0; left:0; right:0; height:54px; display:flex; align-items:center; justify-content:space-between; padding:18px 32px 0; z-index:50; font-weight:600; font-size:15px; pointer-events:none; }
+  .screen{ position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; padding-top:0; scrollbar-width:none; }
+  .screen::-webkit-scrollbar{ display:none; }
+  .blur-bar{ background:color-mix(in srgb, var(--cream) 80%, transparent); -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px); }
+  .seg{ background:var(--fill); border-radius:9px; padding:2px; }
+  .seg button{ border-radius:7px; font-size:13px; font-weight:600; padding:6px 0; color:var(--label-2); transition:all .25s cubic-bezier(0.22,1,0.36,1); }
+  .seg button.active{ background:var(--surface); color:var(--label); box-shadow:0 1px 4px rgba(0,0,0,.12); }
+  .pin{ position:absolute; transform:translate(-50%,-100%); }
+  .pin-body{ width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,.3); border:2.5px solid #fff; }
+  .pin-body span{ transform:rotate(45deg); font-size:14px; }
+  .fade-up{ animation:fadeUp .5s cubic-bezier(0.22,1,0.36,1) both; } @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .caption{ font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center gap-5 py-12 px-4">
+
+  <div class="caption text-center max-w-md">
+    <div class="text-xs font-semibold tracking-widest text-neutral-500 uppercase">GardenPin · iOS Design System</div>
+    <h1 class="text-2xl font-bold text-neutral-800 mt-1">Detail zahrady / Garden Detail</h1>
+    <p class="text-sm text-neutral-500 mt-1">iOS header s back buttonem · interaktivní mapa s piny · segmented control Mapa / Seznam / Statistiky.</p>
+  </div>
+  <button onclick="document.querySelector('.device').classList.toggle('dark')" class="caption text-sm font-semibold px-4 py-2 rounded-full bg-white shadow ring-1 ring-black/5 active:scale-95 transition">☀️ / 🌙 Light · Dark</button>
+
+  <div class="device">
+    <div class="island"></div>
+    <div class="statusbar" style="color:var(--label)">
+      <span>9:41</span>
+      <span class="flex items-center gap-1.5">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".35"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.7 6.7 0 0 0 8.5 4.6 6.7 6.7 0 0 0 3.9 6.4L2.5 4.9A8.7 8.7 0 0 1 8.5 2.5Z"/><path d="M8.5 6.5c1.2 0 2.3.5 3.1 1.3L8.5 11 5.4 7.8A4.4 4.4 0 0 1 8.5 6.5Z"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="1" y="1" width="22" height="11" rx="3.2" stroke="currentColor" stroke-opacity=".4" stroke-width="1"/><rect x="2.5" y="2.5" width="17" height="8" rx="2" fill="currentColor"/><rect x="24.5" y="4" width="1.6" height="5" rx=".8" fill="currentColor" fill-opacity=".4"/></svg>
+      </span>
+    </div>
+
+    <!-- Sticky nav header -->
+    <div class="absolute top-0 inset-x-0 z-40 blur-bar pt-[54px] border-b" style="border-color:var(--separator)">
+      <div class="flex items-center justify-between px-2.5 pb-2.5">
+        <button class="flex items-center text-ios-blue text-[17px] font-medium active:opacity-60 transition">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+          Zahrady
+        </button>
+        <span class="text-[16px] font-semibold truncate">Zahrada u domu</span>
+        <button class="w-9 h-9 rounded-full bg-fill flex items-center justify-center text-brand-strong active:scale-90 transition">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="screen pb-10" style="padding-top:104px;">
+      <!-- MAP -->
+      <div class="px-4 fade-up">
+        <div class="relative rounded-ios-lg overflow-hidden shadow-ios-card" style="height:300px; background:linear-gradient(160deg,#EAF0E4,#D6E2C9);">
+          <!-- soil beds -->
+          <div class="absolute rounded-[14px]" style="left:24px; top:30px; width:150px; height:90px; background:linear-gradient(135deg,#C9A86A,#A8895180); box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);"></div>
+          <div class="absolute rounded-[14px]" style="right:22px; top:48px; width:120px; height:120px; background:linear-gradient(135deg,#B5C99A,#8DB08980); box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);"></div>
+          <div class="absolute rounded-[14px]" style="left:40px; bottom:28px; width:180px; height:80px; background:linear-gradient(135deg,#C9A86A,#A8895180); box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);"></div>
+          <!-- path -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 361 300" preserveAspectRatio="none"><path d="M0 150 C120 150 120 90 361 110" stroke="#FFFFFF80" stroke-width="14" fill="none" stroke-dasharray="2 16" stroke-linecap="round"/></svg>
+          <!-- pins -->
+          <div class="pin" style="left:70px; top:60px;"><div class="pin-body" style="background:#FF3B30;"><span>🍓</span></div></div>
+          <div class="pin" style="left:130px; top:95px;"><div class="pin-body" style="background:#7BA889;"><span>🌿</span></div></div>
+          <div class="pin" style="left:280px; top:90px;"><div class="pin-body" style="background:#FF9500;"><span>🍅</span></div></div>
+          <div class="pin" style="left:300px; top:150px;"><div class="pin-body" style="background:#34C759;"><span>🥬</span></div></div>
+          <div class="pin" style="left:110px; bottom:30px; top:auto;"><div class="pin-body" style="background:#AF52DE;"><span>🌷</span></div></div>
+          <!-- zoom controls -->
+          <div class="absolute top-3 right-3 bg-surface rounded-ios shadow-ios-sm overflow-hidden">
+            <button class="w-9 h-9 flex items-center justify-center text-[20px] font-light border-b" style="border-color:var(--separator)">+</button>
+            <button class="w-9 h-9 flex items-center justify-center text-[20px] font-light">−</button>
+          </div>
+          <!-- add pin hint -->
+          <div class="absolute bottom-3 left-3 right-3 flex items-center gap-2 text-[12px] font-medium text-white px-3 py-2 rounded-ios" style="background:rgba(0,0,0,.45); backdrop-filter:blur(8px);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Klepni na mapu pro přidání rostliny
+          </div>
+        </div>
+      </div>
+
+      <!-- Segmented control -->
+      <div class="px-4 mt-4 fade-up" style="animation-delay:.05s">
+        <div class="seg grid grid-cols-3">
+          <button class="active">Mapa</button>
+          <button>Seznam</button>
+          <button>Statistiky</button>
+        </div>
+      </div>
+
+      <!-- Pin list under map -->
+      <div class="px-4 mt-4 fade-up" style="animation-delay:.08s">
+        <div class="flex items-center justify-between px-1 mb-2">
+          <h2 class="text-[17px] font-bold">Rostliny na mapě</h2>
+          <span class="text-[13px] font-semibold text-label-2">12</span>
+        </div>
+        <div class="bg-surface rounded-ios-lg shadow-ios-card overflow-hidden">
+          <div class="flex items-center gap-3 p-3.5">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-[18px] flex-none" style="background:rgba(255,59,48,.14)">🍓</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[16px] font-semibold">Jahody záhon B</div>
+              <div class="text-[13px] text-label-2">Jahodník · 1 úkol po termínu</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-ios-red"></span>
+            <span class="text-label-3 text-xl">›</span>
+          </div>
+          <div class="h-px bg-separator ml-[62px]"></div>
+          <div class="flex items-center gap-3 p-3.5">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-[18px] flex-none" style="background:rgba(255,149,0,.16)">🍅</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[16px] font-semibold">Rajče Black Krim</div>
+              <div class="text-[13px] text-label-2">Rajče · zálivka dnes</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-ios-orange"></span>
+            <span class="text-label-3 text-xl">›</span>
+          </div>
+          <div class="h-px bg-separator ml-[62px]"></div>
+          <div class="flex items-center gap-3 p-3.5">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-[18px] flex-none" style="background:rgba(123,168,137,.2)">🌿</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[16px] font-semibold">Levandule u zídky</div>
+              <div class="text-[13px] text-label-2">Levandule · vše v pořádku</div>
+            </div>
+            <span class="text-label-3 text-xl">›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption text-xs text-neutral-400 mt-1">Tab „Mapa" aktivní · segmented control přepíná na Seznam / Statistiky · 393 × 852</p>
+</body>
+</html>

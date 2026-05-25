@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GardenPin · iOS Mockupy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased; letter-spacing:-0.01em; }
+  .swatch{ width:100%; aspect-ratio:1; border-radius:14px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+</style>
+</head>
+<body class="bg-[#EFEDE7] text-neutral-800">
+  <div class="max-w-5xl mx-auto px-6 py-14">
+
+    <!-- Hero -->
+    <header class="text-center mb-12">
+      <div class="inline-flex items-center gap-2 text-sm font-semibold tracking-widest uppercase text-[#4A6E57]">
+        <span class="text-2xl">📍</span> GardenPin
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-[-0.03em] mt-3">iOS Design System</h1>
+      <p class="text-lg text-neutral-500 mt-3 max-w-xl mx-auto">Moderní iOS 17/18 vizuální jazyk pro zahradnickou aplikaci. Sage zelená + cream, SF Pro typografie, spring animace, light &amp; dark.</p>
+      <a href="../design-system.md" class="inline-block mt-5 text-sm font-semibold text-[#4A6E57] underline underline-offset-4">Otevřít design-system.md →</a>
+    </header>
+
+    <!-- Palette -->
+    <section class="bg-white rounded-3xl p-7 shadow-sm mb-10">
+      <h2 class="text-xl font-bold mb-5">Paleta</h2>
+      <div class="grid grid-cols-4 sm:grid-cols-8 gap-3 mb-6">
+        <div><div class="swatch" style="background:#F2F6F0"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">50</div></div>
+        <div><div class="swatch" style="background:#E5EDE3"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">100</div></div>
+        <div><div class="swatch" style="background:#CBDBC7"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">200</div></div>
+        <div><div class="swatch" style="background:#A9C3A4"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">300</div></div>
+        <div><div class="swatch" style="background:#8DB089"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">400</div></div>
+        <div><div class="swatch ring-2 ring-offset-2 ring-[#4A6E57]" style="background:#7BA889"></div><div class="text-[11px] mt-1.5 text-center font-semibold text-neutral-500">500 brand</div></div>
+        <div><div class="swatch" style="background:#5F8C6E"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">600</div></div>
+        <div><div class="swatch" style="background:#4A6E57"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">700</div></div>
+      </div>
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+        <div><div class="swatch ring-1 ring-black/5" style="background:#FAF7F2"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">cream</div></div>
+        <div><div class="swatch ring-1 ring-black/5" style="background:#FFFFFF"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">surface</div></div>
+        <div><div class="swatch" style="background:#0A84FF"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">blue</div></div>
+        <div><div class="swatch" style="background:#34C759"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">green</div></div>
+        <div><div class="swatch" style="background:#FF9500"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">orange</div></div>
+        <div><div class="swatch" style="background:#FF3B30"></div><div class="text-[11px] mt-1.5 text-center text-neutral-400">red</div></div>
+      </div>
+    </section>
+
+    <!-- Screens -->
+    <h2 class="text-xl font-bold mb-5 px-1">Obrazovky</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <a href="home.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#E3EBDE,#8DB089)">🏠</div>
+        <div class="font-bold text-lg">Přehled</div>
+        <div class="text-sm text-neutral-500">Large title, „Dnes" widget, statistiky, modulární karty</div>
+      </a>
+      <a href="gardens.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#F0E6D2,#C9A86A)">🗺️</div>
+        <div class="font-bold text-lg">Zahrady</div>
+        <div class="text-sm text-neutral-500">Hero karty, status chipy, swipe-to-action</div>
+      </a>
+      <a href="garden-detail.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#EAF0E4,#D6E2C9)">📌</div>
+        <div class="font-bold text-lg">Detail zahrady</div>
+        <div class="text-sm text-neutral-500">Back header, mapa s piny, segmented control</div>
+      </a>
+      <a href="pin-detail.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#E3EBDE,#A9C3A4)">🍅</div>
+        <div class="font-bold text-lg">Detail rostliny</div>
+        <div class="text-sm text-neutral-500">Bottom sheet, fotky, úkony, choroby &amp; škůdci</div>
+      </a>
+      <a href="tasks.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#DCEFE0,#7BA889)">✅</div>
+        <div class="font-bold text-lg">Úkoly</div>
+        <div class="text-sm text-neutral-500">Segmented Dnes/Týden/Vše, checkboxy, swipe akce</div>
+      </a>
+      <a href="settings.html" class="group block bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="h-28 rounded-2xl mb-4 flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#E8DCEF,#C3A9D6)">⚙️</div>
+        <div class="font-bold text-lg">Nastavení</div>
+        <div class="text-sm text-neutral-500">Grouped list, toggle switche, červená zóna</div>
+      </a>
+    </div>
+
+    <footer class="text-center text-xs text-neutral-400 mt-12">
+      Self-contained HTML · Tailwind CDN · light/dark přepínač uvnitř každého náhledu · 393 × 852 (iPhone 15/16)
+    </footer>
+  </div>
+</body>
+</html>
