@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
-import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskIcon, taskLabel } from '../utils.js';
+import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskLabel, taskIconName } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
+import Icon from '../components/Icon.jsx';
 
 // Tab keys odrážejí URL hash; pořadí = pořadí v tab baru.
 const PD_TABS = ['ukony', 'pece', 'fotky', 'info'];
@@ -60,6 +61,25 @@ export default function PinDetail({ pinId, onClose }) {
   const sheetRef = useRef(null);
   const lastScrollY = useRef(0);
   const [headerShown, setHeaderShown] = useState(false);
+
+  // Drag-to-dismiss: tah za grip handle dolů zavře sheet (iOS gesto).
+  const [drag, setDrag] = useState({ y: 0, dragging: false, released: false });
+  const gripStartY = useRef(null);
+  const dragY = useRef(0);
+  const onGripStart = (e) => { gripStartY.current = e.touches[0].clientY; };
+  const onGripMove = (e) => {
+    if (gripStartY.current == null) return;
+    const dy = Math.max(0, e.touches[0].clientY - gripStartY.current);
+    dragY.current = dy;
+    setDrag({ y: dy, dragging: true, released: false });
+  };
+  const onGripEnd = () => {
+    if (gripStartY.current == null) return;
+    gripStartY.current = null;
+    if (dragY.current > 90) { onClose(); return; }
+    dragY.current = 0;
+    setDrag({ y: 0, dragging: false, released: true });
+  };
 
   const load = async () => {
     try {
@@ -171,15 +191,30 @@ export default function PinDetail({ pinId, onClose }) {
   const icon = categoryIcon(plant);
   const since = daysSince(pin.planting_date);
 
+  const sheetStyle = (drag.dragging || drag.released)
+    ? { transform: `translateY(${drag.y}px)`, transition: drag.dragging ? 'none' : 'transform 0.32s var(--ios-spring)' }
+    : undefined;
+
   return (
     <div className="pd-backdrop" onClick={onClose}>
       <div
         className="pd-sheet"
         ref={sheetRef}
+        style={sheetStyle}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
+        {/* Grip handle — tah dolů zavře sheet (iOS bottom-sheet gesto) */}
+        <div
+          className="pd-grip-zone"
+          onTouchStart={onGripStart}
+          onTouchMove={onGripMove}
+          onTouchEnd={onGripEnd}
+        >
+          <div className="pd-grip" aria-hidden="true" />
+        </div>
+
         {/* Sticky compact header — vrátí se při scrollu nahoru */}
         <div className={`pd-sticky-header ${headerShown ? 'shown' : ''}`}>
           <button className="pd-back-sticky" onClick={onClose} aria-label="Zpět">‹</button>
@@ -289,67 +324,78 @@ function TabBtn({ id, active, onSelect, children }) {
   );
 }
 
-// ===================== Úkony tab =====================
+// ===================== Úkony tab — iOS grouped list + choroby & škůdci =====================
 function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
-  if (pin.tasks.length === 0) {
-    return (
-      <div className="pd-empty">
-        <span className="pd-empty-icon">✅</span>
-        <div className="pd-empty-text">Žádné úkony. Přidejte zálivku, hnojení, sklizeň…</div>
-      </div>
-    );
-  }
+  const hasTasks = pin.tasks.length > 0;
   return (
     <div>
-      {pin.tasks.map((t) => {
-        const badge = dueBadge(t.next_due);
-        const cls = badge?.cls || '';
-        return (
-          <div key={t.id} className={`pd-task-card ${cls}`}>
-            <span className="pd-task-icon" aria-hidden="true">{taskIcon(t.task_type)}</span>
-            <div className="pd-task-body">
-              <div className="pd-task-title">{t.title}</div>
-              <div className="pd-task-meta">
-                {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-                {t.frequency_days ? <span>Každých {t.frequency_days} dní</span> : null}
-                {t.specific_date && !t.frequency_days ? <span>Jednorázově</span> : null}
+      {hasTasks ? (
+        <div className="pd-task-list">
+          {pin.tasks.map((t) => {
+            const badge = dueBadge(t.next_due);
+            const cls = badge?.cls ? `is-${badge.cls}` : '';
+            const canSnooze = t.next_due || t.specific_date;
+            return (
+              <div key={t.id} className={`pd-task-row ${cls}`}>
+                <button
+                  type="button"
+                  className="pd-task-check"
+                  onClick={() => onComplete(t)}
+                  aria-label="Splnit úkon"
+                  title="Splnit"
+                >
+                  <Icon name="check" size={15} stroke={2.5} />
+                </button>
+                <span className="pd-task-ic" aria-hidden="true">
+                  <Icon name={taskIconName(t.task_type)} size={16} />
+                </span>
+                <div className="pd-task-main">
+                  <div className="pd-task-name">{t.title}</div>
+                  <div className="pd-task-sub">
+                    {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
+                    {t.frequency_days ? <span className="badge">Každých {t.frequency_days} dní</span> : null}
+                    {t.specific_date && !t.frequency_days ? <span className="badge">Jednorázově</span> : null}
+                    <span className="badge type">{taskLabel(t.task_type)}</span>
+                  </div>
+                </div>
+                <div className="pd-task-trailing">
+                  {canSnooze && <SnoozeButton task={t} onSnoozed={onSnoozed} compact />}
+                  <button
+                    type="button"
+                    className="pd-task-mini"
+                    onClick={() => onEdit(t)}
+                    aria-label="Upravit úkon"
+                    title="Upravit"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    type="button"
+                    className="pd-task-mini danger"
+                    onClick={() => onDelete(t)}
+                    aria-label="Smazat úkon"
+                    title="Smazat"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="pd-task-actions">
-              {(t.next_due || t.specific_date) && (
-                <SnoozeButton task={t} onSnoozed={onSnoozed} compact />
-              )}
-              <button
-                type="button"
-                className="pd-task-edit"
-                onClick={() => onEdit(t)}
-                aria-label="Upravit úkon"
-                title="Upravit"
-              >
-                ✏️
-              </button>
-              <button
-                type="button"
-                className="pd-task-delete"
-                onClick={() => onDelete(t)}
-                aria-label="Smazat úkon"
-                title="Smazat"
-              >
-                🗑️
-              </button>
-              <button
-                type="button"
-                className="pd-task-complete"
-                onClick={() => onComplete(t)}
-                aria-label="Splnit"
-                title="Splnit"
-              >
-                ✓
-              </button>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      ) : (
+        <div className="pd-empty">
+          <span className="pd-empty-icon">✅</span>
+          <div className="pd-empty-text">Žádné úkony. Přidejte hnojení, stříhání nebo přesazení přes ＋.</div>
+        </div>
+      )}
+
+      {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
+      {pin.plant_name && (
+        <div className="pd-warnings-section">
+          <PlantWarnings plantName={pin.plant_name} />
+        </div>
+      )}
     </div>
   );
 }
@@ -491,13 +537,6 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Choroby / škůdci */}
-      {pin.plant_name && (
-        <div className="pd-section">
-          <PlantWarnings plantName={pin.plant_name} />
         </div>
       )}
 
@@ -1045,13 +1084,13 @@ function PhotoGallery({ pinId }) {
       ) : photos.length === 0 ? (
         <div className="empty small">Zatím žádné fotky. Přidejte první fotku rostliny.</div>
       ) : (
-        <div className="photo-grid">
-          {photos.map((p) => (
+        <div className="pd-photo-strip">
+          {photos.map((p, i) => (
             <button
               key={p.id}
               type="button"
-              className="photo-thumb"
-              onClick={() => setLightbox(p)}
+              className="pd-photo-cell"
+              onClick={() => setLightbox(i)}
               aria-label="Zobrazit fotku"
             >
               <img src={p.url} alt={p.caption || 'Fotka rostliny'} loading="lazy" />
@@ -1060,35 +1099,150 @@ function PhotoGallery({ pinId }) {
         </div>
       )}
 
-      {lightbox && (
+      {lightbox != null && photos[lightbox] && (
         <div
-          className="photo-lightbox"
+          className="photo-lightbox pd-lightbox"
           onClick={() => setLightbox(null)}
           role="dialog"
           aria-modal="true"
         >
-          <div className="photo-lightbox-inner" onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox.url} alt={lightbox.caption || ''} />
-            <div className="photo-lightbox-bar">
-              <div className="small muted">
-                {lightbox.uploaded_at ? formatDateTime(lightbox.uploaded_at) : ''}
-              </div>
-              <div className="row" style={{ gap: 8 }}>
-                <button
-                  className="btn danger small"
-                  onClick={() => handleDelete(lightbox)}
-                >
-                  🗑️ Smazat
-                </button>
-                <button className="btn ghost small" onClick={() => setLightbox(null)}>
-                  Zavřít
-                </button>
-              </div>
+          <button
+            type="button"
+            className="pd-lb-close"
+            onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+            aria-label="Zavřít"
+          >
+            ✕
+          </button>
+
+          {photos.length > 1 && (
+            <button
+              type="button"
+              className="pd-lb-nav prev"
+              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length); }}
+              aria-label="Předchozí"
+            >
+              ‹
+            </button>
+          )}
+
+          <div className="pd-lb-stage" onClick={(e) => e.stopPropagation()}>
+            <PinchImage
+              key={photos[lightbox].id}
+              src={photos[lightbox].url}
+              alt={photos[lightbox].caption || ''}
+            />
+          </div>
+
+          {photos.length > 1 && (
+            <button
+              type="button"
+              className="pd-lb-nav next"
+              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}
+              aria-label="Další"
+            >
+              ›
+            </button>
+          )}
+
+          <div className="pd-lb-bar" onClick={(e) => e.stopPropagation()}>
+            <div className="small muted">
+              {photos[lightbox].uploaded_at ? formatDateTime(photos[lightbox].uploaded_at) : ''}
+              {photos.length > 1 ? ` · ${lightbox + 1}/${photos.length}` : ''}
             </div>
+            <button className="btn danger small" onClick={() => handleDelete(photos[lightbox])}>
+              🗑️ Smazat
+            </button>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+// Obrázek v lightboxu s pinch-zoom (dva prsty), pan při přiblížení a double-tap zoom.
+function PinchImage({ src, alt }) {
+  const imgRef = useRef(null);
+  const st = useRef({ scale: 1, x: 0, y: 0, startDist: 0, startScale: 1, panX: 0, panY: 0, lastTap: 0, mode: null });
+  const [view, setView] = useState({ scale: 1, x: 0, y: 0, animating: false });
+
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el) return;
+    const s = st.current;
+    const distOf = (touches) =>
+      Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+    const set = (scale, x, y, animating = false) => {
+      const sc = Math.max(1, Math.min(4, scale));
+      if (sc === 1) { x = 0; y = 0; }
+      s.scale = sc; s.x = x; s.y = y;
+      setView({ scale: sc, x, y, animating });
+    };
+    const onStart = (e) => {
+      if (e.touches.length === 2) {
+        s.mode = 'pinch';
+        s.startDist = distOf(e.touches);
+        s.startScale = s.scale;
+      } else if (e.touches.length === 1) {
+        const now = Date.now();
+        if (now - s.lastTap < 280) {
+          set(s.scale > 1 ? 1 : 2.5, 0, 0, true);
+          s.lastTap = 0;
+          s.mode = null;
+          e.preventDefault();
+          return;
+        }
+        s.lastTap = now;
+        if (s.scale > 1) {
+          s.mode = 'pan';
+          s.panX = e.touches[0].clientX - s.x;
+          s.panY = e.touches[0].clientY - s.y;
+        } else {
+          s.mode = null;
+        }
+      }
+    };
+    const onMove = (e) => {
+      if (s.mode === 'pinch' && e.touches.length === 2) {
+        e.preventDefault();
+        const ratio = distOf(e.touches) / (s.startDist || 1);
+        set(s.startScale * ratio, s.x, s.y);
+      } else if (s.mode === 'pan' && e.touches.length === 1) {
+        e.preventDefault();
+        set(s.scale, e.touches[0].clientX - s.panX, e.touches[0].clientY - s.panY);
+      }
+    };
+    const onEnd = (e) => { if (e.touches.length === 0) s.mode = null; };
+    el.addEventListener('touchstart', onStart, { passive: false });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd);
+    return () => {
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onEnd);
+    };
+  }, []);
+
+  const onDoubleClick = () => {
+    const s = st.current;
+    const sc = s.scale > 1 ? 1 : 2.5;
+    s.scale = sc; s.x = 0; s.y = 0;
+    setView({ scale: sc, x: 0, y: 0, animating: true });
+  };
+
+  return (
+    <img
+      ref={imgRef}
+      className="pd-lb-img"
+      src={src}
+      alt={alt}
+      draggable={false}
+      onDoubleClick={onDoubleClick}
+      style={{
+        transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
+        transition: view.animating ? 'transform 0.22s var(--ios-ease)' : 'none',
+      }}
+    />
   );
 }
 

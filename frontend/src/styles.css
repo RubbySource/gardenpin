@@ -5176,19 +5176,45 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   z-index: 1000;
   display: flex;
   justify-content: center;
-  align-items: stretch;
+  align-items: flex-end;
+  animation: pd-fade 0.22s var(--ios-ease, ease);
 }
+@keyframes pd-fade { from { opacity: 0; } to { opacity: 1; } }
 
 .pd-sheet {
   position: relative;
   width: 100%;
   max-width: 720px;
+  max-height: 94vh;
   background: var(--card);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 44px rgba(0, 0, 0, 0.30);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
+  animation: pd-sheet-up 0.36s var(--ios-spring, cubic-bezier(0.22, 1, 0.36, 1));
+}
+@keyframes pd-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Grip handle — drag-to-dismiss zone (top of sheet, scrolls away) */
+.pd-grip-zone {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+  background: var(--card);
+  touch-action: none;
+  cursor: grab;
+}
+.pd-grip {
+  width: 38px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ios-separator-opaque, #c6c6c8);
 }
 
 .pd-sticky-header {
@@ -5404,61 +5430,97 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   word-break: break-word;
 }
 
-.pd-task-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* Úkony jako iOS grouped list (jeden card, řádky s hairline) */
+.pd-task-list {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  transition: transform 0.05s ease;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  margin-bottom: 18px;
 }
-.pd-task-card.is-overdue { border-color: var(--danger, #c0392b); background: rgba(192, 57, 43, 0.04); }
-.pd-task-card.is-today   { border-color: var(--warning, #f39c12); background: rgba(243, 156, 18, 0.05); }
-.pd-task-icon { font-size: 1.35rem; flex-shrink: 0; }
-.pd-task-body { flex: 1; min-width: 0; }
-.pd-task-title {
+.pd-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  position: relative;
+  transition: background 0.15s ease;
+}
+.pd-task-row + .pd-task-row::before {
+  content: '';
+  position: absolute;
+  left: 52px;
+  right: 0;
+  top: 0;
+  height: 0.5px;
+  background: var(--border);
+}
+.pd-task-row.is-overdue { box-shadow: inset 3px 0 0 var(--danger, #c0392b); }
+.pd-task-row.is-today   { box-shadow: inset 3px 0 0 var(--warning, #f39c12); }
+.pd-task-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  transition: background 0.15s, color 0.15s, transform 0.08s;
+}
+.pd-task-check:active { transform: scale(0.9); background: var(--primary); color: #fff; }
+.pd-task-ic {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--forest-soft, rgba(123, 168, 137, 0.12));
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.pd-task-main { flex: 1; min-width: 0; }
+.pd-task-name {
   font-weight: 600;
   font-size: 0.95rem;
-  margin-bottom: 3px;
   letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  word-break: break-word;
 }
-.pd-task-meta {
-  font-size: 0.78rem;
-  color: var(--text-dim);
+.pd-task-sub {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
 }
-.pd-task-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-.pd-task-complete {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
-  font-size: 1.05rem;
-  cursor: pointer;
-  display: inline-flex;
+.pd-task-sub .badge.type { background: var(--sand); color: var(--charcoal); }
+.pd-task-trailing {
+  display: flex;
+  gap: 2px;
   align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s, transform 0.08s;
+  flex-shrink: 0;
 }
-.pd-task-complete:active { transform: scale(0.92); background: var(--primary); color: #fff; }
-.pd-task-edit, .pd-task-delete {
+.pd-task-mini {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
   padding: 6px;
   border-radius: 50%;
+  line-height: 1;
 }
-.pd-task-edit:active, .pd-task-delete:active { background: var(--border); }
+.pd-task-mini:active { background: var(--border); }
+
+/* Choroby & škůdci pod úkony */
+.pd-warnings-section { margin-bottom: 6px; }
 
 .pd-section { margin-bottom: 18px; }
 .pd-section-title {
@@ -5506,22 +5568,123 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
 .pd-empty-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
 .pd-empty-text { font-size: 0.92rem; }
 
-.pd-content .photo-grid {
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+/* Fotky — horizontální scroll strip */
+.pd-photo-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 8px;
+  margin: 0 -2px;
 }
-.pd-content .photo-thumb {
-  aspect-ratio: 1;
-  border-radius: 12px;
+.pd-photo-strip::-webkit-scrollbar { height: 0; }
+.pd-photo-cell {
+  flex: 0 0 auto;
+  width: 150px;
+  height: 150px;
+  scroll-snap-align: start;
+  border: none;
+  padding: 0;
+  border-radius: 16px;
   overflow: hidden;
-  background: var(--green-50);
+  background: var(--green-50, var(--sand));
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s ease;
 }
-.pd-content .photo-thumb img {
-  width: 100%; height: 100%; object-fit: cover;
+.pd-photo-cell:active { transform: scale(0.97); }
+.pd-photo-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Lightbox s pinch-zoom */
+.pd-lightbox {
+  flex-direction: column;
+  touch-action: none;
 }
+.pd-lb-stage {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.pd-lb-img {
+  max-width: 96vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #000;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.pd-lb-close {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top, 0px));
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.pd-lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.pd-lb-nav.prev { left: 12px; }
+.pd-lb-nav.next { right: 12px; }
+.pd-lb-bar {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px calc(12px + env(safe-area-inset-bottom, 0px));
+  color: #fff;
+}
+.pd-lb-bar .muted { color: rgba(255, 255, 255, 0.72); }
 
 @media (min-width: 720px) {
-  .pd-sheet { margin: 20px auto; max-height: calc(100vh - 40px); border-radius: 18px; }
+  .pd-backdrop { align-items: center; }
+  .pd-sheet {
+    margin: 0 auto;
+    max-height: calc(100vh - 48px);
+    border-radius: 22px;
+    animation: pd-sheet-pop 0.3s var(--ios-spring, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+}
+@keyframes pd-sheet-pop {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 
 /* ============================================================
