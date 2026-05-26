@@ -10,6 +10,7 @@ import Modal from '../components/Modal.jsx';
 import Icon from '../components/Icon.jsx';
 import PinDetail from './PinDetail.jsx';
 import MembersModal from '../components/MembersModal.jsx';
+import BulkCareModal from '../components/BulkCareModal.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
@@ -57,6 +58,7 @@ export default function GardenDetailPage() {
   const [showShare, setShowShare] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
+  const [showBulkCare, setShowBulkCare] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   const mapInputRef = useRef(null);
   // Redesign: segmented control (Mapa / Seznam / Statistiky) + akční menu v hlavičce
@@ -456,6 +458,9 @@ export default function GardenDetailPage() {
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowMembers(true); }}>
                 {t('gardenDetail.menuMembers')}
+              </button>
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowBulkCare(true); }}>
+                {t('gardenDetail.menuBulkCare')}
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowCalendar(true); }}>
                 {t('gardenDetail.menuCalendar')}
@@ -1008,6 +1013,15 @@ export default function GardenDetailPage() {
         <MembersModal
           garden={garden}
           onClose={() => setShowMembers(false)}
+        />
+      )}
+
+      {showBulkCare && (
+        <BulkCareModal
+          garden={garden}
+          pins={pins}
+          onClose={() => setShowBulkCare(false)}
+          onCreated={() => load()}
         />
       )}
 
