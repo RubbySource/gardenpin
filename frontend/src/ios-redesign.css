@@ -1270,6 +1270,68 @@ html[data-theme="dark"] .frost-alert-badge {
   color: #cfe4ff;
 }
 
+/* ---------- Promeškané sezónní okno (⏳ okno zmeškáno) ---------- */
+.season-window-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.season-window-alert.compact {
+  margin-top: 6px;
+}
+.season-window-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbe6c8, #fff3e0);
+  border: 1px solid #e0a35c;
+  color: #8a4b12;
+  white-space: nowrap;
+}
+.season-window-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--separator);
+  background: var(--fill);
+  color: var(--label);
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.season-window-btn.primary {
+  border-color: var(--brand-action);
+  background: var(--brand-action);
+  color: #fff;
+}
+.season-window-btn.danger {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ios-red);
+}
+.season-window-btn:active {
+  transform: scale(0.96);
+}
+.season-window-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.season-window-alert.compact .season-window-badge,
+.season-window-alert.compact .season-window-btn {
+  font-size: 0.68rem;
+}
+html[data-theme="dark"] .season-window-badge {
+  background: linear-gradient(135deg, #3a2c16, #2c2110);
+  border-color: #6b4a1e;
+  color: #f2d3a0;
+}
+
 /* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
 .snooze-sheet-overlay {
   position: fixed;

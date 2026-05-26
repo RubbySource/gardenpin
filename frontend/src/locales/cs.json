@@ -845,6 +845,17 @@
     "postponed": "❄️ Odloženo za mráz na {{date}}",
     "postponeFailed": "Odložení selhalo: {{msg}}"
   },
+  "seasonWindow": {
+    "badge": "Okno zmeškáno",
+    "tooltip": "Sezónní okno pro tento úkon už skončilo — přesuň ho na příští sezónu, nebo ho ještě stihni teď.",
+    "moveNextYear": "Přesunout na příští rok",
+    "moving": "Přesouvám…",
+    "moved": "🗓️ Přesunuto na {{date}}",
+    "doNow": "Stihnout teď",
+    "cancel": "Zrušit úkol",
+    "cancelled": "🗑️ Úkol zrušen",
+    "actionFailed": "Akce selhala: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Načítám počasí…",
     "prague": "Praha",

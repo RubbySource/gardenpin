@@ -13,6 +13,7 @@ import SeasonStats from '../components/SeasonStats.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import Icon from '../components/Icon.jsx';
 import FrostWarning from '../components/FrostWarning.jsx';
+import SeasonWindowWarning from '../components/SeasonWindowWarning.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
@@ -363,6 +364,7 @@ function HomeTaskRow({ task, forecast, onComplete, onPostponed }) {
           {task.garden_name ? ` · ${task.garden_name}` : ''}
         </div>
         <FrostWarning task={task} forecast={forecast} onPostponed={onPostponed} compact />
+        <SeasonWindowWarning task={task} onResolved={onPostponed} compact />
       </div>
       {badge && <span className={`hm-task-badge ${badge.cls}`}>{badge.text}</span>}
     </div>

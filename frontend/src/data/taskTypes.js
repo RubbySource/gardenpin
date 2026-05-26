@@ -6,21 +6,26 @@
 //   - iCal filtr (anglické klíče pruning/fertilizing…)
 //
 // Každý typ nese: id (kanonický task_type v DB), label (cs), icon (emoji),
-// iconName (název SVG ikony v components/Icon.jsx) a icalCategory (do jaké iCal kategorie spadá).
+// iconName (název SVG ikony v components/Icon.jsx), icalCategory (do jaké iCal kategorie spadá)
+// a windowDays (jak dlouho po termínu má sezónní úkon ještě smysl — práh pro „okno zmeškáno";
+// rychlé akce mají krátké okno, řez/výsadba delší — viz seasonWindow.js).
 //
 // POZN. backend (backend/server.js → ICAL_TYPE_FILTERS) zrcadlí icalCategory + id;
 // při změně typů drž backend v souladu.
 
 export const TASK_TYPES = [
-  { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null },
-  { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing' },
-  { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning' },
-  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting', frostSensitive: true },
-  { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null },
-  { id: 'sklizen',   label: 'Sklizeň',   icon: '🧺', iconName: 'leaf',     icalCategory: 'harvest' },
-  { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null },
-  { id: 'jine',      label: 'Jiné',      icon: '📋', iconName: 'leaf',     icalCategory: null },
+  { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null,          windowDays: 14 },
+  { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing', windowDays: 30 },
+  { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning',     windowDays: 45 },
+  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting',    windowDays: 45, frostSensitive: true },
+  { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null,          windowDays: 14 },
+  { id: 'sklizen',   label: 'Sklizeň',   icon: '🧺', iconName: 'leaf',     icalCategory: 'harvest',     windowDays: 14 },
+  { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null,          windowDays: 21 },
+  { id: 'jine',      label: 'Jiné',      icon: '📋', iconName: 'leaf',     icalCategory: null,          windowDays: 21 },
 ];
+
+// Výchozí délka sezónního okna (dny) pro neznámý/nenamapovaný task_type.
+export const DEFAULT_WINDOW_DAYS = 21;
 
 const BY_ID = new Map(TASK_TYPES.map((t) => [t.id, t]));
 
@@ -58,6 +63,12 @@ export function taskTypeFromEmoji(emoji) {
 // proto u nich Tasks/Home ukazují mrazové varování + nabídku přeplánování (viz frost.js).
 export function isFrostSensitiveType(type) {
   return !!BY_ID.get(type)?.frostSensitive;
+}
+
+// Délka sezónního okna (dny) daného task_type — po jejím překročení po termínu
+// považujeme sezónní okno za promeškané (viz seasonWindow.js).
+export function windowDaysForType(type) {
+  return BY_ID.get(type)?.windowDays ?? DEFAULT_WINDOW_DAYS;
 }
 
 // iCal kategorie pro filtr odběru kalendáře (key v URL `types=` ↔ label v UI).

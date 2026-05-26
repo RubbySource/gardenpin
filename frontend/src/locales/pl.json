@@ -889,6 +889,17 @@
     "postponed": "❄️ Przełożono po mrozie na {{date}}",
     "postponeFailed": "Przełożenie nie powiodło się: {{msg}}"
   },
+  "seasonWindow": {
+    "badge": "Termin minął",
+    "tooltip": "Sezonowe okno tej czynności już minęło — przenieś ją na następny sezon albo wykonaj ją teraz.",
+    "moveNextYear": "Przenieś na przyszły rok",
+    "moving": "Przenoszę…",
+    "moved": "🗓️ Przeniesiono na {{date}}",
+    "doNow": "Zrób to teraz",
+    "cancel": "Anuluj zadanie",
+    "cancelled": "🗑️ Zadanie anulowane",
+    "actionFailed": "Akcja nie powiodła się: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Ładuję pogodę…",
     "prague": "Praga",

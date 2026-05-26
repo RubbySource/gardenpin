@@ -795,6 +795,17 @@
     "postponed": "❄️ Auf {{date}} nach dem Frost verschoben",
     "postponeFailed": "Verschieben fehlgeschlagen: {{msg}}"
   },
+  "seasonWindow": {
+    "badge": "Zeitfenster verpasst",
+    "tooltip": "Das saisonale Zeitfenster für diese Aufgabe ist bereits vorbei — verschieben Sie sie in die nächste Saison oder erledigen Sie sie jetzt.",
+    "moveNextYear": "Auf nächstes Jahr verschieben",
+    "moving": "Wird verschoben…",
+    "moved": "🗓️ Auf {{date}} verschoben",
+    "doNow": "Jetzt erledigen",
+    "cancel": "Aufgabe verwerfen",
+    "cancelled": "🗑️ Aufgabe verworfen",
+    "actionFailed": "Aktion fehlgeschlagen: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Wetter wird geladen…",
     "prague": "Prag",

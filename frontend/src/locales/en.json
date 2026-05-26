@@ -795,6 +795,17 @@
     "postponed": "❄️ Postponed past frost to {{date}}",
     "postponeFailed": "Postpone failed: {{msg}}"
   },
+  "seasonWindow": {
+    "badge": "Window missed",
+    "tooltip": "The seasonal window for this task has already passed — move it to next season, or still do it now.",
+    "moveNextYear": "Move to next year",
+    "moving": "Moving…",
+    "moved": "🗓️ Moved to {{date}}",
+    "doNow": "Do it now",
+    "cancel": "Cancel task",
+    "cancelled": "🗑️ Task cancelled",
+    "actionFailed": "Action failed: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Loading weather…",
     "prague": "Prague",

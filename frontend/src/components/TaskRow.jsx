@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from './Icon.jsx';
 import SnoozeButton from './SnoozeButton.jsx';
 import FrostWarning from './FrostWarning.jsx';
+import SeasonWindowWarning from './SeasonWindowWarning.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
 import { dueBadge, taskLabel, taskIconName } from '../utils.js';
 
@@ -91,6 +92,7 @@ export default function TaskRow({
               )}
             </div>
             <FrostWarning task={task} forecast={forecast} onPostponed={onSnoozed} />
+            <SeasonWindowWarning task={task} onResolved={onSnoozed} />
           </div>
         </div>
       </div>
