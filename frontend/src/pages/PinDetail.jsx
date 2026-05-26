@@ -61,6 +61,7 @@ export default function PinDetail({ pinId, onClose }) {
   const [editing, setEditing] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [members, setMembers] = useState([]); // členové zahrady (pro přiřazení úkolů)
 
   // Sticky header se objeví, když uživatel posune scroll dolů (a zmizí při zpětném scrollu).
   const sheetRef = useRef(null);
@@ -90,6 +91,7 @@ export default function PinDetail({ pinId, onClose }) {
     try {
       const p = await api.getPin(pinId);
       setPin(p);
+      if (p.garden_id) api.listMembers(p.garden_id).then(setMembers).catch(() => {});
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     } finally {
@@ -296,6 +298,7 @@ export default function PinDetail({ pinId, onClose }) {
         {showNewTask && (
           <NewTaskForm
             pinId={pin.id}
+            members={members}
             onClose={() => setShowNewTask(false)}
             onCreated={() => { setShowNewTask(false); load(); }}
           />
@@ -303,6 +306,7 @@ export default function PinDetail({ pinId, onClose }) {
         {editingTask && (
           <EditTaskForm
             task={editingTask}
+            members={members}
             onClose={() => setEditingTask(null)}
             onSaved={() => { setEditingTask(null); load(); }}
           />
@@ -357,6 +361,11 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
                     {t.frequency_days ? <span className="badge">{i18n.t('pin.everyNDays', { count: t.frequency_days })}</span> : null}
                     {t.specific_date && !t.frequency_days ? <span className="badge">{i18n.t('pin.oneTime')}</span> : null}
                     <span className="badge type">{taskLabel(t.task_type)}</span>
+                    {t.assignee_name && (
+                      <span className="badge assignee" style={{ '--assignee-color': t.assignee_color || '#7BA889' }}>
+                        👤 {t.assignee_name}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="pd-task-trailing">
@@ -744,7 +753,7 @@ function EditPinForm({ pin, onClose, onSaved }) {
   );
 }
 
-function NewTaskForm({ pinId, onClose, onCreated }) {
+function NewTaskForm({ pinId, members = [], onClose, onCreated }) {
   const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [taskType, setTaskType] = useState('zalivka');
@@ -752,6 +761,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
   const [frequency, setFrequency] = useState(3);
   const [specificDate, setSpecificDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -772,6 +782,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
         title,
         task_type: taskType,
         notes,
+        assigned_to: assignedTo || null,
       };
       if (mode === 'frequency') {
         data.frequency_days = parseInt(frequency, 10);
@@ -853,6 +864,17 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
           <label>{t('pin.fieldNotes')}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
+        {members.length > 0 && (
+          <div className="field">
+            <label>{t('pin.fieldAssignee')}</label>
+            <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}>
+              <option value="">{t('pin.assigneeNobody')}</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
             {t('common.cancel')}
@@ -867,7 +889,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
 }
 
 // ===================== P5: Editace úkolu =====================
-function EditTaskForm({ task, onClose, onSaved }) {
+function EditTaskForm({ task, members = [], onClose, onSaved }) {
   const { t } = useTranslation();
   const [title, setTitle] = useState(task.title);
   const [taskType, setTaskType] = useState(task.task_type);
@@ -877,6 +899,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
     task.specific_date || new Date().toISOString().slice(0, 10),
   );
   const [notes, setNotes] = useState(task.notes || '');
+  const [assignedTo, setAssignedTo] = useState(task.assigned_to ? String(task.assigned_to) : '');
   const [saving, setSaving] = useState(false);
 
   const submit = async (e) => {
@@ -890,6 +913,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
         notes,
         frequency_days: mode === 'frequency' ? parseInt(frequency, 10) : null,
         specific_date: mode === 'specific' ? specificDate : null,
+        assigned_to: assignedTo || null,
       };
       await api.updateTask(task.id, data);
       toast(t('pin.toastTaskSaved'));
@@ -965,6 +989,17 @@ function EditTaskForm({ task, onClose, onSaved }) {
           <label>{t('pin.fieldNotes')}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
+        {members.length > 0 && (
+          <div className="field">
+            <label>{t('pin.fieldAssignee')}</label>
+            <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}>
+              <option value="">{t('pin.assigneeNobody')}</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
             {t('common.cancel')}

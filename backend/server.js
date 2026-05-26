@@ -300,6 +300,142 @@ app.get('/api/share/:token', (req, res) => {
   });
 });
 
+// ======================= SPOLUPRÁCE / ČLENOVÉ =======================
+// Paleta barev pro avatary členů (deterministicky dle pořadí přidání).
+const MEMBER_COLORS = ['#7BA889', '#E0A458', '#6C8EBF', '#C97B84', '#9B7BC9', '#5BA8A0', '#D08770', '#A3A847'];
+const MEMBER_ROLES = ['editor', 'viewer'];
+
+// Vrátí člena obohaceného o počet splněných úkonů (care_history.member_id) v dané zahradě.
+function memberWithStats(m) {
+  const done = db.prepare(
+    `SELECT COUNT(*) AS c FROM care_history h
+     JOIN pins p ON p.id = h.pin_id
+     WHERE p.garden_id = ? AND h.member_id = ?`,
+  ).get(m.garden_id, m.id).c;
+  const assigned = db.prepare(
+    `SELECT COUNT(*) AS c FROM tasks t
+     JOIN pins p ON p.id = t.pin_id
+     WHERE p.garden_id = ? AND t.assigned_to = ?`,
+  ).get(m.garden_id, m.id).c;
+  return {
+    id: m.id,
+    garden_id: m.garden_id,
+    name: m.name,
+    email: m.email,
+    role: m.role,
+    color: m.color,
+    invited_at: m.invited_at,
+    accepted_at: m.accepted_at,
+    pending: !m.accepted_at,
+    completed_count: done,
+    assigned_count: assigned,
+  };
+}
+
+// Seznam členů zahrady
+app.get('/api/gardens/:id/members', (req, res) => {
+  const g = db.prepare('SELECT id FROM gardens WHERE id = ?').get(req.params.id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  const rows = db.prepare('SELECT * FROM garden_members WHERE garden_id = ? ORDER BY invited_at ASC').all(req.params.id);
+  res.json(rows.map(memberWithStats));
+});
+
+// Pozvat člena — vytvoří řádek + invite token. Email je best-effort (nezablokuje vznik pozvánky).
+app.post('/api/gardens/:id/members', async (req, res) => {
+  const id = req.params.id;
+  const g = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  const name = (req.body?.name || '').toString().trim();
+  if (!name) return res.status(400).json({ error: 'Jméno člena je povinné' });
+  const email = (req.body?.email || '').toString().trim() || null;
+  const role = MEMBER_ROLES.includes(req.body?.role) ? req.body.role : 'editor';
+  const inviterName = (req.body?.inviter || '').toString().trim() || null;
+
+  // Barva = první nepoužitá z palety, jinak cyklicky dle počtu členů.
+  const existing = db.prepare('SELECT color FROM garden_members WHERE garden_id = ?').all(id).map((r) => r.color);
+  const color = MEMBER_COLORS.find((c) => !existing.includes(c)) || MEMBER_COLORS[existing.length % MEMBER_COLORS.length];
+
+  // Unikátní invite token
+  let token;
+  for (let i = 0; i < 5; i++) {
+    token = generateShareToken(12);
+    if (!db.prepare('SELECT 1 FROM garden_members WHERE invite_token = ?').get(token)) break;
+    token = null;
+  }
+  if (!token) return res.status(500).json({ error: 'Nepodařilo se vygenerovat pozvánku' });
+
+  const info = db.prepare(
+    'INSERT INTO garden_members (garden_id, name, email, role, color, invite_token) VALUES (?, ?, ?, ?, ?, ?)',
+  ).run(id, name, email, role, color, token);
+  const member = db.prepare('SELECT * FROM garden_members WHERE id = ?').get(info.lastInsertRowid);
+
+  // Email pozvánka (pokud je email modul nakonfigurovaný a člen má adresu).
+  let emailSent = false;
+  const origin = (req.body?.origin || '').toString().replace(/\/+$/, '');
+  const inviteUrl = origin ? `${origin}/pozvanka/${token}` : `/pozvanka/${token}`;
+  if (email && emailModuleHasInvite()) {
+    try {
+      await email.sendGardenInvite({ to: email, gardenName: g.name, inviterName, memberName: name, role, url: inviteUrl });
+      emailSent = true;
+    } catch (e) {
+      console.error('[members] invite email selhal:', e.message);
+    }
+  }
+  res.json({ ...memberWithStats(member), invite_token: token, invite_url: inviteUrl, email_sent: emailSent });
+});
+
+// Upravit člena (role / jméno)
+app.put('/api/gardens/:id/members/:memberId', (req, res) => {
+  const m = db.prepare('SELECT * FROM garden_members WHERE id = ? AND garden_id = ?').get(req.params.memberId, req.params.id);
+  if (!m) return res.status(404).json({ error: 'Člen nenalezen' });
+  const name = req.body?.name !== undefined ? (req.body.name || '').toString().trim() || m.name : m.name;
+  const role = MEMBER_ROLES.includes(req.body?.role) ? req.body.role : m.role;
+  db.prepare('UPDATE garden_members SET name = ?, role = ? WHERE id = ?').run(name, role, m.id);
+  res.json(memberWithStats(db.prepare('SELECT * FROM garden_members WHERE id = ?').get(m.id)));
+});
+
+// Odebrat člena — přiřazené úkoly se uvolní (assigned_to → NULL), atribuce v historii zůstává.
+app.delete('/api/gardens/:id/members/:memberId', (req, res) => {
+  const m = db.prepare('SELECT * FROM garden_members WHERE id = ? AND garden_id = ?').get(req.params.memberId, req.params.id);
+  if (!m) return res.status(404).json({ error: 'Člen nenalezen' });
+  db.prepare('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?').run(m.id);
+  db.prepare('DELETE FROM garden_members WHERE id = ?').run(m.id);
+  res.json({ ok: true });
+});
+
+// Veřejný náhled pozvánky (bez autentizace) — pro accept obrazovku
+app.get('/api/invite/:token', (req, res) => {
+  const token = req.params.token;
+  if (!token || token.length < 6 || token.length > 32) return res.status(404).json({ error: 'Neplatná pozvánka' });
+  const m = db.prepare('SELECT * FROM garden_members WHERE invite_token = ?').get(token);
+  if (!m) return res.status(404).json({ error: 'Pozvánka neexistuje nebo byla zrušena' });
+  const g = db.prepare('SELECT id, name, image_path FROM gardens WHERE id = ?').get(m.garden_id);
+  res.json({
+    garden: g ? { id: g.id, name: g.name, image_path: g.image_path } : null,
+    member: { id: m.id, name: m.name, role: m.role, color: m.color },
+    accepted: !!m.accepted_at,
+  });
+});
+
+// Přijmout pozvánku — označí accepted_at; klient si uloží identitu lokálně.
+app.post('/api/invite/:token/accept', (req, res) => {
+  const m = db.prepare('SELECT * FROM garden_members WHERE invite_token = ?').get(req.params.token);
+  if (!m) return res.status(404).json({ error: 'Pozvánka neexistuje nebo byla zrušena' });
+  if (!m.accepted_at) {
+    db.prepare("UPDATE garden_members SET accepted_at = datetime('now') WHERE id = ?").run(m.id);
+  }
+  const g = db.prepare('SELECT id, name FROM gardens WHERE id = ?').get(m.garden_id);
+  const fresh = db.prepare('SELECT * FROM garden_members WHERE id = ?').get(m.id);
+  res.json({
+    member: { id: fresh.id, garden_id: fresh.garden_id, name: fresh.name, role: fresh.role, color: fresh.color },
+    garden: g ? { id: g.id, name: g.name } : null,
+  });
+});
+
+function emailModuleHasInvite() {
+  return Boolean(email && typeof email.sendGardenInvite === 'function' && email.isConfigured && email.isConfigured());
+}
+
 // ======================= PINS =======================
 app.get('/api/gardens/:id/pins', (req, res) => {
   const rows = db
@@ -311,9 +447,17 @@ app.get('/api/gardens/:id/pins', (req, res) => {
 app.get('/api/pins/:id', (req, res) => {
   const pin = db.prepare('SELECT * FROM pins WHERE id = ?').get(req.params.id);
   if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
-  const tasks = db.prepare('SELECT * FROM tasks WHERE pin_id = ? ORDER BY next_due').all(pin.id);
+  const tasks = db.prepare(
+    `SELECT t.*, m.name AS assignee_name, m.color AS assignee_color
+     FROM tasks t LEFT JOIN garden_members m ON m.id = t.assigned_to
+     WHERE t.pin_id = ? ORDER BY t.next_due`,
+  ).all(pin.id);
   const history = db
-    .prepare('SELECT * FROM care_history WHERE pin_id = ? ORDER BY done_at DESC LIMIT 50')
+    .prepare(
+      `SELECT h.*, m.name AS member_name, m.color AS member_color
+       FROM care_history h LEFT JOIN garden_members m ON m.id = h.member_id
+       WHERE h.pin_id = ? ORDER BY h.done_at DESC LIMIT 50`,
+    )
     .all(pin.id);
   const garden = db.prepare('SELECT soil_type, exposure, altitude_m, climate_zone FROM gardens WHERE id = ?').get(pin.garden_id);
   res.json({
@@ -607,10 +751,12 @@ app.get('/api/tasks', (req, res) => {
   // All tasks with related pin + garden data
   const rows = db
     .prepare(
-      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name,
+        m.name AS assignee_name, m.color AS assignee_color
        FROM tasks t
        JOIN pins p ON p.id = t.pin_id
        JOIN gardens g ON g.id = p.garden_id
+       LEFT JOIN garden_members m ON m.id = t.assigned_to
        ORDER BY t.next_due ASC`,
     )
     .all();
@@ -621,10 +767,12 @@ app.get('/api/tasks/today', (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const rows = db
     .prepare(
-      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name,
+        m.name AS assignee_name, m.color AS assignee_color
        FROM tasks t
        JOIN pins p ON p.id = t.pin_id
        JOIN gardens g ON g.id = p.garden_id
+       LEFT JOIN garden_members m ON m.id = t.assigned_to
        WHERE t.next_due <= ?
        ORDER BY t.next_due ASC`,
     )
@@ -640,10 +788,12 @@ app.get('/api/tasks/week', (req, res) => {
   const endStr = end.toISOString().slice(0, 10);
   const rows = db
     .prepare(
-      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name
+      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name,
+        m.name AS assignee_name, m.color AS assignee_color
        FROM tasks t
        JOIN pins p ON p.id = t.pin_id
        JOIN gardens g ON g.id = p.garden_id
+       LEFT JOIN garden_members m ON m.id = t.assigned_to
        WHERE t.next_due <= ?
        ORDER BY t.next_due ASC`,
     )
@@ -707,10 +857,12 @@ app.get('/api/tasks/overview', (req, res) => {
   const endStr = end.toISOString().slice(0, 10);
   const rows = db
     .prepare(
-      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name, g.image_path AS garden_image
+      `SELECT t.*, p.name AS pin_name, p.plant_name, p.garden_id, g.name AS garden_name, g.image_path AS garden_image,
+        m.name AS assignee_name, m.color AS assignee_color
        FROM tasks t
        JOIN pins p ON p.id = t.pin_id
        JOIN gardens g ON g.id = p.garden_id
+       LEFT JOIN garden_members m ON m.id = t.assigned_to
        WHERE t.next_due <= ?
        ORDER BY t.next_due ASC`,
     )
@@ -719,13 +871,13 @@ app.get('/api/tasks/overview', (req, res) => {
 });
 
 app.post('/api/tasks', (req, res) => {
-  const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence_pattern } = req.body;
+  const { pin_id, title, task_type, frequency_days, specific_date, notes, recurring, recurrence_pattern, assigned_to } = req.body;
   const tmp = { specific_date, frequency_days, last_done: null };
   const next_due = computeNextDue(tmp);
   const info = db
     .prepare(
-      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (pin_id, title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern, assigned_to)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       pin_id,
@@ -737,6 +889,7 @@ app.post('/api/tasks', (req, res) => {
       notes || null,
       recurring ? 1 : 0,
       recurrence_pattern || null,
+      assigned_to ? parseInt(assigned_to, 10) : null,
     );
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(info.lastInsertRowid);
   res.json(task);
@@ -763,10 +916,14 @@ app.put('/api/tasks/:id', (req, res) => {
     req.body.recurrence_pattern !== undefined
       ? req.body.recurrence_pattern || null
       : current.recurrence_pattern;
+  const assigned_to =
+    req.body.assigned_to !== undefined
+      ? (req.body.assigned_to ? parseInt(req.body.assigned_to, 10) : null)
+      : current.assigned_to;
   const next_due = computeNextDue({ specific_date, frequency_days, last_done: current.last_done });
   db.prepare(
-    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=?, recurring=?, recurrence_pattern=? WHERE id=?`,
-  ).run(title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern, id);
+    `UPDATE tasks SET title=?, task_type=?, frequency_days=?, specific_date=?, next_due=?, notes=?, recurring=?, recurrence_pattern=?, assigned_to=? WHERE id=?`,
+  ).run(title, task_type, frequency_days, specific_date, next_due, notes, recurring, recurrence_pattern, assigned_to, id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
 });
 
@@ -833,10 +990,21 @@ app.post('/api/tasks/:id/done', (req, res) => {
   if (!task) return res.status(404).json({ error: 'Úkol nenalezen' });
   const today = new Date().toISOString().slice(0, 10);
 
+  // Atribuce splnění — který člen úkol dokončil (NULL = vlastník). Ověř, že
+  // member_id patří do téže zahrady jako pin, jinak ignoruj (uložíme NULL).
+  let memberId = req.body?.member_id ? parseInt(req.body.member_id, 10) : null;
+  if (memberId) {
+    const ok = db.prepare(
+      `SELECT 1 FROM garden_members m JOIN pins p ON p.garden_id = m.garden_id
+       WHERE m.id = ? AND p.id = ?`,
+    ).get(memberId, task.pin_id);
+    if (!ok) memberId = null;
+  }
+
   // Record care history
   db.prepare(
-    `INSERT INTO care_history (task_id, pin_id, action, notes) VALUES (?, ?, ?, ?)`,
-  ).run(id, task.pin_id, task.title, req.body?.notes || null);
+    `INSERT INTO care_history (task_id, pin_id, action, notes, member_id) VALUES (?, ?, ?, ?, ?)`,
+  ).run(id, task.pin_id, task.title, req.body?.notes || null, memberId);
 
   // Bump streak
   const streak = bumpStreakForToday(1);
@@ -900,10 +1068,12 @@ app.post('/api/tasks/:id/snooze', (req, res) => {
 app.get('/api/history', (req, res) => {
   const rows = db
     .prepare(
-      `SELECT h.*, p.name AS pin_name, p.plant_name, g.id AS garden_id, g.name AS garden_name
+      `SELECT h.*, p.name AS pin_name, p.plant_name, g.id AS garden_id, g.name AS garden_name,
+        mem.name AS member_name, mem.color AS member_color
        FROM care_history h
        JOIN pins p ON p.id = h.pin_id
        JOIN gardens g ON g.id = p.garden_id
+       LEFT JOIN garden_members mem ON mem.id = h.member_id
        ORDER BY h.done_at DESC
        LIMIT 200`,
     )

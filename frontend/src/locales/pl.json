@@ -460,7 +460,8 @@
     "uploadNewMapLabel": "Prześlij nową mapę",
     "uploading": "Przesyłam...",
     "selectNewGardenPhoto": "📷 Wybierz nowe zdjęcie ogrodu",
-    "deleteGarden": "🗑️ Usuń ogród"
+    "deleteGarden": "🗑️ Usuń ogród",
+    "menuMembers": "Członkowie"
   },
   "pin": {
     "back": "Wstecz",
@@ -577,7 +578,9 @@
     "recordHarvest": "🧺 Zapisz zbiór",
     "harvestTotal": "Łącznie:",
     "harvestEmpty": "Jeszcze brak wpisów zbiorów. Zapisz pierwszy plon!",
-    "deleteHarvest": "Usuń zbiór"
+    "deleteHarvest": "Usuń zbiór",
+    "fieldAssignee": "Przypisz do",
+    "assigneeNobody": "Nikomu (wspólne)"
   },
   "overview": {
     "completed": "✅ Gotowe",
@@ -995,5 +998,52 @@
     "urgentCount_few": "{{count}} pilne",
     "urgentCount_many": "{{count}} pilnych",
     "urgentCount_other": "{{count}} pilne"
+  },
+  "members": {
+    "title": "Członkowie",
+    "intro": "Zaproś rodzinę lub przyjaciół do współpracy w ogrodzie — zobaczą zadania, a edytorzy mogą pomóc.",
+    "invite": "Zaproś członka",
+    "you": "Ja",
+    "youBadge": "ty",
+    "ownerRole": "Właściciel",
+    "pending": "oczekuje",
+    "roleHint": "Brak ukończonych zadań",
+    "doneCount_one": "{{count}} ukończone zadanie",
+    "doneCount_few": "{{count}} ukończone zadania",
+    "doneCount_many": "{{count}} ukończonych zadań",
+    "doneCount_other": "{{count}} ukończonych zadań",
+    "toggleRoleHint": "Dotknij, aby zmienić rolę",
+    "roleEditor": "Edytor",
+    "roleViewer": "Obserwator",
+    "remove": "Usuń",
+    "removeConfirm": "Usunąć członka {{name}}?",
+    "removed": "Członek usunięty",
+    "empty": "Brak członków.",
+    "nameRequired": "Podaj imię członka",
+    "invited": "Zaproszenie dla {{name}} utworzone",
+    "fieldName": "Imię",
+    "namePlaceholder": "np. Anna",
+    "fieldEmail": "E-mail (opcjonalnie)",
+    "emailPlaceholder": "anna@email.pl",
+    "emailHint": "Jeśli podasz e-mail, wyślemy zaproszenie automatycznie. W przeciwnym razie skopiuj link ręcznie.",
+    "fieldRole": "Rola",
+    "sendInvite": "Utwórz zaproszenie",
+    "inviteSentEmail": "Zaproszenie wysłane e-mailem ✓",
+    "inviteCreated": "Zaproszenie utworzone — udostępnij link:",
+    "shareLink": "Udostępnij link",
+    "copyLink": "Kopiuj link",
+    "linkCopied": "Link skopiowany ✓",
+    "shareTitle": "Zaproszenie do ogrodu {{garden}}",
+    "shareText": "Dołącz do mnie w ogrodzie {{garden}} w GardenPin 🌿"
+  },
+  "invite": {
+    "invalidTitle": "Zaproszenie nieważne",
+    "invalidText": "To zaproszenie nie istnieje lub zostało anulowane.",
+    "aGarden": "ogród",
+    "lead": "Zostałeś zaproszony jako {{name}} ({{role}}).",
+    "accept": "Przyjmij zaproszenie",
+    "continue": "Przejdź do ogrodu",
+    "alreadyAccepted": "To zaproszenie zostało już przyjęte.",
+    "note": "Po przyjęciu ta przeglądarka loguje się jako ten członek."
   }
 }

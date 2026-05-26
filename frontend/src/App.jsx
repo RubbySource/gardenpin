@@ -9,6 +9,7 @@ import GardenDetailPage from './pages/GardenDetailPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import SharedGardenPage from './pages/SharedGardenPage.jsx';
+import InviteAcceptPage from './pages/InviteAcceptPage.jsx';
 import WeekOverviewPage from './pages/WeekOverviewPage.jsx';
 import PlantCatalogPage from './pages/PlantCatalogPage.jsx';
 import SeasonalCalendar from './components/SeasonalCalendar.jsx';
@@ -32,7 +33,8 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const location = useLocation();
-  const isSharedView = location.pathname.startsWith('/share/');
+  // Samostatné stránky bez topbaru/nav: read-only sdílení + přijetí pozvánky.
+  const isSharedView = location.pathname.startsWith('/share/') || location.pathname.startsWith('/pozvanka/');
 
   useEffect(() => {
     if (isSharedView) return;
@@ -112,11 +114,12 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isSharedView]);
 
-  // Sdílený read-only pohled — bez topbar/nav/banneru
+  // Samostatné pohledy — bez topbar/nav/banneru
   if (isSharedView) {
     return (
       <Routes>
         <Route path="/share/:token" element={<SharedGardenPage />} />
+        <Route path="/pozvanka/:token" element={<InviteAcceptPage />} />
       </Routes>
     );
   }

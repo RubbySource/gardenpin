@@ -9,6 +9,7 @@ import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import Icon from '../components/Icon.jsx';
 import PinDetail from './PinDetail.jsx';
+import MembersModal from '../components/MembersModal.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
@@ -55,6 +56,7 @@ export default function GardenDetailPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   const mapInputRef = useRef(null);
   // Redesign: segmented control (Mapa / Seznam / Statistiky) + akční menu v hlavičce
@@ -451,6 +453,9 @@ export default function GardenDetailPage() {
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowShare(true); }}>
                 {t('gardenDetail.menuShare')}
+              </button>
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowMembers(true); }}>
+                {t('gardenDetail.menuMembers')}
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowCalendar(true); }}>
                 {t('gardenDetail.menuCalendar')}
@@ -996,6 +1001,13 @@ export default function GardenDetailPage() {
         <ShareGardenModal
           garden={garden}
           onClose={() => setShowShare(false)}
+        />
+      )}
+
+      {showMembers && (
+        <MembersModal
+          garden={garden}
+          onClose={() => setShowMembers(false)}
         />
       )}
 

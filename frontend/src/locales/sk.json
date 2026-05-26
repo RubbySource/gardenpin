@@ -460,7 +460,8 @@
     "uploadNewMapLabel": "Nahrať novú mapu",
     "uploading": "Nahrávam...",
     "selectNewGardenPhoto": "📷 Vybrať novú fotku záhrady",
-    "deleteGarden": "🗑️ Zmazať záhradu"
+    "deleteGarden": "🗑️ Zmazať záhradu",
+    "menuMembers": "Členovia"
   },
   "pin": {
     "back": "Späť",
@@ -577,7 +578,9 @@
     "recordHarvest": "🧺 Zaznamenať zber",
     "harvestTotal": "Celkom:",
     "harvestEmpty": "Zatiaľ žiadne záznamy zberu. Zaznamenajte prvú úrodu!",
-    "deleteHarvest": "Zmazať zber"
+    "deleteHarvest": "Zmazať zber",
+    "fieldAssignee": "Priradiť komu",
+    "assigneeNobody": "Nikomu (spoločné)"
   },
   "overview": {
     "completed": "✅ Hotovo",
@@ -995,5 +998,52 @@
     "urgentCount_few": "{{count}} naliehavé",
     "urgentCount_many": "{{count}} naliehavé",
     "urgentCount_other": "{{count}} naliehavých"
+  },
+  "members": {
+    "title": "Členovia",
+    "intro": "Pozvi rodinu alebo priateľov na spoluprácu v záhrade — uvidia úkony a editori môžu priložiť ruku k dielu.",
+    "invite": "Pozvať člena",
+    "you": "Ja",
+    "youBadge": "ty",
+    "ownerRole": "Vlastník",
+    "pending": "čaká na prijatie",
+    "roleHint": "Zatiaľ žiadne splnené úkony",
+    "doneCount_one": "{{count}} splnený úkon",
+    "doneCount_few": "{{count}} splnené úkony",
+    "doneCount_many": "{{count}} splnených úkonov",
+    "doneCount_other": "{{count}} splnených úkonov",
+    "toggleRoleHint": "Klepni na zmenu roly",
+    "roleEditor": "Editor",
+    "roleViewer": "Pozorovateľ",
+    "remove": "Odobrať",
+    "removeConfirm": "Naozaj odobrať člena {{name}}?",
+    "removed": "Člen odobratý",
+    "empty": "Zatiaľ žiadni členovia.",
+    "nameRequired": "Zadaj meno člena",
+    "invited": "Pozvánka pre {{name}} vytvorená",
+    "fieldName": "Meno",
+    "namePlaceholder": "napr. Jana",
+    "fieldEmail": "E-mail (nepovinné)",
+    "emailPlaceholder": "jana@email.sk",
+    "emailHint": "Ak vyplníš e-mail, pošleme pozvánku automaticky. Inak odkaz skopíruješ ručne.",
+    "fieldRole": "Rola",
+    "sendInvite": "Vytvoriť pozvánku",
+    "inviteSentEmail": "Pozvánka odoslaná e-mailom ✓",
+    "inviteCreated": "Pozvánka vytvorená — zdieľaj odkaz:",
+    "shareLink": "Zdieľať odkaz",
+    "copyLink": "Skopírovať odkaz",
+    "linkCopied": "Odkaz skopírovaný ✓",
+    "shareTitle": "Pozvánka do záhrady {{garden}}",
+    "shareText": "Pridaj sa ku mne v záhrade {{garden}} v GardenPin 🌿"
+  },
+  "invite": {
+    "invalidTitle": "Pozvánka nie je platná",
+    "invalidText": "Táto pozvánka neexistuje alebo bola zrušená.",
+    "aGarden": "záhrada",
+    "lead": "Bol(a) si pozvaný(á) ako {{name}} ({{role}}).",
+    "accept": "Prijať pozvánku",
+    "continue": "Pokračovať do záhrady",
+    "alreadyAccepted": "Túto pozvánku si už prijal(a).",
+    "note": "Po prijatí sa v tomto prehliadači prihlásiš ako tento člen."
   }
 }

@@ -23,11 +23,13 @@
 - Sezónní úkony vázané na rostlinu (auto-generace z databáze + výběr care chips)
 - Choroby & škůdci, sezónní doporučení, sklizeň, historie péče (PinDetail)
 - iCal export/odběr (živý webcal + jednorázový download), sdílení zahrady (read-only)
+- Spolupráce na zahradě: členové (editor/viewer), pozvánka odkazem/emailem, přiřazení úkolů, atribuce splnění
 - Statistiky, streak/gamifikace, počasí (Open-Meteo), email digest, push notifikace
 
 ## Klíčová API endpoints
 - GET/POST `/api/gardens` — zahrady
-- GET/POST/PUT/DELETE `/api/tasks` — úkoly
+- GET/POST/PUT/DELETE `/api/tasks` — úkoly (vč. `assigned_to` = člen)
+- GET/POST `/api/gardens/:id/members`, PUT/DELETE `…/members/:memberId` — členové; GET `/api/invite/:token`, POST `/api/invite/:token/accept` — pozvánky
 - GET `/api/export/ical`, `/api/calendar.ics`, `/api/gardens/:id/calendar.ics` — iCal
 - POST `/api/gardens/:id/upscale` — 4× upscale mapy (Sharp)
 - POST `/api/gardens/:id/crop-polygon` — oříznutí fotky na tvar zahrady

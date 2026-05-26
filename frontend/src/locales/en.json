@@ -428,7 +428,8 @@
     "uploadNewMapLabel": "Upload new map",
     "uploading": "Uploading...",
     "selectNewGardenPhoto": "📷 Select a new garden photo",
-    "deleteGarden": "🗑️ Delete garden"
+    "deleteGarden": "🗑️ Delete garden",
+    "menuMembers": "Members"
   },
   "pin": {
     "back": "Back",
@@ -539,7 +540,9 @@
     "recordHarvest": "🧺 Record harvest",
     "harvestTotal": "Total:",
     "harvestEmpty": "No harvest records yet. Record your first yield!",
-    "deleteHarvest": "Delete harvest"
+    "deleteHarvest": "Delete harvest",
+    "fieldAssignee": "Assign to",
+    "assigneeNobody": "Nobody (shared)"
   },
   "overview": {
     "completed": "✅ Done",
@@ -881,5 +884,50 @@
     "plantsCount_other": "{{count}} plants",
     "urgentCount_one": "{{count}} urgent",
     "urgentCount_other": "{{count}} urgent"
+  },
+  "members": {
+    "title": "Members",
+    "intro": "Invite family or friends to help with the garden — they'll see the tasks and editors can pitch in.",
+    "invite": "Invite member",
+    "you": "Me",
+    "youBadge": "you",
+    "ownerRole": "Owner",
+    "pending": "pending",
+    "roleHint": "No completed tasks yet",
+    "doneCount_one": "{{count}} task done",
+    "doneCount_other": "{{count}} tasks done",
+    "toggleRoleHint": "Tap to change role",
+    "roleEditor": "Editor",
+    "roleViewer": "Viewer",
+    "remove": "Remove",
+    "removeConfirm": "Remove member {{name}}?",
+    "removed": "Member removed",
+    "empty": "No members yet.",
+    "nameRequired": "Enter the member's name",
+    "invited": "Invite for {{name}} created",
+    "fieldName": "Name",
+    "namePlaceholder": "e.g. Jane",
+    "fieldEmail": "Email (optional)",
+    "emailPlaceholder": "jane@email.com",
+    "emailHint": "If you enter an email, we'll send the invite automatically. Otherwise copy the link manually.",
+    "fieldRole": "Role",
+    "sendInvite": "Create invite",
+    "inviteSentEmail": "Invite sent by email ✓",
+    "inviteCreated": "Invite created — share the link:",
+    "shareLink": "Share link",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied ✓",
+    "shareTitle": "Invitation to {{garden}}",
+    "shareText": "Join me in the {{garden}} garden on GardenPin 🌿"
+  },
+  "invite": {
+    "invalidTitle": "Invitation not valid",
+    "invalidText": "This invitation doesn't exist or was revoked.",
+    "aGarden": "a garden",
+    "lead": "You've been invited as {{name}} ({{role}}).",
+    "accept": "Accept invitation",
+    "continue": "Continue to garden",
+    "alreadyAccepted": "You've already accepted this invitation.",
+    "note": "Once accepted, this browser signs in as this member."
   }
 }

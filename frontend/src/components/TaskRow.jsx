@@ -82,6 +82,11 @@ export default function TaskRow({
               ) : null}
               {task.specific_date ? <span className="badge">{t('taskRow.once')}</span> : null}
               <span className="badge type">{taskLabel(task.task_type)}</span>
+              {task.assignee_name && (
+                <span className="badge assignee" style={{ '--assignee-color': task.assignee_color || '#7BA889' }}>
+                  👤 {task.assignee_name}
+                </span>
+              )}
             </div>
           </div>
         </div>

@@ -188,6 +188,57 @@ async function sendTestEmail(email) {
   });
 }
 
+// Pozvánka ke spolupráci na zahradě — odešle se členovi s odkazem na přijetí.
+const MEMBER_ROLE_LABEL = { editor: 'spoluzahradník (může upravovat)', viewer: 'pozorovatel (jen čte)' };
+
+async function sendGardenInvite({ to, gardenName, inviterName, memberName, role, url }) {
+  if (!to) throw new Error('Email je povinný');
+  const roleLabel = MEMBER_ROLE_LABEL[role] || MEMBER_ROLE_LABEL.editor;
+  const who = inviterName ? htmlEscape(inviterName) : 'Někdo';
+  const html = `<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#FAF7F2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF7F2;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+        <tr><td style="background:linear-gradient(135deg,#7BA889 0%,#4A6E57 100%);padding:30px 26px;color:#fff;">
+          <div style="font-size:13px;opacity:0.9;letter-spacing:0.5px;text-transform:uppercase;">Pozvánka do zahrady</div>
+          <h1 style="margin:6px 0 0;font-size:23px;font-weight:700;">🌿 ${htmlEscape(gardenName)}</h1>
+        </td></tr>
+        <tr><td style="padding:26px;">
+          <p style="font-size:16px;color:#2d2d33;margin:0 0 14px;">Ahoj ${htmlEscape(memberName)},</p>
+          <p style="font-size:15px;color:#3a3a40;line-height:1.5;margin:0 0 18px;">
+            ${who} tě zve ke spolupráci na zahradě <strong>${htmlEscape(gardenName)}</strong> v aplikaci GardenPin
+            jako <strong>${htmlEscape(roleLabel)}</strong>. Budeš mít přehled o úkonech a můžeš přiložit ruku k dílu. 🌱
+          </p>
+          <div style="text-align:center;margin:24px 0;">
+            <a href="${htmlEscape(url)}" style="display:inline-block;background:#4A6E57;color:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 32px;border-radius:14px;">
+              Přijmout pozvánku
+            </a>
+          </div>
+          <p style="font-size:13px;color:#6b6b70;line-height:1.5;margin:18px 0 0;">
+            Pokud tlačítko nefunguje, otevři tento odkaz:<br>
+            <a href="${htmlEscape(url)}" style="color:#4A6E57;word-break:break-all;">${htmlEscape(url)}</a>
+          </p>
+        </td></tr>
+        <tr><td style="padding:18px 26px;background:#FAF7F2;text-align:center;border-top:1px solid #eee;">
+          <div style="font-size:14px;color:#4A6E57;font-weight:600;">GardenPin 🌱</div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  const tx = getTransporter();
+  await tx.sendMail({
+    from: `"GardenPin 🌱" <${GMAIL_FROM}>`,
+    to,
+    subject: `🌿 Pozvánka do zahrady ${gardenName}`,
+    html,
+  });
+  return { sent: 1 };
+}
+
 async function runWeeklyDigestForAll() {
   const rows = db.prepare('SELECT email FROM email_settings WHERE enabled = 1 AND email IS NOT NULL').all();
   if (rows.length === 0) {
@@ -230,6 +281,7 @@ function isConfigured() {
 module.exports = {
   sendWeeklyDigest,
   sendTestEmail,
+  sendGardenInvite,
   runWeeklyDigestForAll,
   startWeeklyCron,
   isConfigured,

@@ -428,7 +428,8 @@
     "uploadNewMapLabel": "Neue Karte hochladen",
     "uploading": "Wird hochgeladen...",
     "selectNewGardenPhoto": "📷 Neues Gartenfoto auswählen",
-    "deleteGarden": "🗑️ Garten löschen"
+    "deleteGarden": "🗑️ Garten löschen",
+    "menuMembers": "Mitglieder"
   },
   "pin": {
     "back": "Zurück",
@@ -539,7 +540,9 @@
     "recordHarvest": "🧺 Ernte erfassen",
     "harvestTotal": "Gesamt:",
     "harvestEmpty": "Noch keine Ernteeinträge. Erfassen Sie Ihren ersten Ertrag!",
-    "deleteHarvest": "Ernte löschen"
+    "deleteHarvest": "Ernte löschen",
+    "fieldAssignee": "Zuweisen an",
+    "assigneeNobody": "Niemand (gemeinsam)"
   },
   "overview": {
     "completed": "✅ Erledigt",
@@ -881,5 +884,50 @@
     "plantsCount_other": "{{count}} Pflanzen",
     "urgentCount_one": "{{count}} dringend",
     "urgentCount_other": "{{count}} dringend"
+  },
+  "members": {
+    "title": "Mitglieder",
+    "intro": "Laden Sie Familie oder Freunde ein, im Garten mitzuhelfen — sie sehen die Aufgaben und Bearbeiter können mit anpacken.",
+    "invite": "Mitglied einladen",
+    "you": "Ich",
+    "youBadge": "Sie",
+    "ownerRole": "Eigentümer",
+    "pending": "ausstehend",
+    "roleHint": "Noch keine erledigten Aufgaben",
+    "doneCount_one": "{{count}} Aufgabe erledigt",
+    "doneCount_other": "{{count}} Aufgaben erledigt",
+    "toggleRoleHint": "Tippen, um die Rolle zu ändern",
+    "roleEditor": "Bearbeiter",
+    "roleViewer": "Betrachter",
+    "remove": "Entfernen",
+    "removeConfirm": "Mitglied {{name}} entfernen?",
+    "removed": "Mitglied entfernt",
+    "empty": "Noch keine Mitglieder.",
+    "nameRequired": "Geben Sie den Namen des Mitglieds ein",
+    "invited": "Einladung für {{name}} erstellt",
+    "fieldName": "Name",
+    "namePlaceholder": "z. B. Anna",
+    "fieldEmail": "E-Mail (optional)",
+    "emailPlaceholder": "anna@email.de",
+    "emailHint": "Wenn Sie eine E-Mail angeben, senden wir die Einladung automatisch. Andernfalls kopieren Sie den Link manuell.",
+    "fieldRole": "Rolle",
+    "sendInvite": "Einladung erstellen",
+    "inviteSentEmail": "Einladung per E-Mail gesendet ✓",
+    "inviteCreated": "Einladung erstellt — Link teilen:",
+    "shareLink": "Link teilen",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert ✓",
+    "shareTitle": "Einladung in den Garten {{garden}}",
+    "shareText": "Machen Sie mit im Garten {{garden}} bei GardenPin 🌿"
+  },
+  "invite": {
+    "invalidTitle": "Einladung ungültig",
+    "invalidText": "Diese Einladung existiert nicht oder wurde widerrufen.",
+    "aGarden": "ein Garten",
+    "lead": "Sie wurden als {{name}} ({{role}}) eingeladen.",
+    "accept": "Einladung annehmen",
+    "continue": "Zum Garten",
+    "alreadyAccepted": "Sie haben diese Einladung bereits angenommen.",
+    "note": "Nach dem Annehmen meldet sich dieser Browser als dieses Mitglied an."
   }
 }

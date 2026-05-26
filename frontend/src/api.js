@@ -1,4 +1,6 @@
 // API helper functions
+import { getActorMemberId } from './member.js';
+
 const BASE = '';
 
 async function jsonFetch(url, options = {}) {
@@ -24,6 +26,25 @@ export const api = {
   createShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'POST' }),
   revokeShareToken: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/share`, { method: 'DELETE' }),
   getSharedGarden: (token) => jsonFetch(`/api/share/${token}`),
+
+  // Spolupráce — členové zahrady
+  listMembers: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/members`),
+  inviteMember: (gardenId, data) =>
+    jsonFetch(`/api/gardens/${gardenId}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updateMember: (gardenId, memberId, data) =>
+    jsonFetch(`/api/gardens/${gardenId}/members/${memberId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  removeMember: (gardenId, memberId) =>
+    jsonFetch(`/api/gardens/${gardenId}/members/${memberId}`, { method: 'DELETE' }),
+  getInvite: (token) => jsonFetch(`/api/invite/${token}`),
+  acceptInvite: (token) => jsonFetch(`/api/invite/${token}/accept`, { method: 'POST' }),
 
   // Pins
   listPins: (gardenId) => jsonFetch(`/api/gardens/${gardenId}/pins`),
@@ -89,7 +110,7 @@ export const api = {
     jsonFetch(`/api/tasks/${id}/done`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes }),
+      body: JSON.stringify({ notes, member_id: getActorMemberId() }),
     }),
   snoozeTask: (id, payload) =>
     jsonFetch(`/api/tasks/${id}/snooze`, {

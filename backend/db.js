@@ -153,6 +153,25 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );
+
+  -- Spolupráce na zahradě — členové (rodina/přátelé) s rolí.
+  -- Bez plné autentizace: člen je identita vázaná na zahradu, kterou si
+  -- klient po přijetí pozvánky uloží lokálně (viz frontend member.js).
+  -- Vlastník (owner) NENÍ řádek — je implicitní (single-user MVP, userName v localStorage).
+  CREATE TABLE IF NOT EXISTS garden_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    garden_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT,
+    role TEXT NOT NULL DEFAULT 'editor',   -- editor | viewer
+    color TEXT,
+    invite_token TEXT,
+    invited_at TEXT DEFAULT (datetime('now')),
+    accepted_at TEXT,
+    FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_members_garden ON garden_members(garden_id);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_members_token ON garden_members(invite_token) WHERE invite_token IS NOT NULL;
 `);
 
 // Inicializace user_stats — jeden řádek pro výchozího uživatele (id=1)
@@ -184,6 +203,9 @@ try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_ical_token ON garde
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
+// Spolupráce — přiřazení úkolu členovi + atribuce splnění
+try { db.exec('ALTER TABLE tasks ADD COLUMN assigned_to INTEGER'); } catch {}
+try { db.exec('ALTER TABLE care_history ADD COLUMN member_id INTEGER'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN stripe_customer_id TEXT'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT'); } catch {}
