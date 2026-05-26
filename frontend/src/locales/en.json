@@ -929,5 +929,20 @@
     "continue": "Continue to garden",
     "alreadyAccepted": "You've already accepted this invitation.",
     "note": "Once accepted, this browser signs in as this member."
+  },
+  "yearPlan": {
+    "cta": "Plan year-round care",
+    "title": "Year-round care plan",
+    "subtitle": "{{plant}} — main seasonal tasks for the year ahead",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "allPlanned": "You've already scheduled every task 🎉",
+    "planned": "Scheduled",
+    "create_one": "Create {{count}} task",
+    "create_other": "Create {{count}} tasks",
+    "creating": "Creating…",
+    "created_one": "✅ Created {{count}} task",
+    "created_other": "✅ Created {{count}} tasks",
+    "notes": "Year-round care plan ({{month}})"
   }
 }

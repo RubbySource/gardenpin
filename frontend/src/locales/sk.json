@@ -1045,5 +1045,24 @@
     "continue": "Pokračovať do záhrady",
     "alreadyAccepted": "Túto pozvánku si už prijal(a).",
     "note": "Po prijatí sa v tomto prehliadači prihlásiš ako tento člen."
+  },
+  "yearPlan": {
+    "cta": "Naplánovať celoročnú starostlivosť",
+    "title": "Celoročný plán starostlivosti",
+    "subtitle": "{{plant}} — hlavné sezónne úkony na rok dopredu",
+    "selectAll": "Vybrať všetko",
+    "deselectAll": "Zrušiť výber",
+    "allPlanned": "Všetky úkony už máš naplánované 🎉",
+    "planned": "Naplánované",
+    "create_one": "Vytvoriť {{count}} úkon",
+    "create_few": "Vytvoriť {{count}} úkony",
+    "create_many": "Vytvoriť {{count}} úkony",
+    "create_other": "Vytvoriť {{count}} úkonov",
+    "creating": "Vytváram…",
+    "created_one": "✅ Vytvorený {{count}} úkon",
+    "created_few": "✅ Vytvorené {{count}} úkony",
+    "created_many": "✅ Vytvorené {{count}} úkony",
+    "created_other": "✅ Vytvorených {{count}} úkonov",
+    "notes": "Celoročný plán starostlivosti ({{month}})"
   }
 }

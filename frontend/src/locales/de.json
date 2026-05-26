@@ -929,5 +929,20 @@
     "continue": "Zum Garten",
     "alreadyAccepted": "Sie haben diese Einladung bereits angenommen.",
     "note": "Nach dem Annehmen meldet sich dieser Browser als dieses Mitglied an."
+  },
+  "yearPlan": {
+    "cta": "Ganzjährige Pflege planen",
+    "title": "Ganzjähriger Pflegeplan",
+    "subtitle": "{{plant}} — wichtigste saisonale Aufgaben für das kommende Jahr",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Auswahl aufheben",
+    "allPlanned": "Sie haben bereits alle Aufgaben geplant 🎉",
+    "planned": "Geplant",
+    "create_one": "{{count}} Aufgabe erstellen",
+    "create_other": "{{count}} Aufgaben erstellen",
+    "creating": "Wird erstellt…",
+    "created_one": "✅ {{count}} Aufgabe erstellt",
+    "created_other": "✅ {{count}} Aufgaben erstellt",
+    "notes": "Ganzjähriger Pflegeplan ({{month}})"
   }
 }

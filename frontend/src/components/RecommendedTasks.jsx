@@ -8,6 +8,7 @@ import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import { monthName, monthNameShort } from '../utils.js';
 import { getClimateZone, getZoneOffsetDays } from '../data/climateZones.js';
+import YearPlanModal from './YearPlanModal.jsx';
 
 // Barvy přes CSS proměnné, ať se v dark mode přebarví automaticky.
 // `label` se počítá uvnitř komponenty přes t() (PRIORITY_LABEL_KEY).
@@ -27,7 +28,8 @@ const PRIORITY_LABEL_KEY = {
 // Severní expozice / vysoká nadm. výška → chladnější mikroklima → pozdější termíny.
 // Jižní expozice / nížina → teplejší → dřívější termíny.
 // Vrací celé dny (kladné = oddálit, záporné = uspíšit). Max ±21 dní.
-function getConditionShiftDays(conditions) {
+// Export: sdíleno s YearPlanModal (celoroční plán péče) — drž logiku v souladu.
+export function getConditionShiftDays(conditions) {
   if (!conditions) return 0;
   let shift = 0;
   // Klimatická zóna ČR — regionální posun jara (jižní Morava dříve, Vysočina později)
@@ -43,7 +45,7 @@ function getConditionShiftDays(conditions) {
   return Math.max(-21, Math.min(21, shift));
 }
 
-function dateForMonth(month, conditions) {
+export function dateForMonth(month, conditions) {
   const now = new Date();
   const year = month >= (now.getMonth() + 1) ? now.getFullYear() : now.getFullYear() + 1;
   // Začni 15. dne měsíce, posuň podle podmínek (±dny)
@@ -64,8 +66,8 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
   const plant = useMemo(() => findPlantByName(plantName), [plantName]);
   const [adding, setAdding] = useState({});
   const [added, setAdded] = useState({});
-  const [addingAll, setAddingAll] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [showYearPlan, setShowYearPlan] = useState(false);
 
   if (!plant || !plant.seasonalTasks?.length) return null;
 
@@ -96,32 +98,6 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
       toast(t('common.error', { msg: e.message }));
     } finally {
       setAdding((s) => ({ ...s, [key]: false }));
-    }
-  };
-
-  const addAll = async () => {
-    if (remaining.length === 0) return;
-    setAddingAll(true);
-    try {
-      await Promise.all(remaining.map((task) =>
-        api.createTask({
-          pin_id: pinId,
-          title: `${task.emoji} ${task.action}`,
-          task_type: 'jine',
-          frequency_days: null,
-          specific_date: dateForMonth(task.month, gardenConditions),
-          notes: t('recommended.notes', { month: monthName(task.month - 1).toLowerCase() }),
-        }),
-      ));
-      const newAdded = { ...added };
-      remaining.forEach((rt) => { newAdded[`${rt.month}-${rt.action}`] = true; });
-      setAdded(newAdded);
-      toast(t('recommended.addedCount', { count: remaining.length }));
-      onTaskAdded?.();
-    } catch (e) {
-      toast(t('common.error', { msg: e.message }));
-    } finally {
-      setAddingAll(false);
     }
   };
 
@@ -166,15 +142,12 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
                     : t('recommended.microWarmer', { days: shiftDays }))}
             </div>
           )}
-          {remaining.length > 1 && (
+          {remaining.length > 0 && (
             <button
-              className="btn ghost small block mb-2"
-              onClick={addAll}
-              disabled={addingAll}
+              className="btn block mb-2 year-plan-cta"
+              onClick={() => setShowYearPlan(true)}
             >
-              {addingAll
-                ? t('recommended.adding')
-                : t('recommended.addAll', { count: remaining.length })}
+              📅 {t('yearPlan.cta')}
             </button>
           )}
 
@@ -246,6 +219,20 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
             })}
           </div>
         </>
+      )}
+
+      {showYearPlan && (
+        <YearPlanModal
+          plantName={plantName}
+          pinId={pinId}
+          existingTasks={existingTasks}
+          gardenConditions={gardenConditions}
+          onCreated={() => {
+            // Označ vytvořené úkony jako přidané i v seznamu doporučení.
+            onTaskAdded?.();
+          }}
+          onClose={() => setShowYearPlan(false)}
+        />
       )}
     </div>
   );

@@ -1045,5 +1045,24 @@
     "continue": "Przejdź do ogrodu",
     "alreadyAccepted": "To zaproszenie zostało już przyjęte.",
     "note": "Po przyjęciu ta przeglądarka loguje się jako ten członek."
+  },
+  "yearPlan": {
+    "cta": "Zaplanuj całoroczną pielęgnację",
+    "title": "Całoroczny plan pielęgnacji",
+    "subtitle": "{{plant}} — najważniejsze zadania sezonowe na rok do przodu",
+    "selectAll": "Zaznacz wszystko",
+    "deselectAll": "Odznacz wszystko",
+    "allPlanned": "Masz już zaplanowane wszystkie zadania 🎉",
+    "planned": "Zaplanowano",
+    "create_one": "Utwórz {{count}} zadanie",
+    "create_few": "Utwórz {{count}} zadania",
+    "create_many": "Utwórz {{count}} zadań",
+    "create_other": "Utwórz {{count}} zadań",
+    "creating": "Tworzę…",
+    "created_one": "✅ Utworzono {{count}} zadanie",
+    "created_few": "✅ Utworzono {{count}} zadania",
+    "created_many": "✅ Utworzono {{count}} zadań",
+    "created_other": "✅ Utworzono {{count}} zadań",
+    "notes": "Całoroczny plan pielęgnacji ({{month}})"
   }
 }
