@@ -18,6 +18,7 @@ POKUD jsou `[ ]` položky:
 - Commitni: git add -A && git commit -m "feat: [popis]"
 - Pushni: git push gardenpin HEAD
 - Ověř syntax: node --check backend/server.js
+- **DEPLOY POVINNĚ** (pokud položka ovlivnila frontend/backend kód — což je 95 % případů): `wsl -e bash "/mnt/c/Users/Dell 5090/Documents/Claude/Projects/Patrik The Gardener/zahradni-tracker/deploy.sh"`. Skip jen pro pure dokumentaci (`docs/*.md`) a interní refactor bez vizuálního/funkčního dopadu. Build sám o sobě NESTAČÍ — `backend/public/` lokálně se neservíruje, PM2 servíruje z `~/zahradni-tracker/` (rsync target).
 - Vypiš: <promise>COMPLETE</promise>
 
 NIKDY nepoužívej AskUserQuestion. Pracuj autonomně.
