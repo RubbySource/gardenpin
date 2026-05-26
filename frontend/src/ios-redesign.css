@@ -1461,3 +1461,230 @@ input[type="range"]::-moz-range-thumb {
   font-weight: 600;
   color: var(--ios-label);
 }
+
+/* ============================================================
+   Gardens list redesign (BACKLOG: Gardens list redesign)
+   Large title + hledání · velké karty s hero fotkou + status chipy ·
+   swipe-to-reveal akce (Sdílet / Upravit / Smazat) + „•••" menu.
+   ============================================================ */
+
+/* Header — large title + akce */
+.gl-header { margin: 0 0 12px; }
+.gl-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.gl-header-row .ios-large-title { margin: 6px 0 0; }
+.gl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-top: 6px;
+}
+.gl-round-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), background 120ms var(--ios-ease),
+              filter 120ms var(--ios-ease);
+}
+.gl-round-btn:active { transform: scale(0.9); }
+.gl-round-btn.ghost { background: var(--ios-fill); color: var(--ios-accent); }
+.gl-round-btn.primary {
+  background: var(--ios-accent);
+  color: #fff;
+  box-shadow: var(--ios-shadow-card);
+}
+.gl-round-btn.primary:active { filter: brightness(0.94); }
+.gl-subtitle {
+  margin: 2px 4px 0;
+  font-size: 0.95rem;
+  color: var(--ios-label-secondary);
+}
+
+/* Hledání */
+.gl-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ios-fill);
+  border-radius: var(--ios-r-sm);
+  padding: 0 10px;
+  height: 40px;
+  margin: 12px 0 4px;
+  color: var(--ios-label-secondary);
+}
+.gl-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--ios-label);
+  padding: 0;
+}
+.gl-search input::placeholder { color: var(--ios-label-secondary); }
+.gl-search input:focus { outline: none; }
+.gl-search-clear {
+  border: none;
+  background: var(--ios-label-tertiary);
+  color: var(--ios-bg-elev);
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Karty */
+.gl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+/* Cell drží swipe-reveal vrstvu pod kartou */
+.gl-card-cell {
+  position: relative;
+  border-radius: var(--ios-r-lg);
+  overflow: hidden;
+  box-shadow: var(--ios-shadow-card);
+}
+.gl-swipe-actions {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  z-index: 0;
+}
+.gl-swipe-action {
+  width: 74px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+}
+.gl-swipe-action:active { filter: brightness(0.92); }
+.gl-swipe-action.share { background: var(--ios-blue); }
+.gl-swipe-action.edit { background: var(--ios-orange); }
+.gl-swipe-action.delete { background: var(--ios-red); }
+
+.gl-card {
+  position: relative;
+  z-index: 1;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  will-change: transform;
+  touch-action: pan-y;
+}
+.gl-card-hero {
+  position: relative;
+  height: 158px;
+  background: linear-gradient(135deg, var(--sage-100, #E5EDE3), var(--sage-400, #8DB089));
+}
+.gl-card-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gl-card-hero-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gl-card-hero-ph span { font-size: 3.4rem; opacity: 0.9; }
+.gl-urgent-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 59, 48, 0.94);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.gl-card-menu { position: absolute; top: 10px; right: 10px; }
+.gl-menu-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.34);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease);
+}
+.gl-menu-btn:active { transform: scale(0.88); }
+.gl-dots { font-size: 1.1rem; line-height: 1; letter-spacing: 0.5px; margin-top: -6px; }
+.gl-menu { top: calc(100% + 6px); min-width: 200px; }
+.gd-action-menu button.danger { color: var(--ios-red); }
+.gd-action-menu button .ic-svg { color: var(--ios-accent); flex-shrink: 0; }
+.gd-action-menu button.danger .ic-svg { color: var(--ios-red); }
+
+.gl-card-body { padding: 14px 16px 16px; }
+.gl-card-name {
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+  line-height: 1.2;
+}
+.gl-card-meta {
+  margin-top: 3px;
+  font-size: 0.84rem;
+  color: var(--ios-label-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gl-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.gl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--ios-fill);
+  color: var(--ios-label);
+}
+.gl-chip.primary { background: var(--ios-accent); color: #fff; }
+.gl-chip.done { color: var(--ios-green); }

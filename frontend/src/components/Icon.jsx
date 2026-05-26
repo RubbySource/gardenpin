@@ -104,6 +104,19 @@ const ICONS = {
       <path d="M3 21v-5h5" />
     </>
   ),
+  share: (
+    <>
+      <path d="M12 3v13" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
+    </>
+  ),
+  pencil: (
+    <>
+      <path d="M11 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-6" />
+      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5Z" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 20, className = '', stroke = 2, ...rest }) {
