@@ -837,6 +837,14 @@
     "longest_other": "Nejdelší: {{count}} dní",
     "weeklyGardener": "🏅 Zahradník týdne"
   },
+  "frost": {
+    "badge": "Mráz {{date}}",
+    "tooltip": "Naplánováno na mrazivý den ({{temp}} °C) — mráz může poškodit citlivé sazenice",
+    "postpone": "Odložit za mráz",
+    "postponing": "Odkládám…",
+    "postponed": "❄️ Odloženo za mráz na {{date}}",
+    "postponeFailed": "Odložení selhalo: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Načítám počasí…",
     "prague": "Praha",

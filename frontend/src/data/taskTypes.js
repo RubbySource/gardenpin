@@ -15,7 +15,7 @@ export const TASK_TYPES = [
   { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null },
   { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing' },
   { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning' },
-  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting' },
+  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting', frostSensitive: true },
   { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null },
   { id: 'sklizen',   label: 'Sklizeň',   icon: '🧺', iconName: 'leaf',     icalCategory: 'harvest' },
   { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null },
@@ -52,6 +52,12 @@ export function taskIconName(type) {
 // Odvodí reálný task_type ze sezónního care emoji; fallback 'jine'.
 export function taskTypeFromEmoji(emoji) {
   return EMOJI_TO_TYPE[emoji] ?? 'jine';
+}
+
+// Mrazově citlivé typy úkonů — přesazování/výsadba ven. Tendr sazenice mráz nezvládnou,
+// proto u nich Tasks/Home ukazují mrazové varování + nabídku přeplánování (viz frost.js).
+export function isFrostSensitiveType(type) {
+  return !!BY_ID.get(type)?.frostSensitive;
 }
 
 // iCal kategorie pro filtr odběru kalendáře (key v URL `types=` ↔ label v UI).

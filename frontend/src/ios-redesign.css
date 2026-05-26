@@ -1218,6 +1218,58 @@ input[type="range"]::-moz-range-thumb {
   color: var(--ios-accent-hover);
 }
 
+/* ---------- Mrazové varování na řádku úkolu (frost.js / FrostWarning.jsx) ---------- */
+.frost-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.frost-alert.compact {
+  margin-top: 6px;
+}
+.frost-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d6e9ff, #eef6ff);
+  border: 1px solid #6cb2ea;
+  color: #1a4b7a;
+  white-space: nowrap;
+}
+.frost-alert-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--brand-action);
+  background: var(--brand-action);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.frost-alert-btn:active {
+  transform: scale(0.96);
+}
+.frost-alert-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.frost-alert.compact .frost-alert-badge,
+.frost-alert.compact .frost-alert-btn {
+  font-size: 0.68rem;
+}
+html[data-theme="dark"] .frost-alert-badge {
+  background: linear-gradient(135deg, #1f3346, #16273a);
+  border-color: #2e587e;
+  color: #cfe4ff;
+}
+
 /* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
 .snooze-sheet-overlay {
   position: fixed;

@@ -9,6 +9,7 @@ import Icon from '../components/Icon.jsx';
 import TaskRow from '../components/TaskRow.jsx';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { daysFromToday } from '../utils.js';
+import { useFrostForecast } from '../frost.js';
 import { hapticNotification } from '../native/haptics.js';
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
@@ -107,6 +108,7 @@ export default function TasksPage({ onTaskComplete }) {
   const [completingIds, setCompletingIds] = useState(new Set());
   const [deletingIds, setDeletingIds] = useState(new Set());
   const [query, setQuery] = useState('');
+  const forecast = useFrostForecast();
 
   const load = async () => {
     try {
@@ -374,6 +376,7 @@ export default function TasksPage({ onTaskComplete }) {
                 <TaskRow
                   key={t.id}
                   task={t}
+                  forecast={forecast}
                   completing={completingIds.has(t.id)}
                   deleting={deletingIds.has(t.id)}
                   onComplete={() => completeTask(t)}

@@ -787,6 +787,14 @@
     "longest_other": "Längste: {{count}} Tage",
     "weeklyGardener": "🏅 Gärtner der Woche"
   },
+  "frost": {
+    "badge": "Frost {{date}}",
+    "tooltip": "Für einen Frosttag geplant ({{temp}} °C) — Frost kann empfindliche Setzlinge schädigen",
+    "postpone": "Nach dem Frost verschieben",
+    "postponing": "Wird verschoben…",
+    "postponed": "❄️ Auf {{date}} nach dem Frost verschoben",
+    "postponeFailed": "Verschieben fehlgeschlagen: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Wetter wird geladen…",
     "prague": "Prag",

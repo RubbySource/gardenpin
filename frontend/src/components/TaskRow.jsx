@@ -5,6 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from './Icon.jsx';
 import SnoozeButton from './SnoozeButton.jsx';
+import FrostWarning from './FrostWarning.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
 import { dueBadge, taskLabel, taskIconName } from '../utils.js';
 
@@ -12,6 +13,7 @@ export default function TaskRow({
   task,
   completing,
   deleting,
+  forecast,
   onComplete,
   onDelete,
   onOpen,
@@ -88,6 +90,7 @@ export default function TaskRow({
                 </span>
               )}
             </div>
+            <FrostWarning task={task} forecast={forecast} onPostponed={onSnoozed} />
           </div>
         </div>
       </div>

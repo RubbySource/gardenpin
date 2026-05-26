@@ -12,8 +12,10 @@ import StreakWidget from '../components/StreakWidget.jsx';
 import SeasonStats from '../components/SeasonStats.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import Icon from '../components/Icon.jsx';
+import FrostWarning from '../components/FrostWarning.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
+import { useFrostForecast } from '../frost.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { fireConfetti } from '../utils/confetti.js';
 import { hapticNotification } from '../native/haptics.js';
@@ -49,6 +51,7 @@ export default function HomePage({ onTaskComplete }) {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [streakRefresh, setStreakRefresh] = useState(0);
+  const forecast = useFrostForecast();
   const nav = useNavigate();
 
   const userName = localStorage.getItem(USER_NAME_KEY) || DEFAULT_NAME;
@@ -169,7 +172,13 @@ export default function HomePage({ onTaskComplete }) {
         ) : (
           <div className="hm-card">
             {today.map((t) => (
-              <HomeTaskRow key={t.id} task={t} onComplete={completeTask} />
+              <HomeTaskRow
+                key={t.id}
+                task={t}
+                forecast={forecast}
+                onComplete={completeTask}
+                onPostponed={load}
+              />
             ))}
           </div>
         )}
@@ -219,7 +228,13 @@ export default function HomePage({ onTaskComplete }) {
           </div>
           <div className="hm-card">
             {upcoming.map((t) => (
-              <HomeTaskRow key={t.id} task={t} onComplete={completeTask} />
+              <HomeTaskRow
+                key={t.id}
+                task={t}
+                forecast={forecast}
+                onComplete={completeTask}
+                onPostponed={load}
+              />
             ))}
           </div>
         </section>
@@ -320,7 +335,7 @@ export default function HomePage({ onTaskComplete }) {
 }
 
 // iOS grouped-list řádek úkolu — kruhový check (splnit) + ikona z taxonomie + termín badge.
-function HomeTaskRow({ task, onComplete }) {
+function HomeTaskRow({ task, forecast, onComplete, onPostponed }) {
   const { t } = useTranslation();
   const badge = dueBadge(task.next_due);
   const days = daysFromToday(task.next_due);
@@ -347,6 +362,7 @@ function HomeTaskRow({ task, onComplete }) {
           {task.plant_name ? ` · ${task.plant_name}` : ''}
           {task.garden_name ? ` · ${task.garden_name}` : ''}
         </div>
+        <FrostWarning task={task} forecast={forecast} onPostponed={onPostponed} compact />
       </div>
       {badge && <span className={`hm-task-badge ${badge.cls}`}>{badge.text}</span>}
     </div>

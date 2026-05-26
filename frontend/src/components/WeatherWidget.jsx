@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n, { localeCode } from '../i18n.js';
 import { api } from '../api.js';
+import { FROST_THRESHOLD, primeFrostForecast } from '../frost.js';
 
 const PRAGUE = { lat: 50.08, lon: 14.44, labelKey: 'weather.prague' };
 
@@ -19,7 +20,8 @@ function wmoToIcon(code) {
   return { icon: '🌡️', label: i18n.t('weather.wmoWeather') };
 }
 
-const FROST_THRESHOLD = 2; // °C — pod touto hodnotou varujeme
+// FROST_THRESHOLD je sdílený s frost.js (mrazově-chytré přeplánování), aby varování
+// počasí i task-řádků používala stejnou hranici.
 
 function dayLabel(iso, idx) {
   if (idx === 0) return i18n.t('common.today');
@@ -55,6 +57,8 @@ export default function WeatherWidget() {
       setWeather(data.current_weather);
       setDaily(data.daily || null);
       setSensitive(sens);
+      // Sdílej předpověď s frost.js, ať mrazové přeplánování úkolů nefetchuje znovu.
+      primeFrostForecast(l, data.daily);
     } catch (e) {
       setError(e.message);
     } finally {

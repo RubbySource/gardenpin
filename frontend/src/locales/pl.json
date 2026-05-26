@@ -881,6 +881,14 @@
     "longest_other": "Najdłużej: {{count}} dnia",
     "weeklyGardener": "🏅 Ogrodnik tygodnia"
   },
+  "frost": {
+    "badge": "Mróz {{date}}",
+    "tooltip": "Zaplanowano na mroźny dzień ({{temp}} °C) — mróz może uszkodzić wrażliwe sadzonki",
+    "postpone": "Przełóż po mrozie",
+    "postponing": "Przekładam…",
+    "postponed": "❄️ Przełożono po mrozie na {{date}}",
+    "postponeFailed": "Przełożenie nie powiodło się: {{msg}}"
+  },
   "weather": {
     "loading": "🌤️ Ładuję pogodę…",
     "prague": "Praga",
