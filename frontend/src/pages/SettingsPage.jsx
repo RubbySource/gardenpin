@@ -1,5 +1,7 @@
-// Settings — iOS grouped list: účet, vzhled, notifikace, kalendář, data, nebezpečná zóna
+// Settings — iOS grouped list: účet, vzhled, jazyk, notifikace, kalendář, data, nebezpečná zóna
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n, { SUPPORTED_LANGS } from '../i18n.js';
 import { toast } from '../App.jsx';
 import { requestNotificationPermission } from '../utils.js';
 import { api } from '../api.js';
@@ -14,6 +16,8 @@ import { getStoredTheme, applyTheme } from '../components/ThemeToggle.jsx';
 
 const USER_NAME_KEY = 'gardenpin.userName';
 
+const LANG_FLAGS = { cs: '🇨🇿', en: '🇬🇧', de: '🇩🇪', pl: '🇵🇱', sk: '🇸🇰' };
+
 // Malá ikona v zaobleném barevném čtverci (iOS row icon)
 function RowIcon({ color, children }) {
   return (
@@ -24,6 +28,14 @@ function RowIcon({ color, children }) {
 }
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
+
+  // — Jazyk —
+  const currentLang = (i18n.resolvedLanguage || i18n.language || 'cs').split('-')[0];
+  const changeLang = (code) => {
+    i18n.changeLanguage(code);
+  };
+
   // — Téma —
   const [theme, setTheme] = useState(() => getStoredTheme());
   useEffect(() => { applyTheme(theme); }, [theme]);
@@ -75,11 +87,11 @@ export default function SettingsPage() {
     loadPremium();
     const params = new URLSearchParams(window.location.search);
     if (params.get('checkout') === 'success') {
-      toast('🎉 Vítej v GardenPin Premium!');
+      toast(t('settings.premiumWelcome'));
       setTimeout(loadPremium, 1500);
       window.history.replaceState({}, '', window.location.pathname);
     } else if (params.get('checkout') === 'cancel') {
-      toast('Platba zrušena');
+      toast(t('settings.paymentCanceled'));
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, [pushSupported]);
@@ -99,9 +111,9 @@ export default function SettingsPage() {
     try {
       const { url } = await api.stripeCreateCheckout();
       if (url) window.location.href = url;
-      else toast('Chyba: chybí URL z Stripe');
+      else toast(t('settings.missingStripeUrl'));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setPremiumBusy(false);
     }
@@ -112,8 +124,8 @@ export default function SettingsPage() {
     if (!pushSupported) {
       const r = await requestNotificationPermission();
       setNotifStatus(r);
-      if (r === 'granted') toast('✅ Notifikace povoleny');
-      else if (r === 'denied') toast('Notifikace zamítnuty. Povol je v nastavení prohlížeče.');
+      if (r === 'granted') toast(t('settings.notifEnabled'));
+      else if (r === 'denied') toast(t('settings.notifDenied'));
       return;
     }
     setPushBusy(true);
@@ -121,15 +133,15 @@ export default function SettingsPage() {
       if (pushSubscribed) {
         await unsubscribePush();
         setPushSubscribed(false);
-        toast('Push notifikace vypnuté');
+        toast(t('settings.pushOff'));
       } else {
         await subscribePush();
         setPushSubscribed(true);
         setNotifStatus('granted');
-        toast('✅ Push notifikace aktivní');
+        toast(t('settings.pushOn'));
       }
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setPushBusy(false);
     }
@@ -138,16 +150,16 @@ export default function SettingsPage() {
   const sendTestPush = async () => {
     try {
       const r = await api.pushSendTest();
-      toast(`Odesláno: ${r.sent}/${r.total}`);
+      toast(t('settings.pushSent', { sent: r.sent, total: r.total }));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
   const handleReminderDays = (days) => {
     setReminderDays(days);
     localStorage.setItem('notifReminderDays', String(days));
-    toast('✅ Uloženo');
+    toast(t('settings.saved'));
   };
 
   const saveEmailSettings = async (overrides = {}) => {
@@ -161,9 +173,9 @@ export default function SettingsPage() {
       setEmailAddr(r.email || '');
       setEmailEnabled(!!r.enabled);
       setEmailDirty(false);
-      toast('✅ Nastavení uloženo');
+      toast(t('settings.settingsSaved'));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setEmailBusy(false);
     }
@@ -172,7 +184,7 @@ export default function SettingsPage() {
   const toggleEmailEnabled = async () => {
     const next = !emailEnabled;
     if (next && !emailAddr.trim()) {
-      toast('Nejdřív zadej emailovou adresu');
+      toast(t('settings.enterEmailFirst'));
       return;
     }
     setEmailEnabled(next);
@@ -181,15 +193,15 @@ export default function SettingsPage() {
 
   const handleTestEmail = async () => {
     if (!emailAddr.trim()) {
-      toast('Nejdřív zadej emailovou adresu');
+      toast(t('settings.enterEmailFirst'));
       return;
     }
     setEmailBusy(true);
     try {
       await api.sendEmailTest(emailAddr.trim());
-      toast('📧 Testovací email odeslán');
+      toast(t('settings.testEmailSent'));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setEmailBusy(false);
     }
@@ -201,49 +213,43 @@ export default function SettingsPage() {
   };
 
   const handleResetApp = () => {
-    if (!window.confirm(
-      'Resetovat aplikaci? Vymaže místní nastavení (téma, jméno, onboarding) na tomto ' +
-      'zařízení. Tvoje zahrady, rostliny a úkoly zůstanou nedotčené.',
-    )) return;
+    if (!window.confirm(t('settings.resetConfirm'))) return;
     ['gardenpin.theme', 'gardenpin.userName', 'gp_onboarded', 'notifReminderDays'].forEach(
       (k) => localStorage.removeItem(k),
     );
-    toast('Aplikace resetována');
+    toast(t('settings.appReset'));
     setTimeout(() => window.location.reload(), 700);
   };
 
   const handleDeleteAllData = async () => {
-    if (!window.confirm(
-      'Opravdu smazat VŠECHNA data? Nevratně se smažou všechny zahrady, rostliny, úkoly, ' +
-      'fotky i historie péče. Tuto akci nelze vrátit zpět.',
-    )) return;
-    const typed = window.prompt('Pro potvrzení napiš velkými písmeny: SMAZAT');
+    if (!window.confirm(t('settings.deleteConfirm'))) return;
+    const typed = window.prompt(t('settings.deletePrompt'));
     if (typed !== 'SMAZAT') {
-      toast('Zrušeno');
+      toast(t('settings.canceled'));
       return;
     }
     setWiping(true);
     try {
       const r = await api.deleteAllData();
-      toast(`Smazáno ${r.gardensDeleted ?? 0} zahrad a vše s nimi`);
+      toast(t('settings.deletedGardens', { count: r.gardensDeleted ?? 0 }));
       setTimeout(() => window.location.reload(), 900);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
       setWiping(false);
     }
   };
 
   const isDark = theme === 'dark';
   const pushOn = pushSupported ? pushSubscribed : notifStatus === 'granted';
-  const displayName = userName.trim() || 'Zahradník';
+  const displayName = userName.trim() || t('settings.accountFallbackName');
   const accountSub = premium?.is_premium
-    ? 'GardenPin Premium'
-    : emailAddr.trim() || 'Bezplatná verze';
+    ? t('settings.premiumActive')
+    : emailAddr.trim() || t('settings.freeVersion');
   const reminderOpts = [
-    { days: 0, label: 'Jen dnes' },
-    { days: 1, label: '1 den' },
-    { days: 2, label: '2 dny' },
-    { days: 3, label: '3 dny' },
+    { days: 0, label: t('settings.remindOnlyToday') },
+    { days: 1, label: t('settings.remind1Day') },
+    { days: 2, label: t('settings.remind2Days') },
+    { days: 3, label: t('settings.remind3Days') },
   ];
   const icalUrl = globalIcalToken
     ? `${window.location.origin}/api/calendar.ics?token=${globalIcalToken}`
@@ -251,7 +257,7 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
-      <h1 className="ios-large-title">Nastavení</h1>
+      <h1 className="ios-large-title">{t('settings.title')}</h1>
 
       {/* ── Účet hero ── */}
       <div className="settings-account">
@@ -260,25 +266,27 @@ export default function SettingsPage() {
           <div className="settings-account-name">{displayName}</div>
           <div className="settings-account-sub">{accountSub}</div>
         </div>
-        {premium?.is_premium && <span className="settings-premium-pill">PREMIUM</span>}
+        {premium?.is_premium && (
+          <span className="settings-premium-pill">{t('settings.premiumPill')}</span>
+        )}
       </div>
 
       {/* ── ÚČET ── */}
       <div className="settings-group">
-        <div className="settings-group-label">Účet</div>
+        <div className="settings-group-label">{t('settings.groupAccount')}</div>
         <div className="settings-group-card">
           <div className="settings-row">
             <RowIcon color="#5F8C6E">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Tvoje jméno</span>
+            <span className="settings-row-label">{t('settings.yourName')}</span>
           </div>
           <div className="settings-subrow">
             <input
               type="text"
               value={userName}
               onChange={(e) => handleName(e.target.value)}
-              placeholder="Jak ti máme říkat?"
+              placeholder={t('settings.namePlaceholder')}
               maxLength={40}
             />
           </div>
@@ -290,16 +298,16 @@ export default function SettingsPage() {
               <RowIcon color="#FF9500">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
               </RowIcon>
-              <span className="settings-row-label">Premium</span>
-              <span className="settings-row-value">Načítám…</span>
+              <span className="settings-row-label">{t('settings.premium')}</span>
+              <span className="settings-row-value">{t('settings.loadingShort')}</span>
             </div>
           ) : premium.is_premium ? (
             <div className="settings-row">
               <RowIcon color="#34C759">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
               </RowIcon>
-              <span className="settings-row-label">GardenPin Premium</span>
-              <span className="settings-row-value" style={{ color: 'var(--ios-green)', fontWeight: 600 }}>Aktivní ✓</span>
+              <span className="settings-row-label">{t('settings.premiumActive')}</span>
+              <span className="settings-row-value" style={{ color: 'var(--ios-green)', fontWeight: 600 }}>{t('settings.premiumActiveValue')}</span>
             </div>
           ) : (
             <button
@@ -310,31 +318,29 @@ export default function SettingsPage() {
               <RowIcon color="#FF9500">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
               </RowIcon>
-              <span className="settings-row-label">Upgrade na Premium</span>
-              <span className="settings-row-value">{premium.configured ? '149 Kč/měs' : 'nedostupné'}</span>
+              <span className="settings-row-label">{t('settings.upgradeToPremium')}</span>
+              <span className="settings-row-value">{premium.configured ? t('settings.premiumPrice') : t('settings.unavailable')}</span>
               {premium.configured && <span className="settings-row-chevron">›</span>}
             </button>
           )}
         </div>
-        <div className="settings-group-foot">
-          Jméno se objeví v pozdravu na úvodní obrazovce. Uloží se jen v tomto zařízení.
-        </div>
+        <div className="settings-group-foot">{t('settings.accountFoot')}</div>
       </div>
 
       {/* ── VZHLED ── */}
       <div className="settings-group">
-        <div className="settings-group-label">Vzhled</div>
+        <div className="settings-group-label">{t('settings.groupAppearance')}</div>
         <div className="settings-group-card">
           <div className="settings-row">
             <RowIcon color="#5E5CE6">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Tmavý režim</span>
+            <span className="settings-row-label">{t('settings.darkMode')}</span>
             <button
               type="button"
               role="switch"
               aria-checked={isDark}
-              aria-label="Přepnout tmavý režim"
+              aria-label={t('settings.toggleDarkMode')}
               className={`ios-switch ${isDark ? 'on' : ''}`}
               onClick={toggleTheme}
             >
@@ -342,27 +348,55 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
-        <div className="settings-group-foot">Přepni světlý a tmavý motiv aplikace.</div>
+        <div className="settings-group-foot">{t('settings.appearanceFoot')}</div>
+      </div>
+
+      {/* ── JAZYK ── */}
+      <div className="settings-group">
+        <div className="settings-group-label">{t('settings.groupLanguage')}</div>
+        <div className="settings-group-card">
+          <div className="settings-row">
+            <RowIcon color="#0A84FF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 3.5 5.7 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.7-3.5-9s1-6.5 3.5-9Z" /></svg>
+            </RowIcon>
+            <span className="settings-row-label">{t('settings.groupLanguage')}</span>
+          </div>
+          <div className="settings-subrow">
+            <div className="settings-chip-row">
+              {SUPPORTED_LANGS.map((code) => (
+                <button
+                  key={code}
+                  className={`settings-chip ${currentLang === code ? 'active' : ''}`}
+                  onClick={() => changeLang(code)}
+                  aria-pressed={currentLang === code}
+                >
+                  {LANG_FLAGS[code]} {t(`lang.${code}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="settings-group-foot">{t('settings.languageFoot')}</div>
       </div>
 
       {/* ── NOTIFIKACE ── */}
       <div className="settings-group">
-        <div className="settings-group-label">Notifikace</div>
+        <div className="settings-group-label">{t('settings.groupNotifications')}</div>
         <div className="settings-group-card">
           {/* Push */}
           <div className="settings-row">
             <RowIcon color="#FF3B30">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0-6 6c0 5-2 7-2 7h16s-2-2-2-7a6 6 0 0 0-6-6Z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Push notifikace</span>
+            <span className="settings-row-label">{t('settings.pushNotifications')}</span>
             {typeof Notification === 'undefined' ? (
-              <span className="settings-row-value">Nepodporováno</span>
+              <span className="settings-row-value">{t('settings.notSupported')}</span>
             ) : (
               <button
                 type="button"
                 role="switch"
                 aria-checked={pushOn}
-                aria-label="Přepnout push notifikace"
+                aria-label={t('settings.togglePush')}
                 className={`ios-switch ${pushOn ? 'on' : ''}`}
                 onClick={togglePush}
                 disabled={pushBusy}
@@ -374,7 +408,7 @@ export default function SettingsPage() {
           {pushSupported && pushSubscribed && (
             <div className="settings-subrow">
               <div className="settings-chip-row">
-                <button className="settings-chip" onClick={sendTestPush}>📲 Poslat testovací push</button>
+                <button className="settings-chip" onClick={sendTestPush}>{t('settings.sendTestPush')}</button>
               </div>
             </div>
           )}
@@ -386,7 +420,7 @@ export default function SettingsPage() {
             <RowIcon color="#FF9500">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 9h18M8 3v4M16 3v4" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Upozornit předem</span>
+            <span className="settings-row-label">{t('settings.remindAhead')}</span>
           </div>
           <div className="settings-subrow">
             <div className="settings-chip-row">
@@ -409,12 +443,12 @@ export default function SettingsPage() {
             <RowIcon color="#34C759">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Týdenní email digest</span>
+            <span className="settings-row-label">{t('settings.weeklyDigest')}</span>
             <button
               type="button"
               role="switch"
               aria-checked={emailEnabled}
-              aria-label="Přepnout týdenní email"
+              aria-label={t('settings.toggleWeeklyEmail')}
               className={`ios-switch ${emailEnabled ? 'on' : ''}`}
               onClick={toggleEmailEnabled}
               disabled={emailBusy}
@@ -429,34 +463,31 @@ export default function SettingsPage() {
               autoComplete="email"
               value={emailAddr}
               onChange={(e) => { setEmailAddr(e.target.value); setEmailDirty(true); }}
-              placeholder="ty@example.cz"
+              placeholder={t('settings.emailPlaceholder')}
             />
             {!emailConfigured && (
               <div className="settings-group-foot" style={{ padding: '8px 0 0' }}>
-                ⚠️ SMTP zatím nemá přihlašovací údaje (<code>GMAIL_FROM</code> / <code>GMAIL_APP_PASSWORD</code>).
-                Adresu lze uložit, emaily se zatím neodešlou.
+                {t('settings.smtpWarning')}
               </div>
             )}
             <div className="settings-mini-actions">
               {emailDirty && (
                 <button className="settings-chip active" onClick={() => saveEmailSettings()} disabled={emailBusy}>
-                  {emailBusy ? '…' : 'Uložit email'}
+                  {emailBusy ? '…' : t('settings.saveEmail')}
                 </button>
               )}
               <button className="settings-chip" onClick={handleTestEmail} disabled={emailBusy || !emailAddr.trim()}>
-                {emailBusy ? '…' : '📨 Testovací email'}
+                {emailBusy ? '…' : t('settings.testEmail')}
               </button>
             </div>
           </div>
         </div>
-        <div className="settings-group-foot">
-          Souhrn úkolů. Push dorazí i bez otevřené aplikace, email každé pondělí v 8:00.
-        </div>
+        <div className="settings-group-foot">{t('settings.notifFoot')}</div>
       </div>
 
       {/* ── KALENDÁŘ ── */}
       <div className="settings-group">
-        <div className="settings-group-label">Kalendář</div>
+        <div className="settings-group-label">{t('settings.groupCalendar')}</div>
         <div className="settings-group-card">
           {globalIcalToken ? (
             <>
@@ -464,7 +495,7 @@ export default function SettingsPage() {
                 <RowIcon color="#0A84FF">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 9h18M8 3v4M16 3v4" /></svg>
                 </RowIcon>
-                <span className="settings-row-label">Přidat do iOS Kalendáře</span>
+                <span className="settings-row-label">{t('settings.addToIosCalendar')}</span>
                 <span className="settings-row-chevron">›</span>
               </a>
               <div className="settings-sep" />
@@ -472,12 +503,12 @@ export default function SettingsPage() {
                 <RowIcon color="#5856D6">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" /></svg>
                 </RowIcon>
-                <span className="settings-row-label">Stáhnout .ics soubor</span>
+                <span className="settings-row-label">{t('settings.downloadIcs')}</span>
                 <span className="settings-row-chevron">›</span>
               </a>
               <div className="settings-sep" />
               <div className="settings-subrow" style={{ paddingTop: 12 }}>
-                <div className="settings-group-foot" style={{ padding: '0 0 6px' }}>URL pro Google Kalendář</div>
+                <div className="settings-group-foot" style={{ padding: '0 0 6px' }}>{t('settings.googleCalendarUrl')}</div>
                 <input
                   type="text"
                   value={icalUrl}
@@ -488,23 +519,21 @@ export default function SettingsPage() {
               </div>
             </>
           ) : (
-            <div className="settings-row"><span className="settings-row-value">Načítám token…</span></div>
+            <div className="settings-row"><span className="settings-row-value">{t('settings.loadingToken')}</span></div>
           )}
         </div>
-        <div className="settings-group-foot">
-          Živý odběr sezónních úkonů, výsadby, řezu a sklizně ze všech zahrad (refresh 1×/den).
-        </div>
+        <div className="settings-group-foot">{t('settings.calendarFoot')}</div>
       </div>
 
       {/* ── DATA & ZÁLOHY ── */}
       <div className="settings-group">
-        <div className="settings-group-label">Data &amp; zálohy</div>
+        <div className="settings-group-label">{t('settings.groupData')}</div>
         <div className="settings-group-card">
           <div className="settings-row">
             <RowIcon color="#0A84FF">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Export dat</span>
+            <span className="settings-row-label">{t('settings.exportData')}</span>
           </div>
           <div className="settings-subrow">
             <div className="settings-chip-row">
@@ -523,7 +552,7 @@ export default function SettingsPage() {
             <RowIcon color="#AF52DE">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20a8 8 0 1 0-8-8" /><path d="m4 12-2 2m2-2 2 2" /></svg>
             </RowIcon>
-            <span className="settings-row-label">Spustit průvodce znovu</span>
+            <span className="settings-row-label">{t('settings.rerunOnboarding')}</span>
             <span className="settings-row-chevron">›</span>
           </button>
         </div>
@@ -531,31 +560,29 @@ export default function SettingsPage() {
 
       {/* ── NEBEZPEČNÁ ZÓNA ── */}
       <div className="settings-group">
-        <div className="settings-group-label danger">Nebezpečná zóna</div>
+        <div className="settings-group-label danger">{t('settings.groupDanger')}</div>
         <div className="settings-group-card">
           <button className="settings-row" onClick={handleResetApp}>
             <RowIcon color="#FF9500">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7L3 16" /><path d="M3 21v-5h5" /></svg>
             </RowIcon>
-            <span className="settings-row-label danger">Resetovat aplikaci</span>
+            <span className="settings-row-label danger">{t('settings.resetApp')}</span>
           </button>
           <div className="settings-sep" />
           <button className="settings-row" onClick={handleDeleteAllData} disabled={wiping}>
             <RowIcon color="#FF3B30">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></svg>
             </RowIcon>
-            <span className="settings-row-label danger">{wiping ? 'Mažu…' : 'Smazat všechna data'}</span>
+            <span className="settings-row-label danger">{wiping ? t('settings.wiping') : t('settings.deleteAllData')}</span>
           </button>
         </div>
-        <div className="settings-group-foot">
-          Reset vyčistí jen místní nastavení. Smazání dat je nevratné — nejdřív si zazálohuj přes Export.
-        </div>
+        <div className="settings-group-foot">{t('settings.dangerFoot')}</div>
       </div>
 
       {/* ── Patička ── */}
       <div className="settings-foot-brand">
         <div className="name">📍 GardenPin</div>
-        <div className="claim">Správa zahrady v kapse · verze 1.0</div>
+        <div className="claim">{t('settings.footClaim')}</div>
       </div>
 
       {showOnboarding && <OnboardingFlow onClose={() => setShowOnboarding(false)} />}

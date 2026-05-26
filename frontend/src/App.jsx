@@ -1,6 +1,8 @@
 // Main App component with routes and navigation
 import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n, { localeCode } from './i18n.js';
 import HomePage from './pages/HomePage.jsx';
 import GardensPage from './pages/GardensPage.jsx';
 import GardenDetailPage from './pages/GardenDetailPage.jsx';
@@ -24,6 +26,7 @@ export function toast(message) {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const [searchOpen, setSearchOpen] = useState(false);
@@ -80,7 +83,12 @@ export default function App() {
           if (diff === null || diff < 0 || diff > reminderDays) continue;
           const key = `${t.id}_${today}`;
           if (!lastNotified[key]) {
-            const when = diff === 0 ? 'Dnes' : diff === 1 ? 'Zítra' : `Za ${diff} dny`;
+            const when =
+              diff === 0
+                ? i18n.t('common.notifToday')
+                : diff === 1
+                  ? i18n.t('common.notifTomorrow')
+                  : i18n.t('common.notifInDays', { count: diff });
             showNotification(
               `${taskIcon(t.task_type)} ${t.title}`,
               `${when}: ${t.pin_name} · ${t.garden_name}`,
@@ -116,15 +124,15 @@ export default function App() {
   // iOS-style dynamický titulek v topbaru (převzato z hlavní větve)
   const routeTitle = (() => {
     const p = location.pathname;
-    if (p === '/' || p === '') return 'Přehled';
-    if (p.startsWith('/zahrady')) return 'Zahrady';
-    if (p.startsWith('/zahrada/')) return 'Detail zahrady';
-    if (p.startsWith('/ukoly')) return 'Úkoly';
-    if (p.startsWith('/tyden')) return 'Týden';
-    if (p.startsWith('/katalog')) return 'Katalog rostlin';
-    if (p.startsWith('/kalendar')) return 'Kalendář';
-    if (p.startsWith('/nastaveni')) return 'Nastavení';
-    return 'GardenPin';
+    if (p === '/' || p === '') return t('topbar.overview');
+    if (p.startsWith('/zahrady')) return t('topbar.gardens');
+    if (p.startsWith('/zahrada/')) return t('topbar.gardenDetail');
+    if (p.startsWith('/ukoly')) return t('topbar.tasks');
+    if (p.startsWith('/tyden')) return t('topbar.week');
+    if (p.startsWith('/katalog')) return t('topbar.catalog');
+    if (p.startsWith('/kalendar')) return t('topbar.calendar');
+    if (p.startsWith('/nastaveni')) return t('topbar.settings');
+    return t('topbar.brand');
   })();
 
   return (
@@ -139,13 +147,13 @@ export default function App() {
             type="button"
             className="topbar-search-btn"
             onClick={() => setSearchOpen(true)}
-            aria-label="Vyhledávání"
-            title="Vyhledávání (Ctrl+K)"
+            aria-label={t('topbar.search')}
+            title={t('topbar.searchHint')}
           >
             🔍
           </button>
           <div className="small" style={{ opacity: 0.8, fontWeight: 500 }}>
-            {new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+            {new Date().toLocaleDateString(localeCode(), { day: 'numeric', month: 'short' })}
           </div>
         </div>
       </header>
@@ -169,11 +177,11 @@ export default function App() {
       <nav className="bottom-nav">
         <NavLink to="/" end>
           <span className="icon">🏠</span>
-          <span>Přehled</span>
+          <span>{t('nav.home')}</span>
         </NavLink>
         <NavLink to="/zahrady">
           <span className="icon">🗺️</span>
-          <span>Zahrady</span>
+          <span>{t('nav.gardens')}</span>
         </NavLink>
         <NavLink to="/ukoly">
           <span className="nav-icon-wrap">
@@ -186,19 +194,19 @@ export default function App() {
               </span>
             )}
           </span>
-          <span>Úkoly</span>
+          <span>{t('nav.tasks')}</span>
         </NavLink>
         <NavLink to="/kalendar">
           <span className="icon">📅</span>
-          <span>Kalendář</span>
+          <span>{t('nav.calendar')}</span>
         </NavLink>
         <NavLink to="/katalog">
           <span className="icon">🌿</span>
-          <span>Katalog</span>
+          <span>{t('nav.catalog')}</span>
         </NavLink>
         <NavLink to="/nastaveni">
           <span className="icon">⚙️</span>
-          <span>Nastavení</span>
+          <span>{t('nav.settings')}</span>
         </NavLink>
       </nav>
 

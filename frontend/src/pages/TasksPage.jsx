@@ -1,5 +1,7 @@
 // All tasks page — iOS segmented control (Dnes / Týden / Vše) + Hotovo historie.
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n, { localeCode } from '../i18n.js';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
@@ -9,36 +11,7 @@ import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { daysFromToday } from '../utils.js';
 import { hapticNotification } from '../native/haptics.js';
 
-const MONTH_NAMES = [
-  'Leden',
-  'Únor',
-  'Březen',
-  'Duben',
-  'Květen',
-  'Červen',
-  'Červenec',
-  'Srpen',
-  'Září',
-  'Říjen',
-  'Listopad',
-  'Prosinec',
-];
-
-const CZ_WEEKDAYS = [
-  'Neděle',
-  'Pondělí',
-  'Úterý',
-  'Středa',
-  'Čtvrtek',
-  'Pátek',
-  'Sobota',
-];
-
-const SEGMENTS = [
-  { key: 'today', label: 'Dnes' },
-  { key: 'week', label: 'Týden' },
-  { key: 'all', label: 'Vše' },
-];
+const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 function monthKey(dateStr) {
   if (!dateStr) return 'unknown';
@@ -48,25 +21,32 @@ function monthKey(dateStr) {
 }
 
 function monthLabel(key) {
-  if (key === 'unknown') return 'Bez termínu';
+  if (key === 'unknown') return i18n.t('common.noDue');
   const [y, m] = key.split('-');
+  const year = parseInt(y, 10);
   const monthIdx = parseInt(m, 10) - 1;
   const now = new Date();
-  const isCurrent =
-    parseInt(y, 10) === now.getFullYear() && monthIdx === now.getMonth();
-  const yearLabel = parseInt(y, 10) === now.getFullYear() ? '' : ` ${y}`;
-  return (isCurrent ? 'Tento měsíc · ' : '') + MONTH_NAMES[monthIdx] + yearLabel;
+  const isCurrent = year === now.getFullYear() && monthIdx === now.getMonth();
+  const monthName = cap(
+    new Date(year, monthIdx, 1).toLocaleDateString(localeCode(), { month: 'long' }),
+  );
+  const yearLabel = year === now.getFullYear() ? '' : ` ${y}`;
+  return (isCurrent ? i18n.t('tasks.thisMonthPrefix') : '') + monthName + yearLabel;
 }
 
 // Relativní „den" bucket pro filtry Dnes / Týden (Po termínu, Dnes, Zítra, název dne).
 function dayBucket(dateStr) {
   const diff = daysFromToday(dateStr);
-  if (diff === null) return { key: 'none', label: 'Bez termínu', order: 9999 };
-  if (diff < 0) return { key: 'overdue', label: 'Po termínu', order: -1 };
-  if (diff === 0) return { key: 'd0', label: 'Dnes', order: 0 };
-  if (diff === 1) return { key: 'd1', label: 'Zítra', order: 1 };
+  if (diff === null) return { key: 'none', label: i18n.t('common.noDue'), order: 9999 };
+  if (diff < 0) return { key: 'overdue', label: i18n.t('common.overdue'), order: -1 };
+  if (diff === 0) return { key: 'd0', label: i18n.t('common.today'), order: 0 };
+  if (diff === 1) return { key: 'd1', label: i18n.t('common.tomorrow'), order: 1 };
   const d = new Date(dateStr);
-  return { key: `d${diff}`, label: CZ_WEEKDAYS[d.getDay()], order: diff };
+  return {
+    key: `d${diff}`,
+    label: cap(d.toLocaleDateString(localeCode(), { weekday: 'long' })),
+    order: diff,
+  };
 }
 
 function byDueAsc(a, b) {
@@ -111,6 +91,12 @@ function matchesQuery(t, q) {
 }
 
 export default function TasksPage({ onTaskComplete }) {
+  const { t } = useTranslation();
+  const SEGMENTS = [
+    { key: 'today', label: t('tasks.segToday') },
+    { key: 'week', label: t('tasks.segWeek') },
+    { key: 'all', label: t('tasks.segAll') },
+  ];
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
   const [gardens, setGardens] = useState([]);
@@ -133,7 +119,7 @@ export default function TasksPage({ onTaskComplete }) {
       setHistory(h);
       setGardens(g);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -144,41 +130,41 @@ export default function TasksPage({ onTaskComplete }) {
 
   const ptr = usePullToRefresh(load);
 
-  const completeTask = async (t) => {
-    if (completingIds.has(t.id)) return;
-    setCompletingIds((s) => new Set(s).add(t.id));
+  const completeTask = async (task) => {
+    if (completingIds.has(task.id)) return;
+    setCompletingIds((s) => new Set(s).add(task.id));
     try {
       await new Promise((r) => setTimeout(r, 280));
-      await api.completeTask(t.id);
+      await api.completeTask(task.id);
       hapticNotification('success');
-      toast('✅ Hotovo');
+      toast(t('tasks.completed'));
       await load();
       onTaskComplete?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setCompletingIds((s) => {
         const next = new Set(s);
-        next.delete(t.id);
+        next.delete(task.id);
         return next;
       });
     }
   };
 
-  const deleteTask = async (t) => {
-    if (deletingIds.has(t.id)) return;
-    setDeletingIds((s) => new Set(s).add(t.id));
+  const deleteTask = async (task) => {
+    if (deletingIds.has(task.id)) return;
+    setDeletingIds((s) => new Set(s).add(task.id));
     try {
-      await api.deleteTask(t.id);
-      toast('🗑️ Smazáno');
+      await api.deleteTask(task.id);
+      toast(t('tasks.deleted'));
       await load();
       onTaskComplete?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setDeletingIds((s) => {
         const next = new Set(s);
-        next.delete(t.id);
+        next.delete(task.id);
         return next;
       });
     }
@@ -233,15 +219,15 @@ export default function TasksPage({ onTaskComplete }) {
   const activeIdx = SEGMENTS.findIndex((s) => s.key === filter);
 
   const emptyText = () => {
-    if (query) return { title: 'Žádné výsledky', sub: 'Zkuste jiný výraz.', icon: '🔍' };
+    if (query) return { title: t('tasks.noResults'), sub: t('tasks.noResultsSub'), icon: '🔍' };
     if (filter === 'today')
-      return { title: 'Na dnešek máš hotovo', sub: 'Žádný úkol po termínu ani na dnes 🌿', icon: '🌿' };
+      return { title: t('tasks.todayDoneTitle'), sub: t('tasks.todayDoneSub'), icon: '🌿' };
     if (filter === 'week')
-      return { title: 'Tento týden klid', sub: 'Žádné úkoly v příštích 7 dnech.', icon: '🌤️' };
-    return { title: 'Žádné úkoly', sub: 'Přidejte je v detailu místa v zahradě.', icon: '🌼' };
+      return { title: t('tasks.weekCalmTitle'), sub: t('tasks.weekCalmSub'), icon: '🌤️' };
+    return { title: t('tasks.noTasksTitle'), sub: t('tasks.noTasksSub'), icon: '🌼' };
   };
 
-  if (loading) return <div className="empty">🌱 Načítám...</div>;
+  if (loading) return <div className="empty">🌱 {t('common.loading')}</div>;
 
   return (
     <div {...ptr.handlers} className="ptr-host">
@@ -257,23 +243,22 @@ export default function TasksPage({ onTaskComplete }) {
           style={{ transform: `rotate(${Math.min(ptr.pull * 4, 360)}deg)` }}
         />
         <span className="ptr-label">
-          {ptr.refreshing ? 'Aktualizuji…' : ptr.triggered ? 'Pustit pro obnovu' : 'Stáhněte ↓'}
+          {ptr.refreshing
+            ? t('common.ptrRefreshing')
+            : ptr.triggered
+              ? t('common.ptrRelease')
+              : t('common.ptrPull')}
         </span>
       </div>
 
       {/* Large title + dynamic subtitle (mockup parity: docs/mockups/tasks.html) */}
       <header className="tasks-header">
-        <h1 className="ios-large-title">Úkoly</h1>
+        <h1 className="ios-large-title">{t('tasks.title')}</h1>
         <p className="tasks-subtitle">
           {gardenFilteredTasks.length === 0
-            ? 'Žádné naplánované úkoly'
-            : `${gardenFilteredTasks.length} ${
-                gardenFilteredTasks.length === 1
-                  ? 'úkol čeká'
-                  : gardenFilteredTasks.length < 5
-                  ? 'úkoly čekají'
-                  : 'úkolů čeká'
-              }${overdueCount > 0 ? ` · ${overdueCount} po termínu` : ''}`}
+            ? t('tasks.noneScheduled')
+            : t('tasks.waitingCount', { count: gardenFilteredTasks.length }) +
+              (overdueCount > 0 ? t('tasks.overdueSuffix', { count: overdueCount }) : '')}
         </p>
       </header>
 
@@ -281,17 +266,17 @@ export default function TasksPage({ onTaskComplete }) {
       <div className="tasks-stats-strip">
         <div className="tasks-stat">
           <div className="tasks-stat-val">{gardenFilteredTasks.length}</div>
-          <div className="tasks-stat-lbl">Naplánováno</div>
+          <div className="tasks-stat-lbl">{t('tasks.statScheduled')}</div>
         </div>
         <div className="tasks-stat">
           <div className={`tasks-stat-val ${overdueCount > 0 ? 'red' : ''}`}>{overdueCount}</div>
-          <div className="tasks-stat-lbl">Po termínu</div>
+          <div className="tasks-stat-lbl">{t('tasks.statOverdue')}</div>
         </div>
         <div className="tasks-stat">
           <div className={`tasks-stat-val ${gardenFilteredHistory.length > 0 ? 'green' : ''}`}>
             {gardenFilteredHistory.length}
           </div>
-          <div className="tasks-stat-lbl">Hotovo</div>
+          <div className="tasks-stat-lbl">{t('tasks.statDone')}</div>
         </div>
       </div>
 
@@ -302,7 +287,7 @@ export default function TasksPage({ onTaskComplete }) {
           <input
             type="search"
             inputMode="search"
-            placeholder="Hledat úkol, rostlinu nebo zahradu"
+            placeholder={t('tasks.searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="ios-search-input"
@@ -312,7 +297,7 @@ export default function TasksPage({ onTaskComplete }) {
               type="button"
               className="ios-search-clear"
               onClick={() => setQuery('')}
-              aria-label="Vymazat hledání"
+              aria-label={t('tasks.clearSearch')}
             >
               <Icon name="close" size={14} />
             </button>
@@ -326,7 +311,7 @@ export default function TasksPage({ onTaskComplete }) {
             className={`filter-pill ${gardenFilter === 'all' ? 'active' : ''}`}
             onClick={() => setGardenFilter('all')}
           >
-            🗺️ Všechny
+            {t('tasks.allGardens')}
           </button>
           {gardens.map((g) => (
             <button
@@ -342,7 +327,7 @@ export default function TasksPage({ onTaskComplete }) {
 
       {/* iOS segmented control: Dnes / Týden / Vše + Hotovo toggle */}
       <div className="tasks-filter-bar">
-        <div className="ios-segmented" role="tablist" aria-label="Filtr úkolů">
+        <div className="ios-segmented" role="tablist" aria-label={t('tasks.filterLabel')}>
           {activeIdx >= 0 && (
             <span
               className="ios-seg-thumb"
@@ -368,7 +353,7 @@ export default function TasksPage({ onTaskComplete }) {
           className={`tasks-done-toggle ${filter === 'done' ? 'active' : ''}`}
           onClick={() => setFilter((f) => (f === 'done' ? 'all' : 'done'))}
           aria-pressed={filter === 'done'}
-          title="Dokončené úkoly"
+          title={t('tasks.doneTitle')}
         >
           <Icon name="check" size={16} stroke={2.5} />
           {gardenFilteredHistory.length > 0 && (
@@ -413,10 +398,10 @@ export default function TasksPage({ onTaskComplete }) {
         <div className="card empty">
           <div className="icon">📭</div>
           <div style={{ fontWeight: 700, marginBottom: 4 }}>
-            {query ? 'Žádné výsledky' : 'Zatím žádná historie péče'}
+            {query ? t('tasks.noResults') : t('tasks.noHistoryTitle')}
           </div>
           <div className="small muted">
-            {query ? 'Zkuste jiný výraz.' : 'Až dokončíte první úkol, objeví se tady.'}
+            {query ? t('tasks.noResultsSub') : t('tasks.noHistorySub')}
           </div>
         </div>
       )}
@@ -450,7 +435,7 @@ export default function TasksPage({ onTaskComplete }) {
 }
 
 function DoneRow({ item, onOpen }) {
-  const date = new Date(item.done_at + 'Z').toLocaleString('cs-CZ', {
+  const date = new Date(item.done_at + 'Z').toLocaleString(localeCode(), {
     day: 'numeric',
     month: 'numeric',
     hour: '2-digit',

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { initNative } from './native.js';
+import './i18n.js';
 import './styles.css';
 import './ios-redesign.css';
 import './tailwind.css';

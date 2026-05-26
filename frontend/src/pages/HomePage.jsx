@@ -3,6 +3,8 @@
 // modulární karty (streak / počasí / fotky) · velké karty zahrad · FAB.
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { localeCode } from '../i18n.js';
 import { api } from '../api.js';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import WeatherWidget from '../components/WeatherWidget.jsx';
@@ -16,36 +18,19 @@ import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { fireConfetti } from '../utils/confetti.js';
 import { hapticNotification } from '../native/haptics.js';
 
-const MONTH_TIPS = [
-  'Plánujte výsadbu na další sezónu',
-  'Připravte sazenice na jaro',
-  'Začíná předpěstování — papriky a rajčata',
-  'Vysazujte mrazuvzdorné druhy',
-  'Hlavní výsadbová sezóna',
-  'Sledujte zálivku a škůdce',
-  'Sklízejte a hnojte',
-  'Začátek sklizňových prací',
-  'Sklizeň ovoce a zeleniny',
-  'Připravte zahradu na zimu',
-  'Mulčování a ochrana',
-  'Plánujte sezónu ve své kuchyni',
-];
-
 const USER_NAME_KEY = 'gardenpin.userName';
 const DEFAULT_NAME = 'Patriku';
 
-const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
-
-function getGreeting() {
+function greetingKey() {
   const h = new Date().getHours();
-  if (h < 6) return 'Dobrou noc';
-  if (h < 11) return 'Dobré ráno';
-  if (h < 18) return 'Dobré odpoledne';
-  return 'Dobrý večer';
+  if (h < 6) return 'home.greetingNight';
+  if (h < 11) return 'home.greetingMorning';
+  if (h < 18) return 'home.greetingAfternoon';
+  return 'home.greetingEvening';
 }
 
 function dateLine() {
-  const s = new Date().toLocaleDateString('cs-CZ', {
+  const s = new Date().toLocaleDateString(localeCode(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -54,6 +39,7 @@ function dateLine() {
 }
 
 export default function HomePage({ onTaskComplete }) {
+  const { t } = useTranslation();
   const [today, setToday] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [stats, setStats] = useState(null);
@@ -91,7 +77,7 @@ export default function HomePage({ onTaskComplete }) {
       }
       setGardenWeek(weekMap);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -103,11 +89,11 @@ export default function HomePage({ onTaskComplete }) {
 
   const ptr = usePullToRefresh(load);
 
-  const completeTask = async (t) => {
+  const completeTask = async (task) => {
     try {
-      const res = await api.completeTask(t.id);
+      const res = await api.completeTask(task.id);
       hapticNotification('success');
-      toast('✅ Úkol označen jako hotový');
+      toast(t('home.taskCompleted'));
       // Konfety jen když přibyl den ve streaku (ne pro každý další task v ten samý den)
       if (res?.streak?.increased) {
         fireConfetti({
@@ -119,13 +105,13 @@ export default function HomePage({ onTaskComplete }) {
       load();
       onTaskComplete?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
-  if (loading) return <div className="empty">Načítám...</div>;
+  if (loading) return <div className="empty">{t('common.loading')}</div>;
 
-  const monthTip = MONTH_TIPS[new Date().getMonth()];
+  const monthTip = t('home.monthTips', { returnObjects: true })[new Date().getMonth()];
   const urgentCount = stats ? stats.overdue + stats.dueToday : 0;
   const hasOverdue = stats && stats.overdue > 0;
 
@@ -144,13 +130,17 @@ export default function HomePage({ onTaskComplete }) {
           style={{ transform: `rotate(${Math.min(ptr.pull * 4, 360)}deg)` }}
         />
         <span className="ptr-label">
-          {ptr.refreshing ? 'Aktualizuji…' : ptr.triggered ? 'Pustit pro obnovu' : 'Stáhněte ↓'}
+          {ptr.refreshing
+            ? t('common.ptrRefreshing')
+            : ptr.triggered
+              ? t('common.ptrRelease')
+              : t('common.ptrPull')}
         </span>
       </div>
 
       {/* Large title + greeting */}
       <header className="hm-header">
-        <div className="hm-greeting">{getGreeting()} 🌿</div>
+        <div className="hm-greeting">{t(greetingKey())} 🌿</div>
         <h1 className="ios-large-title hm-title">{userName}</h1>
         <p className="hm-subtitle">
           {dateLine()}
@@ -161,10 +151,10 @@ export default function HomePage({ onTaskComplete }) {
       {/* DNES — grouped list widget */}
       <section className="hm-section">
         <div className="hm-section-head">
-          <h2 className="hm-section-title">Dnes</h2>
+          <h2 className="hm-section-title">{t('home.today')}</h2>
           {today.length > 0 && (
             <span className={`hm-section-count ${hasOverdue ? 'danger' : 'warn'}`}>
-              {today.length} {plural(today.length, 'úkol', 'úkoly', 'úkolů')}
+              {t('home.taskCount', { count: today.length })}
             </span>
           )}
         </div>
@@ -172,8 +162,8 @@ export default function HomePage({ onTaskComplete }) {
           <div className="hm-empty-card">
             <span className="hm-empty-icon">🌼</span>
             <div>
-              <div className="hm-empty-title">Vše je vyřízené</div>
-              <div className="hm-empty-text">Užijte si den v zahradě.</div>
+              <div className="hm-empty-title">{t('home.allDone')}</div>
+              <div className="hm-empty-text">{t('home.allDoneSub')}</div>
             </div>
           </div>
         ) : (
@@ -188,27 +178,27 @@ export default function HomePage({ onTaskComplete }) {
       {/* TENTO TÝDEN — stat grid */}
       {stats && (
         <section className="hm-section">
-          <h2 className="hm-section-title hm-section-title-solo">Tento týden</h2>
+          <h2 className="hm-section-title hm-section-title-solo">{t('home.thisWeek')}</h2>
           <div className="hm-stats-grid">
             <button className="hm-stat" onClick={() => nav('/zahrady')}>
               <div className="hm-stat-val">{stats.gardens}</div>
-              <div className="hm-stat-lbl">Zahrady</div>
+              <div className="hm-stat-lbl">{t('home.statGardens')}</div>
             </button>
             <div className="hm-stat">
               <div className="hm-stat-val brand">{stats.pins}</div>
-              <div className="hm-stat-lbl">Rostliny</div>
+              <div className="hm-stat-lbl">{t('home.statPlants')}</div>
             </div>
             <button className="hm-stat" onClick={() => nav('/ukoly')}>
               <div className={`hm-stat-val ${urgentCount > 0 ? (hasOverdue ? 'red' : 'orange') : ''}`}>
                 {urgentCount}
               </div>
-              <div className="hm-stat-lbl">{hasOverdue ? 'Po termínu' : 'Dnes'}</div>
+              <div className="hm-stat-lbl">{hasOverdue ? t('home.statOverdue') : t('home.statToday')}</div>
             </button>
             <div className="hm-stat">
               <div className={`hm-stat-val ${stats.weeklyDone > 0 ? 'green' : ''}`}>
                 {stats.weeklyDone ?? 0}
               </div>
-              <div className="hm-stat-lbl">Hotovo</div>
+              <div className="hm-stat-lbl">{t('home.statDone')}</div>
             </div>
           </div>
         </section>
@@ -222,9 +212,9 @@ export default function HomePage({ onTaskComplete }) {
       {upcoming.length > 0 && (
         <section className="hm-section">
           <div className="hm-section-head">
-            <h2 className="hm-section-title">Nadcházející</h2>
+            <h2 className="hm-section-title">{t('home.upcoming')}</h2>
             <Link to="/tyden" className="hm-section-link">
-              Týden ›
+              {t('home.weekLink')}
             </Link>
           </div>
           <div className="hm-card">
@@ -239,7 +229,7 @@ export default function HomePage({ onTaskComplete }) {
       {recentPhotos.length > 0 && (
         <section className="hm-section">
           <div className="hm-section-head">
-            <h2 className="hm-section-title">Nedávné fotky</h2>
+            <h2 className="hm-section-title">{t('home.recentPhotos')}</h2>
           </div>
           <div className="hm-photo-strip">
             {recentPhotos.map((p) => (
@@ -247,7 +237,7 @@ export default function HomePage({ onTaskComplete }) {
                 key={p.id}
                 className="hm-photo"
                 onClick={() => nav(`/zahrada/${p.garden_id}`)}
-                aria-label={`Otevřít zahradu ${p.garden_name || ''}`}
+                aria-label={t('home.openGarden', { name: p.garden_name || '' })}
               >
                 <img src={p.url} alt={p.pin_name || ''} loading="lazy" />
                 <div className="hm-photo-overlay">
@@ -264,9 +254,9 @@ export default function HomePage({ onTaskComplete }) {
       {gardens.length > 0 ? (
         <section className="hm-section">
           <div className="hm-section-head">
-            <h2 className="hm-section-title">Moje zahrady</h2>
+            <h2 className="hm-section-title">{t('home.myGardens')}</h2>
             <Link to="/zahrady" className="hm-section-link">
-              Vše ›
+              {t('home.allLink')}
             </Link>
           </div>
           <div className="hm-garden-list">
@@ -285,12 +275,10 @@ export default function HomePage({ onTaskComplete }) {
           <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>
             🌻
           </span>
-          <div className="gp-empty-title">Začněte svou první zahradu</div>
-          <div className="gp-empty-text">
-            Přidejte fotografii zahrady, přidejte rostliny a sledujte péči o ně.
-          </div>
+          <div className="gp-empty-title">{t('home.startFirst')}</div>
+          <div className="gp-empty-text">{t('home.startFirstText')}</div>
           <button className="btn-cta" onClick={() => setShowNew(true)}>
-            + Vytvořit zahradu
+            {t('home.createGarden')}
           </button>
         </div>
       )}
@@ -303,7 +291,7 @@ export default function HomePage({ onTaskComplete }) {
         <span className="ios-premium-icon" aria-hidden="true">
           <Icon name="sparkles" size={18} />
         </span>
-        <span>Premium</span>
+        <span>{t('home.premium')}</span>
         <Icon name="chevronRight" size={16} className="ios-premium-chev" />
       </Link>
 
@@ -311,8 +299,8 @@ export default function HomePage({ onTaskComplete }) {
       <button
         className="floating-fab"
         onClick={() => setShowNew(true)}
-        aria-label="Nová zahrada"
-        title="Nová zahrada"
+        aria-label={t('home.newGarden')}
+        title={t('home.newGarden')}
       >
         +
       </button>
@@ -322,7 +310,7 @@ export default function HomePage({ onTaskComplete }) {
           onClose={() => setShowNew(false)}
           onCreated={(g) => {
             setShowNew(false);
-            toast('✅ Zahrada vytvořena');
+            toast(t('home.gardenCreated'));
             nav(`/zahrada/${g.id}`);
           }}
         />
@@ -333,6 +321,7 @@ export default function HomePage({ onTaskComplete }) {
 
 // iOS grouped-list řádek úkolu — kruhový check (splnit) + ikona z taxonomie + termín badge.
 function HomeTaskRow({ task, onComplete }) {
+  const { t } = useTranslation();
   const badge = dueBadge(task.next_due);
   const days = daysFromToday(task.next_due);
   const stateClass = days !== null && days < 0 ? 'is-overdue' : days === 0 ? 'is-today' : '';
@@ -343,8 +332,8 @@ function HomeTaskRow({ task, onComplete }) {
         type="button"
         className="hm-task-check"
         onClick={() => onComplete?.(task)}
-        aria-label="Označit jako hotové"
-        title="Označit jako hotové"
+        aria-label={t('home.completeTask')}
+        title={t('home.completeTask')}
       >
         <Icon name="check" size={15} stroke={2.5} />
       </button>
@@ -366,16 +355,17 @@ function HomeTaskRow({ task, onComplete }) {
 
 // Velká hero karta zahrady — fotka/placeholder + urgent badge + počet rostlin/úkolů.
 function HomeGardenCard({ garden, weekCount, onOpen }) {
+  const { t } = useTranslation();
   const pinCount = garden.pin_count || 0;
   const urgent = garden.urgent_count || 0;
 
   const sub =
     pinCount === 0
-      ? 'Zatím žádné rostliny'
-      : `${pinCount} ${plural(pinCount, 'rostlina', 'rostliny', 'rostlin')}` +
+      ? t('home.noPlants')
+      : t('home.plantCount', { count: pinCount }) +
         (weekCount > 0
-          ? ` · ${weekCount} ${plural(weekCount, 'úkol', 'úkoly', 'úkolů')} tento týden`
-          : ' · vše pod kontrolou');
+          ? ` · ${t('home.weekTasks', { count: weekCount })}`
+          : ` · ${t('home.allUnderControl')}`);
 
   return (
     <button className="hm-garden-card" onClick={onOpen}>
@@ -387,7 +377,9 @@ function HomeGardenCard({ garden, weekCount, onOpen }) {
             <span>🌱</span>
           </div>
         )}
-        {urgent > 0 && <span className="gl-urgent-badge">{urgent} po termínu</span>}
+        {urgent > 0 && (
+          <span className="gl-urgent-badge">{t('home.urgentBadge', { count: urgent })}</span>
+        )}
       </div>
       <div className="hm-garden-body">
         <div className="hm-garden-text">
