@@ -102,9 +102,12 @@ app.post('/api/gardens', upload.single('image'), (req, res) => {
   const imagePath = req.file ? '/uploads/' + req.file.filename : null;
   const w = req.body.width ? parseInt(req.body.width, 10) : null;
   const h = req.body.height ? parseInt(req.body.height, 10) : null;
+  // Klimatická zóna lze nastavit už při vytvoření (onboarding); jinak NULL a doplní se v detailu.
+  const VALID_CLIMATE_ZONE = ['PHA', 'STC', 'JHC', 'PLK', 'KVK', 'ULK', 'LBK', 'HKK', 'PAK', 'VYS', 'JHM', 'OLK', 'ZLK', 'MSK'];
+  const climate_zone = VALID_CLIMATE_ZONE.includes(req.body.climate_zone) ? req.body.climate_zone : null;
   const info = db
-    .prepare('INSERT INTO gardens (name, image_path, image_width, image_height) VALUES (?, ?, ?, ?)')
-    .run(name, imagePath, w, h);
+    .prepare('INSERT INTO gardens (name, image_path, image_width, image_height, climate_zone) VALUES (?, ?, ?, ?, ?)')
+    .run(name, imagePath, w, h, climate_zone);
   const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(info.lastInsertRowid);
   res.json(garden);
 });

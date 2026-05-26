@@ -1,53 +1,27 @@
-// OnboardingFlow — iOS-style fullscreen průvodce pro nové uživatele.
-// 4 obrazovky (welcome + 3 kroky), swipe doleva/doprava, dots indikátor.
-// Ukládá flag do localStorage pod klíčem `gp_onboarded` aby se neobjevoval znovu.
+// OnboardingFlow — iOS-style interaktivní průvodce pro nové uživatele.
+// 5 kroků: Vítej → klimatická zóna → první zahrada → první rostlina → hotovo.
+// Na rozdíl od původní čistě informační verze tenhle průvodce reálně zakládá
+// data (zahradu, pin, sezónní úkony) přes API, takže nový uživatel skončí
+// rovnou s první naplánovanou péčí. Lze kdykoliv přeskočit.
+// Flag v localStorage pod klíčem `gp_onboarded`, aby se neobjevoval znovu.
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api.js';
+import { toast } from '../App.jsx';
+import { CLIMATE_ZONES, describeZone, getZoneOffsetDays } from '../data/climateZones.js';
+import { taskTypeFromEmoji } from '../data/taskTypes.js';
+import PlantAutocomplete from './PlantAutocomplete.jsx';
 
 const STORAGE_KEY = 'gp_onboarded';
-const SWIPE_THRESHOLD = 50; // px — minimální vzdálenost pro swipe
+const USER_NAME_KEY = 'gardenpin.userName';
 
-const SLIDES = [
-  {
-    icon: '🌱',
-    title: 'Vítej v GardenPinu',
-    text: 'Tvůj zahradní deník. Pohlídá ti hlavní zahradnické úkony po celý rok.',
-    bullets: [
-      'Zahrada = místo, kde pěstuješ (záhon, květináče, sad)',
-      'Rostlina = pin v zahradě s vlastní historií péče',
-      'Úkon = sezónní akce vázaná na rostlinu (zástřih, hnojení, výsadba)',
-    ],
-    cta: 'Začít',
-  },
-  {
-    icon: '🗺️',
-    title: 'Nejdřív si přidej zahradu',
-    text: 'Pojmenuj ji a nahraj fotku z leteckého pohledu — pomůže ti orientovat se mezi rostlinami.',
-    bullets: [
-      'Jméno — třeba „Záhon za domem“ nebo „Skleník“',
-      'Fotka layoutu (volitelná, ale doporučená)',
-      'Můžeš použít i šablonu (zeleninová / okrasná / ovocná / bylinková)',
-    ],
-    cta: 'Dál →',
-  },
-  {
-    icon: '🌿',
-    title: 'Přidej první rostlinu',
-    text: 'V detailu zahrady klikni na mapu pro přidání pinu. Vyber ze 321 druhů — GardenPin sám navrhne co a kdy dělat.',
-    bullets: [
-      'Pin = jedna rostlina nebo skupina (např. „Levandule u plotu“)',
-      'Po výběru rostliny se automaticky nabídnou hlavní úkony',
-      'Úkon má frekvenci (každý rok v srpnu) nebo konkrétní datum',
-    ],
-    cta: 'Dál →',
-  },
-  {
-    icon: '✅',
-    title: 'Vše připraveno!',
-    text: 'Každý měsíc tě GardenPin upozorní na hlavní úkony. Nic nezapomeneš.',
-    cta: 'Jdeme na to 🌱',
-  },
+const MONTH_NAMES_CZ = [
+  '', 'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
+  'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec',
 ];
+
+// Kroky průvodce — pořadí dle vize (zóna → zahrada → rostlina → úkon).
+const STEPS = ['welcome', 'zone', 'garden', 'plant', 'done'];
 
 export function shouldShowOnboardingFlow() {
   try {
@@ -69,42 +43,67 @@ export function resetOnboardingFlow() {
   } catch {}
 }
 
+// Konkrétní datum pro sezónní úkon: 15. den daného měsíce, posunutý dle
+// klimatické zóny (jako RecommendedTasks/PlantAutocomplete). Letošní rok, nebo
+// příští pokud měsíc už uplynul.
+function monthSpecificDate(month, zoneId) {
+  const now = new Date();
+  const year = month >= now.getMonth() + 1 ? now.getFullYear() : now.getFullYear() + 1;
+  const d = new Date(year, month - 1, 15);
+  d.setDate(d.getDate() + getZoneOffsetDays(zoneId));
+  return d.toISOString().slice(0, 10);
+}
+
 export default function OnboardingFlow({ onClose }) {
-  const [step, setStep] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);
   const nav = useNavigate();
-  const total = SLIDES.length;
-  const isLast = step === total - 1;
-  const slide = SLIDES[step];
+  const total = STEPS.length;
+  const kind = STEPS[stepIdx];
 
-  // Touch swipe — startX uchováváme v ref, ať nezpůsobuje re-render
-  const touchStartX = useRef(null);
+  // Sebraná data napříč kroky
+  const [userName, setUserName] = useState(() => {
+    try { return localStorage.getItem(USER_NAME_KEY) || ''; } catch { return ''; }
+  });
+  const [zoneId, setZoneId] = useState('');
+  const [gardenName, setGardenName] = useState('');
+  const [gardenFile, setGardenFile] = useState(null);
+  const [gardenPreview, setGardenPreview] = useState(null);
+  const [garden, setGarden] = useState(null);          // vytvořená zahrada
+  const [plantValue, setPlantValue] = useState('');
+  const [selectedPlant, setSelectedPlant] = useState(null);
+  const [pinCreated, setPinCreated] = useState(false);
+  const [taskCount, setTaskCount] = useState(0);
+  const [firstTask, setFirstTask] = useState(null);    // nejbližší naplánovaný úkon
+  const [busy, setBusy] = useState(false);
 
-  const next = () => {
-    if (isLast) finish();
-    else setStep((s) => s + 1);
-  };
-  const prev = () => {
-    if (step > 0) setStep((s) => s - 1);
-  };
+  const fileRef = useRef();
+
+  const goNext = () => setStepIdx((i) => Math.min(i + 1, total - 1));
+  const goBack = () => setStepIdx((i) => Math.max(i - 1, 0));
 
   const finish = () => {
     markOnboardingFlowDone();
+    persistName();
     onClose?.();
-    nav('/zahrady');
+    nav(garden ? `/zahrada/${garden.id}` : '/zahrady');
   };
 
   const skip = () => {
     markOnboardingFlowDone();
+    persistName();
     onClose?.();
   };
 
-  // Keyboard: ← →, Escape přeskočí, Enter pokračuje
+  function persistName() {
+    try {
+      const n = userName.trim();
+      if (n) localStorage.setItem(USER_NAME_KEY, n);
+    } catch {}
+  }
+
+  // Body scroll lock + Escape přeskočí
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') skip();
-      else if (e.key === 'ArrowRight' || e.key === 'Enter') next();
-      else if (e.key === 'ArrowLeft') prev();
-    };
+    const onKey = (e) => { if (e.key === 'Escape') skip(); };
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -112,71 +111,366 @@ export default function OnboardingFlow({ onClose }) {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [step]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
+  const handleFile = (f) => {
+    setGardenFile(f);
+    if (f) {
+      const r = new FileReader();
+      r.onload = () => setGardenPreview(r.result);
+      r.readAsDataURL(f);
+    } else {
+      setGardenPreview(null);
+    }
   };
-  const onTouchEnd = (e) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartX.current = null;
-    if (dx > SWIPE_THRESHOLD) prev();
-    else if (dx < -SWIPE_THRESHOLD) next();
+
+  // Krok „zahrada" — založí zahradu (+ klimatickou zónu) a postoupí dál.
+  const createGarden = async () => {
+    if (garden) { goNext(); return; }       // už vytvořeno (návrat zpět)
+    const name = gardenName.trim();
+    if (!name) return toast('Zadej název zahrady');
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', name);
+      if (zoneId) fd.append('climate_zone', zoneId);
+      if (gardenFile && gardenPreview) {
+        const img = new Image();
+        img.src = gardenPreview;
+        await new Promise((res) => (img.onload = res));
+        fd.append('width', img.naturalWidth);
+        fd.append('height', img.naturalHeight);
+        fd.append('image', gardenFile);
+      }
+      const g = await api.createGarden(fd);
+      setGarden(g);
+      persistName();
+      goNext();
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Krok „rostlina" — založí pin uprostřed mapy a vygeneruje sezónní úkony.
+  const addPlant = async () => {
+    if (!garden) { goNext(); return; }
+    if (!selectedPlant) return toast('Vyber rostlinu ze seznamu');
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('garden_id', garden.id);
+      fd.append('name', selectedPlant.nameCz);
+      fd.append('plant_name', selectedPlant.nameCz);
+      fd.append('x', '50');   // střed mapy (x/y jsou procenta)
+      fd.append('y', '50');
+      const pin = await api.createPin(fd);
+
+      // Sezónní úkony rostliny — hlavní akce (zástřih/hnojení/přesazení…),
+      // ne micro-tasky. Datum posunuté dle klimatické zóny.
+      const seasonal = selectedPlant.seasonalTasks || [];
+      const payloads = seasonal.map((t) => ({
+        pin_id: pin.id,
+        title: `${t.emoji} ${t.action}`,
+        task_type: taskTypeFromEmoji(t.emoji),
+        frequency_days: null,
+        specific_date: monthSpecificDate(t.month, zoneId),
+        notes: `Sezónní úkon (${MONTH_NAMES_CZ[t.month]})`,
+      }));
+      await Promise.all(payloads.map((p) => api.createTask(p)));
+
+      // Najdi nejbližší úkon (od dneška) pro ukázku v posledním kroku.
+      const today = new Date().toISOString().slice(0, 10);
+      const withDates = seasonal
+        .map((t) => ({ ...t, date: monthSpecificDate(t.month, zoneId) }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+      const upcoming = withDates.find((t) => t.date >= today) || withDates[0] || null;
+
+      setPinCreated(true);
+      setTaskCount(payloads.length);
+      setFirstTask(upcoming);
+      goNext();
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onPlantChange = (v, plant) => {
+    setPlantValue(v);
+    if (plant) setSelectedPlant(plant);
+    else if (selectedPlant && v !== selectedPlant.nameCz) setSelectedPlant(null);
   };
 
   return (
-    <div
-      className="ob-flow"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Onboarding průvodce"
-    >
-      <button
-        type="button"
-        className="ob-skip"
-        onClick={skip}
-        aria-label="Přeskočit průvodce"
-      >
-        Přeskočit
-      </button>
+    <div className="ob-flow" role="dialog" aria-modal="true" aria-label="Onboarding průvodce">
+      <div className="ob-top">
+        {stepIdx > 0 && kind !== 'done' ? (
+          <button type="button" className="ob-back" onClick={goBack} aria-label="Zpět">‹ Zpět</button>
+        ) : (
+          <span />
+        )}
+        {kind !== 'done' && (
+          <button type="button" className="ob-skip" onClick={skip} aria-label="Přeskočit průvodce">
+            Přeskočit
+          </button>
+        )}
+      </div>
 
-      <div className="ob-track" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        {/* key={step} → re-mountne slide a CSS animace se spustí znovu */}
-        <div className="ob-slide" key={step}>
-          <div className="ob-icon" aria-hidden="true">{slide.icon}</div>
-          <h1 className="ob-title">{slide.title}</h1>
-          <p className="ob-text">{slide.text}</p>
-          {slide.bullets && (
-            <ul className="ob-bullets">
-              {slide.bullets.map((b, i) => (
-                <li key={i}>
-                  <span className="ob-bullet-dot" aria-hidden="true">✓</span>
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
+      <div className="ob-track">
+        <div className="ob-slide" key={kind}>
+          {kind === 'welcome' && (
+            <WelcomeStep userName={userName} setUserName={setUserName} />
+          )}
+          {kind === 'zone' && (
+            <ZoneStep zoneId={zoneId} setZoneId={setZoneId} />
+          )}
+          {kind === 'garden' && (
+            <GardenStep
+              gardenName={gardenName}
+              setGardenName={setGardenName}
+              preview={gardenPreview}
+              onPickFile={() => fileRef.current?.click()}
+              onClearFile={() => handleFile(null)}
+              created={!!garden}
+              fileRef={fileRef}
+              onFile={(f) => handleFile(f)}
+            />
+          )}
+          {kind === 'plant' && (
+            <PlantStep
+              gardenName={garden?.name || gardenName}
+              value={plantValue}
+              onChange={onPlantChange}
+              onSelect={setSelectedPlant}
+              plant={selectedPlant}
+            />
+          )}
+          {kind === 'done' && (
+            <DoneStep taskCount={taskCount} firstTask={firstTask} plant={selectedPlant} />
           )}
         </div>
       </div>
 
       <div className="ob-bottom">
-        <div className="ob-dots" role="tablist" aria-label="Postup">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`ob-dot${i === step ? ' active' : ''}`}
-              onClick={() => setStep(i)}
-              aria-label={`Krok ${i + 1} z ${total}`}
-              aria-current={i === step ? 'step' : undefined}
+        <div className="ob-dots" aria-label="Postup">
+          {STEPS.map((s, i) => (
+            <span
+              key={s}
+              className={`ob-dot${i === stepIdx ? ' active' : ''}${i < stepIdx ? ' done' : ''}`}
+              aria-current={i === stepIdx ? 'step' : undefined}
             />
           ))}
         </div>
-        <button type="button" className="ob-cta" onClick={next}>
-          {slide.cta}
-        </button>
+
+        {kind === 'welcome' && (
+          <button type="button" className="ob-cta" onClick={() => { persistName(); goNext(); }}>
+            Začít
+          </button>
+        )}
+        {kind === 'zone' && (
+          <button type="button" className="ob-cta" onClick={goNext}>
+            {zoneId ? 'Dál →' : 'Zatím přeskočit →'}
+          </button>
+        )}
+        {kind === 'garden' && (
+          <button type="button" className="ob-cta" onClick={createGarden} disabled={busy}>
+            {busy ? 'Vytvářím…' : garden ? 'Dál →' : 'Vytvořit zahradu'}
+          </button>
+        )}
+        {kind === 'plant' && (
+          <>
+            <button type="button" className="ob-cta" onClick={addPlant} disabled={busy}>
+              {busy ? 'Přidávám…' : 'Přidat a pokračovat'}
+            </button>
+            <button type="button" className="ob-secondary" onClick={goNext} disabled={busy}>
+              Zatím přeskočit
+            </button>
+          </>
+        )}
+        {kind === 'done' && (
+          <button type="button" className="ob-cta" onClick={finish}>
+            Jdeme na to 🌱
+          </button>
+        )}
       </div>
     </div>
+  );
+}
+
+/* ---------------- Jednotlivé kroky ---------------- */
+
+function WelcomeStep({ userName, setUserName }) {
+  return (
+    <>
+      <div className="ob-icon" aria-hidden="true">🌱</div>
+      <h1 className="ob-title">Vítej v GardenPinu</h1>
+      <p className="ob-text">
+        Tvůj zahradní deník. Pohlídá ti hlavní sezónní úkony po celý rok — zástřih,
+        přesazení, hnojení. Za chvilku tě provedeme prvním nastavením.
+      </p>
+      <div className="ob-field">
+        <label htmlFor="ob-name">Jak ti máme říkat?</label>
+        <input
+          id="ob-name"
+          className="ob-input"
+          type="text"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          placeholder="Tvoje jméno (volitelné)"
+          autoComplete="given-name"
+          maxLength={40}
+        />
+      </div>
+    </>
+  );
+}
+
+function ZoneStep({ zoneId, setZoneId }) {
+  return (
+    <>
+      <div className="ob-icon" aria-hidden="true">📍</div>
+      <h1 className="ob-title">Odkud zahradničíš?</h1>
+      <p className="ob-text">
+        Podle kraje upravíme termíny sezónních úkonů — jaro přichází na jižní Moravě
+        dřív než na Vysočině.
+      </p>
+      <div className="ob-zone-grid">
+        {CLIMATE_ZONES.map((z) => (
+          <button
+            key={z.id}
+            type="button"
+            className={`ob-zone-chip${zoneId === z.id ? ' active' : ''}`}
+            onClick={() => setZoneId((cur) => (cur === z.id ? '' : z.id))}
+          >
+            {z.label}
+          </button>
+        ))}
+      </div>
+      {zoneId && <p className="ob-hint">{describeZone(zoneId)}</p>}
+    </>
+  );
+}
+
+function GardenStep({ gardenName, setGardenName, preview, onPickFile, onClearFile, created, fileRef, onFile }) {
+  return (
+    <>
+      <div className="ob-icon" aria-hidden="true">🗺️</div>
+      <h1 className="ob-title">Přidej svou první zahradu</h1>
+      <p className="ob-text">
+        Pojmenuj ji a nahraj fotku z leteckého pohledu — pomůže ti orientovat se
+        mezi rostlinami. Fotka je volitelná.
+      </p>
+      <div className="ob-field">
+        <label htmlFor="ob-garden">Název zahrady</label>
+        <input
+          id="ob-garden"
+          className="ob-input"
+          type="text"
+          value={gardenName}
+          onChange={(e) => setGardenName(e.target.value)}
+          placeholder="Např. Zahrada u domu"
+          disabled={created}
+          maxLength={80}
+          autoFocus
+        />
+      </div>
+      <div className="ob-file" onClick={created ? undefined : onPickFile}>
+        {preview ? (
+          <img src={preview} alt="" className="ob-file-preview" />
+        ) : (
+          <>
+            <div className="ob-file-icon" aria-hidden="true">📷</div>
+            <div className="ob-hint">Klikni pro nahrání fotky (volitelné)</div>
+          </>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => onFile(e.target.files?.[0])}
+        />
+      </div>
+      {preview && !created && (
+        <button type="button" className="ob-secondary" onClick={onClearFile}>Odstranit fotku</button>
+      )}
+      {created && <p className="ob-hint">✓ Zahrada vytvořena</p>}
+    </>
+  );
+}
+
+function PlantStep({ gardenName, value, onChange, onSelect, plant }) {
+  return (
+    <>
+      <div className="ob-icon" aria-hidden="true">🌿</div>
+      <h1 className="ob-title">Co {gardenName ? `v „${gardenName}"` : 'v ní'} roste?</h1>
+      <p className="ob-text">
+        Vyber první rostlinu z 321 druhů. GardenPin sám navrhne hlavní úkony a
+        naplánuje je do správných měsíců.
+      </p>
+      <div className="ob-plant-wrap">
+        <PlantAutocomplete
+          value={value}
+          onChange={onChange}
+          onSelect={onSelect}
+          placeholder="Hledat rostlinu… (např. Levandule)"
+        />
+      </div>
+      {plant && (
+        <div className="ob-plant-preview">
+          <span className="ob-plant-emoji" style={{ background: plant.category.color + '22' }}>
+            {plant.category.icon}
+          </span>
+          <div className="ob-plant-meta">
+            <div className="ob-plant-name">{plant.nameCz}</div>
+            <div className="ob-plant-lat">{plant.nameLat}</div>
+          </div>
+          <span className="ob-plant-count">
+            {plant.seasonalTasks?.length
+              ? `${plant.seasonalTasks.length} úkonů`
+              : 'připraveno'}
+          </span>
+        </div>
+      )}
+    </>
+  );
+}
+
+function DoneStep({ taskCount, firstTask, plant }) {
+  return (
+    <>
+      <div className="ob-icon" aria-hidden="true">✅</div>
+      <h1 className="ob-title">Vše připraveno!</h1>
+      {taskCount > 0 ? (
+        <p className="ob-text">
+          Naplánovali jsme <strong>{taskCount}</strong>{' '}
+          {taskCount === 1 ? 'sezónní úkon' : taskCount < 5 ? 'sezónní úkony' : 'sezónních úkonů'}
+          {plant ? ` pro ${plant.nameCz.toLowerCase()}` : ''}. Každý měsíc tě GardenPin
+          upozorní, ať nic nezapomeneš.
+        </p>
+      ) : (
+        <p className="ob-text">
+          Až přidáš rostliny, GardenPin ti sám naplánuje hlavní sezónní úkony a každý
+          měsíc tě na ně upozorní.
+        </p>
+      )}
+
+      {firstTask && (
+        <div className="ob-task-card">
+          <div className="ob-task-label">Tvůj první úkon</div>
+          <div className="ob-task-row">
+            <span className="ob-task-emoji" aria-hidden="true">{firstTask.emoji}</span>
+            <div className="ob-task-text">
+              <div className="ob-task-action">{firstTask.action}</div>
+              <div className="ob-hint">{MONTH_NAMES_CZ[firstTask.month]}</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

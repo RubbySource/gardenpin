@@ -5708,8 +5708,14 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   to   { opacity: 1; }
 }
 
-.ob-skip {
-  align-self: flex-end;
+.ob-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+}
+.ob-skip,
+.ob-back {
   background: transparent;
   border: none;
   color: var(--text-dim);
@@ -5719,15 +5725,18 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   padding: 8px 4px;
   letter-spacing: -0.01em;
 }
+.ob-back { color: var(--brand-strong, var(--primary)); }
 .ob-skip:active { color: var(--primary); }
 
 .ob-track {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  touch-action: pan-y; /* povol jen vertikální scroll, horizontální nech pro swipe handler */
+  justify-content: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 8px;
 }
 
 .ob-slide {
@@ -5735,6 +5744,7 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   max-width: 420px;
   text-align: center;
   padding: 12px;
+  margin: auto 0; /* vycentruje krátký obsah, dlouhý necentruje (nechá scrollovat) */
   animation: ob-slide-in 0.32s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
 
@@ -5855,6 +5865,210 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   transform: scale(0.97);
   box-shadow: 0 3px 10px rgba(123, 168, 137, 0.36);
 }
+.ob-cta:disabled { opacity: 0.6; cursor: progress; }
+
+.ob-dot.done { background: var(--brand, var(--primary)); opacity: 0.5; }
+
+/* Sekundární textový odkaz (přeskočit krok / odstranit fotku) */
+.ob-secondary {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  letter-spacing: -0.005em;
+}
+.ob-secondary:active { color: var(--primary); }
+.ob-secondary:disabled { opacity: 0.5; }
+
+/* Krátká nápověda / popisek pod obsahem kroku */
+.ob-hint {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  margin: 8px 0 0;
+}
+
+/* Vstupní pole (jméno, název zahrady) */
+.ob-field {
+  text-align: left;
+  max-width: 360px;
+  margin: 22px auto 0;
+}
+.ob-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin: 0 0 6px 2px;
+}
+.ob-input {
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface-2, var(--card));
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ob-input:focus {
+  border-color: var(--brand, var(--primary));
+  box-shadow: 0 0 0 3px rgba(123, 168, 137, 0.18);
+}
+.ob-input:disabled { opacity: 0.7; }
+
+/* Klimatické zóny — mřížka chipů */
+.ob-zone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 380px;
+  margin: 22px auto 0;
+}
+.ob-zone-chip {
+  padding: 12px 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2, var(--card));
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.25;
+  transition: all 0.15s;
+}
+.ob-zone-chip.active {
+  color: #fff;
+  background: var(--brand-action, var(--primary));
+  border-color: var(--brand-action, var(--primary));
+  box-shadow: 0 4px 12px rgba(123, 168, 137, 0.3);
+}
+
+/* Nahrání fotky zahrady */
+.ob-file {
+  max-width: 360px;
+  margin: 14px auto 0;
+  padding: 22px 16px;
+  border: 1.5px dashed var(--border);
+  border-radius: 16px;
+  background: var(--surface-2, var(--card));
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.ob-file:active { border-color: var(--brand, var(--primary)); }
+.ob-file-icon { font-size: 2rem; line-height: 1; margin-bottom: 6px; }
+.ob-file-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Výběr rostliny */
+.ob-plant-wrap {
+  max-width: 360px;
+  margin: 22px auto 0;
+  text-align: left;
+}
+.ob-plant-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 360px;
+  margin: 14px auto 0;
+  padding: 12px 14px;
+  background: var(--surface, var(--card));
+  border: 1.5px solid var(--brand, var(--primary));
+  border-radius: 14px;
+  text-align: left;
+  animation: ob-slide-in 0.24s ease both;
+}
+.ob-plant-emoji {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.ob-plant-meta { flex: 1; min-width: 0; }
+.ob-plant-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ob-plant-lat {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ob-plant-count {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--brand-strong, var(--primary));
+  background: rgba(123, 168, 137, 0.16);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Ukázka prvního úkonu (krok hotovo) */
+.ob-task-card {
+  max-width: 360px;
+  margin: 22px auto 0;
+  padding: 14px 16px;
+  background: var(--surface, var(--card));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card, 0 4px 16px rgba(31, 62, 26, 0.08));
+  text-align: left;
+}
+.ob-task-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.ob-task-row { display: flex; align-items: center; gap: 12px; }
+.ob-task-emoji {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(123, 168, 137, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.ob-task-text { flex: 1; min-width: 0; }
+.ob-task-action {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.ob-task-text .ob-hint { margin-top: 2px; }
 
 /* ============================================================
    PlantCatalogPage — sticky search + pills + kompaktní karty
