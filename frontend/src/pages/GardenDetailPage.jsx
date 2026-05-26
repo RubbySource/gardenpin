@@ -11,6 +11,7 @@ import Icon from '../components/Icon.jsx';
 import PinDetail from './PinDetail.jsx';
 import MembersModal from '../components/MembersModal.jsx';
 import BulkCareModal from '../components/BulkCareModal.jsx';
+import SeasonMomentModal from '../components/SeasonMomentModal.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
@@ -59,6 +60,7 @@ export default function GardenDetailPage() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
   const [showBulkCare, setShowBulkCare] = useState(false);
+  const [showSeasonMoment, setShowSeasonMoment] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
   const mapInputRef = useRef(null);
   // Redesign: segmented control (Mapa / Seznam / Statistiky) + akční menu v hlavičce
@@ -461,6 +463,9 @@ export default function GardenDetailPage() {
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowBulkCare(true); }}>
                 {t('gardenDetail.menuBulkCare')}
+              </button>
+              <button role="menuitem" onClick={() => { setMenuOpen(false); setShowSeasonMoment(true); }}>
+                {t('gardenDetail.menuSeasonMoment')}
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowCalendar(true); }}>
                 {t('gardenDetail.menuCalendar')}
@@ -1021,6 +1026,15 @@ export default function GardenDetailPage() {
           garden={garden}
           pins={pins}
           onClose={() => setShowBulkCare(false)}
+          onCreated={() => load()}
+        />
+      )}
+
+      {showSeasonMoment && (
+        <SeasonMomentModal
+          garden={garden}
+          pins={pins}
+          onClose={() => setShowSeasonMoment(false)}
           onCreated={() => load()}
         />
       )}
