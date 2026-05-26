@@ -261,38 +261,37 @@ export default function TasksPage({ onTaskComplete }) {
         </span>
       </div>
 
-      <div className="tasks-hero">
-        <div className="tasks-hero-row">
-          <div>
-            <div className="tasks-hero-eyebrow">📋 Úkoly</div>
-            <div className="tasks-hero-title">
-              {urgentCount > 0
-                ? `${urgentCount} ${urgentCount === 1 ? 'úkol' : urgentCount < 5 ? 'úkoly' : 'úkolů'} čeká`
-                : gardenFilteredTasks.length > 0
-                ? 'Vše pod kontrolou 🌿'
-                : 'Žádné úkoly'}
-            </div>
-          </div>
-          {urgentCount > 0 && (
-            <div className="tasks-hero-urgent">
-              <div className="val">{urgentCount}</div>
-              <div className="lbl">naléhavé</div>
-            </div>
-          )}
+      {/* Large title + dynamic subtitle (mockup parity: docs/mockups/tasks.html) */}
+      <header className="tasks-header">
+        <h1 className="ios-large-title">Úkoly</h1>
+        <p className="tasks-subtitle">
+          {gardenFilteredTasks.length === 0
+            ? 'Žádné naplánované úkoly'
+            : `${gardenFilteredTasks.length} ${
+                gardenFilteredTasks.length === 1
+                  ? 'úkol čeká'
+                  : gardenFilteredTasks.length < 5
+                  ? 'úkoly čekají'
+                  : 'úkolů čeká'
+              }${overdueCount > 0 ? ` · ${overdueCount} po termínu` : ''}`}
+        </p>
+      </header>
+
+      {/* Stats strip — 3 surface karty */}
+      <div className="tasks-stats-strip">
+        <div className="tasks-stat">
+          <div className="tasks-stat-val">{gardenFilteredTasks.length}</div>
+          <div className="tasks-stat-lbl">Naplánováno</div>
         </div>
-        <div className="tasks-hero-stats">
-          <div className="tasks-hero-stat">
-            <div className="val">{gardenFilteredTasks.length}</div>
-            <div className="lbl">Naplánováno</div>
+        <div className="tasks-stat">
+          <div className={`tasks-stat-val ${overdueCount > 0 ? 'red' : ''}`}>{overdueCount}</div>
+          <div className="tasks-stat-lbl">Po termínu</div>
+        </div>
+        <div className="tasks-stat">
+          <div className={`tasks-stat-val ${gardenFilteredHistory.length > 0 ? 'green' : ''}`}>
+            {gardenFilteredHistory.length}
           </div>
-          <div className="tasks-hero-stat">
-            <div className={`val ${overdueCount > 0 ? 'danger' : ''}`}>{overdueCount}</div>
-            <div className="lbl">Po termínu</div>
-          </div>
-          <div className="tasks-hero-stat">
-            <div className="val">{gardenFilteredHistory.length}</div>
-            <div className="lbl">Hotovo</div>
-          </div>
+          <div className="tasks-stat-lbl">Hotovo</div>
         </div>
       </div>
 

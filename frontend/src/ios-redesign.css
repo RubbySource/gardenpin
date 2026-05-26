@@ -419,14 +419,14 @@ h1, h2, h3, h4, h5 {
   gap: 8px;
 }
 
-/* iOS-style large title — used for page hero replacements when desired */
+/* iOS-style large title — mockup parity: text-[34px] leading-[40px] font-bold tracking-[-0.02em] */
 .ios-large-title {
-  font-size: 2.1rem;
-  font-weight: 800;
-  letter-spacing: -0.035em;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--ios-label);
   margin: 12px 4px 6px;
-  line-height: 1.05;
+  line-height: 40px;
 }
 
 /* ---------- Tasks ---------- */
@@ -620,8 +620,8 @@ h1, h2, h3, h4, h5 {
 /* ---------- Settings page — iOS grouped table view ---------- */
 .section-title {
   font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--ios-label);
   margin: 16px 4px 14px;
 }
@@ -638,9 +638,9 @@ main .card {
 /* ===== Settings grouped list (iOS table view) ===== */
 .settings-page .ios-large-title {
   margin: 6px 4px 4px;
-  font-size: 2.05rem;
-  font-weight: 800;
-  letter-spacing: -0.035em;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* Account hero card */
@@ -679,8 +679,8 @@ main .card {
 }
 .settings-premium-pill {
   flex: none;
-  font-size: 0.66rem;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.4px;
   color: #fff;
   padding: 4px 10px;
@@ -691,12 +691,12 @@ main .card {
 /* Group = caption header + card + footnote */
 .settings-group { margin-top: 22px; }
 .settings-group-label {
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--ios-label-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 0 16px 7px;
+  padding: 0 16px 6px;
 }
 .settings-group-label.danger { color: var(--ios-red); }
 .settings-group-card {
@@ -706,9 +706,9 @@ main .card {
   overflow: hidden;
 }
 .settings-group-foot {
-  font-size: 0.76rem;
+  font-size: 12px;
   color: var(--ios-label-secondary);
-  padding: 7px 16px 0;
+  padding: 6px 16px 0;
   line-height: 1.4;
 }
 
@@ -1064,7 +1064,7 @@ input[type="range"]::-moz-range-thumb {
 .small.muted, .muted { color: var(--ios-label-secondary); }
 
 /* Page eyebrow + subtitle */
-.page-header h1 { letter-spacing: -0.03em; font-weight: 800; font-size: 1.8rem; }
+.page-header h1 { letter-spacing: -0.02em; font-weight: 700; font-size: 1.8rem; }
 .page-header .eyebrow { color: var(--ios-accent); letter-spacing: 0.6px; }
 .page-header .subtitle { color: var(--ios-label-secondary); }
 
@@ -1076,12 +1076,51 @@ input[type="range"]::-moz-range-thumb {
    iOS segmented control · Hotovo toggle · snooze action sheet
    ============================================================ */
 
+/* Large title + subtitle (mockup parity) */
+.tasks-header { margin: 4px 0 0; }
+.tasks-header .ios-large-title { margin: 6px 4px 0; }
+.tasks-subtitle {
+  margin: 2px 4px 0;
+  font-size: 15px;
+  color: var(--ios-label-secondary);
+}
+
+/* Stats strip — 3 surface karty (mockup: text-[22px] font-bold + text-[11px] font-medium) */
+.tasks-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.tasks-stat {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-sm);
+  padding: 12px 6px;
+  text-align: center;
+}
+.tasks-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ios-label);
+  line-height: 1.05;
+}
+.tasks-stat-val.red { color: var(--ios-red); }
+.tasks-stat-val.green { color: var(--ios-green); }
+.tasks-stat-lbl {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ios-label-secondary);
+}
+
 /* Filter bar: segmented control + Hotovo history toggle */
 .tasks-filter-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0 16px;
+  margin: 12px 0 16px;
 }
 
 .ios-segmented {
@@ -1332,7 +1371,7 @@ input[type="range"]::-moz-range-thumb {
   justify-self: center;
   text-align: center;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ios-label);
   max-width: 56vw;
@@ -1439,7 +1478,7 @@ input[type="range"]::-moz-range-thumb {
 }
 .gd-stat .val {
   font-size: 1.7rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--ios-accent);
   font-variant-numeric: tabular-nums;
@@ -1599,7 +1638,7 @@ input[type="range"]::-moz-range-thumb {
 }
 .gl-card-hero {
   position: relative;
-  height: 158px;
+  height: 160px;
   background: linear-gradient(135deg, var(--sage-100, #E5EDE3), var(--sage-400, #8DB089));
 }
 .gl-card-hero img {
@@ -1697,8 +1736,8 @@ input[type="range"]::-moz-range-thumb {
 /* Large title header */
 .hm-header { margin: 4px 0 18px; }
 .hm-greeting {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--brand-strong);
 }
@@ -1719,24 +1758,24 @@ input[type="range"]::-moz-range-thumb {
   gap: 12px;
 }
 .hm-section-title {
-  font-size: 1.3rem;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--ios-label);
   margin: 0;
 }
 .hm-section-title-solo { margin: 0 4px 10px; }
 .hm-section-link {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--ios-blue);
   text-decoration: none;
   flex-shrink: 0;
 }
 .hm-section-link:active { opacity: 0.6; }
 .hm-section-count {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: -0.01em;
   flex-shrink: 0;
 }
@@ -1865,8 +1904,8 @@ input[type="range"]::-moz-range-thumb {
 button.hm-stat { cursor: pointer; }
 button.hm-stat:active { transform: scale(0.96); }
 .hm-stat-val {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--ios-label);
   line-height: 1.05;
@@ -1877,8 +1916,8 @@ button.hm-stat:active { transform: scale(0.96); }
 .hm-stat-val.green { color: var(--ios-green); }
 .hm-stat-lbl {
   margin-top: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--ios-label-secondary);
 }
 
@@ -1947,7 +1986,7 @@ button.hm-stat:active { transform: scale(0.96); }
   transition: transform 200ms var(--ios-ease);
 }
 .hm-garden-card:active { transform: scale(0.98); }
-.hm-garden-hero { height: 128px; }
+.hm-garden-hero { height: 120px; }
 .hm-garden-body {
   display: flex;
   align-items: center;
