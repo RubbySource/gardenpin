@@ -9,7 +9,7 @@
 
 ## Struktura
 - `frontend/src/` — React komponenty a stránky
-- `frontend/src/plantDatabase.js` — 321 rostlin (zelenina, ovoce, byliny, okrasné, keře,
+- `frontend/src/plantDatabase.js` — 421 rostlin (zelenina, ovoce, byliny, okrasné, keře,
   trvalky, letničky, vodní, sukulenty, trávy, stromy)
 - `frontend/src/data/taskTypes.js` — jednotná taxonomie typů úkonů (zdroj pravdy:
   id/label/emoji/SVG ikona/iCal kategorie)

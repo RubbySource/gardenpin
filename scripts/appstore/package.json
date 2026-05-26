@@ -1,0 +1,12 @@
+{
+  "name": "gardenpin-appstore-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build-time tooling: generuje lokalizované App Store screenshoty (1290x2796) z živé aplikace přes Playwright. Není součástí runtime aplikace.",
+  "scripts": {
+    "screenshots": "node generate.cjs"
+  },
+  "dependencies": {
+    "playwright": "1.60.0"
+  }
+}
