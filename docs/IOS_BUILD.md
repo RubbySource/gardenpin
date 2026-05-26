@@ -15,6 +15,24 @@ obsahuje hotový Capacitor shell — na Macu stačí naistalovat, sync, otevří
 - `frontend/src/native.js` — nativní bootstrap (status bar dle tématu, skrytí
   splash, hardware back), no-op na webu.
 
+### Native API migration (hotovo)
+
+Nativní pluginy jsou integrované přes `frontend/src/native/*` helpery, všechny
+gated na `Capacitor.isNativePlatform()` (na webu zůstává původní chování):
+
+- **`@capacitor/camera`** (`native/camera.js`) — `openPhotoPicker()` nahrazuje
+  `<input type="file" capture>`: na nativu akční sheet Vyfotit / Z knihovny,
+  multi-výběr z knihovny; vrací `File[]`, takže navazující FormData upload kód
+  zůstává beze změny. Web spadne zpět na skrytý `<input>`. Zapojeno v PinDetail
+  (fotka rostliny + galerie) a GardenDetail (fotka mapy/zahrady).
+- **`@capacitor/haptics`** (`native/haptics.js`) — `hapticImpact` (swipe práh),
+  `hapticNotification('success')` (splnění úkolu), `hapticSelection` (tik).
+  Web fallback `navigator.vibrate` (iOS Safari ho ignoruje, Android Chrome ne).
+- **`@capacitor/share`** (`native/share.js`) — `shareLink()` otevře nativní
+  share sheet; web zůstává na kopii do schránky. Zapojeno ve sdílení zahrady.
+- **`@capacitor/push-notifications`** (`native/push.js`) — viz „Push notifikace"
+  níže. SettingsPage toggle větví web ↔ nativ přes `push.js`.
+
 ### Shell přístup: `server.url`
 
 V této fázi je nativní app **tenký obal nad živou PWA** — `capacitor.config.ts`
@@ -24,11 +42,10 @@ deploynutý web a relativní `/api` i `/uploads` volání fungují same-origin b
 webview (Capacitor bridge se injektuje automaticky).
 
 > ⚠️ **Důležité pro App Store:** Apple guideline 4.2 odmítá pouhé web wrappery a
-> `server.url` znamená závislost na internetu (ne offline-first). Navazující
-> backlog úkol **„Native API migration"** tohle nahradí: bundled assets (webDir)
-> + absolutní API base (`Capacitor.isNativePlatform()`) + native pluginy
-> (`@capacitor/camera`, `@capacitor/haptics`, `@capacitor/push-notifications`,
-> `@capacitor/share`). Teprve pak je app vhodná k odeslání.
+> `server.url` znamená závislost na internetu (ne offline-first). Native pluginy
+> (camera/haptics/share/push) už integrované jsou (viz výše); zbývá přechod na
+> **bundled assets** (webDir) + absolutní API base, aby byla app offline-capable.
+> Teprve pak je vhodná k odeslání.
 >
 > Pro lokální test bundled verze zakomentuj `server.url` v `capacitor.config.ts`,
 > sestav frontend a `npx cap sync ios`.
@@ -62,10 +79,36 @@ Ve Xcode:
 1. Vyber target **App** → záložka **Signing & Capabilities**.
 2. Nastav **Team** (tvůj Apple Developer účet) a změň **Bundle Identifier**
    z `cz.gardenpin.app` na vlastní (registruj v Apple Developer → Identifiers).
-3. Capabilities pro pozdější native pluginy (přidávej dle potřeby):
-   - **Push Notifications** + **Background Modes → Remote notifications**
-     (až bude `@capacitor/push-notifications`).
+3. Capabilities:
+   - **Push Notifications** — povinné pro `@capacitor/push-notifications`
+     (jinak `register()` selže). Přidej přes **+ Capability**.
+   - **Background Modes → Remote notifications** — pro doručení na pozadí.
 4. Připoj iPhone / vyber simulátor → **Run** (▶).
+   - Push **nefunguje na simulátoru** — vyžaduje fyzický iPhone.
+
+## Push notifikace (APNs)
+
+Klient je hotový: `native/push.js` vyžádá oprávnění, zaregistruje se u APNs,
+device token pošle na backend (`POST /api/push/native-register` → tabulka
+`native_push_tokens`) a tap na notifikaci přesměruje na `data.url`.
+
+**Doručení zatím vyžaduje APNs konfiguraci na backendu** (Patrik, po založení
+Apple Developer účtu):
+
+1. Apple Developer → **Keys** → vytvoř **APNs Auth Key** (`.p8`), poznamenej si
+   **Key ID** a **Team ID**.
+2. Na produkci nastav env proměnné (backend `sendToNative` se aktivuje, jakmile
+   jsou všechny čtyři):
+   - `APNS_KEY_PATH` — cesta k `.p8` souboru
+   - `APNS_KEY_ID`
+   - `APNS_TEAM_ID`
+   - `APNS_BUNDLE_ID` — bundle ID appky (`cz.gardenpin.app` / vlastní)
+3. Dokud creds nejsou, backend nativní tokeny jen ukládá a při odeslání je
+   přeskočí (log + `native.skipped` ve výsledku). Web push běží beze změny.
+
+> Implementace samotného APNs HTTP/2 odeslání (JWT z `.p8`) je v `backend/push.js`
+> ve funkci `sendToNative` označená `TODO(apns)` — napojí se až budou creds, bez
+> dotyku klienta.
 
 ## App Store / TestFlight
 
@@ -97,10 +140,12 @@ Zdroje: `assets/icon-only.png` (1024×1024), `assets/splash.png` +
 
 - **root `package.json`** — `@capacitor/cli` + `@capacitor/ios` +
   `@capacitor/assets` (tooling/platforma) a runtime pluginy (`core`, `app`,
-  `status-bar`, `splash-screen`, `keyboard`), aby je CLI našel pro registraci
-  podů (`Podfile` odkazuje na root `node_modules`).
+  `status-bar`, `splash-screen`, `keyboard`, `camera`, `haptics`, `share`,
+  `push-notifications`), aby je CLI našel pro registraci podů (`Podfile`
+  odkazuje na root `node_modules`).
 - **`frontend/package.json`** — stejné runtime pluginy, aby je Vite vyřešil při
-  `cd frontend && npm run build` a zabundloval do webu.
+  `cd frontend && npm run build` a zabundloval do webu (plugin web implementace
+  se code-splitují do samostatných lazy chunků).
 
 `ios/.gitignore` schválně necommituje `App/Pods`, `App/build`, kopii webu
 `App/App/public` ani generovaný `capacitor.config.json` — vznikají při

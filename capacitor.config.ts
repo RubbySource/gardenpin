@@ -12,10 +12,10 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * server.url (shell přístup):
  *   Nativní app je v této fázi tenký obal nad živou PWA — načítá deploynutý
  *   web, takže relativní /api a /uploads volání fungují same-origin bez úprav.
- *   Navazující backlog úkol "Native API migration" tohle nahradí: bundled
- *   assets (webDir) + absolutní API base (Capacitor.isNativePlatform()) +
- *   native pluginy (@capacitor/camera, haptics, push). Teprve pak je app
- *   offline-capable a splní Apple guideline 4.2 (ne pouhý web wrapper).
+ *   Native pluginy (camera/haptics/share/push) už jsou integrované přes
+ *   native/* helpery (gated na Capacitor.isNativePlatform()). Zbývá přechod na
+ *   bundled assets (webDir) + absolutní API base, aby byla app offline-capable
+ *   a splnila Apple guideline 4.2 (ne pouhý web wrapper).
  *   Pro lokální test bundled verze server.url zakomentuj.
  */
 const config: CapacitorConfig = {
@@ -55,6 +55,10 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: 'native',
       resizeOnFullScreen: true,
+    },
+    PushNotifications: {
+      // Zobrazit banner i když je app v popředí (badge + zvuk + alert).
+      presentationOptions: ['badge', 'sound', 'alert'],
     },
   },
 };

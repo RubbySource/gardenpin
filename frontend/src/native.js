@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { isNativePush, nativePushGranted, enableNativePush } from './native/push.js';
 
 // Tmavé téma → světlý text ve status baru; světlé téma → tmavý text.
 function statusBarStyleForTheme() {
@@ -51,4 +52,14 @@ export function initNative() {
       CapApp.exitApp();
     }
   });
+
+  // Pokud už uživatel push povolil v dřívější session, znovu se zaregistruj —
+  // obnoví token (může rotovat) a naváže tap → in-app navigaci.
+  if (isNativePush()) {
+    nativePushGranted()
+      .then((granted) => {
+        if (granted) enableNativePush().catch(() => {});
+      })
+      .catch(() => {});
+  }
 }

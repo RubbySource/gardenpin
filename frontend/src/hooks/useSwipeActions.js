@@ -3,6 +3,7 @@
 // Drag right past threshold → calls onSwipeRight (e.g. complete).
 // Vertical scroll wins on first move if dy > dx.
 import { useRef, useState } from 'react';
+import { hapticImpact, hapticSelection } from '../native/haptics.js';
 
 const THRESHOLD = 80;
 const MAX = 140;
@@ -13,12 +14,14 @@ export function useSwipeActions({ onSwipeLeft, onSwipeRight } = {}) {
   const startX = useRef(null);
   const startY = useRef(null);
   const horizontal = useRef(false);
+  const passedThreshold = useRef(false);
 
   const reset = () => {
     setDrag(0);
     startX.current = null;
     startY.current = null;
     horizontal.current = false;
+    passedThreshold.current = false;
   };
 
   const onTouchStart = (e) => {
@@ -46,6 +49,10 @@ export function useSwipeActions({ onSwipeLeft, onSwipeRight } = {}) {
     if (next > 0 && !onSwipeRight) next = 0;
     if (next < 0 && !onSwipeLeft) next = 0;
     next = Math.max(-MAX, Math.min(MAX, next));
+    // Jemný tik při překročení akčního prahu (jako iOS Reminders).
+    const past = Math.abs(next) >= THRESHOLD;
+    if (past && !passedThreshold.current) hapticSelection();
+    passedThreshold.current = past;
     setDrag(next);
   };
 
@@ -55,10 +62,12 @@ export function useSwipeActions({ onSwipeLeft, onSwipeRight } = {}) {
       return;
     }
     if (drag >= THRESHOLD && onSwipeRight) {
+      hapticImpact('medium');
       setCompleting(true);
       setDrag(MAX);
       setTimeout(() => onSwipeRight?.(), 180);
     } else if (drag <= -THRESHOLD && onSwipeLeft) {
+      hapticImpact('medium');
       setCompleting(true);
       setDrag(-MAX);
       setTimeout(() => onSwipeLeft?.(), 180);

@@ -5924,12 +5924,41 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
 .ob-input:disabled { opacity: 0.7; }
 
 /* Klimatické zóny — mřížka chipů */
+/* Výběr země — horizontální řada vlaječkových chipů nad mřížkou regionů */
+.ob-country-row {
+  display: flex;
+  gap: 8px;
+  max-width: 420px;
+  margin: 22px auto 0;
+  padding: 2px 2px 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ob-country-chip {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--surface-2, var(--card));
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ob-country-chip.active {
+  color: #fff;
+  background: var(--brand-action, var(--primary));
+  border-color: var(--brand-action, var(--primary));
+}
+
 .ob-zone-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   max-width: 380px;
-  margin: 22px auto 0;
+  margin: 12px auto 0;
 }
 .ob-zone-chip {
   padding: 12px 10px;

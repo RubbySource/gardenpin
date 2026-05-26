@@ -7,6 +7,7 @@ import Icon from '../components/Icon.jsx';
 import TaskRow from '../components/TaskRow.jsx';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { daysFromToday } from '../utils.js';
+import { hapticNotification } from '../native/haptics.js';
 
 const MONTH_NAMES = [
   'Leden',
@@ -149,6 +150,7 @@ export default function TasksPage({ onTaskComplete }) {
     try {
       await new Promise((r) => setTimeout(r, 280));
       await api.completeTask(t.id);
+      hapticNotification('success');
       toast('✅ Hotovo');
       await load();
       onTaskComplete?.();

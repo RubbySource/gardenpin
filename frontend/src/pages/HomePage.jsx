@@ -14,6 +14,7 @@ import { toast } from '../App.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { fireConfetti } from '../utils/confetti.js';
+import { hapticNotification } from '../native/haptics.js';
 
 const MONTH_TIPS = [
   'Plánujte výsadbu na další sezónu',
@@ -105,6 +106,7 @@ export default function HomePage({ onTaskComplete }) {
   const completeTask = async (t) => {
     try {
       const res = await api.completeTask(t.id);
+      hapticNotification('success');
       toast('✅ Úkol označen jako hotový');
       // Konfety jen když přibyl den ve streaku (ne pro každý další task v ten samý den)
       if (res?.streak?.increased) {

@@ -8,6 +8,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./db');
 const stripeRoutes = require('./routes/stripeRoutes');
+const { ZONE_LABELS, normalizeZoneId } = require('./climateZones');
 
 // Sharp — optional, pro upscale. Nenačítat tvrdě (nemusí být nainstalován)
 let sharp;
@@ -103,8 +104,7 @@ app.post('/api/gardens', upload.single('image'), (req, res) => {
   const w = req.body.width ? parseInt(req.body.width, 10) : null;
   const h = req.body.height ? parseInt(req.body.height, 10) : null;
   // Klimatická zóna lze nastavit už při vytvoření (onboarding); jinak NULL a doplní se v detailu.
-  const VALID_CLIMATE_ZONE = ['PHA', 'STC', 'JHC', 'PLK', 'KVK', 'ULK', 'LBK', 'HKK', 'PAK', 'VYS', 'JHM', 'OLK', 'ZLK', 'MSK'];
-  const climate_zone = VALID_CLIMATE_ZONE.includes(req.body.climate_zone) ? req.body.climate_zone : null;
+  const climate_zone = normalizeZoneId(req.body.climate_zone);
   const info = db
     .prepare('INSERT INTO gardens (name, image_path, image_width, image_height, climate_zone) VALUES (?, ?, ?, ?, ?)')
     .run(name, imagePath, w, h, climate_zone);
@@ -141,9 +141,8 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
   const altitude_m = req.body.altitude_m !== undefined
     ? (req.body.altitude_m === '' || req.body.altitude_m === null ? null : parseInt(req.body.altitude_m, 10) || null)
     : current.altitude_m;
-  const VALID_CLIMATE_ZONE = ['PHA', 'STC', 'JHC', 'PLK', 'KVK', 'ULK', 'LBK', 'HKK', 'PAK', 'VYS', 'JHM', 'OLK', 'ZLK', 'MSK'];
   const climate_zone = req.body.climate_zone !== undefined
-    ? (VALID_CLIMATE_ZONE.includes(req.body.climate_zone) ? req.body.climate_zone : null)
+    ? normalizeZoneId(req.body.climate_zone)
     : current.climate_zone;
   const location = req.body.location !== undefined
     ? (req.body.location ? String(req.body.location).slice(0, 240) : null)
@@ -1358,6 +1357,20 @@ app.post('/api/push/unsubscribe', (req, res) => {
   res.json({ ok: true });
 });
 
+// Nativní push — uloží APNs/FCM device token z Capacitor klienta.
+app.post('/api/push/native-register', (req, res) => {
+  if (!push) return res.status(503).json({ error: 'Push není dostupný' });
+  const token = req.body?.token;
+  const platform = req.body?.platform;
+  if (!token) return res.status(400).json({ error: 'token je povinný' });
+  try {
+    push.saveNativeToken(token, platform);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // Posílá push všem odběratelům. Bez body posílá denní souhrn (stejný jako cron).
 app.post('/api/push/send', async (req, res) => {
   if (!push) return res.status(503).json({ error: 'Push není dostupný' });
@@ -2052,14 +2065,7 @@ app.get('/api/gardens/:id/season-plan', (req, res) => {
   }
   if (garden.altitude_m) conditions.push(`Nadm. výška: ${garden.altitude_m} m`);
   if (garden.climate_zone) {
-    const zoneMap = {
-      PHA: 'Hlavní město Praha', STC: 'Středočeský kraj', JHC: 'Jihočeský kraj',
-      PLK: 'Plzeňský kraj', KVK: 'Karlovarský kraj', ULK: 'Ústecký kraj',
-      LBK: 'Liberecký kraj', HKK: 'Královéhradecký kraj', PAK: 'Pardubický kraj',
-      VYS: 'Kraj Vysočina', JHM: 'Jihomoravský kraj', OLK: 'Olomoucký kraj',
-      ZLK: 'Zlínský kraj', MSK: 'Moravskoslezský kraj',
-    };
-    conditions.push(`Klimatická zóna: ${htmlEscape(zoneMap[garden.climate_zone] || garden.climate_zone)}`);
+    conditions.push(`Klimatická zóna: ${htmlEscape(ZONE_LABELS[garden.climate_zone] || garden.climate_zone)}`);
   }
   const conditionsHtml = conditions.length > 0
     ? `<div class="conditions">${conditions.join(' · ')}</div>`

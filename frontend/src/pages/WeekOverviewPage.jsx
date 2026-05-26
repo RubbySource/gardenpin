@@ -6,6 +6,7 @@ import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import { daysFromToday, taskIcon, taskLabel, formatDate } from '../utils.js';
+import { hapticNotification } from '../native/haptics.js';
 
 const DAY_NAMES = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
 
@@ -57,6 +58,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
     setCompletingIds((s) => new Set(s).add(t.id));
     try {
       await api.completeTask(t.id);
+      hapticNotification('success');
       toast('✅ Hotovo');
       await load();
       onTaskComplete?.();

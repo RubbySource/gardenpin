@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import { taskIcon, taskLabel } from '../utils.js';
+import { hapticNotification } from '../native/haptics.js';
 import PinDetail from '../pages/PinDetail.jsx';
 import seasonalData from '../data/seasonal.json';
 import { getWarningsForMonth, monthRangeLabel } from '../pestDatabase.js';
@@ -44,6 +45,7 @@ export default function SeasonalCalendar() {
     setCompleting(taskId);
     try {
       await api.completeTask(taskId);
+      hapticNotification('success');
       toast('✅ Hotovo');
       const fresh = await api.listTasks();
       setTasks(fresh);

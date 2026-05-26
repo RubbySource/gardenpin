@@ -10,6 +10,7 @@ import TemplateGardenModal from '../components/TemplateGardenModal.jsx';
 import Icon from '../components/Icon.jsx';
 import { useSwipeReveal } from '../hooks/useSwipeReveal.js';
 import { getClimateZone } from '../data/climateZones.js';
+import { shareLink } from '../native/share.js';
 import { toast } from '../App.jsx';
 
 const EXPOSURE_TEXT = {
@@ -89,12 +90,13 @@ export default function GardensPage() {
     try {
       const { token } = await api.createShareToken(g.id);
       const url = `${window.location.origin}/share/${token}`;
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url);
-        toast('🔗 Odkaz na sdílení zkopírován');
-      } else {
-        toast('🔗 ' + url);
-      }
+      const status = await shareLink({
+        url,
+        title: g.name,
+        text: `Podívej se na moji zahradu „${g.name}" v GardenPin`,
+      });
+      if (status === 'copied') toast('🔗 Odkaz na sdílení zkopírován');
+      else if (status === 'shown') toast('🔗 ' + url);
     } catch (e) {
       toast('Chyba: ' + e.message);
     }

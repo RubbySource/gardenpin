@@ -9,8 +9,10 @@ import PinDetail from './PinDetail.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
-import { CLIMATE_ZONES, getClimateZone, describeZone } from '../data/climateZones.js';
+import { COUNTRIES, getZonesByCountry, getClimateZone, describeZone } from '../data/climateZones.js';
 import { ICAL_CATEGORIES } from '../data/taskTypes.js';
+import { shareLink, isNativeShare } from '../native/share.js';
+import { openPhotoPicker } from '../native/camera.js';
 import PolygonEditor, {
   isPointInPolygon,
   DEFAULT_POLYGON_POINTS,
@@ -50,6 +52,7 @@ export default function GardenDetailPage() {
   const [showShare, setShowShare] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [uploadingMap, setUploadingMap] = useState(false);
+  const mapInputRef = useRef(null);
   // Redesign: segmented control (Mapa / Seznam / Statistiky) + akční menu v hlavičce
   const [tab, setTab] = useState('map'); // 'map' | 'list' | 'stats'
   const [menuOpen, setMenuOpen] = useState(false);
@@ -329,8 +332,7 @@ export default function GardenDetailPage() {
     return { percent, m2 };
   })();
 
-  const handleUploadMap = async (e) => {
-    const file = e.target.files?.[0];
+  const handleUploadMap = async (file) => {
     if (!file) return;
     setUploadingMap(true);
     try {
@@ -470,15 +472,26 @@ export default function GardenDetailPage() {
           <div className="empty">
             <div className="icon">🖼️</div>
             <div className="mb-2">Nahrajte fotku zahrady z leteckého pohledu</div>
-            <label className="btn">
+            <button
+              type="button"
+              className="btn"
+              onClick={() =>
+                openPhotoPicker({
+                  multiple: false,
+                  inputRef: mapInputRef,
+                  onFiles: (files) => handleUploadMap(files[0]),
+                })
+              }
+            >
               📷 Nahrát fotku
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleUploadMap}
-              />
-            </label>
+            </button>
+            <input
+              ref={mapInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => handleUploadMap(e.target.files?.[0])}
+            />
             <div style={{ marginTop: 20, padding: '14px 12px 4px', borderTop: '1px dashed var(--border)' }}>
               <div className="small muted mb-2">
                 💡 Nemáte vlastní leteckou fotku? Otevřete adresu v Google Maps satelitním pohledu, udělejte screenshot a nahrajte ho.
@@ -1123,18 +1136,21 @@ function ShareGardenModal({ garden, onClose }) {
 
   const copy = async () => {
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
+      const status = await shareLink({
+        url: shareUrl,
+        title: 'GardenPin — moje zahrada',
+        text: 'Podívej se na moji zahradu v GardenPin',
+      });
+      if (status === 'copied') {
         toast('📋 Odkaz zkopírován');
-      } else {
-        // Fallback — vybrat text
+      } else if (status === 'shown') {
+        // Schránka nedostupná → vyber text v inputu jako poslední záchrana.
         const input = document.getElementById('share-url-input');
         input?.select();
-        document.execCommand('copy');
-        toast('📋 Odkaz zkopírován');
+        toast('🔗 ' + shareUrl);
       }
     } catch (e) {
-      toast('Nelze kopírovat: ' + e.message);
+      toast('Nelze sdílet: ' + e.message);
     }
   };
 
@@ -1174,7 +1190,7 @@ function ShareGardenModal({ garden, onClose }) {
           </div>
           <div className="row mt-2" style={{ gap: 8 }}>
             <button type="button" className="btn" onClick={copy}>
-              📋 Zkopírovat
+              {isNativeShare() ? '📤 Sdílet' : '📋 Zkopírovat'}
             </button>
             <a
               className="btn secondary"
@@ -1753,6 +1769,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
   const [altitudeM, setAltitudeM] = useState(garden.altitude_m ?? '');
   const [climateZone, setClimateZone] = useState(garden.climate_zone || '');
   const [saving, setSaving] = useState(false);
+  const editMapInputRef = useRef(null);
 
   const save = async (e) => {
     e.preventDefault();
@@ -1847,11 +1864,15 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
         </div>
 
         <div className="field">
-          <label>Klimatická zóna (kraj)</label>
+          <label>Klimatická zóna (region)</label>
           <select value={climateZone} onChange={(e) => setClimateZone(e.target.value)}>
             <option value="">— neuvedeno —</option>
-            {CLIMATE_ZONES.map((z) => (
-              <option key={z.id} value={z.id}>{z.label}</option>
+            {COUNTRIES.map((c) => (
+              <optgroup key={c.code} label={`${c.flag} ${c.label}`}>
+                {getZonesByCountry(c.code).map((z) => (
+                  <option key={z.id} value={z.id}>{z.label}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
           {climateZone && (
@@ -1863,16 +1884,28 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
 
         <div className="field">
           <label>Nahrát novou mapu</label>
-          <label className="btn secondary block">
+          <button
+            type="button"
+            className="btn secondary block"
+            disabled={uploading}
+            onClick={() =>
+              openPhotoPicker({
+                multiple: false,
+                inputRef: editMapInputRef,
+                onFiles: (files) => onMapUpload(files[0]),
+              })
+            }
+          >
             {uploading ? 'Nahrávám...' : '📷 Vybrat novou fotku zahrady'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={onMapUpload}
-              disabled={uploading}
-            />
-          </label>
+          </button>
+          <input
+            ref={editMapInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => onMapUpload(e.target.files?.[0])}
+            disabled={uploading}
+          />
         </div>
         <div className="row mt-3">
           <button type="button" className="btn danger" onClick={onDelete}>

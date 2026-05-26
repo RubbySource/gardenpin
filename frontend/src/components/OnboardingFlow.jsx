@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
-import { CLIMATE_ZONES, describeZone, getZoneOffsetDays } from '../data/climateZones.js';
+import { COUNTRIES, getZonesByCountry, getZoneCountry, describeZone, getZoneOffsetDays } from '../data/climateZones.js';
 import { taskTypeFromEmoji } from '../data/taskTypes.js';
 import PlantAutocomplete from './PlantAutocomplete.jsx';
 
@@ -329,24 +329,45 @@ function WelcomeStep({ userName, setUserName }) {
   );
 }
 
+// Krátký label do chipu — bez nativního názvu v závorce (ten zůstává v nápovědě).
+function shortZoneLabel(label) {
+  return label.replace(/\s*\(.*?\)\s*$/, '');
+}
+
 function ZoneStep({ zoneId, setZoneId }) {
+  // Aktivní země — odvozená z už vybraného regionu (návrat zpět), jinak Česko.
+  const [country, setCountry] = useState(() => getZoneCountry(zoneId) || 'CZ');
+  const zones = getZonesByCountry(country);
   return (
     <>
       <div className="ob-icon" aria-hidden="true">📍</div>
       <h1 className="ob-title">Odkud zahradničíš?</h1>
       <p className="ob-text">
-        Podle kraje upravíme termíny sezónních úkonů — jaro přichází na jižní Moravě
-        dřív než na Vysočině.
+        Podle regionu upravíme termíny sezónních úkonů — jaro přichází v teplých
+        nížinách dřív než v horách a na severovýchodě.
       </p>
+      <div className="ob-country-row no-scrollbar">
+        {COUNTRIES.map((c) => (
+          <button
+            key={c.code}
+            type="button"
+            className={`ob-country-chip${country === c.code ? ' active' : ''}`}
+            onClick={() => setCountry(c.code)}
+          >
+            <span aria-hidden="true">{c.flag}</span> {c.label}
+          </button>
+        ))}
+      </div>
       <div className="ob-zone-grid">
-        {CLIMATE_ZONES.map((z) => (
+        {zones.map((z) => (
           <button
             key={z.id}
             type="button"
             className={`ob-zone-chip${zoneId === z.id ? ' active' : ''}`}
             onClick={() => setZoneId((cur) => (cur === z.id ? '' : z.id))}
+            title={z.label}
           >
-            {z.label}
+            {shortZoneLabel(z.label)}
           </button>
         ))}
       </div>

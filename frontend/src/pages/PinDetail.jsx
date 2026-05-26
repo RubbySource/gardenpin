@@ -11,6 +11,8 @@ import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
+import { hapticNotification } from '../native/haptics.js';
+import { openPhotoPicker } from '../native/camera.js';
 
 // Tab keys odrážejí URL hash; pořadí = pořadí v tab baru.
 const PD_TABS = ['ukony', 'pece', 'fotky', 'info'];
@@ -137,6 +139,7 @@ export default function PinDetail({ pinId, onClose }) {
   const completeTask = async (t) => {
     try {
       await api.completeTask(t.id);
+      hapticNotification('success');
       toast('✅ Hotovo');
       load();
     } catch (e) {
@@ -690,7 +693,19 @@ function EditPinForm({ pin, onClose, onSaved }) {
               </button>
             </>
           )}
-          <div className="file-input-wrap mt-2" onClick={() => fileRef.current?.click()}>
+          <div
+            className="file-input-wrap mt-2"
+            onClick={() =>
+              openPhotoPicker({
+                multiple: false,
+                inputRef: fileRef,
+                onFiles: (files) => {
+                  setFile(files[0]);
+                  setRemovePhoto(false);
+                },
+              })
+            }
+          >
             {file ? (
               <div className="small">📎 {file.name}</div>
             ) : (
@@ -1020,9 +1035,8 @@ function PhotoGallery({ pinId }) {
     load();
   }, [pinId]);
 
-  const handleFiles = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const uploadFiles = async (files) => {
+    if (!files || files.length === 0) return;
     setUploading(true);
     try {
       const fd = new FormData();
@@ -1062,7 +1076,10 @@ function PhotoGallery({ pinId }) {
     <div className="photo-gallery">
       <div
         className="file-input-wrap mb-2"
-        onClick={() => !uploading && fileRef.current?.click()}
+        onClick={() =>
+          !uploading &&
+          openPhotoPicker({ multiple: true, inputRef: fileRef, onFiles: uploadFiles })
+        }
         style={{ cursor: uploading ? 'wait' : 'pointer' }}
       >
         <div className="small">
@@ -1074,7 +1091,7 @@ function PhotoGallery({ pinId }) {
           accept="image/*"
           capture="environment"
           multiple
-          onChange={handleFiles}
+          onChange={(e) => uploadFiles(Array.from(e.target.files || []))}
           style={{ display: 'none' }}
         />
       </div>

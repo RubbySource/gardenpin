@@ -1,5 +1,13 @@
-// Klient pro Web Push subscription — registrace SW, subscribe, unsubscribe
+// Klient pro push subscription. Na webu = Web Push (registrace SW, subscribe),
+// na nativu = @capacitor/push-notifications (viz native/push.js). SettingsPage
+// volá tyto funkce jednotně, větvení platformy řešíme tady.
 import { api } from './api.js';
+import {
+  isNativePush,
+  enableNativePush,
+  disableNativePush,
+  nativePushGranted,
+} from './native/push.js';
 
 function urlBase64ToUint8Array(base64) {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);
@@ -11,10 +19,14 @@ function urlBase64ToUint8Array(base64) {
 }
 
 export function isPushSupported() {
+  if (isNativePush()) return true;
   return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
 export async function getCurrentSubscription() {
+  if (isNativePush()) {
+    return (await nativePushGranted()) ? { native: true } : null;
+  }
   if (!isPushSupported()) return null;
   const reg = await navigator.serviceWorker.getRegistration('/sw.js');
   if (!reg) return null;
@@ -22,6 +34,11 @@ export async function getCurrentSubscription() {
 }
 
 export async function subscribePush() {
+  if (isNativePush()) {
+    const ok = await enableNativePush();
+    if (!ok) throw new Error('Notifikace zamítnuty');
+    return { native: true };
+  }
   if (!isPushSupported()) throw new Error('Push není v tomto prohlížeči podporován');
 
   // 1) Notification permission
@@ -51,6 +68,10 @@ export async function subscribePush() {
 }
 
 export async function unsubscribePush() {
+  if (isNativePush()) {
+    await disableNativePush();
+    return;
+  }
   const sub = await getCurrentSubscription();
   if (!sub) return;
   try {

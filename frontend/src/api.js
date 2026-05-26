@@ -149,6 +149,13 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ endpoint }),
     }),
+  // Nativní push (APNs/FCM device token z Capacitoru)
+  nativePushRegister: ({ token, platform }) =>
+    jsonFetch('/api/push/native-register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, platform }),
+    }),
   pushSendTest: () =>
     jsonFetch('/api/push/send', {
       method: 'POST',

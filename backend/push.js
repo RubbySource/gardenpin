@@ -54,6 +54,53 @@ function listSubscriptions() {
   return db.prepare('SELECT * FROM push_subscriptions').all();
 }
 
+// ---- Nativní push (APNs/FCM device tokeny z Capacitoru) -------------------
+// Reálné doručení vyžaduje APNs konfiguraci (Apple Push key .p8 + key/team id;
+// viz docs/IOS_BUILD.md). Token ukládáme vždy, aby byl klient připraven dřív;
+// dokud APNs creds nejsou nastaveny, sendToAll nativní tokeny jen přeskočí.
+function saveNativeToken(token, platform) {
+  if (!token) throw new Error('Chybí device token');
+  db.prepare(
+    `INSERT INTO native_push_tokens (token, platform) VALUES (?, ?)
+     ON CONFLICT(token) DO UPDATE SET platform = excluded.platform`,
+  ).run(token, platform || 'ios');
+}
+
+function deleteNativeToken(token) {
+  db.prepare('DELETE FROM native_push_tokens WHERE token = ?').run(token);
+}
+
+function listNativeTokens() {
+  return db.prepare('SELECT * FROM native_push_tokens').all();
+}
+
+// APNs je nakonfigurované, jen pokud máme všechny creds v prostředí.
+function apnsConfigured() {
+  return !!(
+    process.env.APNS_KEY_PATH &&
+    process.env.APNS_KEY_ID &&
+    process.env.APNS_TEAM_ID &&
+    process.env.APNS_BUNDLE_ID
+  );
+}
+
+// Doručení nativních notifikací. Bez APNs creds je no-op (jen log), takže
+// produkce běží dál a klient může tokeny registrovat. Až creds přibudou,
+// zde se napojí HTTP/2 APNs odeslání (token-based JWT).
+async function sendToNative(payload) {
+  const tokens = listNativeTokens();
+  if (tokens.length === 0) return { total: 0, sent: 0, skipped: 0 };
+  if (!apnsConfigured()) {
+    console.log(
+      `[push] ${tokens.length} nativních tokenů přeskočeno — APNs není nakonfigurováno (viz docs/IOS_BUILD.md)`,
+    );
+    return { total: tokens.length, sent: 0, skipped: tokens.length };
+  }
+  // TODO(apns): odeslat přes APNs HTTP/2 + JWT (.p8). Vyžaduje Apple Push key.
+  console.log(`[push] APNs odeslání zatím neimplementováno (${tokens.length} tokenů)`);
+  return { total: tokens.length, sent: 0, skipped: tokens.length };
+}
+
 async function sendToOne(row, payload) {
   const sub = {
     endpoint: row.endpoint,
@@ -74,12 +121,17 @@ async function sendToOne(row, payload) {
 
 async function sendToAll(payload) {
   const subs = listSubscriptions();
-  const results = await Promise.all(subs.map((s) => sendToOne(s, payload)));
+  const [results, nativeStats] = await Promise.all([
+    Promise.all(subs.map((s) => sendToOne(s, payload))),
+    sendToNative(payload),
+  ]);
+  const webSent = results.filter((r) => r.ok).length;
   return {
-    total: subs.length,
-    sent: results.filter((r) => r.ok).length,
+    total: subs.length + nativeStats.total,
+    sent: webSent + nativeStats.sent,
     removed: results.filter((r) => r.removed).length,
     failed: results.filter((r) => !r.ok && !r.removed).length,
+    native: nativeStats,
   };
 }
 
@@ -170,6 +222,8 @@ module.exports = {
   getPublicKey,
   saveSubscription,
   deleteSubscription,
+  saveNativeToken,
+  deleteNativeToken,
   sendToAll,
   buildDailyDigest,
   runDailyDigest,

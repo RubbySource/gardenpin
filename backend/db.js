@@ -78,6 +78,16 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
 
+  -- Nativní push device tokeny (APNs/FCM z Capacitoru). Doručování přes APNs
+  -- vyžaduje konfiguraci na backendu (viz docs/IOS_BUILD.md); tokeny ukládáme
+  -- vždy, ať je klient připraven dřív než APNs creds.
+  CREATE TABLE IF NOT EXISTS native_push_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    platform TEXT NOT NULL DEFAULT 'ios',
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
