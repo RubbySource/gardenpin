@@ -1,6 +1,7 @@
 // Globální vyhledávání — overlay s inputem; hledá zahrady, piny a rostliny
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api.js';
 import PinDetail from '../pages/PinDetail.jsx';
 
@@ -23,6 +24,7 @@ function highlight(text, q) {
 }
 
 export default function SearchOverlay({ onClose }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState({ gardens: [], pins: [] });
   const [loading, setLoading] = useState(false);
@@ -72,7 +74,7 @@ export default function SearchOverlay({ onClose }) {
 
   return (
     <>
-      <div className="search-overlay" role="dialog" aria-label="Vyhledávání" onClick={onClose}>
+      <div className="search-overlay" role="dialog" aria-label={t('search.dialogLabel')} onClick={onClose}>
         <div className="search-modal" onClick={(e) => e.stopPropagation()}>
           <div className="search-header">
             <span className="search-icon">🔍</span>
@@ -80,7 +82,7 @@ export default function SearchOverlay({ onClose }) {
               ref={inputRef}
               type="text"
               className="search-input"
-              placeholder="Hledat rostlinu, pin nebo zahradu…"
+              placeholder={t('search.placeholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoComplete="off"
@@ -91,14 +93,14 @@ export default function SearchOverlay({ onClose }) {
                 type="button"
                 className="search-clear"
                 onClick={() => setQuery('')}
-                aria-label="Vymazat"
-                title="Vymazat"
+                aria-label={t('search.clear')}
+                title={t('search.clear')}
               >
                 ×
               </button>
             )}
-            <button type="button" className="search-close" onClick={onClose} aria-label="Zavřít">
-              Zrušit
+            <button type="button" className="search-close" onClick={onClose} aria-label={t('common.close')}>
+              {t('common.cancel')}
             </button>
           </div>
 
@@ -106,9 +108,9 @@ export default function SearchOverlay({ onClose }) {
             {query.trim().length === 0 && (
               <div className="search-empty">
                 <div className="search-empty-icon">🌿</div>
-                <div className="search-empty-title">Co hledáte?</div>
+                <div className="search-empty-title">{t('search.promptTitle')}</div>
                 <div className="search-empty-sub">
-                  Začněte psát — najdu rostliny, piny i zahrady napříč celou databází.
+                  {t('search.promptSub')}
                 </div>
               </div>
             )}
@@ -116,20 +118,20 @@ export default function SearchOverlay({ onClose }) {
             {query.trim().length > 0 && !loading && total === 0 && (
               <div className="search-empty">
                 <div className="search-empty-icon">🤷</div>
-                <div className="search-empty-title">Nic nenalezeno</div>
+                <div className="search-empty-title">{t('search.nothingFound')}</div>
                 <div className="search-empty-sub">
-                  Pro „{query.trim()}" nejsou žádné shody. Zkuste jiné slovo.
+                  {t('search.noMatches', { query: query.trim() })}
                 </div>
               </div>
             )}
 
             {loading && query.trim().length > 0 && total === 0 && (
-              <div className="search-empty small muted">Hledám…</div>
+              <div className="search-empty small muted">{t('search.searching')}</div>
             )}
 
             {results.gardens.length > 0 && (
               <div className="search-group">
-                <div className="search-group-title">🗺️ Zahrady · {results.gardens.length}</div>
+                <div className="search-group-title">🗺️ {t('search.groupGardens')} · {results.gardens.length}</div>
                 {results.gardens.map((g) => (
                   <button
                     key={g.id}
@@ -143,9 +145,9 @@ export default function SearchOverlay({ onClose }) {
                     <div className="search-row-body">
                       <div className="search-row-title">{highlight(g.name, query)}</div>
                       <div className="search-row-meta">
-                        {g.pin_count ?? 0} rostlin
+                        {t('search.plantsCount', { count: g.pin_count ?? 0 })}
                         {g.urgent_count > 0 && (
-                          <span className="search-row-urgent"> · {g.urgent_count} naléhavých</span>
+                          <span className="search-row-urgent"> · {t('search.urgentCount', { count: g.urgent_count })}</span>
                         )}
                       </div>
                     </div>
@@ -157,7 +159,7 @@ export default function SearchOverlay({ onClose }) {
 
             {results.pins.length > 0 && (
               <div className="search-group">
-                <div className="search-group-title">🌿 Rostliny · {results.pins.length}</div>
+                <div className="search-group-title">🌿 {t('search.groupPlants')} · {results.pins.length}</div>
                 {results.pins.map((p) => (
                   <button
                     key={p.id}

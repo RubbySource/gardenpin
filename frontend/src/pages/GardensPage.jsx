@@ -3,6 +3,8 @@
 // swipe-to-reveal akce (Sdílet / Upravit / Smazat) + „•••" menu pro desktop.
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n.js';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import NewGardenModal from '../components/NewGardenModal.jsx';
@@ -11,38 +13,31 @@ import Icon from '../components/Icon.jsx';
 import { useSwipeReveal } from '../hooks/useSwipeReveal.js';
 import { getClimateZone } from '../data/climateZones.js';
 import { shareLink } from '../native/share.js';
+import { formatDate } from '../utils.js';
 import { toast } from '../App.jsx';
 
 const EXPOSURE_TEXT = {
-  N: 'severní expozice',
-  S: 'jižní expozice',
-  E: 'východní expozice',
-  W: 'západní expozice',
-  mixed: 'smíšená expozice',
+  N: 'gardens.exposureN',
+  S: 'gardens.exposureS',
+  E: 'gardens.exposureE',
+  W: 'gardens.exposureW',
+  mixed: 'gardens.exposureMixed',
 };
-
-const plural = (n, one, few, many) =>
-  n === 1 ? one : n >= 2 && n <= 4 ? few : many;
 
 function gardenMeta(g) {
   const parts = [];
   if (g.location) parts.push(g.location);
-  if (g.exposure && EXPOSURE_TEXT[g.exposure]) parts.push(EXPOSURE_TEXT[g.exposure]);
+  if (g.exposure && EXPOSURE_TEXT[g.exposure]) parts.push(i18n.t(EXPOSURE_TEXT[g.exposure]));
   const zone = getClimateZone(g.climate_zone);
   if (zone && !g.location) parts.push(zone.label);
   if (parts.length === 0) {
-    parts.push(
-      new Date(g.created_at + 'Z').toLocaleDateString('cs-CZ', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }),
-    );
+    parts.push(formatDate(g.created_at + 'Z'));
   }
   return parts.join(' · ');
 }
 
 export default function GardensPage() {
+  const { t } = useTranslation();
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -57,7 +52,7 @@ export default function GardensPage() {
     try {
       setGardens(await api.listGardens());
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -78,11 +73,11 @@ export default function GardensPage() {
   const handleDelete = async (g) => {
     try {
       await api.deleteGarden(g.id);
-      toast('🗑️ Zahrada smazána');
+      toast(t('gardens.toastDeleted'));
       setConfirmDelete(null);
       load();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -93,39 +88,39 @@ export default function GardensPage() {
       const status = await shareLink({
         url,
         title: g.name,
-        text: `Podívej se na moji zahradu „${g.name}" v GardenPin`,
+        text: t('gardens.shareText', { name: g.name }),
       });
-      if (status === 'copied') toast('🔗 Odkaz na sdílení zkopírován');
+      if (status === 'copied') toast(t('gardens.toastShareCopied'));
       else if (status === 'shown') toast('🔗 ' + url);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
   const subtitle =
     gardens.length === 0
-      ? 'Začněte mapovat svou první zahradu'
-      : `${gardens.length} ${plural(gardens.length, 'zahrada', 'zahrady', 'zahrad')} · ${totalPins} ${plural(totalPins, 'rostlina', 'rostliny', 'rostlin')} celkem`;
+      ? t('gardens.subtitleEmpty')
+      : `${t('gardens.gardenCount', { count: gardens.length })} · ${t('gardens.subtitlePlantsTotal', { count: totalPins })}`;
 
   return (
     <div className="gardens-page">
       <header className="gl-header">
         <div className="gl-header-row">
-          <h1 className="ios-large-title">Zahrady</h1>
+          <h1 className="ios-large-title">{t('gardens.title')}</h1>
           <div className="gl-header-actions">
             <button
               className="gl-round-btn ghost"
               onClick={() => setShowTemplate(true)}
-              aria-label="Vytvořit ze šablony"
-              title="Vytvořit ze šablony"
+              aria-label={t('gardens.createFromTemplate')}
+              title={t('gardens.createFromTemplate')}
             >
               <Icon name="leaf" size={19} stroke={1.9} />
             </button>
             <button
               className="gl-round-btn primary"
               onClick={() => setShowNew(true)}
-              aria-label="Nová zahrada"
-              title="Nová zahrada"
+              aria-label={t('gardens.newGarden')}
+              title={t('gardens.newGarden')}
             >
               <Icon name="plus" size={20} stroke={2.4} />
             </button>
@@ -141,11 +136,11 @@ export default function GardensPage() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Hledat zahradu"
-            aria-label="Hledat zahradu"
+            placeholder={t('gardens.searchPlaceholder')}
+            aria-label={t('gardens.searchPlaceholder')}
           />
           {query && (
-            <button className="gl-search-clear" onClick={() => setQuery('')} aria-label="Vymazat">
+            <button className="gl-search-clear" onClick={() => setQuery('')} aria-label={t('gardens.clearSearch')}>
               <Icon name="close" size={15} stroke={2.2} />
             </button>
           )}
@@ -153,25 +148,25 @@ export default function GardensPage() {
       )}
 
       {loading ? (
-        <div className="empty">🌱 Načítám...</div>
+        <div className="empty">🌱 {t('common.loadingShort')}</div>
       ) : gardens.length === 0 ? (
         <div className="card empty">
           <div className="icon">🌻</div>
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Zatím žádná zahrada</div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>{t('gardens.emptyTitle')}</div>
           <div className="small muted" style={{ marginBottom: 14 }}>
-            Přidejte fotografii z leteckého pohledu nebo začněte ze šablony.
+            {t('gardens.emptyDesc')}
           </div>
           <div className="row" style={{ justifyContent: 'center', gap: 8 }}>
             <button className="btn ghost" onClick={() => setShowTemplate(true)}>
-              🌱 Šablona
+              {t('gardens.btnTemplate')}
             </button>
             <button className="btn" onClick={() => setShowNew(true)}>
-              + Vytvořit zahradu
+              {t('gardens.btnCreate')}
             </button>
           </div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="empty small muted">Žádná zahrada neodpovídá „{query}".</div>
+        <div className="empty small muted">{t('gardens.noMatch', { query })}</div>
       ) : (
         <div className="gl-list">
           {filtered.map((g) => (
@@ -194,7 +189,7 @@ export default function GardensPage() {
           onClose={() => setShowNew(false)}
           onCreated={(g) => {
             setShowNew(false);
-            toast('✅ Zahrada vytvořena');
+            toast(t('gardens.toastCreated'));
             nav(`/zahrada/${g.id}`);
           }}
         />
@@ -222,20 +217,19 @@ export default function GardensPage() {
       )}
 
       {confirmDelete && (
-        <Modal title="Smazat zahradu?" onClose={() => setConfirmDelete(null)}>
+        <Modal title={t('gardens.deleteTitle')} onClose={() => setConfirmDelete(null)}>
           <p style={{ marginTop: 0 }}>
-            Opravdu chcete smazat zahradu <strong>{confirmDelete.name}</strong>?
+            {t('gardens.deleteConfirmPre')} <strong>{confirmDelete.name}</strong>{t('gardens.deleteConfirmPost')}
           </p>
           <p className="small muted">
-            Smaže se mapa, všechny piny ({confirmDelete.pin_count || 0}) i jejich úkoly. Akce nejde
-            vrátit zpět.
+            {t('gardens.deleteWarning', { count: confirmDelete.pin_count || 0 })}
           </p>
           <div className="row mt-3" style={{ justifyContent: 'flex-end' }}>
             <button className="btn ghost" onClick={() => setConfirmDelete(null)}>
-              Zrušit
+              {t('common.cancel')}
             </button>
             <button className="btn danger" onClick={() => handleDelete(confirmDelete)}>
-              Smazat
+              {t('common.delete')}
             </button>
           </div>
         </Modal>
@@ -245,6 +239,7 @@ export default function GardensPage() {
 }
 
 function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const { handlers, style, isOpen, consumeSwipeClick } = useSwipeReveal({
@@ -296,7 +291,7 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
           tabIndex={isOpen ? 0 : -1}
         >
           <Icon name="share" size={21} stroke={1.9} />
-          <span>Sdílet</span>
+          <span>{t('gardens.actionShare')}</span>
         </button>
         <button
           className="gl-swipe-action edit"
@@ -304,7 +299,7 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
           tabIndex={isOpen ? 0 : -1}
         >
           <Icon name="pencil" size={21} stroke={1.9} />
-          <span>Upravit</span>
+          <span>{t('common.edit')}</span>
         </button>
         <button
           className="gl-swipe-action delete"
@@ -312,7 +307,7 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
           tabIndex={isOpen ? 0 : -1}
         >
           <Icon name="trash" size={21} stroke={1.9} />
-          <span>Smazat</span>
+          <span>{t('common.delete')}</span>
         </button>
       </div>
 
@@ -327,7 +322,7 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
           )}
           {urgent > 0 && (
             <span className="gl-urgent-badge">
-              {urgent} po termínu
+              {t('gardens.overdueBadge', { count: urgent })}
             </span>
           )}
           <div className="gl-card-menu" ref={menuRef}>
@@ -337,21 +332,21 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
                 e.stopPropagation();
                 setMenuOpen((v) => !v);
               }}
-              aria-label="Možnosti zahrady"
-              title="Možnosti"
+              aria-label={t('gardens.gardenOptions')}
+              title={t('gardens.options')}
             >
               <span className="gl-dots" aria-hidden="true">•••</span>
             </button>
             {menuOpen && (
               <div className="gd-action-menu gl-menu" onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => runAction(onShare)}>
-                  <Icon name="share" size={18} /> Sdílet zahradu
+                  <Icon name="share" size={18} /> {t('gardens.menuShare')}
                 </button>
                 <button onClick={() => runAction(onEdit)}>
-                  <Icon name="pencil" size={18} /> Přejmenovat
+                  <Icon name="pencil" size={18} /> {t('gardens.menuRename')}
                 </button>
                 <button onClick={() => runAction(onDelete)} className="danger">
-                  <Icon name="trash" size={18} /> Smazat
+                  <Icon name="trash" size={18} /> {t('common.delete')}
                 </button>
               </div>
             )}
@@ -362,14 +357,14 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
           <div className="gl-card-meta">{meta}</div>
           <div className="gl-card-chips">
             <span className="gl-chip">
-              🌱 {pinCount} {plural(pinCount, 'rostlina', 'rostliny', 'rostlin')}
+              🌱 {t('gardens.plantCount', { count: pinCount })}
             </span>
             {taskCount > 0 ? (
               <span className="gl-chip primary">
-                📅 {taskCount} {plural(taskCount, 'úkol', 'úkoly', 'úkolů')}
+                📅 {t('gardens.taskCount', { count: taskCount })}
               </span>
             ) : pinCount > 0 ? (
-              <span className="gl-chip done">✓ Vše hotovo</span>
+              <span className="gl-chip done">{t('gardens.allDone')}</span>
             ) : null}
           </div>
         </div>
@@ -379,6 +374,7 @@ function GardenCard({ garden, swipeOpen, onSwipeOpenChange, onOpen, onShare, onE
 }
 
 function RenameGardenModal({ garden, onClose, onSaved }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(garden.name);
   const [saving, setSaving] = useState(false);
 
@@ -391,19 +387,19 @@ function RenameGardenModal({ garden, onClose, onSaved }) {
       const fd = new FormData();
       fd.append('name', trimmed);
       await api.updateGarden(garden.id, fd);
-      toast('✏️ Zahrada přejmenována');
+      toast(t('gardens.toastRenamed'));
       onSaved();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Přejmenovat zahradu" onClose={onClose}>
+    <Modal title={t('gardens.renameTitle')} onClose={onClose}>
       <form onSubmit={save}>
         <div className="field">
-          <label>Název zahrady</label>
+          <label>{t('gardens.nameLabel')}</label>
           <input
             type="text"
             value={name}
@@ -413,14 +409,14 @@ function RenameGardenModal({ garden, onClose, onSaved }) {
           />
         </div>
         <p className="small muted" style={{ marginTop: 4 }}>
-          Pěstební podmínky a mapu upravíš v detailu zahrady.
+          {t('gardens.renameHint')}
         </p>
         <div className="row mt-3" style={{ justifyContent: 'flex-end' }}>
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn" disabled={saving || !name.trim()}>
-            {saving ? 'Ukládám…' : 'Uložit'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>

@@ -1,17 +1,14 @@
 // Seasonal calendar — 12 months grid with planned tasks per month, filterable by garden
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
-import { taskIcon, taskLabel } from '../utils.js';
+import { taskIcon, taskLabel, monthName } from '../utils.js';
 import { hapticNotification } from '../native/haptics.js';
 import PinDetail from '../pages/PinDetail.jsx';
 import seasonalData from '../data/seasonal.json';
 import { getWarningsForMonth, monthRangeLabel } from '../pestDatabase.js';
 
-const MONTH_NAMES = [
-  'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
-  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec',
-];
 const MONTH_EMOJI = ['❄️', '❄️', '🌱', '🌷', '🌸', '☀️', '☀️', '🌻', '🍂', '🍁', '🍂', '🎄'];
 
 // Najdi piny, kde plant_name obsahuje některý z tagů (case-insensitive)
@@ -26,6 +23,7 @@ function matchPinsByTags(pins, tags) {
 }
 
 export default function SeasonalCalendar() {
+  const { t: tr } = useTranslation();
   const [tasks, setTasks] = useState([]);
   const [gardens, setGardens] = useState([]);
   const [allPins, setAllPins] = useState([]);
@@ -46,11 +44,11 @@ export default function SeasonalCalendar() {
     try {
       await api.completeTask(taskId);
       hapticNotification('success');
-      toast('✅ Hotovo');
+      toast(tr('seasonalCal.taskDone'));
       const fresh = await api.listTasks();
       setTasks(fresh);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(tr('common.error', { msg: err.message }));
     } finally {
       setCompleting(null);
     }
@@ -68,7 +66,7 @@ export default function SeasonalCalendar() {
         );
         setAllPins(pinLists.flat());
       } catch (e) {
-        toast('Chyba: ' + e.message);
+        toast(tr('common.error', { msg: e.message }));
       } finally {
         setLoading(false);
       }
@@ -108,12 +106,12 @@ export default function SeasonalCalendar() {
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  if (loading) return <div className="empty">🌱 Načítám…</div>;
+  if (loading) return <div className="empty">🌱 {tr('common.loadingShort')}</div>;
 
   return (
     <>
       <div className="section-header" style={{ marginTop: 4 }}>
-        <div className="title">📅 Sezónní kalendář</div>
+        <div className="title">{tr('seasonalCal.title')}</div>
         {totalCount > 0 && <span className="count-badge">{totalCount}</span>}
       </div>
 
@@ -122,7 +120,7 @@ export default function SeasonalCalendar() {
           <button
             className="btn ghost small"
             onClick={() => setYear((y) => y - 1)}
-            aria-label="Předchozí rok"
+            aria-label={tr('seasonalCal.prevYear')}
           >
             ‹
           </button>
@@ -130,7 +128,7 @@ export default function SeasonalCalendar() {
           <button
             className="btn ghost small"
             onClick={() => setYear((y) => y + 1)}
-            aria-label="Další rok"
+            aria-label={tr('seasonalCal.nextYear')}
           >
             ›
           </button>
@@ -141,7 +139,7 @@ export default function SeasonalCalendar() {
           value={gardenFilter}
           onChange={(e) => setGardenFilter(e.target.value)}
         >
-          <option value="all">🗺️ Všechny zahrady</option>
+          <option value="all">{tr('seasonalCal.allGardens')}</option>
           {gardens.map((g) => (
             <option key={g.id} value={g.id}>{g.name}</option>
           ))}
@@ -151,17 +149,17 @@ export default function SeasonalCalendar() {
       {totalCount === 0 && (
         <div className="card empty">
           <div className="icon">🌼</div>
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>Žádné naplánované úkoly</div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>{tr('seasonalCal.noneScheduled')}</div>
           <div className="small muted">
             {gardenFilter === 'all'
-              ? `V roce ${year} nejsou naplánované žádné úkoly.`
-              : 'Zkuste vybrat jinou zahradu nebo rok.'}
+              ? tr('seasonalCal.noneInYear', { year })
+              : tr('seasonalCal.tryOther')}
           </div>
         </div>
       )}
 
       <div className="months-grid">
-        {MONTH_NAMES.map((name, idx) => {
+        {MONTH_EMOJI.map((_, idx) => {
           const monthTasks = tasksByMonth[idx];
           const isCurrent = idx === currentMonth && year === currentYear;
           const seasonal = seasonalData.months[idx];
@@ -183,11 +181,11 @@ export default function SeasonalCalendar() {
             >
               <div className="month-header">
                 <span className="month-emoji">{MONTH_EMOJI[idx]}</span>
-                <span className="month-name">{name}</span>
+                <span className="month-name">{monthName(idx)}</span>
                 {monthTasks.length > 0 && (
                   <span className="month-count">{monthTasks.length}</span>
                 )}
-                {isCurrent && <span className="badge" style={{ marginLeft: 'auto' }}>Tento měsíc</span>}
+                {isCurrent && <span className="badge" style={{ marginLeft: 'auto' }}>{tr('common.thisMonth')}</span>}
               </div>
 
               {/* Naplánované úkoly z DB */}
@@ -216,8 +214,8 @@ export default function SeasonalCalendar() {
                           className="month-task-done"
                           onClick={(e) => handleCompleteTask(e, t.id)}
                           disabled={isCompleting}
-                          title="Označit jako hotové"
-                          aria-label="Označit úkol jako hotové"
+                          title={tr('seasonalCal.markDone')}
+                          aria-label={tr('seasonalCal.markDoneAria')}
                         >
                           {isCompleting ? '⏳' : '✓'}
                         </button>
@@ -239,7 +237,7 @@ export default function SeasonalCalendar() {
                     aria-expanded={isExpanded}
                   >
                     <span className="small muted">
-                      🌿 Typické úkoly ({seasonalTasks.length})
+                      {tr('seasonalCal.typicalTasks', { count: seasonalTasks.length })}
                     </span>
                     <span className="small muted">{isExpanded ? '▴' : '▾'}</span>
                   </button>
@@ -263,7 +261,7 @@ export default function SeasonalCalendar() {
                                       type="button"
                                       className="seasonal-pin-chip"
                                       onClick={() => setOpenPin(p.id)}
-                                      title={`Otevřít ${p.name}`}
+                                      title={tr('seasonalCal.openPin', { name: p.name })}
                                     >
                                       📍 {p.plant_name || p.name}
                                     </button>
@@ -296,7 +294,7 @@ export default function SeasonalCalendar() {
                     aria-expanded={warningsExpanded}
                   >
                     <span className="small warning-toggle-label">
-                      ⚠️ Na co si dát pozor ({monthWarnings.length})
+                      {tr('seasonalCal.watchOut', { count: monthWarnings.length })}
                     </span>
                     <span className="small muted">{warningsExpanded ? '▴' : '▾'}</span>
                   </button>
@@ -320,7 +318,7 @@ export default function SeasonalCalendar() {
                                   type="button"
                                   className="seasonal-pin-chip"
                                   onClick={() => setOpenPin(p.id)}
-                                  title={`Otevřít ${p.name}`}
+                                  title={tr('seasonalCal.openPin', { name: p.name })}
                                 >
                                   📍 {p.plant_name || p.name}
                                 </button>

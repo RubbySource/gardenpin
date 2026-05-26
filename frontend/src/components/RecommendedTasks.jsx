@@ -2,21 +2,24 @@
 // Pro každý úkol je tlačítko, které ho jedním klikem přidá jako konkrétní task
 // (specific_date = 15. den daného měsíce, letošní rok nebo příští dle aktuálního měsíce).
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { findPlantByName } from '../plantDatabase.js';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
+import { monthName, monthNameShort } from '../utils.js';
 import { getClimateZone, getZoneOffsetDays } from '../data/climateZones.js';
 
-const MONTH_NAMES_CZ = [
-  '', 'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
-  'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec',
-];
-
 // Barvy přes CSS proměnné, ať se v dark mode přebarví automaticky.
+// `label` se počítá uvnitř komponenty přes t() (PRIORITY_LABEL_KEY).
 const PRIORITY_META = {
-  high:   { label: 'Důležité',   color: 'var(--danger)',    bg: 'rgba(192,57,43,0.10)' },
-  medium: { label: 'Standardní', color: 'var(--primary)',   bg: 'var(--forest-soft)' },
-  low:    { label: 'Doplňkové',  color: 'var(--text-dim)',  bg: 'rgba(107,107,112,0.10)' },
+  high:   { color: 'var(--danger)',    bg: 'rgba(192,57,43,0.10)' },
+  medium: { color: 'var(--primary)',   bg: 'var(--forest-soft)' },
+  low:    { color: 'var(--text-dim)',  bg: 'rgba(107,107,112,0.10)' },
+};
+const PRIORITY_LABEL_KEY = {
+  high: 'recommended.prioHigh',
+  medium: 'recommended.prioMedium',
+  low: 'recommended.prioLow',
 };
 
 // Posun termínů úkonů podle pěstebních podmínek zahrady.
@@ -57,6 +60,7 @@ function isTaskAlreadyAdded(action, month, existingTasks, conditions) {
 }
 
 export default function RecommendedTasks({ plantName, pinId, existingTasks, gardenConditions, onTaskAdded }) {
+  const { t } = useTranslation();
   const plant = useMemo(() => findPlantByName(plantName), [plantName]);
   const [adding, setAdding] = useState({});
   const [added, setAdded] = useState({});
@@ -83,13 +87,13 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
         task_type: 'jine',
         frequency_days: null,
         specific_date: dateForMonth(task.month, gardenConditions),
-        notes: `Doporučený úkon (${MONTH_NAMES_CZ[task.month]})`,
+        notes: t('recommended.notes', { month: monthName(task.month - 1).toLowerCase() }),
       });
       setAdded((s) => ({ ...s, [key]: true }));
-      toast('✅ Úkol přidán');
+      toast(t('recommended.taskAdded'));
       onTaskAdded?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setAdding((s) => ({ ...s, [key]: false }));
     }
@@ -106,16 +110,16 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
           task_type: 'jine',
           frequency_days: null,
           specific_date: dateForMonth(task.month, gardenConditions),
-          notes: `Doporučený úkon (${MONTH_NAMES_CZ[task.month]})`,
+          notes: t('recommended.notes', { month: monthName(task.month - 1).toLowerCase() }),
         }),
       ));
       const newAdded = { ...added };
-      remaining.forEach((t) => { newAdded[`${t.month}-${t.action}`] = true; });
+      remaining.forEach((rt) => { newAdded[`${rt.month}-${rt.action}`] = true; });
       setAdded(newAdded);
-      toast(`✅ Přidáno ${remaining.length} úkolů na rok`);
+      toast(t('recommended.addedCount', { count: remaining.length }));
       onTaskAdded?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setAddingAll(false);
     }
@@ -134,9 +138,9 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
         onClick={() => setCollapsed((c) => !c)}
       >
         <label style={{ margin: 0, cursor: 'pointer' }}>
-          🌿 Doporučené úkony{' '}
+          {t('recommended.header')}{' '}
           <span className="muted small" style={{ fontWeight: 400 }}>
-            ({tasks.length} {tasks.length === 1 ? 'úkon' : (tasks.length < 5 ? 'úkony' : 'úkonů')})
+            ({t('recommended.taskCount', { count: tasks.length })})
           </span>
         </label>
         <span className="muted small">{collapsed ? '▸' : '▾'}</span>
@@ -154,10 +158,12 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
               }}
             >
               {zone
-                ? `📍 Upraveno pro tvou lokalitu (${zone.label}) — termíny ${shiftDays > 0 ? `posunuty o +${shiftDays} dní` : `uspíšeny o ${-shiftDays} dní`}`
+                ? (shiftDays > 0
+                    ? t('recommended.zoneShiftLater', { zone: zone.label, days: shiftDays })
+                    : t('recommended.zoneShiftEarlier', { zone: zone.label, days: -shiftDays }))
                 : (shiftDays > 0
-                    ? `🌡️ Chladnější mikroklima zahrady — termíny posunuty o +${shiftDays} dní`
-                    : `🌡️ Teplejší mikroklima zahrady — termíny posunuty o ${shiftDays} dní`)}
+                    ? t('recommended.microColder', { days: shiftDays })
+                    : t('recommended.microWarmer', { days: shiftDays }))}
             </div>
           )}
           {remaining.length > 1 && (
@@ -167,8 +173,8 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
               disabled={addingAll}
             >
               {addingAll
-                ? 'Přidávám…'
-                : `+ Přidat všech ${remaining.length} úkonů na rok`}
+                ? t('recommended.adding')
+                : t('recommended.addAll', { count: remaining.length })}
             </button>
           )}
 
@@ -179,6 +185,7 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
               const isAdding = adding[key];
               const isPast = task.month < monthNow;
               const prio = PRIORITY_META[task.priority] || PRIORITY_META.medium;
+              const prioLabel = t(PRIORITY_LABEL_KEY[task.priority] || PRIORITY_LABEL_KEY.medium);
               return (
                 <div
                   key={i}
@@ -208,30 +215,30 @@ export default function RecommendedTasks({ plantName, pinId, existingTasks, gard
                       minWidth: 36,
                       textAlign: 'center',
                     }}
-                    title={prio.label}
+                    title={prioLabel}
                   >
-                    {MONTH_NAMES_CZ[task.month].slice(0, 3)}
+                    {monthNameShort(task.month - 1)}
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 500 }}>
                       {task.emoji} {task.action}
                     </div>
                     {isPast && !isAdded && (
-                      <div className="muted small">Letos už proběhlo — naplánuje na příští rok</div>
+                      <div className="muted small">{t('recommended.pastThisYear')}</div>
                     )}
                   </div>
                   {isAdded ? (
                     <span className="badge" style={{ background: prio.bg, color: prio.color }}>
-                      ✓ Přidáno
+                      {t('recommended.added')}
                     </span>
                   ) : (
                     <button
                       className="btn ghost small"
                       onClick={() => addTask(task)}
                       disabled={isAdding}
-                      title={`${prio.label} — přidat jako úkol na ${MONTH_NAMES_CZ[task.month]}`}
+                      title={t('recommended.addTaskTitle', { prio: prioLabel, month: monthName(task.month - 1).toLowerCase() })}
                     >
-                      {isAdding ? '…' : '+ Přidat'}
+                      {isAdding ? '…' : t('recommended.add')}
                     </button>
                   )}
                 </div>

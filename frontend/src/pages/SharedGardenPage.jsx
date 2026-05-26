@@ -1,17 +1,10 @@
 // Veřejná read-only stránka sdílené zahrady — bez autentizace
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { localeCode } from '../i18n.js';
 import { api } from '../api.js';
-import { taskIcon, taskLabel } from '../utils.js';
-
-function formatDate(iso) {
-  if (!iso) return '';
-  try {
-    return new Date(iso).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch {
-    return iso;
-  }
-}
+import { taskIcon, taskLabel, formatDate } from '../utils.js';
 
 function groupByMonth(tasks) {
   const groups = {};
@@ -19,7 +12,7 @@ function groupByMonth(tasks) {
     if (!t.next_due) continue;
     const d = new Date(t.next_due);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = d.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' });
+    const label = d.toLocaleDateString(localeCode(), { month: 'long', year: 'numeric' });
     if (!groups[key]) groups[key] = { label, items: [] };
     groups[key].items.push(t);
   }
@@ -29,6 +22,7 @@ function groupByMonth(tasks) {
 }
 
 export default function SharedGardenPage() {
+  const { t } = useTranslation();
   const { token } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -48,7 +42,7 @@ export default function SharedGardenPage() {
     return (
       <div className="shared-app">
         <main className="main shared-page">
-          <div className="empty">🌱 Načítám…</div>
+          <div className="empty">🌱 {t('common.loadingShort')}</div>
         </main>
       </div>
     );
@@ -63,8 +57,8 @@ export default function SharedGardenPage() {
           </div>
           <div className="card empty">
             <div className="icon">🔒</div>
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>Sdílení není dostupné</div>
-            <div className="small muted">{error || 'Odkaz byl zrušen nebo neexistuje.'}</div>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>{t('shared.unavailableTitle')}</div>
+            <div className="small muted">{error || t('shared.unavailableText')}</div>
           </div>
         </main>
       </div>
@@ -80,8 +74,8 @@ export default function SharedGardenPage() {
         <div className="shared-header">
           <h1>🗺️ {garden.name}</h1>
           <div className="small muted">
-            Sdílená zahrada · {pins.length} {pins.length === 1 ? 'rostlina' : pins.length < 5 ? 'rostliny' : 'rostlin'}
-            {garden.shared_at && ` · od ${formatDate(garden.shared_at)}`}
+            {t('shared.sharedGarden')} · {t('shared.plantCount', { count: pins.length })}
+            {garden.shared_at && ` · ${t('shared.sinceDate', { date: formatDate(garden.shared_at) })}`}
           </div>
         </div>
 
@@ -147,9 +141,9 @@ export default function SharedGardenPage() {
           </div>
         )}
 
-        <h3 className="section-title">📍 Rostliny ({pins.length})</h3>
+        <h3 className="section-title">📍 {t('shared.plantsTitle', { count: pins.length })}</h3>
         {pins.length === 0 ? (
-          <div className="card empty small">V této zahradě zatím nejsou žádné rostliny.</div>
+          <div className="card empty small">{t('shared.noPlants')}</div>
         ) : (
           pins.map((p) => (
             <div key={p.id} className="garden-card" style={{ cursor: 'default' }}>
@@ -167,7 +161,7 @@ export default function SharedGardenPage() {
                 <div className="name">{p.name}</div>
                 {p.plant_name && <div className="meta">🌿 {p.plant_name}</div>}
                 {p.planting_date && (
-                  <div className="meta">📅 Vysazeno {formatDate(p.planting_date)}</div>
+                  <div className="meta">📅 {t('shared.planted', { date: formatDate(p.planting_date) })}</div>
                 )}
                 {p.notes && <div className="meta small muted">{p.notes}</div>}
               </div>
@@ -175,9 +169,9 @@ export default function SharedGardenPage() {
           ))
         )}
 
-        <h3 className="section-title">📅 Nadcházející úkony</h3>
+        <h3 className="section-title">📅 {t('shared.upcomingTitle')}</h3>
         {taskGroups.length === 0 ? (
-          <div className="card empty small">Žádné naplánované úkony v nejbližších 3 měsících.</div>
+          <div className="card empty small">{t('shared.noUpcoming')}</div>
         ) : (
           taskGroups.map((g) => (
             <div key={g.label} className="card" style={{ marginBottom: 10 }}>
@@ -207,7 +201,7 @@ export default function SharedGardenPage() {
 
         <div className="shared-footer">
           <div className="small muted">
-            Tato stránka je jen pro čtení.
+            {t('shared.readOnly')}
           </div>
           <Link to="/" className="btn ghost small" style={{ marginTop: 10 }}>
             🌿 GardenPin

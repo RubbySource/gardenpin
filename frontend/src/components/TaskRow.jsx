@@ -2,6 +2,7 @@
 // Akce: swipe vpravo = hotovo (zelená), swipe vlevo = smazat (červená),
 // trailing tlačítko = odložit (action-sheet). Tap na obsah otevře detail místa.
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Icon from './Icon.jsx';
 import SnoozeButton from './SnoozeButton.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
@@ -16,6 +17,7 @@ export default function TaskRow({
   onOpen,
   onSnoozed,
 }) {
+  const { t } = useTranslation();
   const { handlers, itemStyle, triggeredLeft, triggeredRight, drag, swiping } = useSwipeActions({
     onSwipeRight: () => onComplete?.(),
     onSwipeLeft: () => onDelete?.(),
@@ -35,7 +37,7 @@ export default function TaskRow({
           aria-hidden="true"
         >
           <Icon name="check" size={22} />
-          <span>{triggeredRight ? 'Hotovo' : 'Posuňte →'}</span>
+          <span>{triggeredRight ? t('common.done') : t('taskRow.swipeComplete')}</span>
         </div>
         <div
           className={`swipe-action-bg swipe-action-delete ${triggeredLeft ? 'triggered' : ''}`}
@@ -43,7 +45,7 @@ export default function TaskRow({
           aria-hidden="true"
         >
           <Icon name="trash" size={22} />
-          <span>{triggeredLeft ? 'Smazat' : '← Smazat'}</span>
+          <span>{triggeredLeft ? t('common.delete') : t('taskRow.swipeDelete')}</span>
         </div>
         <div
           className={`task-row ios-task-row ${cls} ${canSnooze ? 'has-trailing' : ''} ${completing ? 'completing' : ''} ${deleting ? 'deleting' : ''} swipe-${overlayDir}`}
@@ -56,8 +58,8 @@ export default function TaskRow({
               e.stopPropagation();
               onComplete();
             }}
-            aria-label="Označit jako hotové"
-            title="Označit jako hotové"
+            aria-label={t('taskRow.markDone')}
+            title={t('taskRow.markDone')}
           >
             {completing ? <Icon name="check" size={14} stroke={2.5} /> : ''}
           </button>
@@ -76,9 +78,9 @@ export default function TaskRow({
             <div className="task-row-tags">
               {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
               {task.frequency_days ? (
-                <span className="badge">Každých {task.frequency_days} dní</span>
+                <span className="badge">{t('taskRow.everyDays', { count: task.frequency_days })}</span>
               ) : null}
-              {task.specific_date ? <span className="badge">Jednorázově</span> : null}
+              {task.specific_date ? <span className="badge">{t('taskRow.once')}</span> : null}
               <span className="badge type">{taskLabel(task.task_type)}</span>
             </div>
           </div>

@@ -1,6 +1,9 @@
 // Autocomplete input pro výběr rostliny + plant info card v GardenPin designu
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { searchPlants, PLANT_DATABASE, enrichPlant } from '../plantDatabase.js';
+import { monthName, monthNameShort } from '../utils.js';
+import i18n from '../i18n.js';
 import { getZoneOffsetDays } from '../data/climateZones.js';
 import { taskTypeFromEmoji } from '../data/taskTypes.js';
 
@@ -16,11 +19,6 @@ const PALETTE = {
   muted: 'var(--muted)',
   border: 'var(--border)',
 };
-
-const MONTH_NAMES_CZ = [
-  '', 'led', 'úno', 'bře', 'dub', 'kvě', 'čer',
-  'črc', 'srp', 'zář', 'říj', 'lis', 'pro',
-];
 
 // Posun ve dnech daný pěstebními podmínkami zahrady (klima, expozice, nadm. výška).
 // Sjednoceno s RecommendedTasks — držet logiku v souladu s tou v components/RecommendedTasks.jsx.
@@ -61,7 +59,7 @@ export function buildSeasonalTaskPayloads(plant, selectedCareSet, pinId, gardenC
       task_type: taskTypeFromEmoji(care.emoji),
       frequency_days: null,
       specific_date: specific,
-      notes: `Sezónní péče (${MONTH_NAMES_CZ[care.month]})`,
+      notes: i18n.t('plantAuto.careNote', { month: monthName(care.month - 1).toLowerCase() }),
       recurring: true,
       recurrence_pattern: 'yearly',
     });
@@ -84,6 +82,7 @@ function browsePlants(limit = 12) {
 }
 
 export default function PlantAutocomplete({ value, onChange, onSelect, placeholder }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState([]);
   const wrapRef = useRef();
@@ -119,10 +118,10 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value, null)}
-        placeholder={placeholder || 'Hledat rostlinu…'}
+        placeholder={placeholder || t('plantAuto.searchPlaceholder')}
         onFocus={() => setOpen(true)}
         autoComplete="off"
-        aria-label="Hledat rostlinu"
+        aria-label={t('plantAuto.searchAria')}
       />
       {showResults && (
         <div
@@ -152,7 +151,7 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
                 padding: '8px 12px 4px',
               }}
             >
-              Procházet rostliny ({PLANT_DATABASE.length})
+              {t('plantAuto.browse', { count: PLANT_DATABASE.length })}
             </div>
           )}
           {results.map((p) => (
@@ -178,7 +177,7 @@ export default function PlantAutocomplete({ value, onChange, onSelect, placehold
             color: PALETTE.muted,
           }}
         >
-          Žádná rostlina neodpovídá „{value}".
+          {t('plantAuto.noMatch', { query: value })}
         </div>
       )}
     </div>
@@ -275,6 +274,7 @@ function PlantSearchRow({ plant, onPick }) {
  * - Sticky CTA "+ Přidat do zahrady" s počítadlem zaškrtnutých chips
  */
 export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange }) {
+  const { t } = useTranslation();
   const [creating, setCreating] = useState(false);
   const [done, setDone] = useState(false);
   const [selectedCare, setSelectedCare] = useState(() => new Set());
@@ -441,7 +441,7 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
             onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
-            {creating ? 'Vytvářím úkoly…' : '+ Přidat do zahrady'}
+            {creating ? t('plantAuto.creatingTasks') : t('plantAuto.addToGarden')}
             {!creating && ctaCount > 0 && (
               <span
                 style={{
@@ -469,8 +469,8 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
                 marginTop: 6,
               }}
             >
-              {plant.tasks.length} pravidelných úkolů
-              {selectedCount > 0 && ` + ${selectedCount} sezónních`}
+              {t('plantAuto.regularTasks', { count: plant.tasks.length })}
+              {selectedCount > 0 && t('plantAuto.plusSeasonal', { count: selectedCount })}
             </div>
           )}
         </div>
@@ -488,7 +488,7 @@ export function PlantInfoCard({ plant, pinId, onTasksCreated, onSelectionChange 
             borderTop: `1px solid ${PALETTE.border}`,
           }}
         >
-          ✅ Úkoly přidány ({ctaCount})
+          {t('plantAuto.tasksAdded', { count: ctaCount })}
         </div>
       )}
     </div>
@@ -562,6 +562,7 @@ function CategoryBadge({ category }) {
 }
 
 function ZoneBadge({ zone }) {
+  const { t } = useTranslation();
   return (
     <span
       style={{
@@ -575,12 +576,13 @@ function ZoneBadge({ zone }) {
         borderRadius: 999,
       }}
     >
-      Zóna {zone}
+      {t('plantAuto.zoneBadge', { zone })}
     </span>
   );
 }
 
 function StatsRow({ plant }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -593,9 +595,9 @@ function StatsRow({ plant }) {
         gap: 4,
       }}
     >
-      <Stat label="Světlo" value={plant.light} icon="☀️" />
-      <Stat label="Zálivka" value={plant.water} icon="💧" />
-      <Stat label="Výška" value={plant.height || '—'} icon="📏" />
+      <Stat label={t('plantAuto.statLight')} value={plant.light} icon="☀️" />
+      <Stat label={t('plantAuto.statWater')} value={plant.water} icon="💧" />
+      <Stat label={t('plantAuto.statHeight')} value={plant.height || '—'} icon="📏" />
     </div>
   );
 }
@@ -633,6 +635,7 @@ function Stat({ label, value, icon }) {
 }
 
 function CareSection({ actions, selected, onToggle }) {
+  const { t } = useTranslation();
   return (
     <div style={{ padding: '4px 14px 12px' }}>
       <div
@@ -646,9 +649,9 @@ function CareSection({ actions, selected, onToggle }) {
           gap: 6,
         }}
       >
-        🗓️ Sezónní péče
+        {t('plantAuto.seasonalCare')}
         <span style={{ fontSize: 11, color: PALETTE.muted, fontWeight: 500 }}>
-          (vyberte úkoly k přidání)
+          {t('plantAuto.selectTasks')}
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -720,7 +723,7 @@ function CareChip({ action, checked, onToggle }) {
           flexShrink: 0,
         }}
       >
-        {MONTH_NAMES_CZ[action.month]}
+        {monthNameShort(action.month - 1)}
       </span>
     </button>
   );
@@ -728,16 +731,17 @@ function CareChip({ action, checked, onToggle }) {
 
 // Detailní info (původní pole z DB) — sbalitelné, méně dominantní
 function DetailedInfo({ plant }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const items = useMemo(
     () => [
-      { label: 'Půda', value: plant.soil, icon: '🪴' },
-      { label: 'Hnojení', value: plant.fertilizing, icon: '🌱' },
-      { label: 'Řez', value: plant.pruning, icon: '✂️' },
-      { label: 'Výsadba', value: plant.planting, icon: '📅' },
-      { label: 'Poznámky', value: plant.notes, icon: '💡' },
+      { label: t('plantAuto.detailSoil'), value: plant.soil, icon: '🪴' },
+      { label: t('plantAuto.detailFertilizing'), value: plant.fertilizing, icon: '🌱' },
+      { label: t('plantAuto.detailPruning'), value: plant.pruning, icon: '✂️' },
+      { label: t('plantAuto.detailPlanting'), value: plant.planting, icon: '📅' },
+      { label: t('plantAuto.detailNotes'), value: plant.notes, icon: '💡' },
     ].filter((i) => i.value),
-    [plant],
+    [plant, t],
   );
 
   if (items.length === 0) return null;
@@ -761,7 +765,7 @@ function DetailedInfo({ plant }) {
           justifyContent: 'space-between',
         }}
       >
-        <span>{open ? '▾' : '▸'} Detaily pěstování</span>
+        <span>{open ? '▾' : '▸'} {t('plantAuto.growDetails')}</span>
         <span style={{ fontSize: 11 }}>{items.length}</span>
       </button>
       {open && (

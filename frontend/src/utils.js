@@ -1,22 +1,49 @@
 // Utility helpers
+import i18n, { localeCode } from './i18n.js';
+
 export function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d)) return iso;
-  return d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString(localeCode(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export function formatDateTime(iso) {
   if (!iso) return '';
   const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
   if (isNaN(d)) return iso;
-  return d.toLocaleString('cs-CZ', {
+  return d.toLocaleString(localeCode(), {
     day: 'numeric',
     month: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+// Jednotné názvy měsíců přes Intl + aktivní jazyk (nahrazuje 5 natvrdo zadaných
+// MONTH_NAMES_CZ polí). idx 0–11. `monthName` = celý název (kapitalizovaný),
+// `monthNameShort` = krátký (3 písmena), `monthNames()` = pole 12 celých názvů.
+const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+export function monthName(idx) {
+  if (idx == null || idx < 0 || idx > 11) return '';
+  return capFirst(new Date(2021, idx, 1).toLocaleDateString(localeCode(), { month: 'long' }));
+}
+
+export function monthNameShort(idx) {
+  if (idx == null || idx < 0 || idx > 11) return '';
+  return capFirst(new Date(2021, idx, 1).toLocaleDateString(localeCode(), { month: 'short' }));
+}
+
+// Jednopísmenný label měsíce pro kompaktní grafy (nahrazuje MONTH_SHORT ['L','Ú',…]).
+export function monthNameNarrow(idx) {
+  if (idx == null || idx < 0 || idx > 11) return '';
+  return capFirst(new Date(2021, idx, 1).toLocaleDateString(localeCode(), { month: 'narrow' }));
+}
+
+export function monthNames() {
+  return Array.from({ length: 12 }, (_, i) => monthName(i));
 }
 
 export function daysFromToday(dateStr) {
@@ -31,10 +58,10 @@ export function daysFromToday(dateStr) {
 export function dueBadge(dateStr) {
   const diff = daysFromToday(dateStr);
   if (diff === null) return null;
-  if (diff < 0) return { cls: 'overdue', text: `${Math.abs(diff)} dní po termínu` };
-  if (diff === 0) return { cls: 'today', text: 'Dnes' };
-  if (diff === 1) return { cls: 'week', text: 'Zítra' };
-  if (diff <= 7) return { cls: 'week', text: `Za ${diff} dní` };
+  if (diff < 0) return { cls: 'overdue', text: i18n.t('common.daysOverdue', { count: Math.abs(diff) }) };
+  if (diff === 0) return { cls: 'today', text: i18n.t('common.today') };
+  if (diff === 1) return { cls: 'week', text: i18n.t('common.tomorrow') };
+  if (diff <= 7) return { cls: 'week', text: i18n.t('common.inDays', { count: diff }) };
   return { cls: 'done', text: formatDate(dateStr) };
 }
 

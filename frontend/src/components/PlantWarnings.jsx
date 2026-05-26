@@ -2,9 +2,11 @@
 // Zobrazí se na kartě rostliny (PinDetail, katalog). Pokud rostlina nemá
 // žádné záznamy v databázi, komponenta nevykreslí nic.
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getWarningsForPlant, monthRangeLabel, kindLabel } from '../pestDatabase.js';
 
 export default function PlantWarnings({ plantName }) {
+  const { t } = useTranslation();
   const warnings = getWarningsForPlant(plantName);
   const [openId, setOpenId] = useState(null);
 
@@ -14,7 +16,7 @@ export default function PlantWarnings({ plantName }) {
     <div className="plant-warnings">
       <div className="plant-warnings-head">
         <span className="plant-warnings-icon">⚠️</span>
-        <span className="plant-warnings-title">Na co si dát pozor</span>
+        <span className="plant-warnings-title">{t('warnings.title')}</span>
         <span className="plant-warnings-count">{warnings.length}</span>
       </div>
       <ul className="plant-warnings-list">
@@ -41,10 +43,10 @@ export default function PlantWarnings({ plantName }) {
               {isOpen && (
                 <div className="pest-card-body">
                   <div className="pest-card-row">
-                    <strong>Příznaky:</strong> {w.symptom}
+                    <strong>{t('warnings.symptoms')}</strong> {w.symptom}
                   </div>
                   <div className="pest-card-row">
-                    <strong>Prevence:</strong> {w.prevention}
+                    <strong>{t('warnings.prevention')}</strong> {w.prevention}
                   </div>
                 </div>
               )}

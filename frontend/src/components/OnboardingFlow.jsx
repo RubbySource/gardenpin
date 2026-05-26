@@ -5,20 +5,18 @@
 // rovnou s první naplánovanou péčí. Lze kdykoliv přeskočit.
 // Flag v localStorage pod klíčem `gp_onboarded`, aby se neobjevoval znovu.
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
+import { monthName } from '../utils.js';
+import i18n from '../i18n.js';
 import { COUNTRIES, getZonesByCountry, getZoneCountry, describeZone, getZoneOffsetDays } from '../data/climateZones.js';
 import { taskTypeFromEmoji } from '../data/taskTypes.js';
 import PlantAutocomplete from './PlantAutocomplete.jsx';
 
 const STORAGE_KEY = 'gp_onboarded';
 const USER_NAME_KEY = 'gardenpin.userName';
-
-const MONTH_NAMES_CZ = [
-  '', 'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
-  'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec',
-];
 
 // Kroky průvodce — pořadí dle vize (zóna → zahrada → rostlina → úkon).
 const STEPS = ['welcome', 'zone', 'garden', 'plant', 'done'];
@@ -55,6 +53,7 @@ function monthSpecificDate(month, zoneId) {
 }
 
 export default function OnboardingFlow({ onClose }) {
+  const { t } = useTranslation();
   const [stepIdx, setStepIdx] = useState(0);
   const nav = useNavigate();
   const total = STEPS.length;
@@ -129,7 +128,7 @@ export default function OnboardingFlow({ onClose }) {
   const createGarden = async () => {
     if (garden) { goNext(); return; }       // už vytvořeno (návrat zpět)
     const name = gardenName.trim();
-    if (!name) return toast('Zadej název zahrady');
+    if (!name) return toast(t('onboarding.enterGardenName'));
     setBusy(true);
     try {
       const fd = new FormData();
@@ -148,7 +147,7 @@ export default function OnboardingFlow({ onClose }) {
       persistName();
       goNext();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setBusy(false);
     }
@@ -157,7 +156,7 @@ export default function OnboardingFlow({ onClose }) {
   // Krok „rostlina" — založí pin uprostřed mapy a vygeneruje sezónní úkony.
   const addPlant = async () => {
     if (!garden) { goNext(); return; }
-    if (!selectedPlant) return toast('Vyber rostlinu ze seznamu');
+    if (!selectedPlant) return toast(t('onboarding.selectPlant'));
     setBusy(true);
     try {
       const fd = new FormData();
@@ -177,7 +176,7 @@ export default function OnboardingFlow({ onClose }) {
         task_type: taskTypeFromEmoji(t.emoji),
         frequency_days: null,
         specific_date: monthSpecificDate(t.month, zoneId),
-        notes: `Sezónní úkon (${MONTH_NAMES_CZ[t.month]})`,
+        notes: i18n.t('onboarding.seasonalNote', { month: monthName(t.month - 1).toLowerCase() }),
       }));
       await Promise.all(payloads.map((p) => api.createTask(p)));
 
@@ -193,7 +192,7 @@ export default function OnboardingFlow({ onClose }) {
       setFirstTask(upcoming);
       goNext();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setBusy(false);
     }
@@ -206,16 +205,16 @@ export default function OnboardingFlow({ onClose }) {
   };
 
   return (
-    <div className="ob-flow" role="dialog" aria-modal="true" aria-label="Onboarding průvodce">
+    <div className="ob-flow" role="dialog" aria-modal="true" aria-label={t('onboarding.dialogAria')}>
       <div className="ob-top">
         {stepIdx > 0 && kind !== 'done' ? (
-          <button type="button" className="ob-back" onClick={goBack} aria-label="Zpět">‹ Zpět</button>
+          <button type="button" className="ob-back" onClick={goBack} aria-label={t('onboarding.back')}>‹ {t('onboarding.back')}</button>
         ) : (
           <span />
         )}
         {kind !== 'done' && (
-          <button type="button" className="ob-skip" onClick={skip} aria-label="Přeskočit průvodce">
-            Přeskočit
+          <button type="button" className="ob-skip" onClick={skip} aria-label={t('onboarding.skipAria')}>
+            {t('onboarding.skip')}
           </button>
         )}
       </div>
@@ -256,7 +255,7 @@ export default function OnboardingFlow({ onClose }) {
       </div>
 
       <div className="ob-bottom">
-        <div className="ob-dots" aria-label="Postup">
+        <div className="ob-dots" aria-label={t('onboarding.progress')}>
           {STEPS.map((s, i) => (
             <span
               key={s}
@@ -268,32 +267,32 @@ export default function OnboardingFlow({ onClose }) {
 
         {kind === 'welcome' && (
           <button type="button" className="ob-cta" onClick={() => { persistName(); goNext(); }}>
-            Začít
+            {t('onboarding.start')}
           </button>
         )}
         {kind === 'zone' && (
           <button type="button" className="ob-cta" onClick={goNext}>
-            {zoneId ? 'Dál →' : 'Zatím přeskočit →'}
+            {zoneId ? t('onboarding.next') : t('onboarding.skipForNow')}
           </button>
         )}
         {kind === 'garden' && (
           <button type="button" className="ob-cta" onClick={createGarden} disabled={busy}>
-            {busy ? 'Vytvářím…' : garden ? 'Dál →' : 'Vytvořit zahradu'}
+            {busy ? t('onboarding.creating') : garden ? t('onboarding.next') : t('onboarding.createGarden')}
           </button>
         )}
         {kind === 'plant' && (
           <>
             <button type="button" className="ob-cta" onClick={addPlant} disabled={busy}>
-              {busy ? 'Přidávám…' : 'Přidat a pokračovat'}
+              {busy ? t('onboarding.adding') : t('onboarding.addAndContinue')}
             </button>
             <button type="button" className="ob-secondary" onClick={goNext} disabled={busy}>
-              Zatím přeskočit
+              {t('onboarding.skipPlant')}
             </button>
           </>
         )}
         {kind === 'done' && (
           <button type="button" className="ob-cta" onClick={finish}>
-            Jdeme na to 🌱
+            {t('onboarding.letsGo')}
           </button>
         )}
       </div>
@@ -304,23 +303,23 @@ export default function OnboardingFlow({ onClose }) {
 /* ---------------- Jednotlivé kroky ---------------- */
 
 function WelcomeStep({ userName, setUserName }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="ob-icon" aria-hidden="true">🌱</div>
-      <h1 className="ob-title">Vítej v GardenPinu</h1>
+      <h1 className="ob-title">{t('onboarding.welcomeTitle')}</h1>
       <p className="ob-text">
-        Tvůj zahradní deník. Pohlídá ti hlavní sezónní úkony po celý rok — zástřih,
-        přesazení, hnojení. Za chvilku tě provedeme prvním nastavením.
+        {t('onboarding.welcomeText')}
       </p>
       <div className="ob-field">
-        <label htmlFor="ob-name">Jak ti máme říkat?</label>
+        <label htmlFor="ob-name">{t('onboarding.nameLabel')}</label>
         <input
           id="ob-name"
           className="ob-input"
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          placeholder="Tvoje jméno (volitelné)"
+          placeholder={t('onboarding.namePlaceholder')}
           autoComplete="given-name"
           maxLength={40}
         />
@@ -335,16 +334,16 @@ function shortZoneLabel(label) {
 }
 
 function ZoneStep({ zoneId, setZoneId }) {
+  const { t } = useTranslation();
   // Aktivní země — odvozená z už vybraného regionu (návrat zpět), jinak Česko.
   const [country, setCountry] = useState(() => getZoneCountry(zoneId) || 'CZ');
   const zones = getZonesByCountry(country);
   return (
     <>
       <div className="ob-icon" aria-hidden="true">📍</div>
-      <h1 className="ob-title">Odkud zahradničíš?</h1>
+      <h1 className="ob-title">{t('onboarding.zoneTitle')}</h1>
       <p className="ob-text">
-        Podle regionu upravíme termíny sezónních úkonů — jaro přichází v teplých
-        nížinách dřív než v horách a na severovýchodě.
+        {t('onboarding.zoneText')}
       </p>
       <div className="ob-country-row no-scrollbar">
         {COUNTRIES.map((c) => (
@@ -377,23 +376,23 @@ function ZoneStep({ zoneId, setZoneId }) {
 }
 
 function GardenStep({ gardenName, setGardenName, preview, onPickFile, onClearFile, created, fileRef, onFile }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="ob-icon" aria-hidden="true">🗺️</div>
-      <h1 className="ob-title">Přidej svou první zahradu</h1>
+      <h1 className="ob-title">{t('onboarding.gardenTitle')}</h1>
       <p className="ob-text">
-        Pojmenuj ji a nahraj fotku z leteckého pohledu — pomůže ti orientovat se
-        mezi rostlinami. Fotka je volitelná.
+        {t('onboarding.gardenText')}
       </p>
       <div className="ob-field">
-        <label htmlFor="ob-garden">Název zahrady</label>
+        <label htmlFor="ob-garden">{t('onboarding.gardenNameLabel')}</label>
         <input
           id="ob-garden"
           className="ob-input"
           type="text"
           value={gardenName}
           onChange={(e) => setGardenName(e.target.value)}
-          placeholder="Např. Zahrada u domu"
+          placeholder={t('onboarding.gardenNamePlaceholder')}
           disabled={created}
           maxLength={80}
           autoFocus
@@ -405,7 +404,7 @@ function GardenStep({ gardenName, setGardenName, preview, onPickFile, onClearFil
         ) : (
           <>
             <div className="ob-file-icon" aria-hidden="true">📷</div>
-            <div className="ob-hint">Klikni pro nahrání fotky (volitelné)</div>
+            <div className="ob-hint">{t('onboarding.uploadHint')}</div>
           </>
         )}
         <input
@@ -417,28 +416,32 @@ function GardenStep({ gardenName, setGardenName, preview, onPickFile, onClearFil
         />
       </div>
       {preview && !created && (
-        <button type="button" className="ob-secondary" onClick={onClearFile}>Odstranit fotku</button>
+        <button type="button" className="ob-secondary" onClick={onClearFile}>{t('onboarding.removePhoto')}</button>
       )}
-      {created && <p className="ob-hint">✓ Zahrada vytvořena</p>}
+      {created && <p className="ob-hint">{t('onboarding.gardenCreated')}</p>}
     </>
   );
 }
 
 function PlantStep({ gardenName, value, onChange, onSelect, plant }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="ob-icon" aria-hidden="true">🌿</div>
-      <h1 className="ob-title">Co {gardenName ? `v „${gardenName}"` : 'v ní'} roste?</h1>
+      <h1 className="ob-title">
+        {gardenName
+          ? t('onboarding.plantTitleNamed', { name: gardenName })
+          : t('onboarding.plantTitle')}
+      </h1>
       <p className="ob-text">
-        Vyber první rostlinu z 321 druhů. GardenPin sám navrhne hlavní úkony a
-        naplánuje je do správných měsíců.
+        {t('onboarding.plantText')}
       </p>
       <div className="ob-plant-wrap">
         <PlantAutocomplete
           value={value}
           onChange={onChange}
           onSelect={onSelect}
-          placeholder="Hledat rostlinu… (např. Levandule)"
+          placeholder={t('onboarding.plantSearchPlaceholder')}
         />
       </div>
       {plant && (
@@ -452,8 +455,8 @@ function PlantStep({ gardenName, value, onChange, onSelect, plant }) {
           </div>
           <span className="ob-plant-count">
             {plant.seasonalTasks?.length
-              ? `${plant.seasonalTasks.length} úkonů`
-              : 'připraveno'}
+              ? t('onboarding.taskCount', { count: plant.seasonalTasks.length })
+              : t('onboarding.ready')}
           </span>
         </div>
       )}
@@ -462,32 +465,31 @@ function PlantStep({ gardenName, value, onChange, onSelect, plant }) {
 }
 
 function DoneStep({ taskCount, firstTask, plant }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="ob-icon" aria-hidden="true">✅</div>
-      <h1 className="ob-title">Vše připraveno!</h1>
+      <h1 className="ob-title">{t('onboarding.doneTitle')}</h1>
       {taskCount > 0 ? (
         <p className="ob-text">
-          Naplánovali jsme <strong>{taskCount}</strong>{' '}
-          {taskCount === 1 ? 'sezónní úkon' : taskCount < 5 ? 'sezónní úkony' : 'sezónních úkonů'}
-          {plant ? ` pro ${plant.nameCz.toLowerCase()}` : ''}. Každý měsíc tě GardenPin
-          upozorní, ať nic nezapomeneš.
+          {plant
+            ? t('onboarding.doneScheduledForPlant', { count: taskCount, plant: plant.nameCz.toLowerCase() })
+            : t('onboarding.doneScheduled', { count: taskCount })}
         </p>
       ) : (
         <p className="ob-text">
-          Až přidáš rostliny, GardenPin ti sám naplánuje hlavní sezónní úkony a každý
-          měsíc tě na ně upozorní.
+          {t('onboarding.doneNoTasks')}
         </p>
       )}
 
       {firstTask && (
         <div className="ob-task-card">
-          <div className="ob-task-label">Tvůj první úkon</div>
+          <div className="ob-task-label">{t('onboarding.firstTask')}</div>
           <div className="ob-task-row">
             <span className="ob-task-emoji" aria-hidden="true">{firstTask.emoji}</span>
             <div className="ob-task-text">
               <div className="ob-task-action">{firstTask.action}</div>
-              <div className="ob-hint">{MONTH_NAMES_CZ[firstTask.month]}</div>
+              <div className="ob-hint">{monthName(firstTask.month - 1)}</div>
             </div>
           </div>
         </div>

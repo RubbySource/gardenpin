@@ -1,6 +1,8 @@
 // Souhrnný přehled úkolů přes všechny zahrady — co dělat tento týden + příští
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { localeCode } from '../i18n.js';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
@@ -8,7 +10,7 @@ import SnoozeButton from '../components/SnoozeButton.jsx';
 import { daysFromToday, taskIcon, taskLabel, formatDate } from '../utils.js';
 import { hapticNotification } from '../native/haptics.js';
 
-const DAY_NAMES = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 // Skupiny pro souhrnný přehled — řazené podle naléhavosti
 function bucketFor(diff) {
@@ -21,14 +23,16 @@ function bucketFor(diff) {
 }
 
 const BUCKET_ORDER = ['overdue', 'today', 'thisWeek', 'nextWeek'];
+// Ikona + cls v module scope; title se dopočítá přes t() při renderu.
 const BUCKET_META = {
-  overdue: { title: 'Po termínu', icon: '⚠️', cls: 'danger' },
-  today: { title: 'Dnes', icon: '🌞', cls: 'today' },
-  thisWeek: { title: 'Tento týden', icon: '📅', cls: 'week' },
-  nextWeek: { title: 'Příští týden', icon: '🗓️', cls: 'next' },
+  overdue: { titleKey: 'overview.bucketOverdue', icon: '⚠️', cls: 'danger' },
+  today: { titleKey: 'overview.bucketToday', icon: '🌞', cls: 'today' },
+  thisWeek: { titleKey: 'overview.bucketThisWeek', icon: '📅', cls: 'week' },
+  nextWeek: { titleKey: 'overview.bucketNextWeek', icon: '🗓️', cls: 'next' },
 };
 
 export default function WeekOverviewPage({ onTaskComplete }) {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState([]);
   const [gardens, setGardens] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +47,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
       setTasks(o.tasks || []);
       setGardens(g);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -53,21 +57,21 @@ export default function WeekOverviewPage({ onTaskComplete }) {
     load();
   }, []);
 
-  const completeTask = async (t) => {
-    if (completingIds.has(t.id)) return;
-    setCompletingIds((s) => new Set(s).add(t.id));
+  const completeTask = async (task) => {
+    if (completingIds.has(task.id)) return;
+    setCompletingIds((s) => new Set(s).add(task.id));
     try {
-      await api.completeTask(t.id);
+      await api.completeTask(task.id);
       hapticNotification('success');
-      toast('✅ Hotovo');
+      toast(t('overview.completed'));
       await load();
       onTaskComplete?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setCompletingIds((s) => {
         const next = new Set(s);
-        next.delete(t.id);
+        next.delete(task.id);
         return next;
       });
     }
@@ -123,49 +127,49 @@ export default function WeekOverviewPage({ onTaskComplete }) {
     return Array.from(map.values()).sort((a, b) => b.urgent - a.urgent || b.total - a.total);
   }, [filtered]);
 
-  if (loading) return <div className="empty">🌱 Načítám…</div>;
+  if (loading) return <div className="empty">🌱 {t('common.loadingShort')}</div>;
 
   return (
     <>
       <div className="overview-hero">
         <div className="overview-hero-row">
           <div>
-            <div className="overview-hero-eyebrow">📋 Souhrnný přehled</div>
+            <div className="overview-hero-eyebrow">{t('overview.eyebrow')}</div>
             <div className="overview-hero-title">
               {urgent > 0
-                ? `${urgent} ${urgent === 1 ? 'úkol' : urgent < 5 ? 'úkoly' : 'úkolů'} čeká`
+                ? t('overview.waitingCount', { count: urgent })
                 : totalCount > 0
-                ? `${totalCount} ${totalCount === 1 ? 'úkol' : totalCount < 5 ? 'úkoly' : 'úkolů'} ve výhledu`
-                : 'Vše pod kontrolou 🌿'}
+                ? t('overview.upcomingCount', { count: totalCount })
+                : t('overview.allUnderControl')}
             </div>
             <div className="overview-hero-sub">
-              {gardens.length > 0 && `${gardens.length} ${gardens.length === 1 ? 'zahrada' : gardens.length < 5 ? 'zahrady' : 'zahrad'} · `}
-              Tento + příští týden
+              {gardens.length > 0 && t('overview.gardenCount', { count: gardens.length }) + ' · '}
+              {t('overview.thisAndNextWeek')}
             </div>
           </div>
           {urgent > 0 && (
             <div className="overview-hero-urgent">
               <div className="val">{urgent}</div>
-              <div className="lbl">naléhavé</div>
+              <div className="lbl">{t('overview.urgentLabel')}</div>
             </div>
           )}
         </div>
         <div className="overview-hero-stats">
           <div className="overview-hero-stat">
             <div className={`val ${counts.overdue > 0 ? 'danger' : ''}`}>{counts.overdue}</div>
-            <div className="lbl">Po termínu</div>
+            <div className="lbl">{t('overview.statOverdue')}</div>
           </div>
           <div className="overview-hero-stat">
             <div className={`val ${counts.today > 0 ? 'warning' : ''}`}>{counts.today}</div>
-            <div className="lbl">Dnes</div>
+            <div className="lbl">{t('overview.statToday')}</div>
           </div>
           <div className="overview-hero-stat">
             <div className="val">{counts.thisWeek}</div>
-            <div className="lbl">Tento týden</div>
+            <div className="lbl">{t('overview.statThisWeek')}</div>
           </div>
           <div className="overview-hero-stat">
             <div className="val">{counts.nextWeek}</div>
-            <div className="lbl">Příští týden</div>
+            <div className="lbl">{t('overview.statNextWeek')}</div>
           </div>
         </div>
       </div>
@@ -176,7 +180,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
             className={`filter-pill ${gardenFilter === 'all' ? 'active' : ''}`}
             onClick={() => setGardenFilter('all')}
           >
-            🗺️ Všechny
+            {t('overview.allGardens')}
           </button>
           {gardens.map((g) => (
             <button
@@ -193,9 +197,9 @@ export default function WeekOverviewPage({ onTaskComplete }) {
       {totalCount === 0 ? (
         <div className="gp-empty" style={{ padding: '32px 16px' }}>
           <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🌼</span>
-          <div className="gp-empty-title">Žádné úkoly ve výhledu</div>
+          <div className="gp-empty-title">{t('overview.emptyTitle')}</div>
           <div className="gp-empty-text">
-            V nadcházejících 14 dnech nemáte žádné naplánované úkony.
+            {t('overview.emptyText')}
           </div>
         </div>
       ) : (
@@ -208,7 +212,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
               <section key={key} className={`overview-section overview-section-${meta.cls}`}>
                 <div className="overview-section-header">
                   <span className="overview-section-icon">{meta.icon}</span>
-                  <span className="overview-section-title">{meta.title}</span>
+                  <span className="overview-section-title">{t(meta.titleKey)}</span>
                   <span className="overview-section-count">{items.length}</span>
                 </div>
                 <div className="overview-section-body">
@@ -233,7 +237,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
       {perGarden.length > 1 && (
         <div className="overview-per-garden">
           <div className="section-header">
-            <div className="title">🗺️ Podle zahrady</div>
+            <div className="title">{t('overview.byGarden')}</div>
           </div>
           <div className="overview-garden-list">
             {perGarden.map((g) => (
@@ -248,9 +252,9 @@ export default function WeekOverviewPage({ onTaskComplete }) {
                 <div className="overview-garden-info">
                   <div className="overview-garden-name">{g.name}</div>
                   <div className="overview-garden-meta small muted">
-                    {g.total} {g.total === 1 ? 'úkol' : g.total < 5 ? 'úkoly' : 'úkolů'}
+                    {t('overview.taskCount', { count: g.total })}
                     {g.urgent > 0 && (
-                      <span className="overview-garden-urgent"> · {g.urgent} naléhavých</span>
+                      <span className="overview-garden-urgent"> · {t('overview.urgentCount', { count: g.urgent })}</span>
                     )}
                   </div>
                 </div>
@@ -275,18 +279,19 @@ export default function WeekOverviewPage({ onTaskComplete }) {
 }
 
 function OverviewTaskRow({ task, completing, onComplete, onOpen, onOpenGarden, onSnoozed }) {
+  const { t } = useTranslation();
   const diff = daysFromToday(task.next_due);
   const dueLabel = useMemo(() => {
     if (diff === null) return '';
-    if (diff < 0) return `${Math.abs(diff)} ${Math.abs(diff) === 1 ? 'den' : Math.abs(diff) < 5 ? 'dny' : 'dní'} po termínu`;
-    if (diff === 0) return 'Dnes';
-    if (diff === 1) return 'Zítra';
+    if (diff < 0) return t('common.daysOverdue', { count: Math.abs(diff) });
+    if (diff === 0) return t('common.today');
+    if (diff === 1) return t('common.tomorrow');
     const d = new Date(task.next_due);
     if (!isNaN(d) && diff <= 14) {
-      return `${DAY_NAMES[d.getDay()]} · ${formatDate(task.next_due)}`;
+      return `${cap(d.toLocaleDateString(localeCode(), { weekday: 'long' }))} · ${formatDate(task.next_due)}`;
     }
     return formatDate(task.next_due);
-  }, [diff, task.next_due]);
+  }, [diff, task.next_due, t]);
 
   const stateClass =
     diff !== null && diff < 0 ? 'overdue' : diff === 0 ? 'today' : '';
@@ -299,8 +304,8 @@ function OverviewTaskRow({ task, completing, onComplete, onOpen, onOpenGarden, o
           e.stopPropagation();
           onComplete();
         }}
-        aria-label="Označit jako hotové"
-        title="Označit jako hotové"
+        aria-label={t('overview.markDone')}
+        title={t('overview.markDone')}
       >
         {completing ? '✓' : ''}
       </button>

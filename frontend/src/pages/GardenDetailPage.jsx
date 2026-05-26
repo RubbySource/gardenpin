@@ -1,7 +1,10 @@
 // Garden detail: interactive map with pins + pin detail modal
 // (climate zones: per-region seasonal task shifting)
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
+import i18n from '../i18n.js';
+import { formatDate } from '../utils.js';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import Icon from '../components/Icon.jsx';
@@ -39,6 +42,7 @@ function parsePolygon(json) {
 }
 
 export default function GardenDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const nav = useNavigate();
   const [garden, setGarden] = useState(null);
@@ -86,7 +90,7 @@ export default function GardenDetailPage() {
       const gardens = await api.listGardens();
       const g = gardens.find((x) => x.id === parseInt(id));
       if (!g) {
-        toast('Zahrada nenalezena');
+        toast(t('gardenDetail.gardenNotFound'));
         nav('/zahrady');
         return;
       }
@@ -99,7 +103,7 @@ export default function GardenDetailPage() {
       setPins(ps);
       setBeds(bs);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -111,16 +115,16 @@ export default function GardenDetailPage() {
 
   // P3: Upscale 4×
   const handleUpscale = async () => {
-    if (!confirm('Upscale 4× – zpracuje obrázek serverstranně (bicubic). Pokračovat?')) return;
+    if (!confirm(t('gardenDetail.upscaleConfirm'))) return;
     setUpscaling(true);
     try {
       const res = await fetch(`/api/gardens/${garden.id}/upscale`, { method: 'POST' });
       if (!res.ok) throw new Error((await res.json()).error || 'Chyba');
       const updated = await res.json();
       setGarden(updated);
-      toast('✅ Upscale hotov');
+      toast(t('gardenDetail.upscaleDone'));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setUpscaling(false);
     }
@@ -184,9 +188,9 @@ export default function GardenDetailPage() {
       fd.append('y', pos.y.toFixed(4));
       await api.updatePin(pin.id, fd);
       setPins((prev) => prev.map((p) => (p.id === pin.id ? { ...p, x: pos.x, y: pos.y } : p)));
-      toast('📍 Přesunuto');
+      toast(t('gardenDetail.pinMoved'));
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
       load();
     }
   };
@@ -235,7 +239,7 @@ export default function GardenDetailPage() {
           await api.updatePin(pin.id, fd);
           setPins((prev) => prev.map((p) => (p.id === pin.id ? { ...p, x: pos.x, y: pos.y } : p)));
         } catch (err) {
-          toast('Chyba: ' + err.message);
+          toast(t('common.error', { msg: err.message }));
         }
       }
       return;
@@ -251,7 +255,7 @@ export default function GardenDetailPage() {
       const nextNumber = beds.length + 1;
       const created = await api.createBed({
         garden_id: Number(id),
-        name: `Záhon ${nextNumber}`,
+        name: t('gardenDetail.bedDefaultName', { number: nextNumber }),
         x: Number(bed.x.toFixed(4)),
         y: Number(bed.y.toFixed(4)),
         width: Number(bed.w.toFixed(4)),
@@ -260,9 +264,9 @@ export default function GardenDetailPage() {
       setBeds((prev) => [...prev, created]);
       setBedMode(false);
       setEditingBed(created);
-      toast('🟫 Záhon vytvořen');
+      toast(t('gardenDetail.bedCreated'));
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     }
   };
 
@@ -273,7 +277,7 @@ export default function GardenDetailPage() {
     // Pokud má zahrada ohraničení, povol pin jen uvnitř
     const poly = parsePolygon(garden.garden_polygon);
     if (poly && !isPointInPolygon(pos, poly)) {
-      toast('Umísti pin dovnitř zahrady');
+      toast(t('gardenDetail.pinInsideGarden'));
       return;
     }
     setAddingPinAt(pos);
@@ -293,9 +297,9 @@ export default function GardenDetailPage() {
       const updated = await res.json();
       setGarden(updated);
       setPolygonMode(false);
-      toast('✅ Zahrada oříznuta');
+      toast(t('gardenDetail.gardenCropped'));
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setCroppingPolygon(false);
     }
@@ -347,22 +351,22 @@ export default function GardenDetailPage() {
       URL.revokeObjectURL(img.src);
       const updated = await api.updateGarden(garden.id, fd);
       setGarden(updated);
-      toast('✅ Mapa nahrána');
+      toast(t('gardenDetail.mapUploaded'));
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setUploadingMap(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Opravdu smazat tuto zahradu se všemi piny a úkoly?')) return;
+    if (!confirm(t('gardenDetail.deleteGardenConfirm'))) return;
     try {
       await api.deleteGarden(id);
-      toast('Zahrada smazána');
+      toast(t('gardenDetail.gardenDeleted'));
       nav('/zahrady');
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -395,9 +399,9 @@ export default function GardenDetailPage() {
 
   // Rychlé statistiky pro záložku Statistiky
   const TABS = [
-    { key: 'map', label: 'Mapa' },
-    { key: 'list', label: 'Seznam' },
-    { key: 'stats', label: 'Statistiky' },
+    { key: 'map', label: t('gardenDetail.tabMap') },
+    { key: 'list', label: t('gardenDetail.tabList') },
+    { key: 'stats', label: t('gardenDetail.tabStats') },
   ];
   const tabIdx = TABS.findIndex((t) => t.key === tab);
   const plantCount = pins.filter((p) => p.plant_name).length;
@@ -413,8 +417,8 @@ export default function GardenDetailPage() {
     return null;
   })();
 
-  if (loading) return <div className="empty">Načítám...</div>;
-  if (!garden) return <div className="empty">Zahrada nenalezena</div>;
+  if (loading) return <div className="empty">{t('common.loadingShort')}</div>;
+  if (!garden) return <div className="empty">{t('gardenDetail.gardenNotFound')}</div>;
 
   return (
     <>
@@ -422,7 +426,7 @@ export default function GardenDetailPage() {
       <header className="gd-nav">
         <button className="gd-nav-back" onClick={() => nav('/zahrady')}>
           <Icon name="chevronLeft" size={22} stroke={2.4} />
-          <span>Zahrady</span>
+          <span>{t('gardenDetail.navGardens')}</span>
         </button>
         <span className="gd-nav-title">{garden.name}</span>
         <div className="gd-nav-menu-wrap" ref={menuRef}>
@@ -430,7 +434,7 @@ export default function GardenDetailPage() {
             type="button"
             className="gd-nav-action"
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Akce zahrady"
+            aria-label={t('gardenDetail.gardenActions')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
           >
@@ -443,13 +447,13 @@ export default function GardenDetailPage() {
           {menuOpen && (
             <div className="gd-action-menu" role="menu">
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowEdit(true); }}>
-                ✏️ Upravit zahradu
+                {t('gardenDetail.menuEdit')}
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowShare(true); }}>
-                🔗 Sdílet zahradu
+                {t('gardenDetail.menuShare')}
               </button>
               <button role="menuitem" onClick={() => { setMenuOpen(false); setShowCalendar(true); }}>
-                📅 Přidat do kalendáře
+                {t('gardenDetail.menuCalendar')}
               </button>
               <button
                 role="menuitem"
@@ -458,7 +462,7 @@ export default function GardenDetailPage() {
                   window.open(`/api/gardens/${garden.id}/season-plan?print=1`, '_blank');
                 }}
               >
-                📄 Sezónní plán (PDF)
+                {t('gardenDetail.menuSeasonPlan')}
               </button>
             </div>
           )}
@@ -471,7 +475,7 @@ export default function GardenDetailPage() {
         <div className="card">
           <div className="empty">
             <div className="icon">🖼️</div>
-            <div className="mb-2">Nahrajte fotku zahrady z leteckého pohledu</div>
+            <div className="mb-2">{t('gardenDetail.uploadAerialPrompt')}</div>
             <button
               type="button"
               className="btn"
@@ -483,7 +487,7 @@ export default function GardenDetailPage() {
                 })
               }
             >
-              📷 Nahrát fotku
+              {t('gardenDetail.uploadPhoto')}
             </button>
             <input
               ref={mapInputRef}
@@ -494,14 +498,14 @@ export default function GardenDetailPage() {
             />
             <div style={{ marginTop: 20, padding: '14px 12px 4px', borderTop: '1px dashed var(--border)' }}>
               <div className="small muted mb-2">
-                💡 Nemáte vlastní leteckou fotku? Otevřete adresu v Google Maps satelitním pohledu, udělejte screenshot a nahrajte ho.
+                {t('gardenDetail.satelliteTip')}
               </div>
               {!garden.location && (
                 <input
                   type="text"
                   value={adhocAddress}
                   onChange={(e) => setAdhocAddress(e.target.value)}
-                  placeholder="Adresa zahrady (např. Květinová 12, Praha)"
+                  placeholder={t('gardenDetail.addressPlaceholder')}
                   style={{ marginBottom: 8 }}
                 />
               )}
@@ -510,10 +514,10 @@ export default function GardenDetailPage() {
                 className="btn secondary"
                 onClick={() => openSatelliteView(garden.location || adhocAddress)}
               >
-                🛰️ Otevřít satelit {garden.location ? '— ' + garden.location : ''}
+                {t('gardenDetail.openSatellite')} {garden.location ? '— ' + garden.location : ''}
               </button>
               <div className="small muted" style={{ marginTop: 6 }}>
-                Udělej screenshot a nahraj jako mapu.
+                {t('gardenDetail.screenshotHint')}
               </div>
             </div>
           </div>
@@ -677,8 +681,8 @@ export default function GardenDetailPage() {
                 <div className="gd-map-hint">
                   <Icon name="plus" size={15} stroke={2.4} />
                   {bedMode
-                    ? 'Klepni a táhni pro vytvoření záhonu'
-                    : 'Klepni na mapu pro přidání · táhni pin pro přesun'}
+                    ? t('gardenDetail.hintBedMode')
+                    : t('gardenDetail.hintMapMode')}
                 </div>
               )}
             </div>
@@ -692,7 +696,7 @@ export default function GardenDetailPage() {
                   margin: '6px 0 4px',
                 }}
               >
-                ✂️ Přetáhněte body na rohy zahrady. Klik na bílý bod uprostřed = přidat. Dvojklik = smazat.
+                {t('gardenDetail.polygonHint')}
               </p>
             )}
             {polygonMode && polygonStats && (
@@ -704,7 +708,7 @@ export default function GardenDetailPage() {
                     textAlign: 'center',
                   }}
                 >
-                  📐 {polygonStats.percent.toFixed(1)} % mapy
+                  📐 {t('gardenDetail.polygonPercentOfMap', { percent: polygonStats.percent.toFixed(1) })}
                   {polygonStats.m2 != null && polygonStats.m2 > 0 && (
                     <> · ~{polygonStats.m2.toFixed(polygonStats.m2 < 10 ? 1 : 0)} m²</>
                   )}
@@ -715,14 +719,14 @@ export default function GardenDetailPage() {
                     className="btn ghost small"
                     onClick={() => setPolygonPoints(DEFAULT_POLYGON_POINTS)}
                   >
-                    ↩ Reset
+                    {t('gardenDetail.polygonReset')}
                   </button>
                   <button
                     type="button"
                     className="btn ghost small"
                     onClick={() => setPolygonMode(false)}
                   >
-                    Zrušit
+                    {t('common.cancel')}
                   </button>
                 </div>
                 <button
@@ -731,7 +735,7 @@ export default function GardenDetailPage() {
                   onClick={() => handleCropPolygon(polygonPoints)}
                   disabled={croppingPolygon || polygonPoints.length < 3}
                 >
-                  {croppingPolygon ? '⏳ Ořezávám…' : '✂️ Oříznout & uložit'}
+                  {croppingPolygon ? t('gardenDetail.cropping') : t('gardenDetail.cropAndSave')}
                 </button>
               </div>
             )}
@@ -739,7 +743,7 @@ export default function GardenDetailPage() {
 
           {/* Segmented control: Mapa / Seznam / Statistiky */}
           <div className="gd-seg-wrap">
-            <div className="ios-segmented" role="tablist" aria-label="Sekce zahrady">
+            <div className="ios-segmented" role="tablist" aria-label={t('gardenDetail.sectionsAria')}>
               {tabIdx >= 0 && (
                 <span
                   className="ios-seg-thumb"
@@ -782,21 +786,21 @@ export default function GardenDetailPage() {
                 <button
                   className="btn ghost small"
                   onClick={() => handleRotationChange((rotation - 90 + 360) % 360)}
-                  title="-90°"
+                  title={t('gardenDetail.rotateMinus90')}
                 >
                   ↺
                 </button>
                 <button
                   className="btn ghost small"
                   onClick={() => handleRotationChange((rotation + 90) % 360)}
-                  title="+90°"
+                  title={t('gardenDetail.rotatePlus90')}
                 >
                   ↻
                 </button>
                 <button
                   className="btn ghost small"
                   onClick={() => handleRotationChange(0)}
-                  title="Reset"
+                  title={t('gardenDetail.rotateReset')}
                 >
                   ⊙
                 </button>
@@ -808,7 +812,7 @@ export default function GardenDetailPage() {
                   onClick={() => setShowGrid((v) => !v)}
                   style={showGrid ? { background: 'rgba(74,124,58,0.15)', border: '1px solid #4a7c3a' } : {}}
                 >
-                  ⊞ Mřížka
+                  {t('gardenDetail.grid')}
                 </button>
                 {showGrid && (
                   <input
@@ -828,27 +832,27 @@ export default function GardenDetailPage() {
                 className={`btn ghost small${bedMode ? ' active' : ''}`}
                 onClick={() => { setBedMode((v) => !v); setPolygonMode(false); }}
                 style={bedMode ? { background: 'rgba(139,111,71,0.18)', border: '1px solid #8b6f47' } : {}}
-                title="Vytvořit záhon (klik a táhni přes mapu)"
+                title={t('gardenDetail.bedToolTitle')}
               >
-                {bedMode ? '✋ Zrušit kreslení' : '🟫 Záhon'}
+                {bedMode ? t('gardenDetail.bedCancelDraw') : t('gardenDetail.bedTool')}
               </button>
               {/* Ohraničení zahrady (polygon) */}
               <button
                 className={`btn ghost small${polygonMode ? ' active' : ''}`}
                 onClick={() => { setPolygonMode((v) => !v); setBedMode(false); }}
                 style={polygonMode ? { background: 'rgba(74,124,58,0.18)', border: '1px solid #4a7c3a' } : {}}
-                title={garden.garden_polygon ? 'Znovu ohraničit zahradu' : 'Ohraničit zahradu polygonem'}
+                title={garden.garden_polygon ? t('gardenDetail.polygonReoutlineTitle') : t('gardenDetail.polygonOutlineTitle')}
               >
-                {polygonMode ? '✋ Zrušit polygon' : (garden.garden_polygon ? '✂️ Znovu ohraničit' : '✂️ Ohraničit zahradu')}
+                {polygonMode ? t('gardenDetail.polygonCancel') : (garden.garden_polygon ? t('gardenDetail.polygonReoutline') : t('gardenDetail.polygonOutline'))}
               </button>
               {/* Upscale */}
               <button
                 className="btn ghost small"
                 onClick={handleUpscale}
                 disabled={upscaling}
-                title="Zvětšit rozlišení 4× (bicubic)"
+                title={t('gardenDetail.upscaleTitle')}
               >
-                {upscaling ? '⏳' : '🔍'} Upscale 4×
+                {upscaling ? '⏳' : '🔍'} {t('gardenDetail.upscaleLabel')}
               </button>
             </div>
           </div>
@@ -856,7 +860,7 @@ export default function GardenDetailPage() {
           {beds.length > 0 && (
             <>
               <h3 className="section-title">
-                🟫 Záhony ({beds.length})
+                {t('gardenDetail.bedsSectionTitle', { count: beds.length })}
               </h3>
               <div className="bed-list">
                 {beds.map((b) => (
@@ -889,11 +893,11 @@ export default function GardenDetailPage() {
           {tab === 'list' && (
           <>
           <h3 className="section-title">
-            📍 Místa v zahradě ({pins.length})
+            {t('gardenDetail.placesSectionTitle', { count: pins.length })}
           </h3>
           {pins.length === 0 ? (
             <div className="card empty small">
-              Zatím žádná místa. Klikněte na mapu výše pro přidání.
+              {t('gardenDetail.noPlaces')}
             </div>
           ) : (
             pins.map((p) => (
@@ -917,28 +921,28 @@ export default function GardenDetailPage() {
             <div className="gd-stat-grid">
               <div className="gd-stat">
                 <div className="val">{pins.length}</div>
-                <div className="lbl">Míst</div>
+                <div className="lbl">{t('gardenDetail.statPlaces')}</div>
               </div>
               <div className="gd-stat">
                 <div className="val">{plantCount}</div>
-                <div className="lbl">Rostlin</div>
+                <div className="lbl">{t('gardenDetail.statPlants')}</div>
               </div>
               <div className="gd-stat">
                 <div className="val">{beds.length}</div>
-                <div className="lbl">Záhonů</div>
+                <div className="lbl">{t('gardenDetail.statBeds')}</div>
               </div>
               <div className="gd-stat">
                 <div className="val">{photoCount}</div>
-                <div className="lbl">S fotkou</div>
+                <div className="lbl">{t('gardenDetail.statWithPhoto')}</div>
               </div>
             </div>
             {gardenAreaM2 != null && gardenAreaM2 > 0 && (
               <div className="gd-area-banner">
-                📐 Plocha zahrady ~{gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0)} m²
+                {t('gardenDetail.areaBanner', { area: gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0) })}
               </div>
             )}
             {/* Meziroční srovnání péče v této zahradě */}
-            <YearOverYear gardenId={garden.id} title={`Meziroční srovnání · ${garden.name}`} />
+            <YearOverYear gardenId={garden.id} title={t('gardenDetail.yearOverYearTitle', { name: garden.name })} />
           </>
           )}
         </>
@@ -980,7 +984,7 @@ export default function GardenDetailPage() {
           onSaved={(g) => {
             setGarden(g);
             setShowEdit(false);
-            toast('✅ Uloženo');
+            toast(t('gardenDetail.saved'));
           }}
           onDelete={handleDelete}
           onMapUpload={handleUploadMap}
@@ -1021,7 +1025,8 @@ export default function GardenDetailPage() {
 }
 
 function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
-  const [name, setName] = useState(bed.name || 'Záhon');
+  const { t } = useTranslation();
+  const [name, setName] = useState(bed.name || i18n.t('gardenDetail.bedFallbackName'));
   const [widthM, setWidthM] = useState(bed.width_m ?? '');
   const [heightM, setHeightM] = useState(bed.height_m ?? '');
   const [color, setColor] = useState(bed.color || '#8b6f47');
@@ -1029,7 +1034,7 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
 
   const save = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return toast('Zadejte název záhonu');
+    if (!name.trim()) return toast(t('gardenDetail.bedNameRequired'));
     setSaving(true);
     try {
       const updated = await api.updateBed(bed.id, {
@@ -1038,42 +1043,42 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
         height_m: heightM === '' ? null : Number(heightM),
         color,
       });
-      toast('✅ Uloženo');
+      toast(t('gardenDetail.saved'));
       onSaved(updated);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async () => {
-    if (!confirm('Smazat záhon? Piny zůstanou.')) return;
+    if (!confirm(t('gardenDetail.bedDeleteConfirm'))) return;
     try {
       await api.deleteBed(bed.id);
-      toast('🗑️ Záhon smazán');
+      toast(t('gardenDetail.bedDeleted'));
       onDeleted(bed.id);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     }
   };
 
   return (
-    <Modal title="🟫 Upravit záhon" onClose={onClose}>
+    <Modal title={t('gardenDetail.bedEditTitle')} onClose={onClose}>
       <form onSubmit={save}>
         <div className="field">
-          <label>Název</label>
+          <label>{t('gardenDetail.bedNameLabel')}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Např. Záhon u plotu"
+            placeholder={t('gardenDetail.bedNamePlaceholder')}
             autoFocus
           />
         </div>
         <div className="field row" style={{ gap: 8 }}>
           <div style={{ flex: 1 }}>
-            <label>Šířka (m)</label>
+            <label>{t('gardenDetail.bedWidthLabel')}</label>
             <input
               type="number"
               step="0.1"
@@ -1084,7 +1089,7 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Délka (m)</label>
+            <label>{t('gardenDetail.bedHeightLabel')}</label>
             <input
               type="number"
               step="0.1"
@@ -1096,19 +1101,19 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
           </div>
         </div>
         <div className="field">
-          <label>Barva</label>
+          <label>{t('gardenDetail.bedColorLabel')}</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
         </div>
         <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
           <button type="button" className="btn danger ghost small" onClick={remove}>
-            🗑️ Smazat
+            {t('gardenDetail.deleteWithIcon')}
           </button>
           <div className="row" style={{ gap: 8 }}>
             <button type="button" className="btn ghost" onClick={onClose}>
-              Zrušit
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn" disabled={saving}>
-              {saving ? 'Ukládám…' : 'Uložit'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </div>
@@ -1118,6 +1123,7 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
 }
 
 function ShareGardenModal({ garden, onClose }) {
+  const { t } = useTranslation();
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [revoking, setRevoking] = useState(false);
@@ -1127,7 +1133,7 @@ function ShareGardenModal({ garden, onClose }) {
     api
       .createShareToken(garden.id)
       .then((r) => { if (!cancelled) setToken(r.token); })
-      .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
+      .catch((e) => { if (!cancelled) toast(t('common.error', { msg: e.message })); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [garden.id]);
@@ -1138,11 +1144,11 @@ function ShareGardenModal({ garden, onClose }) {
     try {
       const status = await shareLink({
         url: shareUrl,
-        title: 'GardenPin — moje zahrada',
-        text: 'Podívej se na moji zahradu v GardenPin',
+        title: t('gardenDetail.shareTitle'),
+        text: t('gardenDetail.shareText'),
       });
       if (status === 'copied') {
-        toast('📋 Odkaz zkopírován');
+        toast(t('gardenDetail.linkCopied'));
       } else if (status === 'shown') {
         // Schránka nedostupná → vyber text v inputu jako poslední záchrana.
         const input = document.getElementById('share-url-input');
@@ -1150,36 +1156,35 @@ function ShareGardenModal({ garden, onClose }) {
         toast('🔗 ' + shareUrl);
       }
     } catch (e) {
-      toast('Nelze sdílet: ' + e.message);
+      toast(t('gardenDetail.cannotShare', { msg: e.message }));
     }
   };
 
   const revoke = async () => {
-    if (!confirm('Zrušit sdílení? Odkaz přestane fungovat.')) return;
+    if (!confirm(t('gardenDetail.revokeConfirm'))) return;
     setRevoking(true);
     try {
       await api.revokeShareToken(garden.id);
-      toast('🔒 Sdílení zrušeno');
+      toast(t('gardenDetail.shareRevoked'));
       onClose();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setRevoking(false);
     }
   };
 
   return (
-    <Modal title="🔗 Sdílet zahradu" onClose={onClose}>
+    <Modal title={t('gardenDetail.shareModalTitle')} onClose={onClose}>
       {loading ? (
-        <div className="empty small">Načítám…</div>
+        <div className="empty small">{t('common.loadingShort')}</div>
       ) : (
         <>
           <div className="small muted mb-2">
-            Kdokoliv s tímto odkazem uvidí vaši zahradu, rostliny a nadcházející úkony.
-            Bez možnosti úprav.
+            {t('gardenDetail.shareDescription')}
           </div>
           <div className="field">
-            <label>Veřejný odkaz</label>
+            <label>{t('gardenDetail.publicLink')}</label>
             <input
               id="share-url-input"
               type="text"
@@ -1190,7 +1195,7 @@ function ShareGardenModal({ garden, onClose }) {
           </div>
           <div className="row mt-2" style={{ gap: 8 }}>
             <button type="button" className="btn" onClick={copy}>
-              {isNativeShare() ? '📤 Sdílet' : '📋 Zkopírovat'}
+              {isNativeShare() ? t('gardenDetail.shareBtn') : t('gardenDetail.copyBtn')}
             </button>
             <a
               className="btn secondary"
@@ -1198,7 +1203,7 @@ function ShareGardenModal({ garden, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              👁️ Otevřít náhled
+              {t('gardenDetail.openPreview')}
             </a>
           </div>
           <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
@@ -1208,10 +1213,10 @@ function ShareGardenModal({ garden, onClose }) {
               onClick={revoke}
               disabled={revoking}
             >
-              {revoking ? 'Ruším…' : '🔒 Zrušit sdílení'}
+              {revoking ? t('gardenDetail.revoking') : t('gardenDetail.revokeShare')}
             </button>
             <button type="button" className="btn ghost" onClick={onClose}>
-              Zavřít
+              {t('common.close')}
             </button>
           </div>
         </>
@@ -1226,20 +1231,23 @@ const ICAL_TYPE_OPTIONS = ICAL_CATEGORIES;
 const ALL_TYPE_KEYS = ICAL_TYPE_OPTIONS.map((t) => t.key);
 
 // Kategorie nabízené v "Jen vybrané kategorie" módu — podmnožina relevantní pro zahradníky.
-const ICAL_CATEGORY_OPTIONS = [
-  { key: 'vegetables', label: 'Zelenina', icon: '🥕' },
-  { key: 'fruits',     label: 'Ovoce', icon: '🍓' },
-  { key: 'herbs',      label: 'Byliny', icon: '🌿' },
-  { key: 'trees',      label: 'Stromy', icon: '🌳' },
-  { key: 'shrubs',     label: 'Keře', icon: '🪴' },
-  { key: 'conifers',   label: 'Jehličnany', icon: '🌲' },
-  { key: 'ornamental', label: 'Trvalky', icon: '🌼' },
-  { key: 'annuals',    label: 'Letničky', icon: '🌺' },
-  { key: 'bulbs',      label: 'Cibuloviny', icon: '🌷' },
-  { key: 'grasses',    label: 'Trávy', icon: '🌾' },
+// Labely se počítají uvnitř komponenty přes t() (viz buildIcalCategoryOptions).
+const buildIcalCategoryOptions = (t) => [
+  { key: 'vegetables', label: t('gardenDetail.catVegetables'), icon: '🥕' },
+  { key: 'fruits',     label: t('gardenDetail.catFruits'), icon: '🍓' },
+  { key: 'herbs',      label: t('gardenDetail.catHerbs'), icon: '🌿' },
+  { key: 'trees',      label: t('gardenDetail.catTrees'), icon: '🌳' },
+  { key: 'shrubs',     label: t('gardenDetail.catShrubs'), icon: '🪴' },
+  { key: 'conifers',   label: t('gardenDetail.catConifers'), icon: '🌲' },
+  { key: 'ornamental', label: t('gardenDetail.catOrnamental'), icon: '🌼' },
+  { key: 'annuals',    label: t('gardenDetail.catAnnuals'), icon: '🌺' },
+  { key: 'bulbs',      label: t('gardenDetail.catBulbs'), icon: '🌷' },
+  { key: 'grasses',    label: t('gardenDetail.catGrasses'), icon: '🌾' },
 ];
 
 function CalendarSubscribeModal({ garden, onClose }) {
+  const { t } = useTranslation();
+  const icalCategoryOptions = buildIcalCategoryOptions(t);
   // Krok 1 = config formulář; krok 2 = vygenerovaný odkaz
   const [step, setStep] = useState('config');
   const [token, setToken] = useState(null);
@@ -1264,7 +1272,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
         setToken(tokRes.token);
         setPins(pinsList || []);
       })
-      .catch((e) => { if (!cancelled) toast('Chyba: ' + e.message); })
+      .catch((e) => { if (!cancelled) toast(t('common.error', { msg: e.message })); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [garden.id]);
@@ -1308,10 +1316,10 @@ function CalendarSubscribeModal({ garden, onClose }) {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(httpsUrl);
-        toast('📋 URL zkopírováno');
+        toast(t('gardenDetail.urlCopied'));
       }
     } catch (e) {
-      toast('Nelze kopírovat: ' + e.message);
+      toast(t('gardenDetail.cannotCopy', { msg: e.message }));
     }
   };
 
@@ -1322,35 +1330,35 @@ function CalendarSubscribeModal({ garden, onClose }) {
     !(pinMode === 'pins' && selectedPinIds.size === 0);
 
   return (
-    <Modal title="📅 Přidat do kalendáře" onClose={onClose}>
+    <Modal title={t('gardenDetail.calendarModalTitle')} onClose={onClose}>
       {loading ? (
-        <div className="empty small">Načítám…</div>
+        <div className="empty small">{t('common.loadingShort')}</div>
       ) : !token ? (
-        <div className="empty small">Token nedostupný</div>
+        <div className="empty small">{t('gardenDetail.tokenUnavailable')}</div>
       ) : step === 'config' ? (
         <>
           <div className="small muted mb-2">
-            Vyber co chceš mít v kalendáři. Pak ti vygenerujeme živý odkaz (webcal://).
+            {t('gardenDetail.calendarConfigIntro')}
           </div>
 
           <div className="field">
-            <label>Typy úkonů</label>
+            <label>{t('gardenDetail.taskTypesLabel')}</label>
             <div className="ical-check-grid">
-              {ICAL_TYPE_OPTIONS.map((t) => (
-                <label key={t.key} className="ical-check">
+              {ICAL_TYPE_OPTIONS.map((opt) => (
+                <label key={opt.key} className="ical-check">
                   <input
                     type="checkbox"
-                    checked={selectedTypes.has(t.key)}
-                    onChange={() => toggleSet(setSelectedTypes, t.key)}
+                    checked={selectedTypes.has(opt.key)}
+                    onChange={() => toggleSet(setSelectedTypes, opt.key)}
                   />
-                  <span>{t.icon} {t.label}</span>
+                  <span>{opt.icon} {opt.label}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div className="field">
-            <label>Rostliny</label>
+            <label>{t('gardenDetail.plantsLabel')}</label>
             <div className="ical-radio-list">
               <label className="ical-radio">
                 <input
@@ -1360,7 +1368,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
                   checked={pinMode === 'all'}
                   onChange={() => setPinMode('all')}
                 />
-                <span>Všechny moje rostliny ({pins.length})</span>
+                <span>{t('gardenDetail.allMyPlants', { count: pins.length })}</span>
               </label>
               <label className="ical-radio">
                 <input
@@ -1370,11 +1378,11 @@ function CalendarSubscribeModal({ garden, onClose }) {
                   checked={pinMode === 'categories'}
                   onChange={() => setPinMode('categories')}
                 />
-                <span>Jen vybrané kategorie</span>
+                <span>{t('gardenDetail.onlySelectedCategories')}</span>
               </label>
               {pinMode === 'categories' && (
                 <div className="ical-pill-row">
-                  {ICAL_CATEGORY_OPTIONS.map((c) => {
+                  {icalCategoryOptions.map((c) => {
                     const active = selectedCategories.has(c.key);
                     return (
                       <button
@@ -1397,12 +1405,12 @@ function CalendarSubscribeModal({ garden, onClose }) {
                   checked={pinMode === 'pins'}
                   onChange={() => setPinMode('pins')}
                 />
-                <span>Jen konkrétní rostliny</span>
+                <span>{t('gardenDetail.onlySpecificPlants')}</span>
               </label>
               {pinMode === 'pins' && (
                 <div className="ical-pin-list">
                   {pins.length === 0 ? (
-                    <div className="small muted">V této zahradě zatím nejsou žádné rostliny.</div>
+                    <div className="small muted">{t('gardenDetail.noPlantsInGarden')}</div>
                   ) : pins.map((p) => (
                     <label key={p.id} className="ical-check">
                       <input
@@ -1419,13 +1427,13 @@ function CalendarSubscribeModal({ garden, onClose }) {
           </div>
 
           <div className="field">
-            <label>Předstih připomínky</label>
+            <label>{t('gardenDetail.reminderLeadLabel')}</label>
             <div className="ical-segmented">
               {[
-                { v: 1, label: '1 den předem' },
-                { v: 3, label: '3 dny' },
-                { v: 7, label: '1 týden' },
-                { v: 0, label: 'Žádná' },
+                { v: 1, label: t('gardenDetail.reminder1Day') },
+                { v: 3, label: t('gardenDetail.reminder3Days') },
+                { v: 7, label: t('gardenDetail.reminder1Week') },
+                { v: 0, label: t('gardenDetail.reminderNone') },
               ].map((opt) => (
                 <button
                   key={opt.v}
@@ -1441,7 +1449,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
 
           <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
             <button type="button" className="btn ghost" onClick={onClose}>
-              Zrušit
+              {t('common.cancel')}
             </button>
             <button
               type="button"
@@ -1449,28 +1457,27 @@ function CalendarSubscribeModal({ garden, onClose }) {
               onClick={() => setStep('link')}
               disabled={!canGenerate}
             >
-              Vygenerovat odkaz →
+              {t('gardenDetail.generateLink')}
             </button>
           </div>
         </>
       ) : (
         <>
           <div className="small muted mb-2">
-            Živý odkaz — kalendář se sám aktualizuje (refresh 1 den). Změny v
-            úkonech se automaticky promítnou.
+            {t('gardenDetail.liveLinkInfo')}
           </div>
 
           <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
             <a className="btn" href={webcalUrl} style={{ flex: '1 1 200px' }}>
-              📲 Přidat do iOS Kalendáře
+              {t('gardenDetail.addToIosCalendar')}
             </a>
             <a className="btn secondary" href={downloadUrl} style={{ flex: '1 1 200px' }}>
-              💾 Stáhnout .ics soubor
+              {t('gardenDetail.downloadIcs')}
             </a>
           </div>
 
           <div className="field" style={{ marginTop: 16 }}>
-            <label>URL pro Google Kalendář (přidej přes „Z URL")</label>
+            <label>{t('gardenDetail.googleCalendarUrlLabel')}</label>
             <input
               type="text"
               value={httpsUrl}
@@ -1479,16 +1486,16 @@ function CalendarSubscribeModal({ garden, onClose }) {
               style={{ fontSize: '0.78rem' }}
             />
             <button type="button" className="btn ghost small mt-2" onClick={copy}>
-              📋 Zkopírovat URL
+              {t('gardenDetail.copyUrl')}
             </button>
           </div>
 
           <div className="row mt-3" style={{ justifyContent: 'space-between' }}>
             <button type="button" className="btn ghost" onClick={() => setStep('config')}>
-              ← Upravit konfiguraci
+              {t('gardenDetail.editConfig')}
             </button>
             <button type="button" className="btn ghost" onClick={onClose}>
-              Hotovo
+              {t('common.done')}
             </button>
           </div>
         </>
@@ -1498,6 +1505,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
 }
 
 function PlantRow({ pin, onOpen, onPhotoUpdated }) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
 
@@ -1510,14 +1518,14 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
       const dataUrl = await new Promise((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => resolve(r.result);
-        r.onerror = () => reject(new Error('Nelze načíst soubor'));
+        r.onerror = () => reject(new Error(t('gardenDetail.fileReadError')));
         r.readAsDataURL(file);
       });
       const out = await api.setPinPhoto(pin.id, dataUrl);
       onPhotoUpdated(out.photo_path);
-      toast('✅ Fotka uložena');
+      toast(t('gardenDetail.photoSaved'));
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -1546,7 +1554,7 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
         {pin.plant_name && <div className="meta">🌿 {pin.plant_name}</div>}
         {pin.planting_date && (
           <div className="meta">
-            📅 Vysazeno {new Date(pin.planting_date).toLocaleDateString('cs-CZ')}
+            {t('gardenDetail.plantedOn', { date: formatDate(pin.planting_date) })}
           </div>
         )}
         <button
@@ -1555,7 +1563,7 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
           onClick={openPicker}
           disabled={uploading}
         >
-          {uploading ? '⏳ Nahrávám…' : pin.photo_path ? '📷 Změnit foto' : '📷 Přidat foto'}
+          {uploading ? t('gardenDetail.uploadingPhoto') : pin.photo_path ? t('gardenDetail.changePhoto') : t('gardenDetail.addPhoto')}
         </button>
         <input
           ref={fileRef}
@@ -1571,6 +1579,7 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
 }
 
 function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [plantName, setPlantName] = useState('');
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -1584,7 +1593,7 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return toast('Zadejte název místa');
+    if (!name.trim()) return toast(t('gardenDetail.placeNameRequired'));
     setSaving(true);
     try {
       const fd = new FormData();
@@ -1638,35 +1647,35 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
       if (promises.length) {
         await Promise.all(promises);
         const parts = [];
-        if (dbCount) parts.push(`${dbCount} pravidelných`);
-        if (seasonalCount) parts.push(`${seasonalCount} sezónních`);
-        toast(`✅ Místo přidáno + ${parts.join(' + ')} úkolů`);
+        if (dbCount) parts.push(t('gardenDetail.regularTasks', { count: dbCount }));
+        if (seasonalCount) parts.push(t('gardenDetail.seasonalTasks', { count: seasonalCount }));
+        toast(t('gardenDetail.placeAddedWithTasks', { tasks: parts.join(' + ') }));
       } else {
-        toast('✅ Místo přidáno');
+        toast(t('gardenDetail.placeAdded'));
       }
       onCreated();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Nové místo v zahradě" onClose={onClose}>
+    <Modal title={t('gardenDetail.newPlaceTitle')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
-          <label>Název místa *</label>
+          <label>{t('gardenDetail.placeNameLabel')}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Např. Záhon u plotu"
+            placeholder={t('gardenDetail.bedNamePlaceholder')}
             autoFocus
           />
         </div>
         <div className="field">
-          <label>Rostlina</label>
+          <label>{t('gardenDetail.plantLabel')}</label>
           <PlantAutocomplete
             value={plantName}
             onChange={(val, plant) => {
@@ -1677,7 +1686,7 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
               setSelectedPlant(plant);
               setPlantName(plant.nameCz);
             }}
-            placeholder="Začněte psát název rostliny…"
+            placeholder={t('gardenDetail.plantSearchPlaceholder')}
           />
           {selectedPlant && (
             <PlantInfoCard
@@ -1687,7 +1696,7 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
           )}
         </div>
         <div className="field">
-          <label>Datum výsadby</label>
+          <label>{t('gardenDetail.plantingDateLabel')}</label>
           <input
             type="date"
             value={plantingDate}
@@ -1695,26 +1704,26 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
           />
         </div>
         <div className="field">
-          <label>Poznámky</label>
+          <label>{t('gardenDetail.notesLabel')}</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Poznámky o péči, osivo, zdroj..."
+            placeholder={t('gardenDetail.notesPlaceholder')}
           />
         </div>
         <div className="field">
-          <label>Barva pinu</label>
+          <label>{t('gardenDetail.pinColorLabel')}</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
         </div>
         <div className="field">
-          <label>Fotka rostliny (volitelné)</label>
+          <label>{t('gardenDetail.plantPhotoLabel')}</label>
           <div className="file-input-wrap" onClick={() => fileRef.current?.click()}>
             {file ? (
               <div className="small">📎 {file.name}</div>
             ) : (
               <>
                 <div style={{ fontSize: '1.6rem' }}>📷</div>
-                <div className="small muted">Klikněte pro nahrání</div>
+                <div className="small muted">{t('gardenDetail.clickToUpload')}</div>
               </>
             )}
             <input
@@ -1727,10 +1736,10 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Vytvořit místo'}
+            {saving ? t('common.saving') : t('gardenDetail.createPlace')}
           </button>
         </div>
       </form>
@@ -1738,18 +1747,21 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
   );
 }
 
-const EXPOSURE_LABELS = {
-  N: '⬆️ sever',
-  S: '⬇️ jih',
-  E: '➡️ východ',
-  W: '⬅️ západ',
-  mixed: '🧭 smíšená',
-};
+// Labely expozice se počítají uvnitř komponenty přes t() (lowercase varianty pro řádek podmínek).
+const buildExposureLabels = (t) => ({
+  N: t('gardenDetail.exposureNorthLower'),
+  S: t('gardenDetail.exposureSouthLower'),
+  E: t('gardenDetail.exposureEastLower'),
+  W: t('gardenDetail.exposureWestLower'),
+  mixed: t('gardenDetail.exposureMixedLower'),
+});
 
 function GardenConditionsLine({ garden }) {
+  const { t } = useTranslation();
+  const exposureLabels = buildExposureLabels(t);
   const parts = [];
   if (garden.soil_type) parts.push(`🪴 ${garden.soil_type}`);
-  if (garden.exposure && EXPOSURE_LABELS[garden.exposure]) parts.push(EXPOSURE_LABELS[garden.exposure]);
+  if (garden.exposure && exposureLabels[garden.exposure]) parts.push(exposureLabels[garden.exposure]);
   if (garden.altitude_m) parts.push(`⛰️ ${garden.altitude_m} m`);
   const zone = getClimateZone(garden.climate_zone);
   if (zone) parts.push(`📍 ${zone.label}`);
@@ -1762,6 +1774,7 @@ function GardenConditionsLine({ garden }) {
 }
 
 function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uploading }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(garden.name);
   const [location, setLocation] = useState(garden.location || '');
   const [soilType, setSoilType] = useState(garden.soil_type || '');
@@ -1785,27 +1798,27 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
       const g = await api.updateGarden(garden.id, fd);
       onSaved(g);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Upravit zahradu" onClose={onClose}>
+    <Modal title={t('gardenDetail.editGardenTitle')} onClose={onClose}>
       <form onSubmit={save}>
         <div className="field">
-          <label>Název</label>
+          <label>{t('gardenDetail.bedNameLabel')}</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
 
         <div className="field">
-          <label>📍 Adresa zahrady</label>
+          <label>{t('gardenDetail.gardenAddressLabel')}</label>
           <input
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="např. Květinová 12, 250 88 Čelákovice"
+            placeholder={t('gardenDetail.gardenAddressPlaceholder')}
             maxLength={240}
           />
           <div className="row" style={{ gap: 6, marginTop: 6, alignItems: 'center' }}>
@@ -1814,59 +1827,59 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
               className="btn ghost small"
               onClick={() => openSatelliteView(location)}
             >
-              🛰️ Otevřít satelit
+              {t('gardenDetail.openSatelliteShort')}
             </button>
-            <span className="small muted">Udělej screenshot a nahraj jako mapu.</span>
+            <span className="small muted">{t('gardenDetail.screenshotHint')}</span>
           </div>
         </div>
 
         <div className="field">
-          <label>🌍 Pěstební podmínky</label>
+          <label>{t('gardenDetail.growingConditionsLabel')}</label>
           <div className="small muted mb-2">
-            Ovlivňují doporučené termíny úkonů (chladná/teplá poloha posune kalendář).
+            {t('gardenDetail.growingConditionsHint')}
           </div>
         </div>
 
         <div className="field">
-          <label>Typ půdy</label>
+          <label>{t('gardenDetail.soilTypeLabel')}</label>
           <input
             type="text"
             value={soilType}
-            placeholder="např. hlinitá, písčitá, jílovitá…"
+            placeholder={t('gardenDetail.soilTypePlaceholder')}
             onChange={(e) => setSoilType(e.target.value)}
             maxLength={80}
           />
         </div>
 
         <div className="field">
-          <label>Expozice (orientace)</label>
+          <label>{t('gardenDetail.exposureLabel')}</label>
           <select value={exposure} onChange={(e) => setExposure(e.target.value)}>
-            <option value="">— neuvedeno —</option>
-            <option value="N">⬆️ Sever</option>
-            <option value="S">⬇️ Jih</option>
-            <option value="E">➡️ Východ</option>
-            <option value="W">⬅️ Západ</option>
-            <option value="mixed">🧭 Smíšená</option>
+            <option value="">{t('gardenDetail.notSpecified')}</option>
+            <option value="N">{t('gardenDetail.exposureNorth')}</option>
+            <option value="S">{t('gardenDetail.exposureSouth')}</option>
+            <option value="E">{t('gardenDetail.exposureEast')}</option>
+            <option value="W">{t('gardenDetail.exposureWest')}</option>
+            <option value="mixed">{t('gardenDetail.exposureMixed')}</option>
           </select>
         </div>
 
         <div className="field">
-          <label>Nadmořská výška (m)</label>
+          <label>{t('gardenDetail.altitudeLabel')}</label>
           <input
             type="number"
             min="0"
             max="3000"
             step="10"
             value={altitudeM}
-            placeholder="např. 350"
+            placeholder={t('gardenDetail.altitudePlaceholder')}
             onChange={(e) => setAltitudeM(e.target.value === '' ? '' : Number(e.target.value))}
           />
         </div>
 
         <div className="field">
-          <label>Klimatická zóna (region)</label>
+          <label>{t('gardenDetail.climateZoneLabel')}</label>
           <select value={climateZone} onChange={(e) => setClimateZone(e.target.value)}>
-            <option value="">— neuvedeno —</option>
+            <option value="">{t('gardenDetail.notSpecified')}</option>
             {COUNTRIES.map((c) => (
               <optgroup key={c.code} label={`${c.flag} ${c.label}`}>
                 {getZonesByCountry(c.code).map((z) => (
@@ -1877,13 +1890,13 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
           </select>
           {climateZone && (
             <div className="small muted" style={{ marginTop: 4 }}>
-              {describeZone(climateZone)} — doporučené termíny úkonů se upraví pro tvou lokalitu.
+              {t('gardenDetail.climateZoneDescribed', { desc: describeZone(climateZone) })}
             </div>
           )}
         </div>
 
         <div className="field">
-          <label>Nahrát novou mapu</label>
+          <label>{t('gardenDetail.uploadNewMapLabel')}</label>
           <button
             type="button"
             className="btn secondary block"
@@ -1896,7 +1909,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
               })
             }
           >
-            {uploading ? 'Nahrávám...' : '📷 Vybrat novou fotku zahrady'}
+            {uploading ? t('gardenDetail.uploading') : t('gardenDetail.selectNewGardenPhoto')}
           </button>
           <input
             ref={editMapInputRef}
@@ -1909,10 +1922,10 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
         </div>
         <div className="row mt-3">
           <button type="button" className="btn danger" onClick={onDelete}>
-            🗑️ Smazat zahradu
+            {t('gardenDetail.deleteGarden')}
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Uložit'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>

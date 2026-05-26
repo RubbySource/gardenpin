@@ -3,15 +3,16 @@
 // pro mobilní seznam úkolů, kde se popover ořezával o swipe-overflow.
 // Volá api.snoozeTask a po úspěchu pozve onSnoozed (typicky reload listu).
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import Icon from './Icon.jsx';
 
 const QUICK_OPTIONS = [
-  { days: 1, label: '+1 den' },
-  { days: 3, label: '+3 dny' },
-  { days: 7, label: '+1 týden' },
-  { days: 14, label: '+2 týdny' },
+  { days: 1, labelKey: 'snooze.plus1Day' },
+  { days: 3, labelKey: 'snooze.plus3Days' },
+  { days: 7, labelKey: 'snooze.plus1Week' },
+  { days: 14, labelKey: 'snooze.plus2Weeks' },
 ];
 
 function addDaysISO(days) {
@@ -21,6 +22,7 @@ function addDaysISO(days) {
 }
 
 export default function SnoozeButton({ task, onSnoozed, compact = false, sheet = false }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [customDate, setCustomDate] = useState('');
@@ -53,11 +55,11 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
     setBusy(true);
     try {
       await api.snoozeTask(task.id, payload);
-      toast('⏰ Odloženo');
+      toast(t('snooze.snoozed'));
       setOpen(false);
       onSnoozed?.();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setBusy(false);
     }
@@ -73,8 +75,8 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
         e.stopPropagation();
         setOpen((o) => !o);
       }}
-      title="Odložit úkol"
-      aria-label="Odložit úkol"
+      title={t('snooze.snoozeTask')}
+      aria-label={t('snooze.snoozeTask')}
     >
       {sheet ? <Icon name="clock" size={18} /> : '⏰'}
     </button>
@@ -94,11 +96,11 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
               className="snooze-sheet"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
-              aria-label="Odložit úkol"
+              aria-label={t('snooze.snoozeTask')}
             >
               <div className="snooze-sheet-grip" aria-hidden="true" />
               <div className="snooze-sheet-head">
-                <div className="snooze-sheet-title">Odložit úkol</div>
+                <div className="snooze-sheet-title">{t('snooze.snoozeTask')}</div>
                 {task?.title && <div className="snooze-sheet-sub">{task.title}</div>}
               </div>
               <div className="snooze-sheet-list">
@@ -111,12 +113,12 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
                     onClick={() => doSnooze({ days: opt.days })}
                   >
                     <Icon name="clock" size={18} className="snooze-sheet-item-ic" />
-                    <span>{opt.label}</span>
+                    <span>{t(opt.labelKey)}</span>
                   </button>
                 ))}
                 <label className="snooze-sheet-item snooze-sheet-custom">
                   <Icon name="calendar" size={18} className="snooze-sheet-item-ic" />
-                  <span>Vlastní datum</span>
+                  <span>{t('snooze.customDate')}</span>
                   <input
                     type="date"
                     value={customDate}
@@ -137,7 +139,7 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
                 onClick={() => setOpen(false)}
                 disabled={busy}
               >
-                Zrušit
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -151,7 +153,7 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
       {trigger}
       {open && (
         <div className="snooze-popover" onClick={(e) => e.stopPropagation()}>
-          <div className="snooze-popover-title">Odložit o…</div>
+          <div className="snooze-popover-title">{t('snooze.snoozeBy')}</div>
           <div className="snooze-quick-grid">
             {QUICK_OPTIONS.map((opt) => (
               <button
@@ -161,12 +163,12 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
                 disabled={busy}
                 onClick={() => doSnooze({ days: opt.days })}
               >
-                {opt.label}
+                {t(opt.labelKey)}
               </button>
             ))}
           </div>
           <div className="snooze-custom">
-            <label className="snooze-custom-label">Vlastní datum:</label>
+            <label className="snooze-custom-label">{t('snooze.customDateLabel')}</label>
             <div className="snooze-custom-row">
               <input
                 type="date"
@@ -181,7 +183,7 @@ export default function SnoozeButton({ task, onSnoozed, compact = false, sheet =
                 disabled={busy || !customDate}
                 onClick={() => doSnooze({ until: customDate })}
               >
-                Odložit
+                {t('snooze.snooze')}
               </button>
             </div>
           </div>

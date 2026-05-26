@@ -1,6 +1,8 @@
 // PinDetail — iOS-style mobile sheet: hero, tabs (URL hash), FAB, scroll-aware sticky header
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n.js';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
@@ -52,6 +54,7 @@ function daysSince(dateStr) {
 }
 
 export default function PinDetail({ pinId, onClose }) {
+  const { t } = useTranslation();
   const [pin, setPin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(readTabFromHash);
@@ -88,7 +91,7 @@ export default function PinDetail({ pinId, onClose }) {
       const p = await api.getPin(pinId);
       setPin(p);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -136,36 +139,36 @@ export default function PinDetail({ pinId, onClose }) {
     } catch {}
   };
 
-  const completeTask = async (t) => {
+  const completeTask = async (task) => {
     try {
-      await api.completeTask(t.id);
+      await api.completeTask(task.id);
       hapticNotification('success');
-      toast('✅ Hotovo');
+      toast(t('pin.toastTaskDone'));
       load();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
-  const deleteTask = async (t) => {
-    if (!confirm(`Smazat úkol "${t.title}"?`)) return;
+  const deleteTask = async (task) => {
+    if (!confirm(t('pin.confirmDeleteTask', { title: task.title }))) return;
     try {
-      await api.deleteTask(t.id);
-      toast('Smazáno');
+      await api.deleteTask(task.id);
+      toast(t('pin.toastDeleted'));
       load();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
   const deletePin = async () => {
-    if (!confirm('Opravdu smazat toto místo se všemi úkoly?')) return;
+    if (!confirm(t('pin.confirmDeletePin'))) return;
     try {
       await api.deletePin(pin.id);
-      toast('Místo smazáno');
+      toast(t('pin.toastPinDeleted'));
       onClose();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -173,7 +176,7 @@ export default function PinDetail({ pinId, onClose }) {
     return (
       <div className="pd-backdrop" onClick={onClose}>
         <div className="pd-sheet" onClick={(e) => e.stopPropagation()}>
-          <div className="empty" style={{ padding: 40 }}>Načítám…</div>
+          <div className="empty" style={{ padding: 40 }}>{t('common.loadingShort')}</div>
         </div>
       </div>
     );
@@ -220,14 +223,14 @@ export default function PinDetail({ pinId, onClose }) {
 
         {/* Sticky compact header — vrátí se při scrollu nahoru */}
         <div className={`pd-sticky-header ${headerShown ? 'shown' : ''}`}>
-          <button className="pd-back-sticky" onClick={onClose} aria-label="Zpět">‹</button>
+          <button className="pd-back-sticky" onClick={onClose} aria-label={t('pin.back')}>‹</button>
           <span className="pd-sticky-title">{pin.name}</span>
         </div>
 
         {/* Hero */}
         <div className="pd-hero">
           <button type="button" className="pd-back-floating" onClick={onClose}>
-            ‹ Zpět
+            ‹ {t('pin.back')}
           </button>
           <div className="pd-hero-row">
             <div className="pd-hero-icon" aria-hidden="true">{icon}</div>
@@ -237,8 +240,8 @@ export default function PinDetail({ pinId, onClose }) {
               {plant?.nameLat && <div className="pd-hero-latin">{plant.nameLat}</div>}
               {pin.planting_date && (
                 <div className="pd-hero-meta">
-                  📅 Vysazeno {formatDate(pin.planting_date)}
-                  {since != null && since >= 0 && <> · před {since} {sinceLabel(since)}</>}
+                  📅 {t('pin.heroPlanted', { date: formatDate(pin.planting_date) })}
+                  {since != null && since >= 0 && <> · {t('pin.heroDaysAgo', { count: since })}</>}
                 </div>
               )}
             </div>
@@ -248,11 +251,11 @@ export default function PinDetail({ pinId, onClose }) {
         {/* Tabs (sticky) */}
         <div className="pd-tabs">
           <TabBtn id="ukony" active={tab} onSelect={changeTab}>
-            ✅ Úkony{pin.tasks.length > 0 && <span className="pd-tab-count">{pin.tasks.length}</span>}
+            ✅ {t('pin.tabTasks')}{pin.tasks.length > 0 && <span className="pd-tab-count">{pin.tasks.length}</span>}
           </TabBtn>
-          <TabBtn id="pece" active={tab} onSelect={changeTab}>🌿 Péče</TabBtn>
-          <TabBtn id="fotky" active={tab} onSelect={changeTab}>📷 Fotky</TabBtn>
-          <TabBtn id="info" active={tab} onSelect={changeTab}>ℹ️ Info</TabBtn>
+          <TabBtn id="pece" active={tab} onSelect={changeTab}>🌿 {t('pin.tabCare')}</TabBtn>
+          <TabBtn id="fotky" active={tab} onSelect={changeTab}>📷 {t('pin.tabPhotos')}</TabBtn>
+          <TabBtn id="info" active={tab} onSelect={changeTab}>ℹ️ {t('pin.tabInfo')}</TabBtn>
         </div>
 
         <div className="pd-content">
@@ -283,8 +286,8 @@ export default function PinDetail({ pinId, onClose }) {
             type="button"
             className="pd-fab"
             onClick={() => setShowNewTask(true)}
-            aria-label="Přidat úkon"
-            title="Přidat úkon"
+            aria-label={t('pin.addTask')}
+            title={t('pin.addTask')}
           >
             +
           </button>
@@ -309,12 +312,6 @@ export default function PinDetail({ pinId, onClose }) {
   );
 }
 
-function sinceLabel(n) {
-  if (n === 1) return 'dnem';
-  if (n < 5) return 'dny';
-  return 'dny';
-}
-
 function TabBtn({ id, active, onSelect, children }) {
   return (
     <button
@@ -329,6 +326,7 @@ function TabBtn({ id, active, onSelect, children }) {
 
 // ===================== Úkony tab — iOS grouped list + choroby & škůdci =====================
 function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const hasTasks = pin.tasks.length > 0;
   return (
     <div>
@@ -344,8 +342,8 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
                   type="button"
                   className="pd-task-check"
                   onClick={() => onComplete(t)}
-                  aria-label="Splnit úkon"
-                  title="Splnit"
+                  aria-label={i18n.t('pin.completeTask')}
+                  title={i18n.t('pin.complete')}
                 >
                   <Icon name="check" size={15} stroke={2.5} />
                 </button>
@@ -356,8 +354,8 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
                   <div className="pd-task-name">{t.title}</div>
                   <div className="pd-task-sub">
                     {badge && <span className={`badge ${badge.cls}`}>{badge.text}</span>}
-                    {t.frequency_days ? <span className="badge">Každých {t.frequency_days} dní</span> : null}
-                    {t.specific_date && !t.frequency_days ? <span className="badge">Jednorázově</span> : null}
+                    {t.frequency_days ? <span className="badge">{i18n.t('pin.everyNDays', { count: t.frequency_days })}</span> : null}
+                    {t.specific_date && !t.frequency_days ? <span className="badge">{i18n.t('pin.oneTime')}</span> : null}
                     <span className="badge type">{taskLabel(t.task_type)}</span>
                   </div>
                 </div>
@@ -367,8 +365,8 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
                     type="button"
                     className="pd-task-mini"
                     onClick={() => onEdit(t)}
-                    aria-label="Upravit úkon"
-                    title="Upravit"
+                    aria-label={i18n.t('pin.editTask')}
+                    title={i18n.t('common.edit')}
                   >
                     ✏️
                   </button>
@@ -376,8 +374,8 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
                     type="button"
                     className="pd-task-mini danger"
                     onClick={() => onDelete(t)}
-                    aria-label="Smazat úkon"
-                    title="Smazat"
+                    aria-label={i18n.t('pin.deleteTask')}
+                    title={i18n.t('common.delete')}
                   >
                     🗑️
                   </button>
@@ -389,7 +387,7 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
       ) : (
         <div className="pd-empty">
           <span className="pd-empty-icon">✅</span>
-          <div className="pd-empty-text">Žádné úkony. Přidejte hnojení, stříhání nebo přesazení přes ＋.</div>
+          <div className="pd-empty-text">{t('pin.tasksEmpty')}</div>
         </div>
       )}
 
@@ -418,6 +416,7 @@ function CareRow({ icon, label, value }) {
 }
 
 function PeceTab({ pin, plant, onEditPin }) {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const companions = plant?.companions;
   const hasCompanions = companions && ((companions.good?.length > 0) || (companions.bad?.length > 0));
@@ -444,31 +443,31 @@ function PeceTab({ pin, plant, onEditPin }) {
         <div className="pd-empty">
           <span className="pd-empty-icon">🌿</span>
           <div className="pd-empty-text">
-            Žádné info o péči. Přiřaďte rostlinu z katalogu nebo upravte poznámky.
+            {t('pin.careEmpty')}
           </div>
         </div>
       ) : (
         <div className="pd-care-list">
-          <CareRow icon="🪴" label="Půda" value={plant?.soil} />
-          <CareRow icon="☀️" label="Slunce" value={plant?.sun} />
-          <CareRow icon="💧" label="Zálivka" value={plant?.watering} />
-          <CareRow icon="🌱" label="Hnojení" value={plant?.fertilizing} />
-          <CareRow icon="✂️" label="Řez / pasínkování" value={plant?.pruning} />
-          <CareRow icon="📅" label="Výsadba" value={plant?.planting} />
-          <CareRow icon="❄️" label="Mrazuvzdornost" value={plant?.hardy} />
-          <CareRow icon="📏" label="Výška" value={plant?.height} />
-          <CareRow icon="↔️" label="Šíře / průměr" value={plant?.spread} />
-          <CareRow icon="ℹ️" label="Pozn. ke druhu" value={plant?.notes} />
-          <CareRow icon="📝" label="Vlastní poznámky" value={pin.notes} />
+          <CareRow icon="🪴" label={t('pin.careSoil')} value={plant?.soil} />
+          <CareRow icon="☀️" label={t('pin.careSun')} value={plant?.sun} />
+          <CareRow icon="💧" label={t('pin.careWatering')} value={plant?.watering} />
+          <CareRow icon="🌱" label={t('pin.careFertilizing')} value={plant?.fertilizing} />
+          <CareRow icon="✂️" label={t('pin.carePruning')} value={plant?.pruning} />
+          <CareRow icon="📅" label={t('pin.carePlanting')} value={plant?.planting} />
+          <CareRow icon="❄️" label={t('pin.careHardy')} value={plant?.hardy} />
+          <CareRow icon="📏" label={t('pin.careHeight')} value={plant?.height} />
+          <CareRow icon="↔️" label={t('pin.careSpread')} value={plant?.spread} />
+          <CareRow icon="ℹ️" label={t('pin.careSpeciesNotes')} value={plant?.notes} />
+          <CareRow icon="📝" label={t('pin.careOwnNotes')} value={pin.notes} />
         </div>
       )}
 
       {hasCompanions && (
         <div className="companion-section">
-          <div className="companion-title">🤝 Doprovodné rostliny</div>
+          <div className="companion-title">🤝 {t('pin.companionTitle')}</div>
           {companions.good?.length > 0 && (
             <div className="companion-row">
-              <span className="companion-label">Dobře se snáší:</span>
+              <span className="companion-label">{t('pin.companionGood')}</span>
               <div className="companion-pills">
                 {companions.good.map((name) => (
                   <button
@@ -476,7 +475,7 @@ function PeceTab({ pin, plant, onEditPin }) {
                     type="button"
                     className="companion-pill good"
                     onClick={() => goToCatalog(name)}
-                    title={`Hledat ${name} v katalogu`}
+                    title={t('pin.companionSearch', { name })}
                   >
                     {name}
                   </button>
@@ -486,7 +485,7 @@ function PeceTab({ pin, plant, onEditPin }) {
           )}
           {companions.bad?.length > 0 && (
             <div className="companion-row">
-              <span className="companion-label">Nesadit vedle:</span>
+              <span className="companion-label">{t('pin.companionBad')}</span>
               <div className="companion-pills">
                 {companions.bad.map((name) => (
                   <button
@@ -494,7 +493,7 @@ function PeceTab({ pin, plant, onEditPin }) {
                     type="button"
                     className="companion-pill bad"
                     onClick={() => goToCatalog(name)}
-                    title={`Hledat ${name} v katalogu`}
+                    title={t('pin.companionSearch', { name })}
                   >
                     {name}
                   </button>
@@ -506,7 +505,7 @@ function PeceTab({ pin, plant, onEditPin }) {
       )}
 
       <button type="button" className="btn ghost block" onClick={onEditPin}>
-        ✏️ Upravit místo
+        ✏️ {t('pin.editPin')}
       </button>
     </div>
   );
@@ -514,13 +513,20 @@ function PeceTab({ pin, plant, onEditPin }) {
 
 // ===================== Info tab =====================
 function InfoTab({ pin, plant, onReload, onDeletePin }) {
+  const { t } = useTranslation();
   const [showMore, setShowMore] = useState(false);
   const cond = pin.garden_conditions;
   const condParts = [];
   if (cond) {
     if (cond.soil_type) condParts.push(`🪴 ${cond.soil_type}`);
     if (cond.exposure) {
-      const map = { N: '⬆️ sever', S: '⬇️ jih', E: '➡️ východ', W: '⬅️ západ', mixed: '🧭 smíšená' };
+      const map = {
+        N: `⬆️ ${t('pin.exposureN')}`,
+        S: `⬇️ ${t('pin.exposureS')}`,
+        E: `➡️ ${t('pin.exposureE')}`,
+        W: `⬅️ ${t('pin.exposureW')}`,
+        mixed: `🧭 ${t('pin.exposureMixed')}`,
+      };
       condParts.push(map[cond.exposure] || cond.exposure);
     }
     if (cond.altitude_m) condParts.push(`⛰️ ${cond.altitude_m} m`);
@@ -532,7 +538,7 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
       {/* Pěstební podmínky */}
       {condParts.length > 0 && (
         <div className="pd-section">
-          <div className="pd-section-title">🌍 Pěstební podmínky</div>
+          <div className="pd-section-title">🌍 {t('pin.growingConditions')}</div>
           <div className="pd-care-list">
             <div className="pd-care-row">
               <div className="pd-care-content">
@@ -558,20 +564,20 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
 
       {/* Sklizeň */}
       <div className="pd-section">
-        <div className="pd-section-title">🧺 Sklizeň</div>
+        <div className="pd-section-title">🧺 {t('pin.harvestTitle')}</div>
         <HarvestTab pinId={pin.id} />
       </div>
 
       {/* Více — historie péče */}
       {!showMore ? (
         <button type="button" className="pd-more" onClick={() => setShowMore(true)}>
-          ▾ Více · Historie péče ({pin.history.length})
+          ▾ {t('pin.moreHistory', { count: pin.history.length })}
         </button>
       ) : (
         <div className="pd-section">
-          <div className="pd-section-title">📜 Historie péče</div>
+          <div className="pd-section-title">📜 {t('pin.historyTitle')}</div>
           {pin.history.length === 0 ? (
-            <div className="empty small">Zatím žádná historie péče</div>
+            <div className="empty small">{t('pin.historyEmpty')}</div>
           ) : (
             pin.history.map((h) => (
               <div key={h.id} className="history-item">
@@ -585,7 +591,7 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
             ))
           )}
           <button type="button" className="pd-more" onClick={() => setShowMore(false)}>
-            ▴ Skrýt
+            ▴ {t('pin.hide')}
           </button>
         </div>
       )}
@@ -593,7 +599,7 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
       {/* Danger zone */}
       <div className="pd-danger-zone">
         <button type="button" className="pd-danger-btn" onClick={onDeletePin}>
-          🗑️ Smazat toto místo
+          🗑️ {t('pin.deletePin')}
         </button>
       </div>
     </div>
@@ -601,6 +607,7 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
 }
 
 function EditPinForm({ pin, onClose, onSaved }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(pin.name);
   const [plantName, setPlantName] = useState(pin.plant_name || '');
   const [selectedPlant, setSelectedPlant] = useState(() => findPlantByName(pin.plant_name));
@@ -625,24 +632,24 @@ function EditPinForm({ pin, onClose, onSaved }) {
       if (file) fd.append('photo', file);
       if (removePhoto) fd.append('remove_photo', 'true');
       await api.updatePin(pin.id, fd);
-      toast('✅ Uloženo');
+      toast(t('pin.toastSaved'));
       onSaved();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Upravit místo" onClose={onClose}>
+    <Modal title={t('pin.editPinTitle')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
-          <label>Název místa *</label>
+          <label>{t('pin.fieldPinName')}</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="field">
-          <label>Rostlina</label>
+          <label>{t('pin.fieldPlant')}</label>
           <PlantAutocomplete
             value={plantName}
             onChange={(val, plant) => {
@@ -653,18 +660,18 @@ function EditPinForm({ pin, onClose, onSaved }) {
               setSelectedPlant(plant);
               setPlantName(plant.nameCz);
             }}
-            placeholder="Začněte psát název rostliny…"
+            placeholder={t('pin.plantPlaceholder')}
           />
           {selectedPlant && (
             <PlantInfoCard
               plant={selectedPlant}
               pinId={pin.id}
-              onTasksCreated={() => toast('✅ Doporučené úkoly přidány')}
+              onTasksCreated={() => toast(t('pin.toastRecommendedAdded'))}
             />
           )}
         </div>
         <div className="field">
-          <label>Datum výsadby</label>
+          <label>{t('pin.fieldPlantingDate')}</label>
           <input
             type="date"
             value={plantingDate}
@@ -672,15 +679,15 @@ function EditPinForm({ pin, onClose, onSaved }) {
           />
         </div>
         <div className="field">
-          <label>Poznámky</label>
+          <label>{t('pin.fieldNotes')}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
         <div className="field">
-          <label>Barva pinu</label>
+          <label>{t('pin.fieldPinColor')}</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
         </div>
         <div className="field">
-          <label>Fotka rostliny</label>
+          <label>{t('pin.fieldPlantPhoto')}</label>
           {pin.photo_path && !removePhoto && !file && (
             <>
               <img src={pin.photo_path} alt="" className="pin-photo-preview mb-2" />
@@ -689,7 +696,7 @@ function EditPinForm({ pin, onClose, onSaved }) {
                 className="btn ghost small"
                 onClick={() => setRemovePhoto(true)}
               >
-                Odstranit fotku
+                {t('pin.removePhoto')}
               </button>
             </>
           )}
@@ -710,7 +717,7 @@ function EditPinForm({ pin, onClose, onSaved }) {
               <div className="small">📎 {file.name}</div>
             ) : (
               <div className="small muted">
-                {pin.photo_path ? 'Nahrát jinou fotku' : 'Klikněte pro nahrání fotky'}
+                {pin.photo_path ? t('pin.uploadDifferentPhoto') : t('pin.uploadPhotoHint')}
               </div>
             )}
             <input
@@ -726,10 +733,10 @@ function EditPinForm({ pin, onClose, onSaved }) {
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Uložit'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>
@@ -738,6 +745,7 @@ function EditPinForm({ pin, onClose, onSaved }) {
 }
 
 function NewTaskForm({ pinId, onClose, onCreated }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [taskType, setTaskType] = useState('zalivka');
   const [mode, setMode] = useState('frequency'); // 'frequency' | 'specific'
@@ -756,7 +764,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return toast('Zadejte název úkolu');
+    if (!title.trim()) return toast(t('pin.toastEnterTaskName'));
     setSaving(true);
     try {
       const data = {
@@ -771,20 +779,20 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
         data.specific_date = specificDate;
       }
       await api.createTask(data);
-      toast('✅ Úkol přidán');
+      toast(t('pin.toastTaskAdded'));
       onCreated();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Nový úkol" onClose={onClose}>
+    <Modal title={t('pin.newTaskTitle')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
-          <label>Typ úkolu</label>
+          <label>{t('pin.fieldTaskType')}</label>
           <select value={taskType} onChange={(e) => setTaskType(e.target.value)}>
             {TASK_TYPES.map((t) => (
               <option key={t.id} value={t.id}>
@@ -794,35 +802,35 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
           </select>
         </div>
         <div className="field">
-          <label>Název úkolu</label>
+          <label>{t('pin.fieldTaskName')}</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Např. Zálivka"
+            placeholder={t('pin.taskNamePlaceholder')}
           />
         </div>
         <div className="field">
-          <label>Kdy</label>
+          <label>{t('pin.fieldWhen')}</label>
           <div className="tabs">
             <button
               type="button"
               className={mode === 'frequency' ? 'active' : ''}
               onClick={() => setMode('frequency')}
             >
-              🔁 Opakovaně
+              🔁 {t('pin.modeRepeating')}
             </button>
             <button
               type="button"
               className={mode === 'specific' ? 'active' : ''}
               onClick={() => setMode('specific')}
             >
-              📅 Jednorázově
+              📅 {t('pin.modeOneTime')}
             </button>
           </div>
           {mode === 'frequency' ? (
             <div className="row">
-              <label className="small muted">Každých</label>
+              <label className="small muted">{t('pin.everyLabel')}</label>
               <input
                 type="number"
                 min="1"
@@ -831,7 +839,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
                 onChange={(e) => setFrequency(e.target.value)}
                 style={{ width: 80 }}
               />
-              <label className="small muted">dní</label>
+              <label className="small muted">{t('pin.daysLabel')}</label>
             </div>
           ) : (
             <input
@@ -842,15 +850,15 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
           )}
         </div>
         <div className="field">
-          <label>Poznámky</label>
+          <label>{t('pin.fieldNotes')}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Přidat úkol'}
+            {saving ? t('common.saving') : t('pin.addTaskBtn')}
           </button>
         </div>
       </form>
@@ -860,6 +868,7 @@ function NewTaskForm({ pinId, onClose, onCreated }) {
 
 // ===================== P5: Editace úkolu =====================
 function EditTaskForm({ task, onClose, onSaved }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(task.title);
   const [taskType, setTaskType] = useState(task.task_type);
   const [mode, setMode] = useState(task.specific_date ? 'specific' : 'frequency');
@@ -872,7 +881,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return toast('Zadejte název úkolu');
+    if (!title.trim()) return toast(t('pin.toastEnterTaskName'));
     setSaving(true);
     try {
       const data = {
@@ -883,20 +892,20 @@ function EditTaskForm({ task, onClose, onSaved }) {
         specific_date: mode === 'specific' ? specificDate : null,
       };
       await api.updateTask(task.id, data);
-      toast('✅ Úkol uložen');
+      toast(t('pin.toastTaskSaved'));
       onSaved();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Upravit úkol" onClose={onClose}>
+    <Modal title={t('pin.editTaskTitle')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
-          <label>Typ úkolu</label>
+          <label>{t('pin.fieldTaskType')}</label>
           <select value={taskType} onChange={(e) => setTaskType(e.target.value)}>
             {TASK_TYPES.map((t) => (
               <option key={t.id} value={t.id}>
@@ -906,7 +915,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
           </select>
         </div>
         <div className="field">
-          <label>Název úkolu</label>
+          <label>{t('pin.fieldTaskName')}</label>
           <input
             type="text"
             value={title}
@@ -914,26 +923,26 @@ function EditTaskForm({ task, onClose, onSaved }) {
           />
         </div>
         <div className="field">
-          <label>Kdy</label>
+          <label>{t('pin.fieldWhen')}</label>
           <div className="tabs">
             <button
               type="button"
               className={mode === 'frequency' ? 'active' : ''}
               onClick={() => setMode('frequency')}
             >
-              🔁 Opakovaně
+              🔁 {t('pin.modeRepeating')}
             </button>
             <button
               type="button"
               className={mode === 'specific' ? 'active' : ''}
               onClick={() => setMode('specific')}
             >
-              📅 Jednorázově
+              📅 {t('pin.modeOneTime')}
             </button>
           </div>
           {mode === 'frequency' ? (
             <div className="row">
-              <label className="small muted">Každých</label>
+              <label className="small muted">{t('pin.everyLabel')}</label>
               <input
                 type="number"
                 min="1"
@@ -942,7 +951,7 @@ function EditTaskForm({ task, onClose, onSaved }) {
                 onChange={(e) => setFrequency(e.target.value)}
                 style={{ width: 80 }}
               />
-              <label className="small muted">dní</label>
+              <label className="small muted">{t('pin.daysLabel')}</label>
             </div>
           ) : (
             <input
@@ -953,15 +962,15 @@ function EditTaskForm({ task, onClose, onSaved }) {
           )}
         </div>
         <div className="field">
-          <label>Poznámky</label>
+          <label>{t('pin.fieldNotes')}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Uložit změny'}
+            {saving ? t('common.saving') : t('pin.saveChanges')}
           </button>
         </div>
       </form>
@@ -974,10 +983,10 @@ function EditTaskForm({ task, onClose, onSaved }) {
 async function resizeImage(file, maxSize = 1600, quality = 0.85) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Nelze přečíst soubor'));
+    reader.onerror = () => reject(new Error(i18n.t('pin.errCannotReadFile')));
     reader.onload = (e) => {
       const img = new Image();
-      img.onerror = () => reject(new Error('Nelze načíst obrázek'));
+      img.onerror = () => reject(new Error(i18n.t('pin.errCannotLoadImage')));
       img.onload = () => {
         let { width, height } = img;
         if (width > maxSize || height > maxSize) {
@@ -996,7 +1005,7 @@ async function resizeImage(file, maxSize = 1600, quality = 0.85) {
         ctx.drawImage(img, 0, 0, width, height);
         canvas.toBlob(
           (blob) => {
-            if (!blob) return reject(new Error('Resize selhal'));
+            if (!blob) return reject(new Error(i18n.t('pin.errResizeFailed')));
             const out = new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', {
               type: 'image/jpeg',
             });
@@ -1013,6 +1022,7 @@ async function resizeImage(file, maxSize = 1600, quality = 0.85) {
 }
 
 function PhotoGallery({ pinId }) {
+  const { t } = useTranslation();
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -1025,7 +1035,7 @@ function PhotoGallery({ pinId }) {
       const list = await api.listPinPhotos(pinId);
       setPhotos(list);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -1050,10 +1060,10 @@ function PhotoGallery({ pinId }) {
         }
       }
       await api.uploadPinPhotos(pinId, fd);
-      toast('✅ Fotky nahrány');
+      toast(t('pin.toastPhotosUploaded'));
       load();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -1061,14 +1071,14 @@ function PhotoGallery({ pinId }) {
   };
 
   const handleDelete = async (photo) => {
-    if (!confirm('Smazat tuto fotku?')) return;
+    if (!confirm(t('pin.confirmDeletePhoto'))) return;
     try {
       await api.deletePinPhoto(pinId, photo.id);
-      toast('Smazáno');
+      toast(t('pin.toastDeleted'));
       setLightbox(null);
       load();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -1083,7 +1093,7 @@ function PhotoGallery({ pinId }) {
         style={{ cursor: uploading ? 'wait' : 'pointer' }}
       >
         <div className="small">
-          {uploading ? '⏳ Nahrávám…' : '📷 Přidat fotky (lze vybrat více)'}
+          {uploading ? t('pin.photoUploading') : t('pin.photoAdd')}
         </div>
         <input
           ref={fileRef}
@@ -1097,9 +1107,9 @@ function PhotoGallery({ pinId }) {
       </div>
 
       {loading ? (
-        <div className="empty small">Načítám…</div>
+        <div className="empty small">{t('common.loadingShort')}</div>
       ) : photos.length === 0 ? (
-        <div className="empty small">Zatím žádné fotky. Přidejte první fotku rostliny.</div>
+        <div className="empty small">{t('pin.photosEmpty')}</div>
       ) : (
         <div className="pd-photo-strip">
           {photos.map((p, i) => (
@@ -1108,9 +1118,9 @@ function PhotoGallery({ pinId }) {
               type="button"
               className="pd-photo-cell"
               onClick={() => setLightbox(i)}
-              aria-label="Zobrazit fotku"
+              aria-label={t('pin.viewPhoto')}
             >
-              <img src={p.url} alt={p.caption || 'Fotka rostliny'} loading="lazy" />
+              <img src={p.url} alt={p.caption || t('pin.plantPhotoAlt')} loading="lazy" />
             </button>
           ))}
         </div>
@@ -1127,7 +1137,7 @@ function PhotoGallery({ pinId }) {
             type="button"
             className="pd-lb-close"
             onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
-            aria-label="Zavřít"
+            aria-label={t('common.close')}
           >
             ✕
           </button>
@@ -1137,7 +1147,7 @@ function PhotoGallery({ pinId }) {
               type="button"
               className="pd-lb-nav prev"
               onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length); }}
-              aria-label="Předchozí"
+              aria-label={t('pin.prevPhoto')}
             >
               ‹
             </button>
@@ -1156,7 +1166,7 @@ function PhotoGallery({ pinId }) {
               type="button"
               className="pd-lb-nav next"
               onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}
-              aria-label="Další"
+              aria-label={t('pin.nextPhoto')}
             >
               ›
             </button>
@@ -1168,7 +1178,7 @@ function PhotoGallery({ pinId }) {
               {photos.length > 1 ? ` · ${lightbox + 1}/${photos.length}` : ''}
             </div>
             <button className="btn danger small" onClick={() => handleDelete(photos[lightbox])}>
-              🗑️ Smazat
+              🗑️ {t('common.delete')}
             </button>
           </div>
         </div>
@@ -1264,15 +1274,10 @@ function PinchImage({ src, alt }) {
 }
 
 // ===================== Sklizeň (harvests) =====================
-const HARVEST_UNITS = [
-  { value: 'kg', label: 'kg' },
-  { value: 'g', label: 'g' },
-  { value: 'ks', label: 'ks' },
-  { value: 'l', label: 'l' },
-  { value: 'svazek', label: 'svazek' },
-];
+const HARVEST_UNITS = ['kg', 'g', 'ks', 'l', 'svazek'];
 
 function HarvestTab({ pinId }) {
+  const { t } = useTranslation();
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -1287,7 +1292,7 @@ function HarvestTab({ pinId }) {
       const list = await api.listPinHarvests(pinId);
       setHarvests(list);
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -1300,29 +1305,29 @@ function HarvestTab({ pinId }) {
   const submit = async (e) => {
     e.preventDefault();
     const amt = parseFloat(String(amount).replace(',', '.'));
-    if (!Number.isFinite(amt) || amt <= 0) return toast('Zadejte množství');
+    if (!Number.isFinite(amt) || amt <= 0) return toast(t('pin.toastEnterAmount'));
     setSaving(true);
     try {
       await api.createHarvest({ pin_id: pinId, date, amount: amt, unit, note: note || null });
-      toast('🧺 Sklizeň zaznamenána');
+      toast(t('pin.toastHarvestRecorded'));
       setAmount('');
       setNote('');
       load();
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async (h) => {
-    if (!confirm(`Smazat záznam sklizně ze ${formatDate(h.date)}?`)) return;
+    if (!confirm(t('pin.confirmDeleteHarvest', { date: formatDate(h.date) }))) return;
     try {
       await api.deleteHarvest(h.id);
-      toast('Smazáno');
+      toast(t('pin.toastDeleted'));
       load();
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -1340,11 +1345,11 @@ function HarvestTab({ pinId }) {
       <form onSubmit={submit} className="harvest-form" style={{ marginBottom: 12 }}>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
           <div className="field" style={{ flex: '1 1 130px', marginBottom: 8 }}>
-            <label className="small muted">Datum</label>
+            <label className="small muted">{t('pin.harvestDate')}</label>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="field" style={{ flex: '1 1 110px', marginBottom: 8 }}>
-            <label className="small muted">Množství</label>
+            <label className="small muted">{t('pin.harvestAmount')}</label>
             <input
               type="number"
               inputMode="decimal"
@@ -1356,38 +1361,38 @@ function HarvestTab({ pinId }) {
             />
           </div>
           <div className="field" style={{ flex: '0 1 110px', marginBottom: 8 }}>
-            <label className="small muted">Jednotka</label>
+            <label className="small muted">{t('pin.harvestUnit')}</label>
             <select value={unit} onChange={(e) => setUnit(e.target.value)}>
               {HARVEST_UNITS.map((u) => (
-                <option key={u.value} value={u.value}>{u.label}</option>
+                <option key={u} value={u}>{t(`pin.unit_${u}`)}</option>
               ))}
             </select>
           </div>
         </div>
         <div className="field" style={{ marginBottom: 8 }}>
-          <label className="small muted">Poznámka (volitelné)</label>
+          <label className="small muted">{t('pin.harvestNote')}</label>
           <input
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Např. první sklizeň sezóny"
+            placeholder={t('pin.harvestNotePlaceholder')}
           />
         </div>
         <button type="submit" className="btn block" disabled={saving}>
-          {saving ? 'Ukládám…' : '🧺 Zaznamenat sklizeň'}
+          {saving ? t('common.saving') : t('pin.recordHarvest')}
         </button>
       </form>
 
       {totalsLine && (
         <div className="small muted" style={{ marginBottom: 8 }}>
-          Celkem: <strong>{totalsLine}</strong>
+          {t('pin.harvestTotal')} <strong>{totalsLine}</strong>
         </div>
       )}
 
       {loading ? (
-        <div className="empty small">Načítám…</div>
+        <div className="empty small">{t('common.loadingShort')}</div>
       ) : harvests.length === 0 ? (
-        <div className="empty small">Zatím žádné záznamy sklizně. Zaznamenejte první výnos!</div>
+        <div className="empty small">{t('pin.harvestEmpty')}</div>
       ) : (
         harvests.map((h) => (
           <div key={h.id} className="history-item">
@@ -1402,8 +1407,8 @@ function HarvestTab({ pinId }) {
             <button
               className="btn ghost small"
               onClick={() => remove(h)}
-              aria-label="Smazat sklizeň"
-              title="Smazat sklizeň"
+              aria-label={t('pin.deleteHarvest')}
+              title={t('pin.deleteHarvest')}
             >
               🗑️
             </button>

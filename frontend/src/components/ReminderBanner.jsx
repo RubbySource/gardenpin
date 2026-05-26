@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function ReminderBanner({ overdue, dueToday }) {
+  const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
   const dismissKey = `reminderDismissed_${today}`;
   const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(dismissKey) === '1');
@@ -14,20 +16,19 @@ export default function ReminderBanner({ overdue, dueToday }) {
     setDismissed(true);
   };
 
-  const plural = (n) => (n === 1 ? 'úkol' : n < 5 ? 'úkoly' : 'úkolů');
-
   const text =
     overdue > 0
-      ? `${overdue} ${plural(overdue)} po termínu${dueToday > 0 ? ` · ${dueToday} ${plural(dueToday)} dnes` : ''}`
-      : `${dueToday} ${plural(dueToday)} na dnes`;
+      ? t('reminder.overdue', { count: overdue }) +
+        (dueToday > 0 ? ' · ' + t('reminder.alsoToday', { count: dueToday }) : '')
+      : t('reminder.dueToday', { count: dueToday });
 
   return (
     <div className={`reminder-banner${overdue > 0 ? ' overdue' : ''}`}>
       <span>
         {overdue > 0 ? '⚠️' : '🌞'} {text} —{' '}
-        <Link to="/ukoly" className="reminder-link">Zobrazit úkoly</Link>
+        <Link to="/ukoly" className="reminder-link">{t('reminder.viewTasks')}</Link>
       </span>
-      <button className="reminder-close" onClick={dismiss} aria-label="Zavřít">✕</button>
+      <button className="reminder-close" onClick={dismiss} aria-label={t('common.close')}>✕</button>
     </div>
   );
 }

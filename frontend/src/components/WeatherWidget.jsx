@@ -1,33 +1,35 @@
 // Weather widget — Open-Meteo current_weather + 3denní předpověď s mrazovým varováním
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n, { localeCode } from '../i18n.js';
 import { api } from '../api.js';
 
-const PRAGUE = { lat: 50.08, lon: 14.44, label: 'Praha' };
+const PRAGUE = { lat: 50.08, lon: 14.44, labelKey: 'weather.prague' };
 
-// Open-Meteo WMO weather codes → emoji + Czech label
+// Open-Meteo WMO weather codes → emoji + lokalizovaný label
 function wmoToIcon(code) {
-  if (code === 0) return { icon: '☀️', label: 'Jasno' };
-  if ([1, 2].includes(code)) return { icon: '🌤️', label: 'Polojasno' };
-  if (code === 3) return { icon: '☁️', label: 'Zataženo' };
-  if ([45, 48].includes(code)) return { icon: '🌫️', label: 'Mlha' };
-  if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌦️', label: 'Mrholení' };
-  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { icon: '🌧️', label: 'Déšť' };
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: '🌨️', label: 'Sněžení' };
-  if ([95, 96, 99].includes(code)) return { icon: '⛈️', label: 'Bouřka' };
-  return { icon: '🌡️', label: 'Počasí' };
+  if (code === 0) return { icon: '☀️', label: i18n.t('weather.wmoClear') };
+  if ([1, 2].includes(code)) return { icon: '🌤️', label: i18n.t('weather.wmoPartlyCloudy') };
+  if (code === 3) return { icon: '☁️', label: i18n.t('weather.wmoOvercast') };
+  if ([45, 48].includes(code)) return { icon: '🌫️', label: i18n.t('weather.wmoFog') };
+  if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌦️', label: i18n.t('weather.wmoDrizzle') };
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { icon: '🌧️', label: i18n.t('weather.wmoRain') };
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: '🌨️', label: i18n.t('weather.wmoSnow') };
+  if ([95, 96, 99].includes(code)) return { icon: '⛈️', label: i18n.t('weather.wmoThunderstorm') };
+  return { icon: '🌡️', label: i18n.t('weather.wmoWeather') };
 }
 
 const FROST_THRESHOLD = 2; // °C — pod touto hodnotou varujeme
 
-const DOW = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
 function dayLabel(iso, idx) {
-  if (idx === 0) return 'Dnes';
-  if (idx === 1) return 'Zítra';
+  if (idx === 0) return i18n.t('common.today');
+  if (idx === 1) return i18n.t('common.tomorrow');
   const d = new Date(iso);
-  return DOW[d.getDay()];
+  return d.toLocaleDateString(localeCode(), { weekday: 'short' });
 }
 
 export default function WeatherWidget() {
+  const { t } = useTranslation();
   const [loc, setLoc] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('weatherLoc'));
@@ -66,7 +68,7 @@ export default function WeatherWidget() {
 
   const useGeolocation = () => {
     if (!navigator.geolocation) {
-      setError('Geolokace není podporována');
+      setError(t('weather.geoUnsupported'));
       return;
     }
     setLocating(true);
@@ -75,19 +77,22 @@ export default function WeatherWidget() {
         const next = {
           lat: +pos.coords.latitude.toFixed(2),
           lon: +pos.coords.longitude.toFixed(2),
-          label: 'Vaše poloha',
+          labelKey: 'weather.yourLocation',
         };
         localStorage.setItem('weatherLoc', JSON.stringify(next));
         setLoc(next);
         setLocating(false);
       },
       (err) => {
-        setError('Geolokace selhala: ' + err.message);
+        setError(t('weather.geoFailed', { msg: err.message }));
         setLocating(false);
       },
       { timeout: 10000, maximumAge: 60000 },
     );
   };
+
+  // Loc může mít buď labelKey (Praha/Vaše poloha) nebo starší uložený label.
+  const locLabel = loc.labelKey ? t(loc.labelKey) : loc.label || '';
 
   const resetToPrague = () => {
     localStorage.removeItem('weatherLoc');
@@ -98,7 +103,7 @@ export default function WeatherWidget() {
   if (loading && !weather) {
     return (
       <div className="weather-widget">
-        <div className="weather-loading">🌤️ Načítám počasí…</div>
+        <div className="weather-loading">{t('weather.loading')}</div>
       </div>
     );
   }
@@ -142,11 +147,10 @@ export default function WeatherWidget() {
           <div className="frost-warning-icon">❄️</div>
           <div className="frost-warning-body">
             <div className="frost-warning-title">
-              ⚠️ Mráz {frostWarning.when} ({frostWarning.temp}°C)
+              {t('weather.frostTitle', { when: frostWarning.when, temp: frostWarning.temp })}
             </div>
             <div className="frost-warning-text">
-              Přikryj citlivé rostliny — máš jich {frostWarning.plantsCount}
-              {frostWarning.plantsCount === 1 ? '' : frostWarning.plantsCount < 5 ? ' citlivé' : ' citlivých'}.
+              {t('weather.frostText', { count: frostWarning.plantsCount })}
             </div>
           </div>
         </div>
@@ -158,7 +162,7 @@ export default function WeatherWidget() {
             <div className="weather-temp">{temp}°C</div>
             <div className="weather-label">{label}</div>
             <div className="weather-meta">
-              <span>📍 {loc.label}</span>
+              <span>📍 {locLabel}</span>
               <span>💨 {wind} km/h</span>
             </div>
           </div>
@@ -191,13 +195,13 @@ export default function WeatherWidget() {
             className="btn secondary weather-btn"
             onClick={useGeolocation}
             disabled={locating}
-            title="Použít moji polohu"
+            title={t('weather.useMyLocationTitle')}
           >
-            {locating ? '…' : '📍 Moje poloha'}
+            {locating ? '…' : t('weather.myLocation')}
           </button>
-          {loc.label !== PRAGUE.label && (
-            <button className="btn secondary weather-btn" onClick={resetToPrague} title="Praha">
-              Praha
+          {loc.labelKey !== PRAGUE.labelKey && (
+            <button className="btn secondary weather-btn" onClick={resetToPrague} title={t('weather.prague')}>
+              {t('weather.prague')}
             </button>
           )}
         </div>

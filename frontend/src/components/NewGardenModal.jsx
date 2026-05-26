@@ -1,10 +1,12 @@
 // Shared modal for creating a new garden
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import Modal from './Modal.jsx';
 
 export default function NewGardenModal({ onClose, onCreated }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -24,7 +26,7 @@ export default function NewGardenModal({ onClose, onCreated }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return toast('Zadejte název');
+    if (!name.trim()) return toast(t('newGarden.enterName'));
     setSaving(true);
     try {
       const fd = new FormData();
@@ -40,27 +42,27 @@ export default function NewGardenModal({ onClose, onCreated }) {
       const g = await api.createGarden(fd);
       onCreated(g);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="Nová zahrada" onClose={onClose}>
+    <Modal title={t('newGarden.title')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
-          <label>Název zahrady</label>
+          <label>{t('newGarden.nameLabel')}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Např. Zahrada u domu"
+            placeholder={t('newGarden.namePlaceholder')}
             autoFocus
           />
         </div>
         <div className="field">
-          <label>Fotografie z leteckého pohledu (volitelné)</label>
+          <label>{t('newGarden.photoLabel')}</label>
           <div className="file-input-wrap" onClick={() => inputRef.current?.click()}>
             {preview ? (
               <img
@@ -71,7 +73,7 @@ export default function NewGardenModal({ onClose, onCreated }) {
             ) : (
               <>
                 <div style={{ fontSize: '2rem' }}>📷</div>
-                <div className="small muted">Klikněte pro nahrání fotky</div>
+                <div className="small muted">{t('newGarden.uploadHint')}</div>
               </>
             )}
             <input
@@ -87,16 +89,16 @@ export default function NewGardenModal({ onClose, onCreated }) {
               className="btn ghost small mt-2"
               onClick={() => handleFile(null)}
             >
-              Odstranit fotku
+              {t('newGarden.removePhoto')}
             </button>
           )}
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn-cta" disabled={saving}>
-            {saving ? 'Ukládám...' : 'Vytvořit zahradu'}
+            {saving ? t('newGarden.saving') : t('newGarden.create')}
           </button>
         </div>
       </form>

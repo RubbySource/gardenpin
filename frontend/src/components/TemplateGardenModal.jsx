@@ -1,5 +1,6 @@
 // Modal pro vytvoření zahrady ze šablony (předpřipravený set rostlin + sezónních úkonů).
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from './Modal.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
@@ -8,6 +9,7 @@ import { findPlantByName } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from './PlantAutocomplete.jsx';
 
 export default function TemplateGardenModal({ onClose, onCreated }) {
+  const { t } = useTranslation();
   const [templateKey, setTemplateKey] = useState(GARDEN_TEMPLATES[0].key);
   const [name, setName] = useState('');
   const [excluded, setExcluded] = useState(() => new Set());
@@ -49,7 +51,7 @@ export default function TemplateGardenModal({ onClose, onCreated }) {
   const submit = async (e) => {
     e.preventDefault();
     const gardenName = name.trim() || template.name;
-    if (selectedPlants.length === 0) return toast('Vyberte alespoň jednu rostlinu');
+    if (selectedPlants.length === 0) return toast(t('template.selectAtLeastOne'));
     setSaving(true);
     try {
       // 1) Vytvoř zahradu
@@ -99,40 +101,40 @@ export default function TemplateGardenModal({ onClose, onCreated }) {
       }
       await Promise.all(taskPromises);
 
-      toast(`✅ Vytvořeno ${selectedPlants.length} rostlin z šablony`);
+      toast(t('template.created', { count: selectedPlants.length }));
       onCreated(garden);
     } catch (err) {
-      toast('Chyba: ' + err.message);
+      toast(t('common.error', { msg: err.message }));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal title="🌱 Zahrada ze šablony" onClose={onClose}>
+    <Modal title={t('template.title')} onClose={onClose}>
       <p className="small muted" style={{ marginTop: 0 }}>
-        Vyberte typ zahrady a šablona předpřipraví piny rostlin i jejich sezónní úkony. Mapu fotky můžete nahrát později.
+        {t('template.intro')}
       </p>
 
       <div className="template-picker-grid">
-        {GARDEN_TEMPLATES.map((t) => (
+        {GARDEN_TEMPLATES.map((tpl) => (
           <button
-            key={t.key}
+            key={tpl.key}
             type="button"
-            className={`template-picker-card ${templateKey === t.key ? 'active' : ''}`}
-            onClick={() => handleTemplate(t.key)}
-            style={templateKey === t.key ? { borderColor: t.color, background: `${t.color}14` } : undefined}
+            className={`template-picker-card ${templateKey === tpl.key ? 'active' : ''}`}
+            onClick={() => handleTemplate(tpl.key)}
+            style={templateKey === tpl.key ? { borderColor: tpl.color, background: `${tpl.color}14` } : undefined}
           >
-            <div className="template-picker-icon" style={{ background: t.color }}>{t.icon}</div>
-            <div className="template-picker-title">{t.name}</div>
-            <div className="template-picker-count">{t.plants.length} rostlin</div>
+            <div className="template-picker-icon" style={{ background: tpl.color }}>{tpl.icon}</div>
+            <div className="template-picker-title">{tpl.name}</div>
+            <div className="template-picker-count">{t('template.plantCount', { count: tpl.plants.length })}</div>
           </button>
         ))}
       </div>
 
       <form onSubmit={submit}>
         <div className="field" style={{ marginTop: 16 }}>
-          <label>Název zahrady</label>
+          <label>{t('template.nameLabel')}</label>
           <input
             type="text"
             value={name}
@@ -144,9 +146,9 @@ export default function TemplateGardenModal({ onClose, onCreated }) {
 
         <div className="field">
           <label>
-            Rostliny v šabloně
+            {t('template.plantsInTemplate')}
             <span className="small muted" style={{ marginLeft: 8, fontWeight: 400 }}>
-              ({selectedPlants.length}/{plants.length} — klikni pro vyloučení)
+              ({t('template.selectedHint', { selected: selectedPlants.length, total: plants.length })})
             </span>
           </label>
           <div className="template-plant-list">
@@ -160,7 +162,7 @@ export default function TemplateGardenModal({ onClose, onCreated }) {
                   className={`template-plant-chip ${isOff ? 'off' : ''}`}
                   onClick={() => toggleExclude(nm)}
                   style={!isOff && cat ? { borderColor: cat.color, background: `${cat.color}10` } : undefined}
-                  title={plant ? `${plant.nameLat}` : 'Rostlina nenalezena v katalogu'}
+                  title={plant ? `${plant.nameLat}` : t('template.plantNotFound')}
                 >
                   <span>{cat?.icon || '🌿'}</span>
                   <span>{nm}</span>
@@ -173,15 +175,17 @@ export default function TemplateGardenModal({ onClose, onCreated }) {
         </div>
 
         <div className="template-summary small muted">
-          Bude vytvořeno: <strong>{selectedPlants.length} pinů</strong> a všechny jejich pravidelné i sezónní úkony.
+          {t('template.summaryPrefix')}{' '}
+          <strong>{t('template.summaryPins', { count: selectedPlants.length })}</strong>{' '}
+          {t('template.summarySuffix')}
         </div>
 
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose} disabled={saving}>
-            Zrušit
+            {t('common.cancel')}
           </button>
           <button type="submit" className="btn-cta" disabled={saving || selectedPlants.length === 0}>
-            {saving ? 'Vytvářím…' : `Vytvořit zahradu`}
+            {saving ? t('template.creating') : t('template.create')}
           </button>
         </div>
       </form>

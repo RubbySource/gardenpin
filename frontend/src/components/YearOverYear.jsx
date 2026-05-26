@@ -1,21 +1,13 @@
 // Meziroční srovnání splněných úkonů — letos vs. minulý rok
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { localeCode } from '../i18n.js';
 import { api } from '../api.js';
-
-const MONTH_SHORT = ['L', 'Ú', 'B', 'D', 'K', 'Č', 'Č', 'S', 'Z', 'Ř', 'L', 'P'];
-const MONTH_FULL = [
-  'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
-  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec',
-];
-
-function pluralUkony(n) {
-  if (n === 1) return 'úkon';
-  if (n >= 2 && n <= 4) return 'úkony';
-  return 'úkonů';
-}
+import { monthName, monthNameNarrow } from '../utils.js';
 
 export default function YearOverYear({ gardenId = null, title }) {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,21 +54,21 @@ export default function YearOverYear({ gardenId = null, title }) {
     <div className="yoy-card card">
       <div className="yoy-header">
         <div className="yoy-title">
-          📈 {title || 'Meziroční srovnání'}
+          📈 {title || t('yoy.title')}
         </div>
-        <div className="small muted">Splněné úkony</div>
+        <div className="small muted">{t('yoy.doneActions')}</div>
       </div>
 
       {/* Tři velká čísla — letos do dnešního dne, loni do stejného data, % změna */}
       <div className="yoy-totals">
         <div className="yoy-total">
           <div className="yoy-total-val accent">{data.thisToDate}</div>
-          <div className="yoy-total-lbl">Letos do dnes</div>
+          <div className="yoy-total-lbl">{t('yoy.thisYearToDate')}</div>
           <div className="yoy-total-sub small muted">{data.thisYear}</div>
         </div>
         <div className="yoy-total">
           <div className="yoy-total-val">{data.lastToDateSame}</div>
-          <div className="yoy-total-lbl">Loni do stejného data</div>
+          <div className="yoy-total-lbl">{t('yoy.lastYearSameDate')}</div>
           <div className="yoy-total-sub small muted">{data.lastYear}</div>
         </div>
         <div className="yoy-total">
@@ -84,10 +76,10 @@ export default function YearOverYear({ gardenId = null, title }) {
             {pct === null ? '—' : `${pct > 0 ? '+' : ''}${pct}%`}
           </div>
           <div className="yoy-total-lbl">
-            <span className={trendCls}>{trendIcon}</span> Změna
+            <span className={trendCls}>{trendIcon}</span> {t('yoy.change')}
           </div>
           <div className="yoy-total-sub small muted">
-            {pct === null ? 'Bez loňských dat' : 'vs. stejné období'}
+            {pct === null ? t('yoy.noLastYearData') : t('yoy.vsSamePeriod')}
           </div>
         </div>
       </div>
@@ -112,7 +104,7 @@ export default function YearOverYear({ gardenId = null, title }) {
               <div
                 key={idx}
                 className={`yoy-bar-wrap${isCurrent ? ' current' : ''}`}
-                title={`${MONTH_FULL[idx]}: letos ${thisC} ${pluralUkony(thisC)}, loni ${lastC} ${pluralUkony(lastC)}`}
+                title={`${monthName(idx)}: ${t('yoy.barThisYear', { count: thisC })}, ${t('yoy.barLastYear', { count: lastC })}`}
               >
                 <div className="yoy-bar-track">
                   <div
@@ -126,7 +118,7 @@ export default function YearOverYear({ gardenId = null, title }) {
                     aria-label={`${data.lastYear}: ${lastC}`}
                   />
                 </div>
-                <div className="yoy-bar-label">{MONTH_SHORT[idx]}</div>
+                <div className="yoy-bar-label">{monthNameNarrow(idx)}</div>
               </div>
             );
           })}
@@ -136,12 +128,12 @@ export default function YearOverYear({ gardenId = null, title }) {
       {data.missing.length > 0 && (
         <div className="yoy-missing">
           <div className="yoy-missing-title">
-            ⏰ Co jste dělali loni a letos ještě ne
+            {t('yoy.missingTitle')}
           </div>
           <ul className="yoy-missing-list">
             {data.missing.map((m) => {
               const d = new Date(m.last_done_at);
-              const when = d.toLocaleDateString('cs-CZ', {
+              const when = d.toLocaleDateString(localeCode(), {
                 day: 'numeric',
                 month: 'short',
               });
@@ -155,7 +147,7 @@ export default function YearOverYear({ gardenId = null, title }) {
                         {' · '}
                       </>
                     )}
-                    🌿 {m.plant_name || m.pin_name} · loni {when}
+                    🌿 {m.plant_name || m.pin_name} · {t('yoy.lastYearOn', { date: when })}
                   </div>
                 </li>
               );

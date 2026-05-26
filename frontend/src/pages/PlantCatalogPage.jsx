@@ -1,11 +1,13 @@
 ﻿// Katalog rostlin — procházení DB rostlin s filtry, sezónním přehledem a přidáním do zahrady
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PLANT_DATABASE, enrichPlant, CATEGORY_DEFS } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
+import { monthName, monthNameShort } from '../utils.js';
 
 // Pevné pořadí pillů — iOS-style, ne dynamicky podle počtu.
 // Climbers / Popínavé jdou poslední (uživatel je v spec vynechal, ale máme je v DB).
@@ -13,15 +15,6 @@ const CATEGORY_ORDER = [
   'vegetables', 'fruits', 'herbs', 'ornamental', 'annuals',
   'trees', 'conifers', 'shrubs', 'water', 'succulents',
   'bulbs', 'grasses', 'climbers',
-];
-
-const MONTH_NAMES_CZ = [
-  '', 'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
-  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec',
-];
-const MONTH_SHORT_CZ = [
-  '', 'led', 'úno', 'bře', 'dub', 'kvě', 'čer',
-  'črc', 'srp', 'zář', 'říj', 'lis', 'pro',
 ];
 
 function normalize(s) {
@@ -49,6 +42,7 @@ function nextSeasonalAction(plant, currentMonth) {
 }
 
 export default function PlantCatalogPage() {
+  const { t } = useTranslation();
   // Init query from URL ?q=… (např. po kliknutí na companion pill v PinDetail nebo katalogu)
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQ = searchParams.get('q') || '';
@@ -143,7 +137,7 @@ export default function PlantCatalogPage() {
 
   const handleAddToGarden = (plant) => {
     if (gardens.length === 0) {
-      toast('Nejprve vytvořte zahradu');
+      toast(t('catalog.createGardenFirst'));
       nav('/zahrady');
       return;
     }
@@ -193,9 +187,9 @@ export default function PlantCatalogPage() {
       });
       await Promise.all(promises);
 
-      toast(`✅ Přidáno do ${garden.name}`);
+      toast(t('catalog.addedTo', { name: garden.name }));
     } catch (e) {
-      toast('Chyba: ' + e.message);
+      toast(t('common.error', { msg: e.message }));
     }
   };
 
@@ -212,15 +206,15 @@ export default function PlantCatalogPage() {
               className="ios-search-input"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Hledat rostlinu…"
-              aria-label="Hledat rostlinu"
+              placeholder={t('catalog.searchPlaceholder')}
+              aria-label={t('catalog.searchLabel')}
             />
             {query && (
               <button
                 type="button"
                 className="ios-search-clear"
                 onClick={() => setQuery('')}
-                aria-label="Vymazat"
+                aria-label={t('catalog.clearSearch')}
               >
                 ×
               </button>
@@ -233,7 +227,7 @@ export default function PlantCatalogPage() {
             className={`filter-pill ${categoryFilter === 'all' ? 'active' : ''}`}
             onClick={() => setCategoryFilter('all')}
           >
-            🌍 Vše
+            {t('catalog.allCategories')}
             <span className="pill-count">{allPlants.length}</span>
           </button>
           {categories.map((c) => (
@@ -250,14 +244,14 @@ export default function PlantCatalogPage() {
       </div>
 
       <div className="catalog-result-count small muted">
-        Nalezeno {filtered.length} {filtered.length === 1 ? 'rostlina' : filtered.length < 5 ? 'rostliny' : 'rostlin'}
+        {t('catalog.resultCount', { count: filtered.length })}
       </div>
 
       {filtered.length === 0 ? (
         <div className="gp-empty" style={{ padding: '32px 16px' }}>
           <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🔍</span>
-          <div className="gp-empty-title">Žádná rostlina nenalezena</div>
-          <div className="gp-empty-text">Zkus změnit hledaný výraz nebo filtr.</div>
+          <div className="gp-empty-title">{t('catalog.emptyTitle')}</div>
+          <div className="gp-empty-text">{t('catalog.emptyText')}</div>
         </div>
       ) : (
         <div className="plant-catalog-grid">
@@ -293,7 +287,8 @@ export default function PlantCatalogPage() {
 }
 
 function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCompanionClick }) {
-  const cat = plant.category || { label: 'Rostlina', icon: '🌿', color: '#6b6b70' };
+  const { t } = useTranslation();
+  const cat = plant.category || { label: t('catalog.plantFallback'), icon: '🌿', color: '#6b6b70' };
   const yearlyCount = countYearlyTasks(plant);
   const next = nextSeasonalAction(plant, currentMonth);
 
@@ -339,14 +334,14 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
         {expanded && (
           <>
-            <div className="plant-catalog-months" aria-label="Sezónní přehled">
+            <div className="plant-catalog-months" aria-label={t('catalog.seasonalOverview')}>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                 const items = byMonth.get(m);
                 const has = items && items.length > 0;
                 const isNow = m === currentMonth;
                 const tip = has
-                  ? `${MONTH_SHORT_CZ[m]}: ${items.map((t) => `${t.emoji} ${t.action}`).join(', ')}`
-                  : MONTH_SHORT_CZ[m];
+                  ? `${monthNameShort(m - 1)}: ${items.map((it) => `${it.emoji} ${it.action}`).join(', ')}`
+                  : monthNameShort(m - 1);
                 return (
                   <span
                     key={m}
@@ -362,12 +357,12 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
             <div className="plant-catalog-meta">
               <span className="plant-catalog-meta-item">
-                📋 {yearlyCount} {yearlyCount === 1 ? 'úkon' : yearlyCount < 5 ? 'úkony' : 'úkonů'} ročně
+                📋 {t('catalog.tasksPerYear', { count: yearlyCount })}
               </span>
               {next && (
                 <span className="plant-catalog-meta-item">
-                  ⏭️ {next.emoji} {next.action} v {MONTH_NAMES_CZ[next.month].toLowerCase()}
-                  {next.monthsAhead === 0 ? ' (tento měsíc)' : ` (za ${next.monthsAhead} ${next.monthsAhead === 1 ? 'měsíc' : next.monthsAhead < 5 ? 'měsíce' : 'měsíců'})`}
+                  ⏭️ {next.emoji} {next.action} {t('catalog.inMonth', { month: monthName(next.month - 1).toLowerCase() })}
+                  {next.monthsAhead === 0 ? ` ${t('catalog.thisMonthParen')}` : ` ${t('catalog.monthsAheadParen', { count: next.monthsAhead })}`}
                 </span>
               )}
             </div>
@@ -378,24 +373,24 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
           <div className="plant-catalog-detail">
             {(plant.seasonalTasks || []).length === 0 && (plant.tasks || []).length === 0 ? (
               <div className="plant-catalog-empty">
-                Žádné sezónní úkony v databázi.
+                {t('catalog.noSeasonalTasks')}
               </div>
             ) : (
               <>
                 {byMonth.size > 0 && (
                   <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">🗓️ Sezónní péče po měsících</div>
+                    <div className="plant-catalog-detail-title">{t('catalog.seasonalCareTitle')}</div>
                     <div className="plant-catalog-detail-months">
                       {Array.from(byMonth.keys()).sort((a, b) => a - b).map((m) => (
                         <div key={m} className="plant-catalog-detail-month">
                           <div className="plant-catalog-detail-month-name">
-                            {MONTH_NAMES_CZ[m]}
+                            {monthName(m - 1)}
                           </div>
                           <div className="plant-catalog-detail-month-tasks">
-                            {byMonth.get(m).map((t, i) => (
+                            {byMonth.get(m).map((it, i) => (
                               <div key={i} className="plant-catalog-detail-task">
-                                <span>{t.emoji}</span>
-                                <span>{t.action}</span>
+                                <span>{it.emoji}</span>
+                                <span>{it.action}</span>
                               </div>
                             ))}
                           </div>
@@ -407,17 +402,17 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
                 {(plant.tasks || []).length > 0 && (
                   <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">🔁 Pravidelné úkony</div>
+                    <div className="plant-catalog-detail-title">{t('catalog.regularTasksTitle')}</div>
                     <div className="plant-catalog-detail-tasks">
-                      {plant.tasks.map((t, i) => (
+                      {plant.tasks.map((it, i) => (
                         <div key={i} className="plant-catalog-detail-task">
                           <span>•</span>
                           <span>
-                            {t.title}
-                            {t.frequency_days ? (
+                            {it.title}
+                            {it.frequency_days ? (
                               <span className="muted small">
                                 {' '}
-                                · co {t.frequency_days} {t.frequency_days === 1 ? 'den' : t.frequency_days < 5 ? 'dny' : 'dní'}
+                                · {t('catalog.everyDays', { count: it.frequency_days })}
                               </span>
                             ) : null}
                           </span>
@@ -429,12 +424,12 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
                 {(plant.soil || plant.sun || plant.watering || plant.notes) && (
                   <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">🌱 Nároky a poznámky</div>
+                    <div className="plant-catalog-detail-title">{t('catalog.needsTitle')}</div>
                     <div className="plant-catalog-detail-info">
-                      {plant.soil && <div><strong>Půda:</strong> {plant.soil}</div>}
-                      {plant.sun && <div><strong>Světlo:</strong> {plant.sun}</div>}
-                      {plant.watering && <div><strong>Zálivka:</strong> {plant.watering}</div>}
-                      {plant.notes && <div><strong>Poznámky:</strong> {plant.notes}</div>}
+                      {plant.soil && <div><strong>{t('catalog.soil')}</strong> {plant.soil}</div>}
+                      {plant.sun && <div><strong>{t('catalog.light')}</strong> {plant.sun}</div>}
+                      {plant.watering && <div><strong>{t('catalog.watering')}</strong> {plant.watering}</div>}
+                      {plant.notes && <div><strong>{t('catalog.notes')}</strong> {plant.notes}</div>}
                     </div>
                   </div>
                 )}
@@ -442,11 +437,11 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
                 {plant.companions && (
                   (plant.companions.good?.length > 0 || plant.companions.bad?.length > 0) && (
                     <div className="plant-catalog-detail-section">
-                      <div className="plant-catalog-detail-title">🤝 Doprovodné rostliny</div>
+                      <div className="plant-catalog-detail-title">{t('catalog.companionsTitle')}</div>
                       <div className="companion-section" style={{ marginTop: 4 }}>
                         {plant.companions.good?.length > 0 && (
                           <div className="companion-row">
-                            <span className="companion-label">Dobře se snáší:</span>
+                            <span className="companion-label">{t('catalog.companionsGood')}</span>
                             <div className="companion-pills">
                               {plant.companions.good.map((name) => (
                                 <button
@@ -457,7 +452,7 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
                                     e.stopPropagation();
                                     onCompanionClick?.(name);
                                   }}
-                                  title={`Filtrovat ${name}`}
+                                  title={t('catalog.filterBy', { name })}
                                 >
                                   {name}
                                 </button>
@@ -467,7 +462,7 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
                         )}
                         {plant.companions.bad?.length > 0 && (
                           <div className="companion-row">
-                            <span className="companion-label">Nesadit vedle:</span>
+                            <span className="companion-label">{t('catalog.companionsBad')}</span>
                             <div className="companion-pills">
                               {plant.companions.bad.map((name) => (
                                 <button
@@ -478,7 +473,7 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
                                     e.stopPropagation();
                                     onCompanionClick?.(name);
                                   }}
-                                  title={`Filtrovat ${name}`}
+                                  title={t('catalog.filterBy', { name })}
                                 >
                                   {name}
                                 </button>
@@ -508,15 +503,15 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
               onAdd();
             }}
           >
-            + Přidat do zahrady
+            {t('catalog.addToGarden')}
           </button>
           <button
             type="button"
             className="plant-catalog-expand-btn"
             onClick={onToggle}
-            aria-label="Skrýt detail"
+            aria-label={t('catalog.hideDetail')}
           >
-            ▴ Skrýt
+            {t('catalog.hide')}
           </button>
         </div>
       )}
@@ -525,6 +520,7 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 }
 
 function GardenPickerSheet({ plant, gardens, onPick, onClose }) {
+  const { t } = useTranslation();
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
@@ -542,11 +538,11 @@ function GardenPickerSheet({ plant, gardens, onPick, onClose }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>
-          <span>Přidat <em style={{ fontStyle: 'normal', color: 'var(--forest)' }}>{plant.nameCz}</em> do…</span>
-          <button className="close-btn" onClick={onClose} aria-label="Zavřít">×</button>
+          <span>{t('catalog.pickerAddPrefix')} <em style={{ fontStyle: 'normal', color: 'var(--forest)' }}>{plant.nameCz}</em> {t('catalog.pickerAddSuffix')}</span>
+          <button className="close-btn" onClick={onClose} aria-label={t('common.close')}>×</button>
         </h2>
         <p className="small muted" style={{ marginTop: 0 }}>
-          Pin vznikne ve středu mapy zahrady. Můžeš ho potom přesunout.
+          {t('catalog.pickerHint')}
         </p>
         <div className="garden-picker-list">
           {gardens.map((g) => (
@@ -566,7 +562,7 @@ function GardenPickerSheet({ plant, gardens, onPick, onClose }) {
               <div className="garden-picker-info">
                 <div className="garden-picker-name">{g.name}</div>
                 <div className="garden-picker-meta">
-                  📍 {g.pin_count || 0} {g.pin_count === 1 ? 'pin' : 'pinů'}
+                  📍 {t('catalog.pinCount', { count: g.pin_count || 0 })}
                 </div>
               </div>
               <span className="garden-picker-arrow">›</span>
