@@ -1,6 +1,6 @@
 // i18next setup — detection order: localStorage > browser language > cs default.
-// Source of truth for keys = cs.json; en.json is fully translated; de/pl/sk fall back
-// to cs until the "Překlady" backlog item fills them.
+// Source of truth for keys = cs.json; en/de/pl/sk are fully translated (1:1 key parity,
+// CLDR plural categories per language). Profi review of de/pl/sk still pending.
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
