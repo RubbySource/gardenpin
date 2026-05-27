@@ -1052,6 +1052,17 @@
     "shifted": "📈 Termin auf {{date}} verschoben",
     "shiftFailed": "Verschieben fehlgeschlagen: {{msg}}"
   },
+  "careGap": {
+    "title": "Dieses Jahr noch nicht geplant",
+    "summary_one": "{{count}} Aufgabe vom letzten Jahr fehlt dieses Jahr noch.",
+    "summary_other": "{{count}} Aufgaben vom letzten Jahr fehlen dieses Jahr noch.",
+    "lastYear": "letztes Jahr {{date}}",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "📋 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Letztes Jahr am {{date}} erledigt — dieses Jahr noch nicht geplant."
+  },
   "idealDay": {
     "badge": "Bester Tag: {{day}}",
     "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",

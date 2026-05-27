@@ -1198,6 +1198,19 @@
     "shifted": "📈 Termin przesunięto na {{date}}",
     "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}"
   },
+  "careGap": {
+    "title": "W tym roku jeszcze nie zaplanowano",
+    "summary_one": "{{count}} czynność z zeszłego roku nie jest w tym roku zaplanowana.",
+    "summary_few": "{{count}} czynności z zeszłego roku nie są w tym roku zaplanowane.",
+    "summary_many": "{{count}} czynności z zeszłego roku nie jest w tym roku zaplanowanych.",
+    "summary_other": "{{count}} czynności z zeszłego roku nie jest w tym roku zaplanowanych.",
+    "lastYear": "w zeszłym roku {{date}}",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "📋 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Wykonano {{date}} w zeszłym roku — w tym roku jeszcze nie zaplanowano."
+  },
   "idealDay": {
     "badge": "Najlepszy dzień: {{day}}",
     "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",

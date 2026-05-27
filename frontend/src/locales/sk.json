@@ -1198,6 +1198,19 @@
     "shifted": "📈 Termín posunutý na {{date}}",
     "shiftFailed": "Posun zlyhal: {{msg}}"
   },
+  "careGap": {
+    "title": "Tento rok si ešte neplánoval",
+    "summary_one": "{{count}} úkon z vlaňajška tento rok zatiaľ chýba.",
+    "summary_few": "{{count}} úkony z vlaňajška tento rok zatiaľ chýbajú.",
+    "summary_many": "{{count}} úkonu z vlaňajška tento rok zatiaľ chýba.",
+    "summary_other": "{{count}} úkonov z vlaňajška tento rok zatiaľ chýba.",
+    "lastYear": "vlani {{date}}",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "📋 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Vlani splnené {{date}} — tento rok zatiaľ nenaplánované."
+  },
   "idealDay": {
     "badge": "Najlepší deň: {{day}}",
     "tooltipDry": "Tento deň je suchý a bezveterný — ideálny na rez a postrek (dážď zmyje postrek, vlhké rany sú náchylné na huby).",

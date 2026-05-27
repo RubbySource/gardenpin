@@ -1052,6 +1052,17 @@
     "shifted": "📈 Date shifted to {{date}}",
     "shiftFailed": "Shift failed: {{msg}}"
   },
+  "careGap": {
+    "title": "Not planned yet this year",
+    "summary_one": "{{count}} task from last year is still missing this year.",
+    "summary_other": "{{count}} tasks from last year are still missing this year.",
+    "lastYear": "last year {{date}}",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "📋 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Done {{date}} last year — not yet planned this year."
+  },
   "idealDay": {
     "badge": "Best day: {{day}}",
     "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",

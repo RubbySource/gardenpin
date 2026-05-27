@@ -1128,6 +1128,18 @@
     "shifted": "📈 Termín posunut na {{date}}",
     "shiftFailed": "Posun selhal: {{msg}}"
   },
+  "careGap": {
+    "title": "Letos jsi ještě neplánoval",
+    "summary_one": "{{count}} úkon z loňska letos zatím chybí.",
+    "summary_few": "{{count}} úkony z loňska letos zatím chybí.",
+    "summary_other": "{{count}} úkonů z loňska letos zatím chybí.",
+    "lastYear": "loni {{date}}",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "📋 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Loni splněno {{date}} — letos zatím nenaplánováno."
+  },
   "idealDay": {
     "badge": "Nejlepší den: {{day}}",
     "tooltipDry": "Tenhle den je suchý a bezvětrný — ideální na řez a postřik (déšť smyje postřik, vlhké rány jsou náchylné k houbám).",

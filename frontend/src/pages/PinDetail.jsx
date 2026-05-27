@@ -11,6 +11,7 @@ import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplet
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
+import CareGapCard from '../components/CareGapCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -269,6 +270,7 @@ export default function PinDetail({ pinId, onClose }) {
               onSnoozed={load}
               onEdit={setEditingTask}
               onDelete={deleteTask}
+              onReload={load}
             />
           )}
           {tab === 'pece' && <PeceTab pin={pin} plant={plant} onEditPin={() => setEditing(true)} />}
@@ -330,7 +332,7 @@ function TabBtn({ id, active, onSelect, children }) {
 }
 
 // ===================== Úkony tab — iOS grouped list + choroby & škůdci =====================
-function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
+function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
   const { t } = useTranslation();
   const hasTasks = pin.tasks.length > 0;
   return (
@@ -400,6 +402,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete }) {
           <div className="pd-empty-text">{t('pin.tasksEmpty')}</div>
         </div>
       )}
+
+      {/* Mezery v péči — „loni ano, letos chybí" (vykreslí se jen jsou-li mezery) */}
+      <CareGapCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (
