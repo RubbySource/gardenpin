@@ -1052,6 +1052,15 @@
     "shifted": "📈 Date shifted to {{date}}",
     "shiftFailed": "Shift failed: {{msg}}"
   },
+  "idealDay": {
+    "badge": "Best day: {{day}}",
+    "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",
+    "tooltipMild": "A mild, frost-free day — ideal for transplanting and planting.",
+    "move": "Move to {{day}}",
+    "moving": "Moving…",
+    "moved": "🌤️ Moved to {{date}}",
+    "moveFailed": "Move failed: {{msg}}"
+  },
   "followUp": {
     "lead": "Follow-up task",
     "plan": "Schedule",

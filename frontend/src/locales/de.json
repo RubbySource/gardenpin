@@ -1052,6 +1052,15 @@
     "shifted": "📈 Termin auf {{date}} verschoben",
     "shiftFailed": "Verschieben fehlgeschlagen: {{msg}}"
   },
+  "idealDay": {
+    "badge": "Bester Tag: {{day}}",
+    "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",
+    "tooltipMild": "Ein milder, frostfreier Tag — ideal zum Umpflanzen und Auspflanzen.",
+    "move": "Auf {{day}} verschieben",
+    "moving": "Wird verschoben…",
+    "moved": "🌤️ Auf {{date}} verschoben",
+    "moveFailed": "Verschieben fehlgeschlagen: {{msg}}"
+  },
   "followUp": {
     "lead": "Folgeaufgabe",
     "plan": "Planen",

@@ -16,6 +16,15 @@ export function formatDayMonth(iso) {
   return d.toLocaleDateString(localeCode(), { day: 'numeric', month: 'long' });
 }
 
+// Den v týdnu („čtvrtek" / „Donnerstag") — pro badge „ideální den v okně" (idealDay.js).
+// Skládá datum z lokálních složek, ať timezone neposune den v týdnu (cíl = střední Evropa).
+export function formatWeekday(iso) {
+  if (!iso) return '';
+  const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString(localeCode(), { weekday: 'long' });
+}
+
 export function formatDateTime(iso) {
   if (!iso) return '';
   const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');

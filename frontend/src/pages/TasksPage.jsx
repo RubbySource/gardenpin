@@ -12,6 +12,7 @@ import { daysFromToday } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
 import { usePhenology } from '../phenology.js';
 import { useCareHistory } from '../careHistory.js';
+import { useIdealDay } from '../idealDay.js';
 import { hapticNotification } from '../native/haptics.js';
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
@@ -113,6 +114,7 @@ export default function TasksPage({ onTaskComplete }) {
   const forecast = useFrostForecast();
   const pheno = usePhenology();
   const careHistory = useCareHistory();
+  const idealForecast = useIdealDay();
 
   const load = async () => {
     try {
@@ -382,6 +384,7 @@ export default function TasksPage({ onTaskComplete }) {
                   key={t.id}
                   task={t}
                   forecast={forecast}
+                  idealForecast={idealForecast}
                   pheno={pheno}
                   history={careHistory}
                   completing={completingIds.has(t.id)}

@@ -1198,6 +1198,15 @@
     "shifted": "📈 Termin przesunięto na {{date}}",
     "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}"
   },
+  "idealDay": {
+    "badge": "Najlepszy dzień: {{day}}",
+    "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",
+    "tooltipMild": "Łagodny dzień bez mrozu — idealny na przesadzanie i sadzenie.",
+    "move": "Przenieś na {{day}}",
+    "moving": "Przenoszę…",
+    "moved": "🌤️ Przeniesiono na {{date}}",
+    "moveFailed": "Przeniesienie nie powiodło się: {{msg}}"
+  },
   "followUp": {
     "lead": "Kolejne zadanie",
     "plan": "Zaplanuj",

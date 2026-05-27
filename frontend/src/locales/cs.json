@@ -1128,6 +1128,15 @@
     "shifted": "📈 Termín posunut na {{date}}",
     "shiftFailed": "Posun selhal: {{msg}}"
   },
+  "idealDay": {
+    "badge": "Nejlepší den: {{day}}",
+    "tooltipDry": "Tenhle den je suchý a bezvětrný — ideální na řez a postřik (déšť smyje postřik, vlhké rány jsou náchylné k houbám).",
+    "tooltipMild": "Mírný den bez mrazu — ideální na přesazení a výsadbu.",
+    "move": "Přesunout na {{day}}",
+    "moving": "Přesouvám…",
+    "moved": "🌤️ Přesunuto na {{date}}",
+    "moveFailed": "Přesun selhal: {{msg}}"
+  },
   "followUp": {
     "lead": "Navazující úkon",
     "plan": "Naplánovat",

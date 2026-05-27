@@ -9,6 +9,7 @@ import FrostWarning from './FrostWarning.jsx';
 import SeasonWindowWarning from './SeasonWindowWarning.jsx';
 import PhenologyHint from './PhenologyHint.jsx';
 import CareHistoryHint from './CareHistoryHint.jsx';
+import IdealDayHint from './IdealDayHint.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
 import { dueBadge, taskLabel, taskIconName } from '../utils.js';
 
@@ -17,6 +18,7 @@ export default function TaskRow({
   completing,
   deleting,
   forecast,
+  idealForecast,
   pheno,
   history,
   onComplete,
@@ -99,6 +101,13 @@ export default function TaskRow({
             <SeasonWindowWarning task={task} onResolved={onSnoozed} />
             <PhenologyHint task={task} pheno={pheno} onShifted={onSnoozed} />
             <CareHistoryHint task={task} history={history} pheno={pheno} onShifted={onSnoozed} />
+            <IdealDayHint
+              task={task}
+              forecast={idealForecast}
+              pheno={pheno}
+              history={history}
+              onShifted={onSnoozed}
+            />
           </div>
         </div>
       </div>

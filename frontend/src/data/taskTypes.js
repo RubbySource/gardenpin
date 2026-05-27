@@ -13,14 +13,18 @@
 // POZN. backend (backend/server.js → ICAL_TYPE_FILTERS) zrcadlí icalCategory + id;
 // při změně typů drž backend v souladu.
 
+// weatherPref = krátkodobá počasová preference pro výběr ideálního DNE v okně (idealDay.js):
+//   'dry'  = suchý bezvětrný den (řez — vlhké rány = houbová infekce; postřik/ochrana smyje déšť)
+//   'mild' = mírný den bez mrazu (přesazení/výsadba — tendr kořeny nesnesou mráz)
+// Bez flagu = úkon nemá počasovou preferenci (zálivka/hnojení/sklizeň/plení).
 export const TASK_TYPES = [
   { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null,          windowDays: 14 },
   { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing', windowDays: 30 },
-  { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning',     windowDays: 45 },
-  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting',    windowDays: 45, frostSensitive: true },
+  { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning',     windowDays: 45, weatherPref: 'dry' },
+  { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting',    windowDays: 45, frostSensitive: true, weatherPref: 'mild' },
   { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null,          windowDays: 14 },
   { id: 'sklizen',   label: 'Sklizeň',   icon: '🧺', iconName: 'leaf',     icalCategory: 'harvest',     windowDays: 14 },
-  { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null,          windowDays: 21 },
+  { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null,          windowDays: 21, weatherPref: 'dry' },
   { id: 'jine',      label: 'Jiné',      icon: '📋', iconName: 'leaf',     icalCategory: null,          windowDays: 21 },
 ];
 
@@ -69,6 +73,12 @@ export function isFrostSensitiveType(type) {
 // považujeme sezónní okno za promeškané (viz seasonWindow.js).
 export function windowDaysForType(type) {
   return BY_ID.get(type)?.windowDays ?? DEFAULT_WINDOW_DAYS;
+}
+
+// Počasová preference task_type ('dry' / 'mild' / null) — pro výběr ideálního dne
+// v rámci nejbližšího týdne dle předpovědi (viz idealDay.js).
+export function weatherPrefForType(type) {
+  return BY_ID.get(type)?.weatherPref ?? null;
 }
 
 // iCal kategorie pro filtr odběru kalendáře (key v URL `types=` ↔ label v UI).

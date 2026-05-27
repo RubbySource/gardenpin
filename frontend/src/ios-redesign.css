@@ -1436,6 +1436,58 @@ html[data-theme="dark"] .care-history-badge {
   color: #cdc6f5;
 }
 
+/* ---------- Ideální den v okně dle počasí (🌤️ nejlepší den) ---------- */
+.ideal-day-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.ideal-day-alert.compact {
+  margin-top: 6px;
+}
+.ideal-day-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d6ecfb, #eaf4fc);
+  border: 1px solid #5ba3e0;
+  color: #14507e;
+  white-space: nowrap;
+}
+.ideal-day-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--separator);
+  background: var(--fill);
+  color: var(--label);
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.ideal-day-btn:active {
+  transform: scale(0.96);
+}
+.ideal-day-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.ideal-day-alert.compact .ideal-day-badge,
+.ideal-day-alert.compact .ideal-day-btn {
+  font-size: 0.68rem;
+}
+html[data-theme="dark"] .ideal-day-badge {
+  background: linear-gradient(135deg, #16344f, #102536);
+  border-color: #2f6a9a;
+  color: #b3dbf5;
+}
+
 /* ---------- Návazný sezónní úkon (follow-up snackbar) ---------- */
 /* Nenásilný iOS snackbar po splnění úkonu — sedí NAD toastem (toast bottom ~96px). */
 .follow-up {

@@ -1689,7 +1689,9 @@ app.get('/api/weather', async (req, res) => {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
     `&current_weather=true` +
-    `&daily=temperature_2m_min,temperature_2m_max,temperature_2m_mean,weathercode` +
+    // precipitation_sum + wind_speed_10m_max navíc pro „ideální den v okně" (idealDay.js) —
+    // suchý bezvětrný den na řez/postřik. Extra denní pole; frost/WeatherWidget je ignorují.
+    `&daily=temperature_2m_min,temperature_2m_max,temperature_2m_mean,precipitation_sum,wind_speed_10m_max,weathercode` +
     `&forecast_days=${forecastDays}` +
     (pastDays > 0 ? `&past_days=${pastDays}` : '') +
     `&timezone=Europe%2FPrague`;
