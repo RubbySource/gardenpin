@@ -3237,6 +3237,82 @@ html[data-theme="dark"] .cutting-task-card {
 html[data-theme="dark"] .cutting-task-title { color: #8fd4c7; }
 html[data-theme="dark"] .cutting-task-sub { color: #6fb8aa; }
 
+/* Roubování / očkování ovocných stromů — karta v detailu pinu (Úkony tab). Teplá
+   dřevitě-hnědá „kmen/podnož" paleta, odliší od teal řízkové karty, švestkové dělící
+   a růžové cibulové. */
+.grafting-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f4ece0, #fbf5ec);
+  border: 1px solid #c9ab86;
+}
+.grafting-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.grafting-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8a5a2b;
+}
+.grafting-task-sub {
+  font-size: 12px;
+  color: #a07642;
+}
+.grafting-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.grafting-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.grafting-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #a9763c;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.grafting-task-main { flex: 1; min-width: 0; }
+.grafting-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.grafting-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.grafting-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #a9763c;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.grafting-task-btn:active { transform: scale(0.96); }
+.grafting-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .grafting-task-card {
+  background: linear-gradient(135deg, #2a2016, #1f1810);
+  border-color: #574630;
+}
+html[data-theme="dark"] .grafting-task-title { color: #e0b885; }
+html[data-theme="dark"] .grafting-task-sub { color: #c39b6a; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

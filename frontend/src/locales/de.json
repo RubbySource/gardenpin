@@ -1134,6 +1134,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Vermehrung durch Stecklinge — {{instr}}"
   },
+  "graftingTasks": {
+    "title": "Zeit zum Veredeln",
+    "subtitle": "Veredeln Sie Ihre Obstbäume auf eine edle Sorte",
+    "taskTitle": "{{plant}} veredeln",
+    "typeSpring": "Frühjahrsveredelung (Reis)",
+    "typeSummer": "Sommerokulation (Auge)",
+    "instrSpring": "Kopulation / Rinden- / Seitenpfropfen — wenn der Saft steigt und die Unterlage austreibt.",
+    "instrSummer": "T-Okulation auf ein schlafendes Auge — wenn sich die Rinde gut vom Holz löst.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌳 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Veredelung — {{instr}}"
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

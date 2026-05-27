@@ -1288,6 +1288,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Množenie odrezkami — {{instr}}"
   },
+  "graftingTasks": {
+    "title": "Čas na štepenie",
+    "subtitle": "Zaštep ovocné stromy na ušľachtilú odrodu",
+    "taskTitle": "Zaštepiť {{plant}}",
+    "typeSpring": "Jarné štepenie (vrúbeľ)",
+    "typeSummer": "Letné očkovanie (očko)",
+    "instrSpring": "Kopulácia / za kôru / do boku — keď začína prúdiť miazga a podpník pučí.",
+    "instrSummer": "T-očkovanie na spiace očko — keď sa kôra dobre odlupuje od dreva.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌳 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Štepenie — {{instr}}"
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

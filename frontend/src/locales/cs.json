@@ -1214,6 +1214,20 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Množení řízky — {{instr}}"
   },
+  "graftingTasks": {
+    "title": "Čas na roubování",
+    "subtitle": "Naroubuj ovocné stromy na ušlechtilou odrůdu",
+    "taskTitle": "Naroubovat {{plant}}",
+    "typeSpring": "Jarní roubování (roub)",
+    "typeSummer": "Letní očkování (očko)",
+    "instrSpring": "Kopulace / za kůru / do boku — když začíná proudit míza a podnož raší.",
+    "instrSummer": "T-očkování na spící oko — když se kůra dobře odlupuje od dřeva.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌳 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Roubování — {{instr}}"
+  },
   "winterPrep": {
     "title": "Připrav na zimu",
     "summary_one": "{{count}} rostlina potřebuje zazimovat před mrazem.",

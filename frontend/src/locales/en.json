@@ -1134,6 +1134,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Propagation by cuttings — {{instr}}"
   },
+  "graftingTasks": {
+    "title": "Time to graft",
+    "subtitle": "Graft your fruit trees onto a named variety",
+    "taskTitle": "Graft {{plant}}",
+    "typeSpring": "Spring grafting (scion)",
+    "typeSummer": "Summer budding (bud)",
+    "instrSpring": "Whip / rind / side graft — as sap starts to flow and the rootstock breaks bud.",
+    "instrSummer": "T-budding onto a dormant bud — while the bark lifts cleanly from the wood.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌳 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Grafting — {{instr}}"
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

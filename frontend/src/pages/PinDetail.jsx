@@ -17,6 +17,7 @@ import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
+import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -425,6 +426,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Množení řízkováním (vykreslí se jen pro keře/popínavé/polodřevité v řízkové sezóně) */}
       <CuttingTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Roubování / očkování ovocných stromů (vykreslí se jen pro ovoce/stromy v sezóně) */}
+      <GraftingTaskCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

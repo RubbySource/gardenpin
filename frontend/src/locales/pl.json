@@ -1288,6 +1288,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Rozmnażanie z sadzonek — {{instr}}"
   },
+  "graftingTasks": {
+    "title": "Czas na szczepienie",
+    "subtitle": "Zaszczep drzewa owocowe na szlachetną odmianę",
+    "taskTitle": "Zaszczep {{plant}}",
+    "typeSpring": "Szczepienie wiosenne (zraz)",
+    "typeSummer": "Okulizacja letnia (oczko)",
+    "instrSpring": "Kopulacja / za korę / w bok — gdy ruszają soki, a podkładka zaczyna pączkować.",
+    "instrSummer": "Okulizacja na śpiące oczko — gdy kora dobrze odchodzi od drewna.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌳 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Szczepienie — {{instr}}"
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",
