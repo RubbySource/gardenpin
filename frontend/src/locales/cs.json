@@ -1198,6 +1198,22 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Podzimní výsadba cibulí (~{{depth}} cm hluboko) — na jaře vykvetou."
   },
+  "cuttingTasks": {
+    "title": "Čas na řízky",
+    "subtitle": "Namnož si rostliny zdarma z řízků",
+    "taskTitle": "Nařezat řízky {{plant}}",
+    "typeSoftwood": "Bylinné (zelené) řízky",
+    "typeSemiripe": "Polovyzrálé řízky",
+    "typeHardwood": "Dřevité (vyzrálé) řízky",
+    "instrSoftwood": "Z měkkého jarního přírůstku, ~10 cm, zakořeň ve stínu pod fólií.",
+    "instrSemiripe": "Z letního, vespod dřevnatějícího výhonu, s patkou, do množárny.",
+    "instrHardwood": "Z vyzralého dřeva po opadu, ~20 cm, venku do volné půdy.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Množení řízky — {{instr}}"
+  },
   "winterPrep": {
     "title": "Připrav na zimu",
     "summary_one": "{{count}} rostlina potřebuje zazimovat před mrazem.",

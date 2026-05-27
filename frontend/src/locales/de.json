@@ -1118,6 +1118,22 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Herbstpflanzung der Zwiebeln (~{{depth}} cm tief) — sie blühen im Frühling."
   },
+  "cuttingTasks": {
+    "title": "Zeit für Stecklinge",
+    "subtitle": "Vermehren Sie Ihre Pflanzen kostenlos aus Stecklingen",
+    "taskTitle": "Stecklinge von {{plant}} schneiden",
+    "typeSoftwood": "Weiche (krautige) Stecklinge",
+    "typeSemiripe": "Halbreife Stecklinge",
+    "typeHardwood": "Verholzte Stecklinge",
+    "instrSoftwood": "Vom weichen Frühjahrstrieb, ~10 cm, im Schatten unter Folie bewurzeln.",
+    "instrSemiripe": "Vom unten verholzenden Sommertrieb, mit Ferse, ins Vermehrungsbeet.",
+    "instrHardwood": "Aus reifem Holz nach dem Laubfall, ~20 cm, im Freiland.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Vermehrung durch Stecklinge — {{instr}}"
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

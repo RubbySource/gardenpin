@@ -1272,6 +1272,22 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Jesenná výsadba cibúľ (~{{depth}} cm hlboko) — na jar rozkvitnú."
   },
+  "cuttingTasks": {
+    "title": "Čas na odrezky",
+    "subtitle": "Rozmnož si rastliny zadarmo z odrezkov",
+    "taskTitle": "Narezať odrezky {{plant}}",
+    "typeSoftwood": "Bylinné (zelené) odrezky",
+    "typeSemiripe": "Polozrelé odrezky",
+    "typeHardwood": "Zdrevnatené odrezky",
+    "instrSoftwood": "Z mäkkého jarného prírastku, ~10 cm, zakoreň v tieni pod fóliou.",
+    "instrSemiripe": "Z letného, naspodku drevnatejúceho výhonku, s pätkou, do množiarne.",
+    "instrHardwood": "Zo zrelého dreva po opadaní listov, ~20 cm, vonku do voľnej pôdy.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✂️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Množenie odrezkami — {{instr}}"
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

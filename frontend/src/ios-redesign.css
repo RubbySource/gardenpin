@@ -3161,6 +3161,82 @@ html[data-theme="dark"] .bulb-planting-card {
 html[data-theme="dark"] .bulb-planting-title { color: #ecaccb; }
 html[data-theme="dark"] .bulb-planting-sub { color: #d488ad; }
 
+/* Množení řízkováním — karta „✂️ Čas na řízky" v detailu pinu (Úkony tab). Tyrkysově-jadeitová
+   „zakořeňovací" paleta, ať se odliší od zelené age-task/sowing-task, švestkové division-task
+   a růžové bulb-planting karty, když jich svítí víc naráz. */
+.cutting-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e2f3f1, #eefaf8);
+  border: 1px solid #8ec9c0;
+}
+.cutting-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.cutting-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d7a6e;
+}
+.cutting-task-sub {
+  font-size: 12px;
+  color: #379186;
+}
+.cutting-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cutting-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.cutting-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #279d8c;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.cutting-task-main { flex: 1; min-width: 0; }
+.cutting-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.cutting-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.cutting-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #279d8c;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.cutting-task-btn:active { transform: scale(0.96); }
+.cutting-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .cutting-task-card {
+  background: linear-gradient(135deg, #112824, #0d1f1c);
+  border-color: #2f5b52;
+}
+html[data-theme="dark"] .cutting-task-title { color: #8fd4c7; }
+html[data-theme="dark"] .cutting-task-sub { color: #6fb8aa; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

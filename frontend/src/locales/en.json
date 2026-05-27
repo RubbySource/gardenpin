@@ -1118,6 +1118,22 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Autumn bulb planting (~{{depth}} cm deep) — they'll bloom in spring."
   },
+  "cuttingTasks": {
+    "title": "Time to take cuttings",
+    "subtitle": "Propagate your plants for free from cuttings",
+    "taskTitle": "Take {{plant}} cuttings",
+    "typeSoftwood": "Softwood cuttings",
+    "typeSemiripe": "Semi-ripe cuttings",
+    "typeHardwood": "Hardwood cuttings",
+    "instrSoftwood": "From soft spring growth, ~10 cm, root in shade under cover.",
+    "instrSemiripe": "From summer shoots woody at the base, with a heel, into a propagator.",
+    "instrHardwood": "From ripe wood after leaf fall, ~20 cm, outdoors in open ground.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Propagation by cuttings — {{instr}}"
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

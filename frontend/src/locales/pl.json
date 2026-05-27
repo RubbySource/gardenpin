@@ -1272,6 +1272,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Jesienne sadzenie cebul (~{{depth}} cm głęboko) — zakwitną wiosną."
   },
+  "cuttingTasks": {
+    "title": "Czas na sadzonki",
+    "subtitle": "Rozmnóż rośliny za darmo z sadzonek",
+    "taskTitle": "Pobierz sadzonki {{plant}}",
+    "typeSoftwood": "Sadzonki zielne (miękkie)",
+    "typeSemiripe": "Sadzonki półzdrewniałe",
+    "typeHardwood": "Sadzonki zdrewniałe",
+    "instrSoftwood": "Z miękkiego wiosennego przyrostu, ~10 cm, ukorzeniaj w cieniu pod osłoną.",
+    "instrSemiripe": "Z letniego, drewniejącego u nasady pędu, z piętką, do inspektu.",
+    "instrHardwood": "Ze zdrewniałego pędu po opadnięciu liści, ~20 cm, na zewnątrz do gruntu.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Rozmnażanie z sadzonek — {{instr}}"
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",
