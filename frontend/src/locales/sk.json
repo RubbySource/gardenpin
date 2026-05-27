@@ -1229,6 +1229,21 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Vekovo citlivý rez ({{age}}. rok po výsadbe)."
   },
+  "divisionTasks": {
+    "title": "Čas rozdeliť trs",
+    "ageSummary_one": "{{count}} rok od výsadby",
+    "ageSummary_few": "{{count}} roky od výsadby",
+    "ageSummary_many": "{{count}} roka od výsadby",
+    "ageSummary_other": "{{count}} rokov od výsadby",
+    "action": "Rozdeliť a omladiť trs",
+    "metaAutumn": "Trs hustne a slabšie kvitne — na jeseň ho vyryj a rozdeľ.",
+    "metaSpring": "Trs hustne a slabšie kvitne — skoro zjari ho vyryj a rozdeľ.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🪴 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Delenie trsu ({{age}}. rok od výsadby) — omladí kvitnutie."
+  },
   "idealDay": {
     "badge": "Najlepší deň: {{day}}",
     "tooltipDry": "Tento deň je suchý a bezveterný — ideálny na rez a postrek (dážď zmyje postrek, vlhké rany sú náchylné na huby).",

@@ -2935,6 +2935,81 @@ html[data-theme="dark"] .age-task-card {
 html[data-theme="dark"] .age-task-title { color: #a9d4ae; }
 html[data-theme="dark"] .age-task-sub { color: #86b08c; }
 
+/* Dělení trsu trvalek/trav — karta v PinDetail (Úkony tab). Švestkově-fialová „trsová"
+   paleta, ať se odliší od amber care-gap a zelené age-task karty, když svítí víc naráz. */
+.division-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f1e9f6, #f8f3fb);
+  border: 1px solid #c3a6d8;
+}
+.division-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.division-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b3f8c;
+}
+.division-task-sub {
+  font-size: 12px;
+  color: #855aa5;
+}
+.division-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.division-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.division-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #8e5cb0;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.division-task-main { flex: 1; min-width: 0; }
+.division-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.division-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.division-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #8e5cb0;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.division-task-btn:active { transform: scale(0.96); }
+.division-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .division-task-card {
+  background: linear-gradient(135deg, #2a1d33, #211829);
+  border-color: #543d63;
+}
+html[data-theme="dark"] .division-task-title { color: #d3b4e6; }
+html[data-theme="dark"] .division-task-sub { color: #b48fcd; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

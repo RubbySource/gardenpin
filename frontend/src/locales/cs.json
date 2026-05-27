@@ -1157,6 +1157,20 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Věkově citlivý řez ({{age}}. rok po výsadbě)."
   },
+  "divisionTasks": {
+    "title": "Čas rozdělit trs",
+    "ageSummary_one": "{{count}} rok od výsadby",
+    "ageSummary_few": "{{count}} roky od výsadby",
+    "ageSummary_other": "{{count}} let od výsadby",
+    "action": "Rozdělit a omladit trs",
+    "metaAutumn": "Trs houstne a hůř kvete — na podzim ho vyryj a rozděl.",
+    "metaSpring": "Trs houstne a hůř kvete — brzy zjara ho vyryj a rozděl.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🪴 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Dělení trsu ({{age}}. rok od výsadby) — omladí kvetení."
+  },
   "idealDay": {
     "badge": "Nejlepší den: {{day}}",
     "tooltipDry": "Tenhle den je suchý a bezvětrný — ideální na řez a postřik (déšť smyje postřik, vlhké rány jsou náchylné k houbám).",

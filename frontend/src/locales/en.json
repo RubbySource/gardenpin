@@ -1079,6 +1079,19 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Age-based pruning (year {{age}} after planting)."
   },
+  "divisionTasks": {
+    "title": "Time to divide the clump",
+    "ageSummary_one": "{{count}} year since planting",
+    "ageSummary_other": "{{count}} years since planting",
+    "action": "Divide and rejuvenate the clump",
+    "metaAutumn": "The clump is crowding and flowering less — dig it up and divide it in autumn.",
+    "metaSpring": "The clump is crowding and flowering less — dig it up and divide it in early spring.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🪴 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Clump division (year {{age}} since planting) — restores flowering."
+  },
   "idealDay": {
     "badge": "Best day: {{day}}",
     "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",

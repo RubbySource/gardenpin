@@ -1079,6 +1079,19 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Altersgerechter Schnitt ({{age}}. Jahr nach der Pflanzung)."
   },
+  "divisionTasks": {
+    "title": "Zeit, den Horst zu teilen",
+    "ageSummary_one": "{{count}} Jahr seit der Pflanzung",
+    "ageSummary_other": "{{count}} Jahre seit der Pflanzung",
+    "action": "Horst teilen und verjüngen",
+    "metaAutumn": "Der Horst verdichtet sich und blüht schwächer — graben Sie ihn im Herbst aus und teilen Sie ihn.",
+    "metaSpring": "Der Horst verdichtet sich und blüht schwächer — graben Sie ihn im zeitigen Frühjahr aus und teilen Sie ihn.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🪴 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Horstteilung ({{age}}. Jahr seit der Pflanzung) — fördert die Blüte."
+  },
   "idealDay": {
     "badge": "Bester Tag: {{day}}",
     "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",

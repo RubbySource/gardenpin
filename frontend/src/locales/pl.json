@@ -1229,6 +1229,21 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Cięcie zależne od wieku ({{age}}. rok po posadzeniu)."
   },
+  "divisionTasks": {
+    "title": "Czas podzielić kępę",
+    "ageSummary_one": "{{count}} rok od posadzenia",
+    "ageSummary_few": "{{count}} lata od posadzenia",
+    "ageSummary_many": "{{count}} lat od posadzenia",
+    "ageSummary_other": "{{count}} lat od posadzenia",
+    "action": "Podziel i odmłódź kępę",
+    "metaAutumn": "Kępa zagęszcza się i słabiej kwitnie — jesienią wykop ją i podziel.",
+    "metaSpring": "Kępa zagęszcza się i słabiej kwitnie — wczesną wiosną wykop ją i podziel.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🪴 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Podział kępy ({{age}}. rok od posadzenia) — przywraca kwitnienie."
+  },
   "idealDay": {
     "badge": "Najlepszy dzień: {{day}}",
     "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",
