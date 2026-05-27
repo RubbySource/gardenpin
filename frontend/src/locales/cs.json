@@ -1326,5 +1326,28 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notesFrostKill": "Zasít hořčici/svazenku do uvolněného záhonu — přes zimu vymrzne sama, na jaře jen zaryj nebo zamulčuj.",
     "notesOverwinter": "Zasít ozimé žito/jetel do uvolněného záhonu — přes zimu přezimuje, na jaře zaryj ~3 týdny před výsadbou."
+  },
+  "soilPh": {
+    "limeTitle": "Vápnit záhony s košťálovinami",
+    "limeSummary_one": "{{count}} záhon s košťálovinami čeká na podzimní vápnění.",
+    "limeSummary_few": "{{count}} záhony s košťálovinami čekají na podzimní vápnění.",
+    "limeSummary_other": "{{count}} záhonů s košťálovinami čeká na podzimní vápnění.",
+    "limeTaskTitle": "Vápnit záhon {{bed}}",
+    "limeDedup": "vápn",
+    "limeDesc": "Zvýší pH, brání nádorovitosti (klubkořenu)",
+    "limePlanAll": "Naplánovat vše ({{count}})",
+    "limeNotes": "Na podzim povápnit záhon před košťálovinami — zvýší pH a brání nádorovitosti (Plasmodiophora). Vápno aplikuj odděleně od dusíkatého hnojení.",
+    "acidTitle": "Úprava pH půdy",
+    "acidSubtitle": "Acidofilní rostlina — udržuj kyselou půdu",
+    "acidTaskTitle": "Okyselit půdu pod {{plant}}",
+    "acidDedup": "okysel",
+    "acidAction": "Okyselit / zkontrolovat pH půdy",
+    "acidInstr": "Na podzim zapracuj síru či rašelinu — síra přes zimu zreaguje (cíl pH ~4,5–5,5).",
+    "acidNotes": "Okyselit stanoviště (elementární síra / rašelina) — borůvka, pěnišník, vřes a spol. chtějí kyselou půdu (pH ~4,5–5,5). Odděleně od vápnění.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🧪 Naplánováno na {{date}}",
+    "plannedCount": "🧪 Naplánováno: {{count}}",
+    "planFailed": "Plánování selhalo: {{msg}}"
   }
 }

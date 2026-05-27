@@ -1405,5 +1405,29 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notesFrostKill": "Zasaď horčicu/facéliu do uvoľneného záhonu — cez zimu vymrzne sama, na jar ju len zaryj alebo zamulčuj.",
     "notesOverwinter": "Zasaď ozimné žito/ďatelinu do uvoľneného záhonu — prezimuje; na jar zaryj ~3 týždne pred výsadbou."
+  },
+  "soilPh": {
+    "limeTitle": "Vápnenie záhonov s kapustovinami",
+    "limeSummary_one": "{{count}} záhon s kapustovinami čaká na jesenné vápnenie.",
+    "limeSummary_few": "{{count}} záhony s kapustovinami čakajú na jesenné vápnenie.",
+    "limeSummary_many": "{{count}} záhonu s kapustovinami čaká na jesenné vápnenie.",
+    "limeSummary_other": "{{count}} záhonov s kapustovinami čaká na jesenné vápnenie.",
+    "limeTaskTitle": "Vápnenie záhonu {{bed}}",
+    "limeDedup": "vápn",
+    "limeDesc": "Zvyšuje pH, bráni nádorovitosti (kyle)",
+    "limePlanAll": "Naplánovať všetko ({{count}})",
+    "limeNotes": "Na jeseň povápni záhon pred kapustovinami — zvýši pH a bráni nádorovitosti (Plasmodiophora). Vápno aplikuj oddelene od dusíkatého hnojenia.",
+    "acidTitle": "Úprava pH pôdy",
+    "acidSubtitle": "Acidofilná rastlina — udržuj kyslú pôdu",
+    "acidTaskTitle": "Okyslenie pôdy pod {{plant}}",
+    "acidDedup": "okysl",
+    "acidAction": "Okysli / skontroluj pH pôdy",
+    "acidInstr": "Na jeseň zapracuj síru či rašelinu — síra cez zimu zreaguje (cieľ pH ~4,5–5,5).",
+    "acidNotes": "Okysli stanovište (elementárna síra / rašelina) — čučoriedka, rododendron, vres a spol. chcú kyslú pôdu (pH ~4,5–5,5). Oddelene od vápnenia.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🧪 Naplánované na {{date}}",
+    "plannedCount": "🧪 Naplánované: {{count}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}"
   }
 }

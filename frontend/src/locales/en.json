@@ -1241,5 +1241,27 @@
     "planFailed": "Scheduling failed: {{msg}}",
     "notesFrostKill": "Sow mustard/phacelia into the freed bed — it winter-kills on its own, just dig or mulch it in next spring.",
     "notesOverwinter": "Sow winter rye/clover into the freed bed — it overwinters; dig it in ~3 weeks before spring planting."
+  },
+  "soilPh": {
+    "limeTitle": "Lime brassica beds",
+    "limeSummary_one": "{{count}} brassica bed is due for autumn liming.",
+    "limeSummary_other": "{{count}} brassica beds are due for autumn liming.",
+    "limeTaskTitle": "Lime bed {{bed}}",
+    "limeDedup": "lime bed",
+    "limeDesc": "Raises pH, prevents clubroot",
+    "limePlanAll": "Schedule all ({{count}})",
+    "limeNotes": "Lime the bed in autumn before brassicas — raises pH and prevents clubroot (Plasmodiophora). Apply lime separately from nitrogen feeding.",
+    "acidTitle": "Soil pH adjustment",
+    "acidSubtitle": "Acid-loving plant — keep the soil acidic",
+    "acidTaskTitle": "Acidify soil for {{plant}}",
+    "acidDedup": "acidif",
+    "acidAction": "Acidify / check soil pH",
+    "acidInstr": "Work in elemental sulfur or peat in autumn — sulfur converts over winter (target pH ~4.5–5.5).",
+    "acidNotes": "Acidify the site (elemental sulfur / peat) — blueberry, rhododendron, heather and the like want acidic soil (pH ~4.5–5.5). Keep separate from liming.",
+    "plan": "Schedule",
+    "planning": "Scheduling…",
+    "planned": "🧪 Scheduled for {{date}}",
+    "plannedCount": "🧪 Scheduled: {{count}}",
+    "planFailed": "Scheduling failed: {{msg}}"
   }
 }

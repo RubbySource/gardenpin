@@ -19,6 +19,7 @@ import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
+import SoilAcidCard from '../components/SoilAcidCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -433,6 +434,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Bílení kmenů na zimu (vykreslí se jen pro ovoce/stromy v podzimní sezóně 11–12) */}
       <TrunkWhitewashCard pin={pin} onPlanned={onReload} />
+
+      {/* Okyselení půdy pod acidofilní rostlinou (vykreslí se jen pro acidofilní v sezóně 10–11) */}
+      <SoilAcidCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

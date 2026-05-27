@@ -1405,5 +1405,29 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notesFrostKill": "Wysiej gorczycę/facelię na wolnej grządce — wymarznie sama zimą, wiosną wystarczy przekopać lub zamulczować.",
     "notesOverwinter": "Wysiej żyto ozime/koniczynę na wolnej grządce — przezimuje; przekop ~3 tygodnie przed wiosennym sadzeniem."
+  },
+  "soilPh": {
+    "limeTitle": "Wapnowanie grządek z kapustnymi",
+    "limeSummary_one": "{{count}} grządka z kapustnymi czeka na jesienne wapnowanie.",
+    "limeSummary_few": "{{count}} grządki z kapustnymi czekają na jesienne wapnowanie.",
+    "limeSummary_many": "{{count}} grządek z kapustnymi czeka na jesienne wapnowanie.",
+    "limeSummary_other": "{{count}} grządek z kapustnymi czeka na jesienne wapnowanie.",
+    "limeTaskTitle": "Wapnowanie grządki {{bed}}",
+    "limeDedup": "wapnow",
+    "limeDesc": "Podnosi pH, zapobiega kile kapusty",
+    "limePlanAll": "Zaplanuj wszystko ({{count}})",
+    "limeNotes": "Jesienią zwapnuj grządkę przed kapustnymi — podnosi pH i zapobiega kile kapusty (Plasmodiophora). Wapno stosuj oddzielnie od nawożenia azotem.",
+    "acidTitle": "Regulacja pH gleby",
+    "acidSubtitle": "Roślina kwasolubna — utrzymuj kwaśną glebę",
+    "acidTaskTitle": "Zakwaszenie gleby pod {{plant}}",
+    "acidDedup": "zakwasz",
+    "acidAction": "Zakwaś / sprawdź pH gleby",
+    "acidInstr": "Jesienią wymieszaj z glebą siarkę lub torf — siarka przereaguje przez zimę (docelowe pH ~4,5–5,5).",
+    "acidNotes": "Zakwaś stanowisko (siarka elementarna / torf) — borówka, różanecznik, wrzos i im podobne potrzebują kwaśnej gleby (pH ~4,5–5,5). Oddzielnie od wapnowania.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🧪 Zaplanowano na {{date}}",
+    "plannedCount": "🧪 Zaplanowano: {{count}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}"
   }
 }

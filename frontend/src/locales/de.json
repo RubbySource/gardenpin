@@ -1241,5 +1241,27 @@
     "planFailed": "Planung fehlgeschlagen: {{msg}}",
     "notesFrostKill": "Säen Sie Senf/Phazelie in das freie Beet — sie friert über Winter ab, im Frühjahr nur einarbeiten oder mulchen.",
     "notesOverwinter": "Säen Sie Winterroggen/Klee in das freie Beet — er überwintert; arbeiten Sie ihn ~3 Wochen vor der Frühjahrspflanzung ein."
+  },
+  "soilPh": {
+    "limeTitle": "Kohlbeete kalken",
+    "limeSummary_one": "{{count}} Kohlbeet wartet auf die Herbstkalkung.",
+    "limeSummary_other": "{{count}} Kohlbeete warten auf die Herbstkalkung.",
+    "limeTaskTitle": "Beet {{bed}} kalken",
+    "limeDedup": "kalk",
+    "limeDesc": "Hebt den pH-Wert, beugt Kohlhernie vor",
+    "limePlanAll": "Alle planen ({{count}})",
+    "limeNotes": "Kalken Sie das Beet im Herbst vor Kohlgewächsen — das hebt den pH-Wert und beugt der Kohlhernie (Plasmodiophora) vor. Bringen Sie Kalk getrennt von der Stickstoffdüngung aus.",
+    "acidTitle": "Boden-pH anpassen",
+    "acidSubtitle": "Säureliebende Pflanze — Boden sauer halten",
+    "acidTaskTitle": "Boden für {{plant}} ansäuern",
+    "acidDedup": "ansäuer",
+    "acidAction": "Boden ansäuern / pH prüfen",
+    "acidInstr": "Arbeiten Sie im Herbst elementaren Schwefel oder Torf ein — Schwefel wandelt sich über den Winter um (Ziel pH ~4,5–5,5).",
+    "acidNotes": "Säuern Sie den Standort an (elementarer Schwefel / Torf) — Heidelbeere, Rhododendron, Heide und Co. brauchen sauren Boden (pH ~4,5–5,5). Getrennt vom Kalken.",
+    "plan": "Planen",
+    "planning": "Plane…",
+    "planned": "🧪 Geplant für {{date}}",
+    "plannedCount": "🧪 Geplant: {{count}}",
+    "planFailed": "Planung fehlgeschlagen: {{msg}}"
   }
 }

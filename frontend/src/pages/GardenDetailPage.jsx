@@ -18,6 +18,7 @@ import YearOverYear from '../components/YearOverYear.jsx';
 import RotationCard from '../components/RotationCard.jsx';
 import WinterPrepCard from '../components/WinterPrepCard.jsx';
 import GreenManureCard from '../components/GreenManureCard.jsx';
+import SoilPhCard from '../components/SoilPhCard.jsx';
 import RotationPlantWarning from '../components/RotationPlantWarning.jsx';
 import { COUNTRIES, getZonesByCountry, getClimateZone, describeZone } from '../data/climateZones.js';
 import { ICAL_CATEGORIES } from '../data/taskTypes.js';
@@ -966,6 +967,8 @@ export default function GardenDetailPage() {
             <WinterPrepCard garden={garden} pins={pins} />
             {/* Zelené hnojení — meziplodina do uvolněných zeleninových záhonů (jen 8–10) */}
             <GreenManureCard garden={garden} pins={pins} beds={beds} />
+            {/* Vápnění záhonů s košťálovinami — úprava pH proti nádorovitosti (jen 10–11) */}
+            <SoilPhCard garden={garden} pins={pins} beds={beds} />
             {/* Meziroční srovnání péče v této zahradě */}
             <YearOverYear gardenId={garden.id} title={t('gardenDetail.yearOverYearTitle', { name: garden.name })} />
           </>
