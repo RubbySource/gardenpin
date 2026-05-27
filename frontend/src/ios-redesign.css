@@ -3010,6 +3010,81 @@ html[data-theme="dark"] .division-task-card {
 html[data-theme="dark"] .division-task-title { color: #d3b4e6; }
 html[data-theme="dark"] .division-task-sub { color: #b48fcd; }
 
+/* Předpěstování ze semene — karta v PinDetail (Úkony tab). Svěží zeleno-žlutá „klíček"
+   paleta, ať se odliší od švestkové dělení-karty a zelené age-task karty. */
+.sowing-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #eaf6e1, #f5fbef);
+  border: 1px solid #aacf8c;
+}
+.sowing-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.sowing-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a7a2a;
+}
+.sowing-task-sub {
+  font-size: 12px;
+  color: #5f9438;
+}
+.sowing-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sowing-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.sowing-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #6aa83e;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.sowing-task-main { flex: 1; min-width: 0; }
+.sowing-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.sowing-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.sowing-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #6aa83e;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.sowing-task-btn:active { transform: scale(0.96); }
+.sowing-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .sowing-task-card {
+  background: linear-gradient(135deg, #1e2a17, #18210f);
+  border-color: #3f5c2b;
+}
+html[data-theme="dark"] .sowing-task-title { color: #b6dd92; }
+html[data-theme="dark"] .sowing-task-sub { color: #93c06c; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

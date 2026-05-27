@@ -1244,6 +1244,22 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Delenie trsu ({{age}}. rok od výsadby) — omladí kvitnutie."
   },
+  "sowingTasks": {
+    "title": "Predpestovanie zo semena",
+    "subtitle": "Vysej dnu s predstihom pred výsadbou von",
+    "action": "Vysiať do truhlíka",
+    "taskTitle": "Vysiať {{plant}} do truhlíka",
+    "meta": "Výsadba von ~{{date}}",
+    "leadWeeks_one": "{{count}} týždeň vopred",
+    "leadWeeks_few": "{{count}} týždne vopred",
+    "leadWeeks_many": "{{count}} týždňa vopred",
+    "leadWeeks_other": "{{count}} týždňov vopred",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌱 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Výsadba von ~{{date}} — predpestovať zo semena v truhlíku."
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

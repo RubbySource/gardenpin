@@ -1244,6 +1244,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Podział kępy ({{age}}. rok od posadzenia) — przywraca kwitnienie."
   },
+  "sowingTasks": {
+    "title": "Wysiew z nasion na rozsadę",
+    "subtitle": "Wysiej do skrzynki z wyprzedzeniem przed wysadzeniem",
+    "action": "Wysiej do skrzynki",
+    "taskTitle": "Wysiej {{plant}} do skrzynki",
+    "meta": "Wysadzenie ~{{date}}",
+    "leadWeeks_one": "{{count}} tydzień wcześniej",
+    "leadWeeks_few": "{{count}} tygodnie wcześniej",
+    "leadWeeks_many": "{{count}} tygodni wcześniej",
+    "leadWeeks_other": "{{count}} tygodnia wcześniej",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌱 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Wysadzenie ~{{date}} — wysiej z nasion na rozsadę w skrzynce."
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

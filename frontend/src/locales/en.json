@@ -1092,6 +1092,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Clump division (year {{age}} since planting) — restores flowering."
   },
+  "sowingTasks": {
+    "title": "Sow from seed indoors",
+    "subtitle": "Start seedlings ahead of planting out",
+    "action": "Sow into a seed tray",
+    "taskTitle": "Sow {{plant}} into a seed tray",
+    "meta": "Plant out ~{{date}}",
+    "leadWeeks_one": "{{count}} week ahead",
+    "leadWeeks_other": "{{count}} weeks ahead",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌱 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Plant out ~{{date}} — pre-grow from seed in a tray."
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

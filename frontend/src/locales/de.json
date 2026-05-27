@@ -1092,6 +1092,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Horstteilung ({{age}}. Jahr seit der Pflanzung) — fördert die Blüte."
   },
+  "sowingTasks": {
+    "title": "Aus Samen vorziehen",
+    "subtitle": "Sämlinge rechtzeitig vor dem Auspflanzen anziehen",
+    "action": "In die Anzuchtschale säen",
+    "taskTitle": "{{plant}} in die Anzuchtschale säen",
+    "meta": "Auspflanzen ~{{date}}",
+    "leadWeeks_one": "{{count}} Woche vorher",
+    "leadWeeks_other": "{{count}} Wochen vorher",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌱 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Auspflanzen ~{{date}} — aus Samen in der Anzuchtschale vorziehen."
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",
