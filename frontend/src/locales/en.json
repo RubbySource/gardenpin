@@ -1148,6 +1148,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Grafting — {{instr}}"
   },
+  "trunkWhitewash": {
+    "title": "Time to whitewash trunks",
+    "subtitle": "Protect the bark from winter sun and frost cracks",
+    "taskTitle": "Whitewash {{plant}} trunk",
+    "action": "Whitewash the trunk with lime paint",
+    "instr": "After leaf fall, before hard frosts — white reflects winter sun and prevents frost cracks (split bark).",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🪵 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Whitewash the trunk and scaffold branches with lime paint — protection against frost cracks."
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

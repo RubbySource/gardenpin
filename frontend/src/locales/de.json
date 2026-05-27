@@ -1148,6 +1148,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Veredelung — {{instr}}"
   },
+  "trunkWhitewash": {
+    "title": "Zeit zum Weißen der Stämme",
+    "subtitle": "Schützen Sie die Rinde vor Wintersonne und Frostrissen",
+    "taskTitle": "Stamm von {{plant}} weißen",
+    "action": "Stamm mit Kalkanstrich weißen",
+    "instr": "Nach dem Laubfall, vor starkem Frost — Weiß reflektiert die Wintersonne und verhindert Frostrisse (Rindenrisse).",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🪵 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Stamm und Gerüstäste mit Kalkanstrich weißen — Schutz vor Frostrissen."
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

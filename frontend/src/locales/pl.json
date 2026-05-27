@@ -1302,6 +1302,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Szczepienie — {{instr}}"
   },
+  "trunkWhitewash": {
+    "title": "Czas pobielić pnie",
+    "subtitle": "Ochrona kory przed zimowym słońcem i pęknięciami mrozowymi",
+    "taskTitle": "Pobielić pień {{plant}}",
+    "action": "Pobielić pień farbą wapienną",
+    "instr": "Po opadnięciu liści, przed silnymi mrozami — biel odbija zimowe słońce i zapobiega pęknięciom mrozowym (pęknięcia kory).",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🪵 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Pobielić pień i konary farbą wapienną — ochrona przed pęknięciami mrozowymi."
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

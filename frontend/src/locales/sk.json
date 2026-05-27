@@ -1302,6 +1302,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Štepenie — {{instr}}"
   },
+  "trunkWhitewash": {
+    "title": "Čas nabieliť kmene",
+    "subtitle": "Ochrana kôry pred zimným slnkom a mrazovými trhlinami",
+    "taskTitle": "Nabieliť kmeň {{plant}}",
+    "action": "Nabieliť kmeň vápenným náterom",
+    "instr": "Po opade listov, pred silnými mrazmi — biela odráža zimné slnko a bráni mrazovým trhlinám (praskliny kôry).",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🪵 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Nabieliť kmeň a kostrové konáre vápenným náterom — ochrana pred mrazovými trhlinami."
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",
