@@ -1257,5 +1257,33 @@
     "actMulchAfterTransplant": "Namulčovať výsadbu",
     "actProtectAfterTransplant": "Ochrániť novú výsadbu",
     "actPruneAfterHarvest": "Prerezať po zbere"
+  },
+  "cropRotation": {
+    "cardTitle": "Striedanie plodín",
+    "cardSub_one": "{{count}} záhon so zeleninou",
+    "cardSub_few": "{{count}} záhony so zeleninou",
+    "cardSub_many": "{{count}} záhonu so zeleninou",
+    "cardSub_other": "{{count}} záhonov so zeleninou",
+    "warnRepeat": "Čeľaď {{family}} sa v záhone opakuje — zvoľ inú.",
+    "suggestLead": "Odporúčané striedanie:",
+    "plantWarnTitle": "Striedanie plodín",
+    "plantWarnBody": "Tu nedávno rástla rovnaká čeľaď — {{family}} ({{year}}). Rovnaká čeľaď po sebe vyčerpáva pôdu a podporuje choroby, zváž striedanie.",
+    "plantSuggestLead": "Vhodnejšie teraz:",
+    "famFabaceae": "Bôbovité (strukoviny)",
+    "famBrassicaceae": "Kapustovité (krížové)",
+    "famAsteraceae": "Astrovité (šalát)",
+    "famAmaranthaceae": "Láskavcovité (repa, špenát)",
+    "famSolanaceae": "Ľuľkovité",
+    "famCucurbitaceae": "Tekvicovité",
+    "famPoaceae": "Lipnicovité (kukurica)",
+    "famApiaceae": "Mrkvovité (koreňová)",
+    "famAmaryllidaceae": "Cibuľová zelenina",
+    "famConvolvulaceae": "Pupencovité (bataty)",
+    "famPortulacaceae": "Portulakovité",
+    "famCaprifoliaceae": "Zemolezovité (valeriánka)",
+    "famBegoniaceae": "Begóniovité",
+    "famCampanulaceae": "Zvončekovité",
+    "famGeraniaceae": "Pakostovité (muškát)",
+    "famVerbenaceae": "Verbenovité"
   }
 }

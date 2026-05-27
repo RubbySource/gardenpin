@@ -1103,5 +1103,31 @@
     "actMulchAfterTransplant": "Mulch the planting",
     "actProtectAfterTransplant": "Protect the new planting",
     "actPruneAfterHarvest": "Prune after harvest"
+  },
+  "cropRotation": {
+    "cardTitle": "Crop rotation",
+    "cardSub_one": "{{count}} bed with vegetables",
+    "cardSub_other": "{{count}} beds with vegetables",
+    "warnRepeat": "{{family}} repeat in this bed — rotate to another family.",
+    "suggestLead": "Suggested rotation:",
+    "plantWarnTitle": "Crop rotation",
+    "plantWarnBody": "The same family grew here recently — {{family}} ({{year}}). Repeating it exhausts the soil and builds up disease; consider rotating.",
+    "plantSuggestLead": "Better choice now:",
+    "famFabaceae": "Legumes (peas & beans)",
+    "famBrassicaceae": "Brassicas (cabbage family)",
+    "famAsteraceae": "Asters (lettuce family)",
+    "famAmaranthaceae": "Amaranths (beet & spinach)",
+    "famSolanaceae": "Nightshades",
+    "famCucurbitaceae": "Cucurbits (gourds)",
+    "famPoaceae": "Grasses (corn)",
+    "famApiaceae": "Umbellifers (carrot family)",
+    "famAmaryllidaceae": "Onion family",
+    "famConvolvulaceae": "Bindweeds (sweet potato)",
+    "famPortulacaceae": "Purslanes",
+    "famCaprifoliaceae": "Valerians (corn salad)",
+    "famBegoniaceae": "Begonias",
+    "famCampanulaceae": "Bellflowers",
+    "famGeraniaceae": "Geraniums (pelargonium)",
+    "famVerbenaceae": "Vervains"
   }
 }

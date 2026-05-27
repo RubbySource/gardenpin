@@ -15,6 +15,8 @@ import SeasonMomentModal from '../components/SeasonMomentModal.jsx';
 import { toast } from '../App.jsx';
 import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
+import RotationCard from '../components/RotationCard.jsx';
+import RotationPlantWarning from '../components/RotationPlantWarning.jsx';
 import { COUNTRIES, getZonesByCountry, getClimateZone, describeZone } from '../data/climateZones.js';
 import { ICAL_CATEGORIES } from '../data/taskTypes.js';
 import { shareLink, isNativeShare } from '../native/share.js';
@@ -956,6 +958,8 @@ export default function GardenDetailPage() {
                 {t('gardenDetail.areaBanner', { area: gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0) })}
               </div>
             )}
+            {/* Osevní postup — rotace plodin v záhonech */}
+            <RotationCard beds={beds} pins={pins} />
             {/* Meziroční srovnání péče v této zahradě */}
             <YearOverYear gardenId={garden.id} title={t('gardenDetail.yearOverYearTitle', { name: garden.name })} />
           </>
@@ -972,6 +976,8 @@ export default function GardenDetailPage() {
             altitude_m: garden.altitude_m,
             climate_zone: garden.climate_zone,
           }}
+          beds={beds}
+          pins={pins}
           x={addingPinAt.x}
           y={addingPinAt.y}
           onClose={() => setAddingPinAt(null)}
@@ -1618,7 +1624,7 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
   );
 }
 
-function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
+function NewPinModal({ gardenId, gardenConditions, beds, pins, x, y, onClose, onCreated }) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const [plantName, setPlantName] = useState('');
@@ -1732,6 +1738,15 @@ function NewPinModal({ gardenId, gardenConditions, x, y, onClose, onCreated }) {
             <PlantInfoCard
               plant={selectedPlant}
               onSelectionChange={setSelectedCare}
+            />
+          )}
+          {plantName && (
+            <RotationPlantWarning
+              plantName={plantName}
+              x={x}
+              y={y}
+              beds={beds}
+              pins={pins}
             />
           )}
         </div>

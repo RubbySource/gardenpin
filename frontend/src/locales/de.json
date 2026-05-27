@@ -1103,5 +1103,31 @@
     "actMulchAfterTransplant": "Pflanzung mulchen",
     "actProtectAfterTransplant": "Neue Pflanzung schützen",
     "actPruneAfterHarvest": "Nach der Ernte schneiden"
+  },
+  "cropRotation": {
+    "cardTitle": "Fruchtfolge",
+    "cardSub_one": "{{count}} Beet mit Gemüse",
+    "cardSub_other": "{{count}} Beete mit Gemüse",
+    "warnRepeat": "{{family}} wiederholen sich in diesem Beet — auf eine andere Familie wechseln.",
+    "suggestLead": "Empfohlene Fruchtfolge:",
+    "plantWarnTitle": "Fruchtfolge",
+    "plantWarnBody": "Hier wuchs kürzlich dieselbe Familie — {{family}} ({{year}}). Dieselbe Familie nacheinander laugt den Boden aus und fördert Krankheiten; erwägen Sie einen Wechsel.",
+    "plantSuggestLead": "Jetzt besser:",
+    "famFabaceae": "Hülsenfrüchtler (Erbsen & Bohnen)",
+    "famBrassicaceae": "Kreuzblütler (Kohl)",
+    "famAsteraceae": "Korbblütler (Salat)",
+    "famAmaranthaceae": "Fuchsschwanzgewächse (Rübe, Spinat)",
+    "famSolanaceae": "Nachtschattengewächse",
+    "famCucurbitaceae": "Kürbisgewächse",
+    "famPoaceae": "Süßgräser (Mais)",
+    "famApiaceae": "Doldenblütler (Möhre)",
+    "famAmaryllidaceae": "Zwiebelgewächse",
+    "famConvolvulaceae": "Windengewächse (Süßkartoffel)",
+    "famPortulacaceae": "Portulakgewächse",
+    "famCaprifoliaceae": "Geißblattgewächse (Feldsalat)",
+    "famBegoniaceae": "Begoniengewächse",
+    "famCampanulaceae": "Glockenblumengewächse",
+    "famGeraniaceae": "Storchschnabelgewächse (Pelargonie)",
+    "famVerbenaceae": "Eisenkrautgewächse"
   }
 }

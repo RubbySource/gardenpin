@@ -1257,5 +1257,33 @@
     "actMulchAfterTransplant": "Ściółkuj nasadzenie",
     "actProtectAfterTransplant": "Zabezpiecz nowe nasadzenie",
     "actPruneAfterHarvest": "Przytnij po zbiorze"
+  },
+  "cropRotation": {
+    "cardTitle": "Płodozmian",
+    "cardSub_one": "{{count}} grządka z warzywami",
+    "cardSub_few": "{{count}} grządki z warzywami",
+    "cardSub_many": "{{count}} grządek z warzywami",
+    "cardSub_other": "{{count}} grządki z warzywami",
+    "warnRepeat": "{{family}} powtarzają się na tej grządce — zmień na inną rodzinę.",
+    "suggestLead": "Zalecany płodozmian:",
+    "plantWarnTitle": "Płodozmian",
+    "plantWarnBody": "Niedawno rosła tu ta sama rodzina — {{family}} ({{year}}). Powtarzanie tej samej rodziny wyjaławia glebę i sprzyja chorobom; rozważ zmianę.",
+    "plantSuggestLead": "Lepszy wybór teraz:",
+    "famFabaceae": "Bobowate (strączkowe)",
+    "famBrassicaceae": "Kapustowate (krzyżowe)",
+    "famAsteraceae": "Astrowate (sałata)",
+    "famAmaranthaceae": "Szarłatowate (burak, szpinak)",
+    "famSolanaceae": "Psiankowate",
+    "famCucurbitaceae": "Dyniowate",
+    "famPoaceae": "Wiechlinowate (kukurydza)",
+    "famApiaceae": "Selerowate (marchew)",
+    "famAmaryllidaceae": "Cebulowe",
+    "famConvolvulaceae": "Powojowate (bataty)",
+    "famPortulacaceae": "Portulakowate",
+    "famCaprifoliaceae": "Przewiertniowate (roszponka)",
+    "famBegoniaceae": "Begoniowate",
+    "famCampanulaceae": "Dzwonkowate",
+    "famGeraniaceae": "Bodziszkowate (pelargonia)",
+    "famVerbenaceae": "Werbenowate"
   }
 }

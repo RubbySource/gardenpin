@@ -1183,5 +1183,32 @@
     "actMulchAfterTransplant": "Namulčovat výsadbu",
     "actProtectAfterTransplant": "Ochránit novou výsadbu",
     "actPruneAfterHarvest": "Prořezat po sklizni"
+  },
+  "cropRotation": {
+    "cardTitle": "Osevní postup",
+    "cardSub_one": "{{count}} záhon se zeleninou",
+    "cardSub_few": "{{count}} záhony se zeleninou",
+    "cardSub_other": "{{count}} záhonů se zeleninou",
+    "warnRepeat": "Čeleď {{family}} se v záhonu opakuje — zvaž rotaci na jinou.",
+    "suggestLead": "Doporučená rotace:",
+    "plantWarnTitle": "Osevní postup",
+    "plantWarnBody": "Tady nedávno rostla stejná čeleď — {{family}} ({{year}}). Stejná čeleď po sobě vyčerpává půdu a podporuje choroby, zvaž rotaci.",
+    "plantSuggestLead": "Vhodnější teď:",
+    "famFabaceae": "Bobovité (luskoviny)",
+    "famBrassicaceae": "Košťálovité",
+    "famAsteraceae": "Hvězdnicovité (salát)",
+    "famAmaranthaceae": "Laskavcovité (řepa, špenát)",
+    "famSolanaceae": "Lilkovité",
+    "famCucurbitaceae": "Tykvovité",
+    "famPoaceae": "Lipnicovité (kukuřice)",
+    "famApiaceae": "Miříkovité (kořenová)",
+    "famAmaryllidaceae": "Cibulová zelenina",
+    "famConvolvulaceae": "Svlačcovité (batáty)",
+    "famPortulacaceae": "Šruchovité",
+    "famCaprifoliaceae": "Kozlíkovité (polníček)",
+    "famBegoniaceae": "Begóniovité",
+    "famCampanulaceae": "Zvonkovité",
+    "famGeraniaceae": "Kakostovité (pelargonie)",
+    "famVerbenaceae": "Sporýšovité"
   }
 }

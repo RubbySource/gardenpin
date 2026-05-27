@@ -2934,3 +2934,119 @@ html[data-theme="dark"] .age-task-card {
 }
 html[data-theme="dark"] .age-task-title { color: #a9d4ae; }
 html[data-theme="dark"] .age-task-sub { color: #86b08c; }
+
+/* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
+   paleta, ať se odliší od amber care-gap a zelené age-task karty. */
+.rotation-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e4f4f3, #f0faf8);
+  border: 1px solid #8fc9c2;
+}
+.rotation-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.rotation-title { font-size: 14px; font-weight: 600; color: #1f6a62; }
+.rotation-sub { font-size: 12px; color: #3c857c; }
+.rotation-beds { display: flex; flex-direction: column; gap: 10px; }
+.rotation-bed {
+  padding: 9px 11px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 12px;
+}
+.rotation-bed-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--label);
+  margin-bottom: 7px;
+}
+.rotation-bed-swatch {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+.rotation-fam-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.rotation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label);
+  background: rgba(127, 168, 137, 0.14);
+  border: 1px solid var(--separator);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.rotation-chip.is-warn {
+  background: rgba(232, 179, 94, 0.18);
+  border-color: #e8b35e;
+  color: #8a5a12;
+}
+.rotation-chip-year { font-size: 10px; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.rotation-warn {
+  margin-top: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a5a12;
+}
+.rotation-suggest {
+  margin-top: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.rotation-suggest-lead { font-size: 11px; color: var(--label-secondary, var(--muted)); }
+.rotation-suggest-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1f6a62;
+  background: rgba(143, 201, 194, 0.22);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+html[data-theme="dark"] .rotation-card {
+  background: linear-gradient(135deg, #143230, #0f2624);
+  border-color: #2f5b56;
+}
+html[data-theme="dark"] .rotation-title { color: #8fd6cd; }
+html[data-theme="dark"] .rotation-sub { color: #6fb3aa; }
+html[data-theme="dark"] .rotation-suggest-chip { color: #8fd6cd; background: rgba(47, 91, 86, 0.4); }
+html[data-theme="dark"] .rotation-chip.is-warn { color: #f0c98a; }
+
+/* Varování osevního postupu v NewPinModal (při výsadbě) — amber „pozor" paleta. */
+.rotation-warn-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff3e0, #fff8ec);
+  border: 1px solid #e8b35e;
+}
+.rotation-warn-title { font-size: 13px; font-weight: 600; color: #8a5a12; }
+.rotation-warn-body { font-size: 12px; color: #a06a1f; margin-top: 3px; line-height: 1.4; }
+.rotation-warn-suggest {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+html[data-theme="dark"] .rotation-warn-box {
+  background: linear-gradient(135deg, #3a2a12, #2c2009);
+  border-color: #6e5326;
+}
+html[data-theme="dark"] .rotation-warn-title { color: #f0c98a; }
+html[data-theme="dark"] .rotation-warn-body { color: #cda968; }
