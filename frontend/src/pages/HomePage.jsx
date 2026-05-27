@@ -16,7 +16,7 @@ import FrostWarning from '../components/FrostWarning.jsx';
 import SeasonWindowWarning from '../components/SeasonWindowWarning.jsx';
 import PhenologyHint from '../components/PhenologyHint.jsx';
 import CareHistoryHint from '../components/CareHistoryHint.jsx';
-import { toast } from '../App.jsx';
+import { toast, followUpForTask } from '../App.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
 import { usePhenology } from '../phenology.js';
@@ -114,6 +114,7 @@ export default function HomePage({ onTaskComplete }) {
       setStreakRefresh((k) => k + 1);
       load();
       onTaskComplete?.();
+      followUpForTask(task);
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     }

@@ -1197,5 +1197,25 @@
     "shifting": "Posúvam…",
     "shifted": "📈 Termín posunutý na {{date}}",
     "shiftFailed": "Posun zlyhal: {{msg}}"
+  },
+  "followUp": {
+    "lead": "Nadväzujúci úkon",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✓ Naplánované na {{date}}",
+    "dismiss": "Zavrieť",
+    "notes": "Nadväzuje na: {{from}}",
+    "inDays_one": "za ~{{count}} deň",
+    "inDays_few": "za ~{{count}} dni",
+    "inDays_many": "za ~{{count}} dňa",
+    "inDays_other": "za ~{{count}} dní",
+    "inWeeks_one": "za ~{{count}} týždeň",
+    "inWeeks_few": "za ~{{count}} týždne",
+    "inWeeks_many": "za ~{{count}} týždňa",
+    "inWeeks_other": "za ~{{count}} týždňov",
+    "actFeedAfterPruning": "Prihnojiť po reze",
+    "actMulchAfterTransplant": "Namulčovať výsadbu",
+    "actProtectAfterTransplant": "Ochrániť novú výsadbu",
+    "actPruneAfterHarvest": "Prerezať po zbere"
   }
 }

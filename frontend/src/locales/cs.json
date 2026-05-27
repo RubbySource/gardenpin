@@ -1127,5 +1127,23 @@
     "shifting": "Posouvám…",
     "shifted": "📈 Termín posunut na {{date}}",
     "shiftFailed": "Posun selhal: {{msg}}"
+  },
+  "followUp": {
+    "lead": "Navazující úkon",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✓ Naplánováno na {{date}}",
+    "dismiss": "Zavřít",
+    "notes": "Navazuje na: {{from}}",
+    "inDays_one": "za ~{{count}} den",
+    "inDays_few": "za ~{{count}} dny",
+    "inDays_other": "za ~{{count}} dní",
+    "inWeeks_one": "za ~{{count}} týden",
+    "inWeeks_few": "za ~{{count}} týdny",
+    "inWeeks_other": "za ~{{count}} týdnů",
+    "actFeedAfterPruning": "Přihnojit po řezu",
+    "actMulchAfterTransplant": "Namulčovat výsadbu",
+    "actProtectAfterTransplant": "Ochránit novou výsadbu",
+    "actPruneAfterHarvest": "Prořezat po sklizni"
   }
 }

@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api.js';
-import { toast } from '../App.jsx';
+import { toast, followUpForTask } from '../App.jsx';
 import { taskIcon, taskLabel, monthName } from '../utils.js';
 import { hapticNotification } from '../native/haptics.js';
 import PinDetail from '../pages/PinDetail.jsx';
@@ -41,12 +41,14 @@ export default function SeasonalCalendar() {
     e.stopPropagation();
     if (completing) return;
     setCompleting(taskId);
+    const completed = tasks.find((tk) => tk.id === taskId);
     try {
       await api.completeTask(taskId);
       hapticNotification('success');
       toast(tr('seasonalCal.taskDone'));
       const fresh = await api.listTasks();
       setTasks(fresh);
+      if (completed) followUpForTask(completed);
     } catch (err) {
       toast(tr('common.error', { msg: err.message }));
     } finally {

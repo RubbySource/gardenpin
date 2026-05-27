@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n, { localeCode } from '../i18n.js';
 import { api } from '../api.js';
-import { toast } from '../App.jsx';
+import { toast, followUpForTask } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import Icon from '../components/Icon.jsx';
 import TaskRow from '../components/TaskRow.jsx';
@@ -146,6 +146,7 @@ export default function TasksPage({ onTaskComplete }) {
       toast(t('tasks.completed'));
       await load();
       onTaskComplete?.();
+      followUpForTask(task);
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     } finally {

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { localeCode } from '../i18n.js';
 import { api } from '../api.js';
-import { toast } from '../App.jsx';
+import { toast, followUpForTask } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import { daysFromToday, taskIcon, taskLabel, formatDate } from '../utils.js';
@@ -66,6 +66,7 @@ export default function WeekOverviewPage({ onTaskComplete }) {
       toast(t('overview.completed'));
       await load();
       onTaskComplete?.();
+      followUpForTask(task);
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     } finally {

@@ -1197,5 +1197,25 @@
     "shifting": "Przesuwam…",
     "shifted": "📈 Termin przesunięto na {{date}}",
     "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}"
+  },
+  "followUp": {
+    "lead": "Kolejne zadanie",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✓ Zaplanowano na {{date}}",
+    "dismiss": "Zamknij",
+    "notes": "Następuje po: {{from}}",
+    "inDays_one": "za ~{{count}} dzień",
+    "inDays_few": "za ~{{count}} dni",
+    "inDays_many": "za ~{{count}} dni",
+    "inDays_other": "za ~{{count}} dnia",
+    "inWeeks_one": "za ~{{count}} tydzień",
+    "inWeeks_few": "za ~{{count}} tygodnie",
+    "inWeeks_many": "za ~{{count}} tygodni",
+    "inWeeks_other": "za ~{{count}} tygodnia",
+    "actFeedAfterPruning": "Zasil po cięciu",
+    "actMulchAfterTransplant": "Ściółkuj nasadzenie",
+    "actProtectAfterTransplant": "Zabezpiecz nowe nasadzenie",
+    "actPruneAfterHarvest": "Przytnij po zbiorze"
   }
 }

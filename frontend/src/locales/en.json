@@ -1051,5 +1051,21 @@
     "shifting": "Shifting…",
     "shifted": "📈 Date shifted to {{date}}",
     "shiftFailed": "Shift failed: {{msg}}"
+  },
+  "followUp": {
+    "lead": "Follow-up task",
+    "plan": "Schedule",
+    "planning": "Scheduling…",
+    "planned": "✓ Scheduled for {{date}}",
+    "dismiss": "Dismiss",
+    "notes": "Follows on from: {{from}}",
+    "inDays_one": "in ~{{count}} day",
+    "inDays_other": "in ~{{count}} days",
+    "inWeeks_one": "in ~{{count}} week",
+    "inWeeks_other": "in ~{{count}} weeks",
+    "actFeedAfterPruning": "Feed after pruning",
+    "actMulchAfterTransplant": "Mulch the planting",
+    "actProtectAfterTransplant": "Protect the new planting",
+    "actPruneAfterHarvest": "Prune after harvest"
   }
 }

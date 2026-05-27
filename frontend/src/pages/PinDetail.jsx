@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../i18n.js';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
-import { toast } from '../App.jsx';
+import { toast, followUpForTask } from '../App.jsx';
 import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskLabel, taskIconName } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
@@ -147,6 +147,7 @@ export default function PinDetail({ pinId, onClose }) {
       hapticNotification('success');
       toast(t('pin.toastTaskDone'));
       load();
+      followUpForTask(task);
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     }

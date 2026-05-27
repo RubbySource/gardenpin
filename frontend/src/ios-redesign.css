@@ -1436,6 +1436,95 @@ html[data-theme="dark"] .care-history-badge {
   color: #cdc6f5;
 }
 
+/* ---------- Návazný sezónní úkon (follow-up snackbar) ---------- */
+/* Nenásilný iOS snackbar po splnění úkonu — sedí NAD toastem (toast bottom ~96px). */
+.follow-up {
+  position: fixed;
+  left: 50%;
+  bottom: calc(150px + var(--safe-bottom));
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(440px, calc(100vw - 24px));
+  width: max-content;
+  padding: 10px 12px 10px 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--separator);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.20);
+  -webkit-backdrop-filter: var(--ios-glass-blur);
+  backdrop-filter: var(--ios-glass-blur);
+  animation: follow-up-in 0.34s var(--ios-ease);
+}
+.follow-up-emoji {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.follow-up-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.follow-up-lead {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.follow-up-action {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--label);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.follow-up-plan {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--brand-action);
+  background: var(--brand-action);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.follow-up-plan:active { transform: scale(0.95); }
+.follow-up-plan:disabled { opacity: 0.6; cursor: default; }
+.follow-up-close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  background: var(--fill);
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease);
+}
+.follow-up-close:active { transform: scale(0.92); }
+@keyframes follow-up-in {
+  from { opacity: 0; transform: translate(-50%, 24px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .follow-up { animation: none; }
+}
+html[data-theme="dark"] .follow-up {
+  background: rgba(44, 44, 46, 0.96);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 /* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
 .snooze-sheet-overlay {
   position: fixed;

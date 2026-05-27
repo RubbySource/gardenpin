@@ -17,6 +17,8 @@ import Toast from './components/Toast.jsx';
 import ReminderBanner from './components/ReminderBanner.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
 import OnboardingFlow, { shouldShowOnboardingFlow } from './components/OnboardingFlow.jsx';
+import FollowUpPrompt from './components/FollowUpPrompt.jsx';
+import { resolveFollowUp } from './data/taskChains.js';
 import { showNotification, daysFromToday, taskIcon } from './utils.js';
 import { api } from './api.js';
 
@@ -26,12 +28,21 @@ export function toast(message) {
   if (toastHandler) toastHandler(message);
 }
 
+// Návazné sezónní úkony — po splnění úkonu nabídni logické pokračování (snackbar).
+// Stejný „context-free" vzor jako toast: completeTask cesty volají followUpForTask(task),
+// App vyřeší návrh (resolveFollowUp = chains + dedup) a zobrazí FollowUpPrompt.
+let followUpHandler = null;
+export function followUpForTask(task) {
+  if (followUpHandler) followUpHandler(task);
+}
+
 export default function App() {
   const { t } = useTranslation();
   const [toastMsg, setToastMsg] = useState(null);
   const [pendingStats, setPendingStats] = useState({ overdue: 0, dueToday: 0 });
   const [searchOpen, setSearchOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [followUp, setFollowUp] = useState(null);
   const location = useLocation();
   // Samostatné stránky bez topbaru/nav: read-only sdílení + přijetí pozvánky.
   const isSharedView = location.pathname.startsWith('/share/') || location.pathname.startsWith('/pozvanka/');
@@ -60,6 +71,12 @@ export default function App() {
   toastHandler = (m) => {
     setToastMsg(m);
     setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  followUpHandler = (task) => {
+    resolveFollowUp(task)
+      .then((s) => { if (s) setFollowUp(s); })
+      .catch(() => {});
   };
 
   // Load stats for reminder banner and nav badge
@@ -214,6 +231,13 @@ export default function App() {
       </nav>
 
       {toastMsg && <Toast message={toastMsg} />}
+      {followUp && (
+        <FollowUpPrompt
+          suggestion={followUp}
+          onClose={() => setFollowUp(null)}
+          onCreated={() => api.stats().then(setPendingStats).catch(() => {})}
+        />
+      )}
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
       {showOnboarding && <OnboardingFlow onClose={() => setShowOnboarding(false)} />}
     </div>
