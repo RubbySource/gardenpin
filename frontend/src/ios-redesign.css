@@ -1384,6 +1384,58 @@ html[data-theme="dark"] .phenology-badge {
   color: #b9e6d9;
 }
 
+/* ---------- Adaptivní termín z historie (📈 loni / tvůj termín) ---------- */
+.care-history-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.care-history-alert.compact {
+  margin-top: 6px;
+}
+.care-history-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e3e0fb, #efeefc);
+  border: 1px solid #8b80e0;
+  color: #463a9e;
+  white-space: nowrap;
+}
+.care-history-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--separator);
+  background: var(--fill);
+  color: var(--label);
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.care-history-btn:active {
+  transform: scale(0.96);
+}
+.care-history-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.care-history-alert.compact .care-history-badge,
+.care-history-alert.compact .care-history-btn {
+  font-size: 0.68rem;
+}
+html[data-theme="dark"] .care-history-badge {
+  background: linear-gradient(135deg, #2a2550, #1f1b3e);
+  border-color: #51489a;
+  color: #cdc6f5;
+}
+
 /* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
 .snooze-sheet-overlay {
   position: fixed;

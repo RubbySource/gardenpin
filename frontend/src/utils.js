@@ -8,6 +8,14 @@ export function formatDate(iso) {
   return d.toLocaleDateString(localeCode(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Den + měsíc bez roku — pro kompaktní badge („18. srpna"), kde rok plyne z kontextu.
+export function formatDayMonth(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(localeCode(), { day: 'numeric', month: 'long' });
+}
+
 export function formatDateTime(iso) {
   if (!iso) return '';
   const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');

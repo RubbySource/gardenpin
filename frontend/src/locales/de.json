@@ -1040,5 +1040,16 @@
     "shifted": "🌡️ Termin auf {{date}} verschoben",
     "shiftFailed": "Verschieben fehlgeschlagen: {{msg}}",
     "tooltip": "Termin an die diesjährigen Temperaturen angepasst (Abweichung {{temp}} °C vom langjährigen Mittel)."
+  },
+  "careHistory": {
+    "lastYear": "Letztes Jahr: {{date}}",
+    "yourTerm": "Ihr Termin: ~{{date}}",
+    "tooltipLast": "Letztes Jahr haben Sie das an einem anderen Tag erledigt — verschieben Sie den Termin entsprechend.",
+    "tooltipAvg_one": "Ihr Durchschnitt über {{count}} Jahr · letztes Jahr {{last}}",
+    "tooltipAvg_other": "Ihr Durchschnitt über {{count}} Jahre · letztes Jahr {{last}}",
+    "shiftBtn": "Auf Ihren Termin verschieben",
+    "shifting": "Verschiebe…",
+    "shifted": "📈 Termin auf {{date}} verschoben",
+    "shiftFailed": "Verschieben fehlgeschlagen: {{msg}}"
   }
 }

@@ -1184,5 +1184,18 @@
     "shifted": "🌡️ Termin przesunięto na {{date}}",
     "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}",
     "tooltip": "Termin dostrojony do tegorocznych temperatur (odchylenie {{temp}} °C od wieloletniej normy)."
+  },
+  "careHistory": {
+    "lastYear": "W zeszłym roku: {{date}}",
+    "yourTerm": "Twój termin: ~{{date}}",
+    "tooltipLast": "W zeszłym roku robiłeś to innego dnia — przesuń termin na swój dzień.",
+    "tooltipAvg_one": "Twoja średnia z {{count}} roku · w zeszłym roku {{last}}",
+    "tooltipAvg_few": "Twoja średnia z {{count}} lat · w zeszłym roku {{last}}",
+    "tooltipAvg_many": "Twoja średnia z {{count}} lat · w zeszłym roku {{last}}",
+    "tooltipAvg_other": "Twoja średnia z {{count}} roku · w zeszłym roku {{last}}",
+    "shiftBtn": "Przesuń na swój termin",
+    "shifting": "Przesuwam…",
+    "shifted": "📈 Termin przesunięto na {{date}}",
+    "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}"
   }
 }

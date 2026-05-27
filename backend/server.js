@@ -1081,6 +1081,33 @@ app.get('/api/history', (req, res) => {
   res.json(rows);
 });
 
+// Agregovaná historie pro adaptivní termíny (CareHistoryHint): per (pin, akce) den v roce
+// z minulých splnění. Lehká verze — vrací jen pin_id/akce/rok/doy (žádné notes/joiny),
+// ať klient nestahuje celou care_history. done_at je UTC text; strftime '%j' = den v roce
+// (001–366), '%Y' = rok. Víc splnění téže akce v jednom roce zprůměrujeme (zaokrouhleno).
+app.get('/api/care-history/doy', (req, res) => {
+  const rows = db
+    .prepare(
+      `SELECT pin_id, action,
+        CAST(strftime('%Y', done_at) AS INTEGER) AS year,
+        CAST(ROUND(AVG(CAST(strftime('%j', done_at) AS INTEGER))) AS INTEGER) AS doy
+       FROM care_history
+       WHERE done_at IS NOT NULL AND action IS NOT NULL AND action != ''
+       GROUP BY pin_id, action, year
+       ORDER BY pin_id, action, year DESC`,
+    )
+    .all();
+  // Vnoříme do [{ pin_id, action, years: [{ year, doy }] }] pro O(1) lookup na klientu.
+  const map = new Map();
+  for (const r of rows) {
+    if (r.pin_id == null || !r.action || r.year == null || r.doy == null) continue;
+    const key = `${r.pin_id} ${r.action}`;
+    if (!map.has(key)) map.set(key, { pin_id: r.pin_id, action: r.action, years: [] });
+    map.get(key).years.push({ year: r.year, doy: r.doy });
+  }
+  res.json(Array.from(map.values()));
+});
+
 app.post('/api/history', (req, res) => {
   const { pin_id, action, notes } = req.body;
   const info = db

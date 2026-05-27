@@ -1040,5 +1040,16 @@
     "shifted": "🌡️ Date shifted to {{date}}",
     "shiftFailed": "Shift failed: {{msg}}",
     "tooltip": "Timing tuned to this year's temperatures ({{temp}} °C vs. the long-term normal)."
+  },
+  "careHistory": {
+    "lastYear": "Last year: {{date}}",
+    "yourTerm": "Your timing: ~{{date}}",
+    "tooltipLast": "Last year you did this on a different day — shift the date to match.",
+    "tooltipAvg_one": "Your average over {{count}} year · last year {{last}}",
+    "tooltipAvg_other": "Your average over {{count}} years · last year {{last}}",
+    "shiftBtn": "Shift to your date",
+    "shifting": "Shifting…",
+    "shifted": "📈 Date shifted to {{date}}",
+    "shiftFailed": "Shift failed: {{msg}}"
   }
 }

@@ -121,6 +121,8 @@ export const api = {
 
   // History (zápis vzniká serverstranně jako vedlejší efekt dokončení úkolu)
   listHistory: () => jsonFetch('/api/history'),
+  // Agregovaná historie (per pin+akce → den v roce) pro adaptivní termíny (careHistory.js)
+  careHistoryDoy: () => jsonFetch('/api/care-history/doy'),
 
   // Harvests (sklizeň) — globální výpis se nepoužívá, UI čte per-pin
   listPinHarvests: (pinId) => jsonFetch(`/api/pins/${pinId}/harvests`),

@@ -1115,5 +1115,17 @@
     "shifted": "🌡️ Termín posunut na {{date}}",
     "shiftFailed": "Posun selhal: {{msg}}",
     "tooltip": "Termín doladěn dle letošního průběhu teplot (odchylka {{temp}} °C od dlouhodobého normálu)."
+  },
+  "careHistory": {
+    "lastYear": "Loni: {{date}}",
+    "yourTerm": "Tvůj termín: ~{{date}}",
+    "tooltipLast": "Loni jsi tenhle úkon dělal jindy — posuň termín na svůj loňský den.",
+    "tooltipAvg_one": "Tvůj průměr za {{count}} rok · loni {{last}}",
+    "tooltipAvg_few": "Tvůj průměr za {{count}} roky · loni {{last}}",
+    "tooltipAvg_other": "Tvůj průměr za {{count}} let · loni {{last}}",
+    "shiftBtn": "Posunout na tvůj termín",
+    "shifting": "Posouvám…",
+    "shifted": "📈 Termín posunut na {{date}}",
+    "shiftFailed": "Posun selhal: {{msg}}"
   }
 }

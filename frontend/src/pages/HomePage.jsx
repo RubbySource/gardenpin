@@ -15,10 +15,12 @@ import Icon from '../components/Icon.jsx';
 import FrostWarning from '../components/FrostWarning.jsx';
 import SeasonWindowWarning from '../components/SeasonWindowWarning.jsx';
 import PhenologyHint from '../components/PhenologyHint.jsx';
+import CareHistoryHint from '../components/CareHistoryHint.jsx';
 import { toast } from '../App.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
 import { usePhenology } from '../phenology.js';
+import { useCareHistory } from '../careHistory.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { fireConfetti } from '../utils/confetti.js';
 import { hapticNotification } from '../native/haptics.js';
@@ -56,6 +58,7 @@ export default function HomePage({ onTaskComplete }) {
   const [streakRefresh, setStreakRefresh] = useState(0);
   const forecast = useFrostForecast();
   const pheno = usePhenology();
+  const careHistory = useCareHistory();
   const nav = useNavigate();
 
   const userName = localStorage.getItem(USER_NAME_KEY) || DEFAULT_NAME;
@@ -181,6 +184,7 @@ export default function HomePage({ onTaskComplete }) {
                 task={t}
                 forecast={forecast}
                 pheno={pheno}
+                history={careHistory}
                 onComplete={completeTask}
                 onPostponed={load}
               />
@@ -238,6 +242,7 @@ export default function HomePage({ onTaskComplete }) {
                 task={t}
                 forecast={forecast}
                 pheno={pheno}
+                history={careHistory}
                 onComplete={completeTask}
                 onPostponed={load}
               />
@@ -341,7 +346,7 @@ export default function HomePage({ onTaskComplete }) {
 }
 
 // iOS grouped-list řádek úkolu — kruhový check (splnit) + ikona z taxonomie + termín badge.
-function HomeTaskRow({ task, forecast, pheno, onComplete, onPostponed }) {
+function HomeTaskRow({ task, forecast, pheno, history, onComplete, onPostponed }) {
   const { t } = useTranslation();
   const badge = dueBadge(task.next_due);
   const days = daysFromToday(task.next_due);
@@ -371,6 +376,7 @@ function HomeTaskRow({ task, forecast, pheno, onComplete, onPostponed }) {
         <FrostWarning task={task} forecast={forecast} onPostponed={onPostponed} compact />
         <SeasonWindowWarning task={task} onResolved={onPostponed} compact />
         <PhenologyHint task={task} pheno={pheno} onShifted={onPostponed} compact />
+        <CareHistoryHint task={task} history={history} pheno={pheno} onShifted={onPostponed} compact />
       </div>
       {badge && <span className={`hm-task-badge ${badge.cls}`}>{badge.text}</span>}
     </div>
