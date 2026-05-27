@@ -1314,6 +1314,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Pobielić pień i konary farbą wapienną — ochrona przed pęknięciami mrozowymi."
   },
+  "fruitThinning": {
+    "title": "Czas przerzedzić owoce",
+    "subtitle": "Przerzedź nadmierny zawiązek, aby pozostałe owoce urosły większe",
+    "taskTitle": "Przerzedzić zawiązki {{plant}}",
+    "typePome": "Przerzedzanie ziarnkowych (jabłoń, grusza)",
+    "typeStone": "Przerzedzanie pestkowych (brzoskwinia, morela, śliwa)",
+    "instrPome": "Zostaw 1 najsilniejszy owoc na pęczek, w odstępie 8–10 cm — pozostałe owoce urosną większe, a gałęzie się nie łamią.",
+    "instrStone": "Przerzedź nadmierne zawiązki do odstępu ok. 8 cm — łagodniejsze przerzedzenie, by drzewo nie owocowało przemiennie.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🍎 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Przerzedzanie owoców — {{instr}}"
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

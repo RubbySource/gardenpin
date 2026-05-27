@@ -3388,6 +3388,81 @@ html[data-theme="dark"] .trunk-whitewash-card {
 html[data-theme="dark"] .trunk-whitewash-title { color: #c5cfd9; }
 html[data-theme="dark"] .trunk-whitewash-sub { color: #9aa6b2; }
 
+/* Probírka násady ovoce — karta v detailu pinu (Úkony tab). Jablečně-červená paleta, ať se
+   odliší od teplé dřevité grafting karty i chladné vápenné whitewash karty. */
+.fruit-thinning-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbe7e6, #fdf3f1);
+  border: 1px solid #e3a9a2;
+}
+.fruit-thinning-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.fruit-thinning-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b03a32;
+}
+.fruit-thinning-sub {
+  font-size: 12px;
+  color: #c25c54;
+}
+.fruit-thinning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fruit-thinning-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.fruit-thinning-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #c0413a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.fruit-thinning-main { flex: 1; min-width: 0; }
+.fruit-thinning-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.fruit-thinning-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.fruit-thinning-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #c0413a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.fruit-thinning-btn:active { transform: scale(0.96); }
+.fruit-thinning-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .fruit-thinning-card {
+  background: linear-gradient(135deg, #2c1817, #211110);
+  border-color: #5a302c;
+}
+html[data-theme="dark"] .fruit-thinning-title { color: #f0a59d; }
+html[data-theme="dark"] .fruit-thinning-sub { color: #d4847b; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

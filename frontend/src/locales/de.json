@@ -1160,6 +1160,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Stamm und Gerüstäste mit Kalkanstrich weißen — Schutz vor Frostrissen."
   },
+  "fruitThinning": {
+    "title": "Zeit, die Früchte auszudünnen",
+    "subtitle": "Dünnen Sie den überschüssigen Behang aus, damit die übrigen Früchte größer werden",
+    "taskTitle": "Fruchtbehang von {{plant}} ausdünnen",
+    "typePome": "Kernobst ausdünnen (Apfel, Birne)",
+    "typeStone": "Steinobst ausdünnen (Pfirsich, Aprikose, Pflaume)",
+    "instrPome": "Lassen Sie 1 stärkste Frucht je Büschel, Abstand 8–10 cm — die übrigen Früchte werden größer und die Äste brechen nicht.",
+    "instrStone": "Dünnen Sie die überschüssigen Fruchtansätze auf etwa 8 cm Abstand aus — eine sanftere Ausdünnung gegen Alternanz.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🍎 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Fruchtausdünnung — {{instr}}"
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

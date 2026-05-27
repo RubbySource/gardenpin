@@ -18,6 +18,7 @@ import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
+import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
 import SoilAcidCard from '../components/SoilAcidCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
@@ -431,6 +432,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Roubování / očkování ovocných stromů (vykreslí se jen pro ovoce/stromy v sezóně) */}
       <GraftingTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Probírka násady ovoce — červnová protrhávka (vykreslí se jen pro jádroviny/velkoplodé peckoviny v sezóně 6) */}
+      <FruitThinningCard pin={pin} onPlanned={onReload} />
 
       {/* Bílení kmenů na zimu (vykreslí se jen pro ovoce/stromy v podzimní sezóně 11–12) */}
       <TrunkWhitewashCard pin={pin} onPlanned={onReload} />

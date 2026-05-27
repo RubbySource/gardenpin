@@ -1160,6 +1160,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Whitewash the trunk and scaffold branches with lime paint — protection against frost cracks."
   },
+  "fruitThinning": {
+    "title": "Time to thin the fruit",
+    "subtitle": "Thin the excess set so the remaining fruit grows larger",
+    "taskTitle": "Thin {{plant}} fruit set",
+    "typePome": "Thinning pome fruit (apple, pear)",
+    "typeStone": "Thinning stone fruit (peach, apricot, plum)",
+    "instrPome": "Leave 1 strongest fruit per cluster, 8–10 cm apart — the remaining fruit grows larger and branches don't break.",
+    "instrStone": "Thin the excess fruitlets to roughly 8 cm apart — a gentler thinning to keep the tree from biennial bearing.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🍎 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Fruit thinning — {{instr}}"
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

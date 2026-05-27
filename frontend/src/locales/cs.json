@@ -1240,6 +1240,20 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Nabílit kmen a kosterní větve vápenným nátěrem — ochrana před mrazovými deskami."
   },
+  "fruitThinning": {
+    "title": "Čas probrat plody",
+    "subtitle": "Prober přebytečnou násadu, ať zbylé plody vyrostou větší",
+    "taskTitle": "Probrat násadu {{plant}}",
+    "typePome": "Probírka jádrovin (jabloň, hrušeň)",
+    "typeStone": "Probírka peckovin (broskev, meruňka, švestka)",
+    "instrPome": "Ponech 1 nejsilnější plod na svazek, rozestup 8–10 cm — zbylé plody vyrostou větší a větve se nelámou.",
+    "instrStone": "Prober přebytečné plůdky na rozestup ~8 cm — mírnější probírka, ať strom nestřídá plodnost.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🍎 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Probírka násady — {{instr}}"
+  },
   "winterPrep": {
     "title": "Připrav na zimu",
     "summary_one": "{{count}} rostlina potřebuje zazimovat před mrazem.",

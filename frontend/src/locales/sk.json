@@ -1314,6 +1314,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Nabieliť kmeň a kostrové konáre vápenným náterom — ochrana pred mrazovými trhlinami."
   },
+  "fruitThinning": {
+    "title": "Čas prebrať plody",
+    "subtitle": "Prebrať prebytočnú násadu, nech zvyšné plody narastú väčšie",
+    "taskTitle": "Prebrať násadu {{plant}}",
+    "typePome": "Preberanie jadrovín (jabloň, hruška)",
+    "typeStone": "Preberanie kôstkovín (broskyňa, marhuľa, slivka)",
+    "instrPome": "Ponechaj 1 najsilnejší plod na zväzok, rozstup 8–10 cm — zvyšné plody narastú väčšie a konáre sa nelámu.",
+    "instrStone": "Prebrať prebytočné plôdiky na rozstup ~8 cm — miernejšie preberanie, nech strom nestrieda plodnosť.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🍎 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Preberanie násady — {{instr}}"
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",
