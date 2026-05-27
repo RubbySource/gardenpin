@@ -1244,6 +1244,22 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Delenie trsu ({{age}}. rok od výsadby) — omladí kvitnutie."
   },
+  "winterPrep": {
+    "title": "Priprav na zimu",
+    "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",
+    "summary_few": "{{count}} rastliny potrebujú zazimovať pred mrazom.",
+    "summary_many": "{{count}} rastliny potrebujú zazimovať pred mrazom.",
+    "summary_other": "{{count}} rastlín potrebuje zazimovať pred mrazom.",
+    "actionLift": "Vyryť a uložiť hľuzy",
+    "actionProtect": "Zazimovať a prikryť",
+    "frostWarn": "mráz {{date}}",
+    "planAll": "Naplánovať všetko ({{count}})",
+    "planning": "Plánujem…",
+    "planned": "🍂 Naplánované: {{count}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notesLift": "Pred prvým mrazom vyryť hľuzy/cibule a uskladniť nad 5 °C.",
+    "notesProtect": "Pred prvým mrazom prikryť, obaliť alebo presunúť do nezamŕzajúceho úkrytu."
+  },
   "idealDay": {
     "badge": "Najlepší deň: {{day}}",
     "tooltipDry": "Tento deň je suchý a bezveterný — ideálny na rez a postrek (dážď zmyje postrek, vlhké rany sú náchylné na huby).",

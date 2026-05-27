@@ -1092,6 +1092,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Clump division (year {{age}} since planting) — restores flowering."
   },
+  "winterPrep": {
+    "title": "Get ready for winter",
+    "summary_one": "{{count}} plant needs winterizing before frost.",
+    "summary_other": "{{count}} plants need winterizing before frost.",
+    "actionLift": "Lift and store the tubers",
+    "actionProtect": "Winterize and cover",
+    "frostWarn": "frost {{date}}",
+    "planAll": "Plan all ({{count}})",
+    "planning": "Planning…",
+    "planned": "🍂 Planned: {{count}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notesLift": "Lift the tubers/corms before the first frost and store above 5 °C.",
+    "notesProtect": "Before the first frost, cover, wrap or move to a frost-free shelter."
+  },
   "idealDay": {
     "badge": "Best day: {{day}}",
     "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",

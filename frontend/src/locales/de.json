@@ -1092,6 +1092,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Horstteilung ({{age}}. Jahr seit der Pflanzung) — fördert die Blüte."
   },
+  "winterPrep": {
+    "title": "Machen Sie den Garten winterfest",
+    "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",
+    "summary_other": "{{count}} Pflanzen müssen vor dem Frost winterfest gemacht werden.",
+    "actionLift": "Knollen ausgraben und einlagern",
+    "actionProtect": "Winterfest machen und abdecken",
+    "frostWarn": "Frost {{date}}",
+    "planAll": "Alle einplanen ({{count}})",
+    "planning": "Plane…",
+    "planned": "🍂 Geplant: {{count}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notesLift": "Knollen/Zwiebeln vor dem ersten Frost ausgraben und über 5 °C lagern.",
+    "notesProtect": "Vor dem ersten Frost abdecken, einwickeln oder an einen frostfreien Ort bringen."
+  },
   "idealDay": {
     "badge": "Bester Tag: {{day}}",
     "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",

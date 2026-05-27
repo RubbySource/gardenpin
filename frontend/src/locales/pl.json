@@ -1244,6 +1244,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Podział kępy ({{age}}. rok od posadzenia) — przywraca kwitnienie."
   },
+  "winterPrep": {
+    "title": "Przygotuj na zimę",
+    "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",
+    "summary_few": "{{count}} rośliny wymagają zabezpieczenia przed mrozem.",
+    "summary_many": "{{count}} roślin wymaga zabezpieczenia przed mrozem.",
+    "summary_other": "{{count}} roślin wymaga zabezpieczenia przed mrozem.",
+    "actionLift": "Wykop i przechowaj bulwy",
+    "actionProtect": "Zabezpiecz na zimę i okryj",
+    "frostWarn": "mróz {{date}}",
+    "planAll": "Zaplanuj wszystko ({{count}})",
+    "planning": "Planuję…",
+    "planned": "🍂 Zaplanowano: {{count}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notesLift": "Przed pierwszym mrozem wykop bulwy/cebule i przechowuj powyżej 5 °C.",
+    "notesProtect": "Przed pierwszym mrozem okryj, owiń lub przenieś w miejsce wolne od mrozu."
+  },
   "idealDay": {
     "badge": "Najlepszy dzień: {{day}}",
     "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",
