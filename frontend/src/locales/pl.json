@@ -1244,6 +1244,19 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Podział kępy ({{age}}. rok od posadzenia) — przywraca kwitnienie."
   },
+  "perennialCutback": {
+    "title": "Czas na przycięcie",
+    "subtitle": "Przytnij obumarłą nadziemną część byliny lub trawy",
+    "taskTitle": "Przytnij {{plant}}",
+    "action": "Przytnij część nadziemną",
+    "metaSpring": "Zostaw na zimę (sylwetka + ochrona podstawy) i przytnij wczesną wiosną przed ruszeniem wegetacji.",
+    "metaAutumn": "Po zaschnięciu jesienią przytnij obumarłą część nadziemną przy ziemi.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Sezonowe przycięcie części nadziemnej — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Wysiew z nasion na rozsadę",
     "subtitle": "Wysiej do skrzynki z wyprzedzeniem przed wysadzeniem",

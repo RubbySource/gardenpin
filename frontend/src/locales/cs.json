@@ -1171,6 +1171,19 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Dělení trsu ({{age}}. rok od výsadby) — omladí kvetení."
   },
+  "perennialCutback": {
+    "title": "Čas na sestřih",
+    "subtitle": "Sestřihni odumřelou nadzemní část trvalky nebo trávy",
+    "taskTitle": "Sestřihnout {{plant}}",
+    "action": "Sestřihnout nadzemní část",
+    "metaSpring": "Nechej přes zimu (silueta + ochrana báze) a sestřihni brzy zjara před rašením.",
+    "metaAutumn": "Po zatažení na podzim sestřihni odumřelou nadzemní část až k zemi.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Sezónní seříznutí nadzemní části — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Předpěstování ze semene",
     "subtitle": "Vyset dovnitř s předstihem před výsadbou ven",

@@ -3463,6 +3463,82 @@ html[data-theme="dark"] .fruit-thinning-card {
 html[data-theme="dark"] .fruit-thinning-title { color: #f0a59d; }
 html[data-theme="dark"] .fruit-thinning-sub { color: #d4847b; }
 
+/* Sestřižení trvalek a okrasných trav — karta „✂️ Čas na sestřih" v detailu pinu (Úkony tab).
+   Zlatě-khaki „suché stéblo / odumřelá nať" paleta, ať se odliší od švestkové division-task,
+   zelené age-task a apple-red fruit-thinning karty. */
+.cutback-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f3ecd7, #faf6ea);
+  border: 1px solid #cdbd8a;
+}
+.cutback-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.cutback-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8a7320;
+}
+.cutback-task-sub {
+  font-size: 12px;
+  color: #9c8636;
+}
+.cutback-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cutback-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.cutback-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #9a8226;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.cutback-task-main { flex: 1; min-width: 0; }
+.cutback-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.cutback-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.cutback-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #9a8226;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.cutback-task-btn:active { transform: scale(0.96); }
+.cutback-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .cutback-task-card {
+  background: linear-gradient(135deg, #25210f, #1a1709);
+  border-color: #4a3f1c;
+}
+html[data-theme="dark"] .cutback-task-title { color: #d8c879; }
+html[data-theme="dark"] .cutback-task-sub { color: #bfae6a; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

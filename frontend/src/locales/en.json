@@ -1092,6 +1092,19 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Clump division (year {{age}} since planting) — restores flowering."
   },
+  "perennialCutback": {
+    "title": "Time to cut back",
+    "subtitle": "Cut back the dead top growth of the perennial or grass",
+    "taskTitle": "Cut back {{plant}}",
+    "action": "Cut back the top growth",
+    "metaSpring": "Leave it over winter (silhouette + crown protection) and cut it back in early spring before it sprouts.",
+    "metaAutumn": "After it dies back in autumn, cut the dead top growth down to the ground.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Seasonal cutback of the top growth — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Sow from seed indoors",
     "subtitle": "Start seedlings ahead of planting out",

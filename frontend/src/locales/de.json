@@ -1092,6 +1092,19 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Horstteilung ({{age}}. Jahr seit der Pflanzung) — fördert die Blüte."
   },
+  "perennialCutback": {
+    "title": "Zeit für den Rückschnitt",
+    "subtitle": "Schneiden Sie das abgestorbene oberirdische Laub der Staude oder des Grases zurück",
+    "taskTitle": "{{plant}} zurückschneiden",
+    "action": "Oberirdisches Laub zurückschneiden",
+    "metaSpring": "Lassen Sie sie über den Winter stehen (Silhouette + Schutz der Basis) und schneiden Sie sie im zeitigen Frühjahr vor dem Austrieb zurück.",
+    "metaAutumn": "Schneiden Sie das abgestorbene Laub nach dem Einziehen im Herbst bodennah zurück.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Saisonaler Rückschnitt des oberirdischen Laubs — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Aus Samen vorziehen",
     "subtitle": "Sämlinge rechtzeitig vor dem Auspflanzen anziehen",

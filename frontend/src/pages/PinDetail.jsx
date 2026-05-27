@@ -14,6 +14,7 @@ import PlantWarnings from '../components/PlantWarnings.jsx';
 import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
+import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
@@ -420,6 +421,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Dělení trsu trvalek/trav dle cyklu (vykreslí se jen pro relevantní věk/kategorii) */}
       <DivisionTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Každoroční sestřih trvalek/trav — zjara (strukturní/trávy) nebo na podzim (měkké) */}
+      <CutbackTaskCard pin={pin} onPlanned={onReload} />
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />
