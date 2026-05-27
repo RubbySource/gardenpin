@@ -17,6 +17,7 @@ import PlantAutocomplete, { PlantInfoCard, buildSeasonalTaskPayloads } from '../
 import YearOverYear from '../components/YearOverYear.jsx';
 import RotationCard from '../components/RotationCard.jsx';
 import WinterPrepCard from '../components/WinterPrepCard.jsx';
+import GreenManureCard from '../components/GreenManureCard.jsx';
 import RotationPlantWarning from '../components/RotationPlantWarning.jsx';
 import { COUNTRIES, getZonesByCountry, getClimateZone, describeZone } from '../data/climateZones.js';
 import { ICAL_CATEGORIES } from '../data/taskTypes.js';
@@ -963,6 +964,8 @@ export default function GardenDetailPage() {
             <RotationCard beds={beds} pins={pins} />
             {/* Zazimování — vyrýt hlízy + zimní ochrana před prvním mrazem (jen 9–11) */}
             <WinterPrepCard garden={garden} pins={pins} />
+            {/* Zelené hnojení — meziplodina do uvolněných zeleninových záhonů (jen 8–10) */}
+            <GreenManureCard garden={garden} pins={pins} beds={beds} />
             {/* Meziroční srovnání péče v této zahradě */}
             <YearOverYear gardenId={garden.id} title={t('gardenDetail.yearOverYearTitle', { name: garden.name })} />
           </>

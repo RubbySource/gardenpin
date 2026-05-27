@@ -1282,5 +1282,23 @@
     "famCampanulaceae": "Zvonkovité",
     "famGeraniaceae": "Kakostovité (pelargonie)",
     "famVerbenaceae": "Sporýšovité"
+  },
+  "greenManure": {
+    "title": "Zasej zelené hnojení",
+    "summary_one": "{{count}} uvolněný záhon čeká na zelené hnojení.",
+    "summary_few": "{{count}} uvolněné záhony čekají na zelené hnojení.",
+    "summary_other": "{{count}} uvolněných záhonů čeká na zelené hnojení.",
+    "taskTitle": "Zasít zelené hnojení do záhonu {{bed}}",
+    "dedupMarker": "zelené hnojení",
+    "mixFrostKill": "Hořčice + svazenka",
+    "mixOverwinter": "Žito ozimé + jetel",
+    "descFrostKill": "přes zimu vymrzne sama",
+    "descOverwinter": "přezimuje, na jaře zaryj",
+    "planAll": "Naplánovat vše ({{count}})",
+    "planning": "Plánuji…",
+    "planned": "🌱 Naplánováno: {{count}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notesFrostKill": "Zasít hořčici/svazenku do uvolněného záhonu — přes zimu vymrzne sama, na jaře jen zaryj nebo zamulčuj.",
+    "notesOverwinter": "Zasít ozimé žito/jetel do uvolněného záhonu — přes zimu přezimuje, na jaře zaryj ~3 týdny před výsadbou."
   }
 }

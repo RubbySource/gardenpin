@@ -3430,3 +3430,75 @@ html[data-theme="dark"] .winter-prep-card {
 html[data-theme="dark"] .winter-prep-title { color: #9cc1ec; }
 html[data-theme="dark"] .winter-prep-sub { color: #7ba0cf; }
 html[data-theme="dark"] .winter-prep-frost { color: #f08a7e; }
+
+/* Zelené hnojení — karta v detailu zahrady (Statistiky tab). Zemitá olivově-zelená
+   „meziplodina / půda" paleta, ať se odliší od modré zazimovací, teal rotace a svěží
+   zeleno-žluté sowing karty. */
+.green-manure-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #eef1e0, #f5f7ea);
+  border: 1px solid #b6bf8d;
+}
+.green-manure-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.green-manure-title { font-size: 14px; font-weight: 600; color: #556528; }
+.green-manure-sub { font-size: 12px; color: #6f8038; }
+.green-manure-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.green-manure-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.green-manure-swatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.green-manure-main { flex: 1; min-width: 0; }
+.green-manure-bed { display: block; font-size: 13px; font-weight: 600; color: var(--label); }
+.green-manure-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.green-manure-when {
+  flex-shrink: 0;
+  min-width: 34px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #fff;
+  background: #6f8038;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.green-manure-btn {
+  width: 100%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 11px;
+  border: none;
+  background: #556528;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.green-manure-btn:active { transform: scale(0.98); }
+.green-manure-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .green-manure-card {
+  background: linear-gradient(135deg, #232a14, #1b2010);
+  border-color: #4a5826;
+}
+html[data-theme="dark"] .green-manure-title { color: #c2d18a; }
+html[data-theme="dark"] .green-manure-sub { color: #a3b56c; }

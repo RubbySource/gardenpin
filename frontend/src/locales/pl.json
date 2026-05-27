@@ -1360,5 +1360,24 @@
     "famCampanulaceae": "Dzwonkowate",
     "famGeraniaceae": "Bodziszkowate (pelargonia)",
     "famVerbenaceae": "Werbenowate"
+  },
+  "greenManure": {
+    "title": "Wysiej nawóz zielony",
+    "summary_one": "{{count}} wolna grządka czeka na nawóz zielony.",
+    "summary_few": "{{count}} wolne grządki czekają na nawóz zielony.",
+    "summary_many": "{{count}} wolnych grządek czeka na nawóz zielony.",
+    "summary_other": "{{count}} wolnej grządki czeka na nawóz zielony.",
+    "taskTitle": "Wysiej nawóz zielony na grządce {{bed}}",
+    "dedupMarker": "nawóz zielony",
+    "mixFrostKill": "Gorczyca + facelia",
+    "mixOverwinter": "Żyto ozime + koniczyna",
+    "descFrostKill": "wymarznie sama zimą",
+    "descOverwinter": "przezimuje, wiosną przekop",
+    "planAll": "Zaplanuj wszystko ({{count}})",
+    "planning": "Planowanie…",
+    "planned": "🌱 Zaplanowano: {{count}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notesFrostKill": "Wysiej gorczycę/facelię na wolnej grządce — wymarznie sama zimą, wiosną wystarczy przekopać lub zamulczować.",
+    "notesOverwinter": "Wysiej żyto ozime/koniczynę na wolnej grządce — przezimuje; przekop ~3 tygodnie przed wiosennym sadzeniem."
   }
 }

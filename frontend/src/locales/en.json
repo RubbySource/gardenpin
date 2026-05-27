@@ -1198,5 +1198,22 @@
     "famCampanulaceae": "Bellflowers",
     "famGeraniaceae": "Geraniums (pelargonium)",
     "famVerbenaceae": "Vervains"
+  },
+  "greenManure": {
+    "title": "Sow a cover crop",
+    "summary_one": "{{count}} freed bed is ready for a cover crop.",
+    "summary_other": "{{count}} freed beds are ready for a cover crop.",
+    "taskTitle": "Sow a cover crop in bed {{bed}}",
+    "dedupMarker": "cover crop",
+    "mixFrostKill": "Mustard + phacelia",
+    "mixOverwinter": "Winter rye + clover",
+    "descFrostKill": "winter-kills on its own",
+    "descOverwinter": "overwinters, dig in next spring",
+    "planAll": "Schedule all ({{count}})",
+    "planning": "Scheduling…",
+    "planned": "🌱 Scheduled: {{count}}",
+    "planFailed": "Scheduling failed: {{msg}}",
+    "notesFrostKill": "Sow mustard/phacelia into the freed bed — it winter-kills on its own, just dig or mulch it in next spring.",
+    "notesOverwinter": "Sow winter rye/clover into the freed bed — it overwinters; dig it in ~3 weeks before spring planting."
   }
 }

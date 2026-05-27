@@ -1198,5 +1198,22 @@
     "famCampanulaceae": "Glockenblumengewächse",
     "famGeraniaceae": "Storchschnabelgewächse (Pelargonie)",
     "famVerbenaceae": "Eisenkrautgewächse"
+  },
+  "greenManure": {
+    "title": "Gründüngung aussäen",
+    "summary_one": "{{count}} freies Beet wartet auf eine Gründüngung.",
+    "summary_other": "{{count}} freie Beete warten auf eine Gründüngung.",
+    "taskTitle": "Gründüngung im Beet {{bed}} säen",
+    "dedupMarker": "gründüngung",
+    "mixFrostKill": "Senf + Phazelie",
+    "mixOverwinter": "Winterroggen + Klee",
+    "descFrostKill": "friert über Winter ab",
+    "descOverwinter": "überwintert, im Frühjahr einarbeiten",
+    "planAll": "Alle planen ({{count}})",
+    "planning": "Wird geplant…",
+    "planned": "🌱 Geplant: {{count}}",
+    "planFailed": "Planung fehlgeschlagen: {{msg}}",
+    "notesFrostKill": "Säen Sie Senf/Phazelie in das freie Beet — sie friert über Winter ab, im Frühjahr nur einarbeiten oder mulchen.",
+    "notesOverwinter": "Säen Sie Winterroggen/Klee in das freie Beet — er überwintert; arbeiten Sie ihn ~3 Wochen vor der Frühjahrspflanzung ein."
   }
 }

@@ -1360,5 +1360,24 @@
     "famCampanulaceae": "Zvončekovité",
     "famGeraniaceae": "Pakostovité (muškát)",
     "famVerbenaceae": "Verbenovité"
+  },
+  "greenManure": {
+    "title": "Zasej zelené hnojenie",
+    "summary_one": "{{count}} uvoľnený záhon čaká na zelené hnojenie.",
+    "summary_few": "{{count}} uvoľnené záhony čakajú na zelené hnojenie.",
+    "summary_many": "{{count}} uvoľneného záhona čaká na zelené hnojenie.",
+    "summary_other": "{{count}} uvoľnených záhonov čaká na zelené hnojenie.",
+    "taskTitle": "Zasiať zelené hnojenie do záhonu {{bed}}",
+    "dedupMarker": "zelené hnojenie",
+    "mixFrostKill": "Horčica + facélia",
+    "mixOverwinter": "Žito ozimné + ďatelina",
+    "descFrostKill": "cez zimu vymrzne sama",
+    "descOverwinter": "prezimuje, na jar zaryj",
+    "planAll": "Naplánovať všetko ({{count}})",
+    "planning": "Plánujem…",
+    "planned": "🌱 Naplánované: {{count}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notesFrostKill": "Zasaď horčicu/facéliu do uvoľneného záhonu — cez zimu vymrzne sama, na jar ju len zaryj alebo zamulčuj.",
+    "notesOverwinter": "Zasaď ozimné žito/ďatelinu do uvoľneného záhonu — prezimuje; na jar zaryj ~3 týždne pred výsadbou."
   }
 }
