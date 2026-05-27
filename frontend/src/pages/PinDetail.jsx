@@ -15,6 +15,7 @@ import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
+import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -417,6 +418,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Podzimní výsadba jarních cibulovin (vykreslí se jen pro jarní cibule v podzimní sezóně) */}
+      <BulbPlantingCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

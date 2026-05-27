@@ -1260,6 +1260,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Výsadba von ~{{date}} — predpestovať zo semena v truhlíku."
   },
+  "bulbPlanting": {
+    "title": "Čas zasadiť cibule",
+    "subtitle": "Zasaď na jeseň, aby na jar rozkvitli",
+    "action": "Zasadiť cibule do zeme",
+    "taskTitle": "Zasadiť cibule {{plant}}",
+    "meta": "Hĺbka ~{{depth}} cm",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌷 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Jesenná výsadba cibúľ (~{{depth}} cm hlboko) — na jar rozkvitnú."
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

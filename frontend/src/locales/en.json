@@ -1106,6 +1106,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Plant out ~{{date}} — pre-grow from seed in a tray."
   },
+  "bulbPlanting": {
+    "title": "Time to plant the bulbs",
+    "subtitle": "Plant in autumn so they bloom in spring",
+    "action": "Plant the bulbs in the ground",
+    "taskTitle": "Plant {{plant}} bulbs",
+    "meta": "Depth ~{{depth}} cm",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌷 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Autumn bulb planting (~{{depth}} cm deep) — they'll bloom in spring."
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

@@ -1260,6 +1260,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Wysadzenie ~{{date}} — wysiej z nasion na rozsadę w skrzynce."
   },
+  "bulbPlanting": {
+    "title": "Czas posadzić cebule",
+    "subtitle": "Posadź jesienią, aby zakwitły wiosną",
+    "action": "Posadź cebule do ziemi",
+    "taskTitle": "Posadź cebule {{plant}}",
+    "meta": "Głębokość ~{{depth}} cm",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌷 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Jesienne sadzenie cebul (~{{depth}} cm głęboko) — zakwitną wiosną."
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

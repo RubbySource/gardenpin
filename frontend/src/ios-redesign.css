@@ -3085,6 +3085,82 @@ html[data-theme="dark"] .sowing-task-card {
 html[data-theme="dark"] .sowing-task-title { color: #b6dd92; }
 html[data-theme="dark"] .sowing-task-sub { color: #93c06c; }
 
+/* Podzimní výsadba jarních cibulovin — karta „🌷 Čas zasadit cibule" v detailu pinu
+   (Úkony tab). Teplá tulipánově-fialová „jarní cibule" paleta, ať se odliší od svěží
+   zelené sowing-task a švestkové division-task karty. */
+.bulb-planting-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbeaf2, #fdf4f9);
+  border: 1px solid #e6b0cf;
+}
+.bulb-planting-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.bulb-planting-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b03a72;
+}
+.bulb-planting-sub {
+  font-size: 12px;
+  color: #c2548a;
+}
+.bulb-planting-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bulb-planting-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.bulb-planting-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #c9568e;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.bulb-planting-main { flex: 1; min-width: 0; }
+.bulb-planting-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.bulb-planting-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.bulb-planting-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #c9568e;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.bulb-planting-btn:active { transform: scale(0.96); }
+.bulb-planting-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .bulb-planting-card {
+  background: linear-gradient(135deg, #2a1620, #20121a);
+  border-color: #5c2b45;
+}
+html[data-theme="dark"] .bulb-planting-title { color: #ecaccb; }
+html[data-theme="dark"] .bulb-planting-sub { color: #d488ad; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

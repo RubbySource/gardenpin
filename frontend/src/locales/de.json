@@ -1106,6 +1106,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Auspflanzen ~{{date}} — aus Samen in der Anzuchtschale vorziehen."
   },
+  "bulbPlanting": {
+    "title": "Zeit, die Zwiebeln zu setzen",
+    "subtitle": "Im Herbst setzen, damit sie im Frühling blühen",
+    "action": "Zwiebeln in die Erde setzen",
+    "taskTitle": "{{plant}}-Zwiebeln setzen",
+    "meta": "Tiefe ~{{depth}} cm",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌷 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Herbstpflanzung der Zwiebeln (~{{depth}} cm tief) — sie blühen im Frühling."
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",
