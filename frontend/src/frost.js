@@ -14,13 +14,15 @@ const PRAGUE = { lat: 50.08, lon: 14.44 };
 const TTL = 30 * 60 * 1000; // 30 min — předpověď se v rámci sezení nemění tak rychle
 
 // Stejný zdroj polohy jako WeatherWidget (localStorage 'weatherLoc', fallback Praha).
-function savedLoc() {
+// Exportováno, ať fenologická vrstva (phenology.js) bere polohu ze stejného zdroje.
+export function savedWeatherLoc() {
   try {
     const s = JSON.parse(localStorage.getItem('weatherLoc'));
     if (s && typeof s.lat === 'number' && typeof s.lon === 'number') return s;
   } catch {}
   return PRAGUE;
 }
+const savedLoc = savedWeatherLoc;
 
 function buildForecast(daily) {
   const byDate = {};

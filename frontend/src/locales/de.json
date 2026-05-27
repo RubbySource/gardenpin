@@ -1027,5 +1027,18 @@
     "created_one": "✅ {{count}} Aufgabe erstellt",
     "created_other": "✅ {{count}} Aufgaben erstellt",
     "notes": "Saisonaler Moment: {{moment}}"
+  },
+  "phenology": {
+    "idealNow": "Ideales Fenster: jetzt",
+    "laterBy_one": "Dieses Jahr etwa ~{{count}} Tag später",
+    "laterBy_other": "Dieses Jahr etwa ~{{count}} Tage später",
+    "earlierBy_one": "Dieses Jahr etwa ~{{count}} Tag früher",
+    "earlierBy_other": "Dieses Jahr etwa ~{{count}} Tage früher",
+    "shiftDate": "Termin verschieben",
+    "scheduleNow": "Für heute planen",
+    "shifting": "Verschiebe…",
+    "shifted": "🌡️ Termin auf {{date}} verschoben",
+    "shiftFailed": "Verschieben fehlgeschlagen: {{msg}}",
+    "tooltip": "Termin an die diesjährigen Temperaturen angepasst (Abweichung {{temp}} °C vom langjährigen Mittel)."
   }
 }

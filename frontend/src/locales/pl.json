@@ -1167,5 +1167,22 @@
     "created_many": "✅ Utworzono {{count}} zadań",
     "created_other": "✅ Utworzono {{count}} zadań",
     "notes": "Moment sezonowy: {{moment}}"
+  },
+  "phenology": {
+    "idealNow": "Idealne okno: teraz",
+    "laterBy_one": "W tym roku ok. ~{{count}} dzień później",
+    "laterBy_few": "W tym roku ok. ~{{count}} dni później",
+    "laterBy_many": "W tym roku ok. ~{{count}} dni później",
+    "laterBy_other": "W tym roku ok. ~{{count}} dnia później",
+    "earlierBy_one": "W tym roku ok. ~{{count}} dzień wcześniej",
+    "earlierBy_few": "W tym roku ok. ~{{count}} dni wcześniej",
+    "earlierBy_many": "W tym roku ok. ~{{count}} dni wcześniej",
+    "earlierBy_other": "W tym roku ok. ~{{count}} dnia wcześniej",
+    "shiftDate": "Przesuń termin",
+    "scheduleNow": "Zaplanuj na dziś",
+    "shifting": "Przesuwam…",
+    "shifted": "🌡️ Termin przesunięto na {{date}}",
+    "shiftFailed": "Przesunięcie nie powiodło się: {{msg}}",
+    "tooltip": "Termin dostrojony do tegorocznych temperatur (odchylenie {{temp}} °C od wieloletniej normy)."
   }
 }

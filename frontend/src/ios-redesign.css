@@ -1332,6 +1332,58 @@ html[data-theme="dark"] .season-window-badge {
   color: #f2d3a0;
 }
 
+/* ---------- Fenologický hint (🌡️ ideální okno dle teplot) ---------- */
+.phenology-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.phenology-alert.compact {
+  margin-top: 6px;
+}
+.phenology-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d8f0ea, #eaf7f3);
+  border: 1px solid #5bb8a0;
+  color: #14624f;
+  white-space: nowrap;
+}
+.phenology-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--brand-action);
+  background: var(--brand-action);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.phenology-btn:active {
+  transform: scale(0.96);
+}
+.phenology-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.phenology-alert.compact .phenology-badge,
+.phenology-alert.compact .phenology-btn {
+  font-size: 0.68rem;
+}
+html[data-theme="dark"] .phenology-badge {
+  background: linear-gradient(135deg, #163a32, #102a25);
+  border-color: #2c6a59;
+  color: #b9e6d9;
+}
+
 /* ---------- Snooze action sheet (iOS bottom sheet) ---------- */
 .snooze-sheet-overlay {
   position: fixed;

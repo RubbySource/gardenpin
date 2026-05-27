@@ -1647,18 +1647,25 @@ function isSensitivePlant(plantName) {
 }
 
 // Proxy na Open-Meteo — backend zajistí CORS a stabilní rozhraní
-// Vrací current_weather + 3denní předpověď (min/max/weathercode/sunrise/sunset)
+// Vrací current_weather + denní předpověď (min/max/mean/weathercode).
+// Volitelné parametry (zpětně kompatibilní — bez nich = původní 3denní předpověď):
+//   forecast_days (1–16, default 3), past_days (0–92) — fenologická vrstva (phenology.js)
+//   si bere recent temperature_2m_mean přes past_days, aby spočítala teplotní anomálii.
 app.get('/api/weather', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (Number.isNaN(lat) || Number.isNaN(lon)) {
     return res.status(400).json({ error: 'lat a lon jsou povinné parametry' });
   }
+  const pastDays = Math.max(0, Math.min(92, parseInt(req.query.past_days, 10) || 0));
+  const forecastDays = Math.max(1, Math.min(16, parseInt(req.query.forecast_days, 10) || 3));
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
     `&current_weather=true` +
-    `&daily=temperature_2m_min,temperature_2m_max,weathercode` +
-    `&forecast_days=3&timezone=Europe%2FPrague`;
+    `&daily=temperature_2m_min,temperature_2m_max,temperature_2m_mean,weathercode` +
+    `&forecast_days=${forecastDays}` +
+    (pastDays > 0 ? `&past_days=${pastDays}` : '') +
+    `&timezone=Europe%2FPrague`;
   try {
     const r = await fetch(url);
     if (!r.ok) return res.status(502).json({ error: 'Open-Meteo nedostupné' });

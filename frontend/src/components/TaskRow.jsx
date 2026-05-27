@@ -7,6 +7,7 @@ import Icon from './Icon.jsx';
 import SnoozeButton from './SnoozeButton.jsx';
 import FrostWarning from './FrostWarning.jsx';
 import SeasonWindowWarning from './SeasonWindowWarning.jsx';
+import PhenologyHint from './PhenologyHint.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
 import { dueBadge, taskLabel, taskIconName } from '../utils.js';
 
@@ -15,6 +16,7 @@ export default function TaskRow({
   completing,
   deleting,
   forecast,
+  pheno,
   onComplete,
   onDelete,
   onOpen,
@@ -93,6 +95,7 @@ export default function TaskRow({
             </div>
             <FrostWarning task={task} forecast={forecast} onPostponed={onSnoozed} />
             <SeasonWindowWarning task={task} onResolved={onSnoozed} />
+            <PhenologyHint task={task} pheno={pheno} onShifted={onSnoozed} />
           </div>
         </div>
       </div>

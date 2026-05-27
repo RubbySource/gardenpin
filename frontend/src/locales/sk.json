@@ -1167,5 +1167,22 @@
     "created_many": "✅ Vytvorené {{count}} úkony",
     "created_other": "✅ Vytvorených {{count}} úkonov",
     "notes": "Sezónny moment: {{moment}}"
+  },
+  "phenology": {
+    "idealNow": "Ideálne okno: teraz",
+    "laterBy_one": "Tento rok asi o ~{{count}} deň neskôr",
+    "laterBy_few": "Tento rok asi o ~{{count}} dni neskôr",
+    "laterBy_many": "Tento rok asi o ~{{count}} dňa neskôr",
+    "laterBy_other": "Tento rok asi o ~{{count}} dní neskôr",
+    "earlierBy_one": "Tento rok asi o ~{{count}} deň skôr",
+    "earlierBy_few": "Tento rok asi o ~{{count}} dni skôr",
+    "earlierBy_many": "Tento rok asi o ~{{count}} dňa skôr",
+    "earlierBy_other": "Tento rok asi o ~{{count}} dní skôr",
+    "shiftDate": "Posunúť termín",
+    "scheduleNow": "Naplánovať na dnes",
+    "shifting": "Posúvam…",
+    "shifted": "🌡️ Termín posunutý na {{date}}",
+    "shiftFailed": "Posun zlyhal: {{msg}}",
+    "tooltip": "Termín doladený podľa tohtoročného priebehu teplôt (odchýlka {{temp}} °C od dlhodobého normálu)."
   }
 }

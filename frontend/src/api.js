@@ -148,8 +148,13 @@ export const api = {
     return jsonFetch(`/api/stats/yoy${qs ? '?' + qs : ''}`);
   },
 
-  // Weather
-  weather: (lat, lon) => jsonFetch(`/api/weather?lat=${lat}&lon=${lon}`),
+  // Weather — opts: { past_days, forecast_days } pro fenologickou teplotní anomálii (phenology.js)
+  weather: (lat, lon, opts = {}) => {
+    const p = new URLSearchParams({ lat, lon });
+    if (opts.past_days) p.set('past_days', opts.past_days);
+    if (opts.forecast_days) p.set('forecast_days', opts.forecast_days);
+    return jsonFetch(`/api/weather?${p.toString()}`);
+  },
   sensitivePins: () => jsonFetch('/api/pins/sensitive'),
 
   // Stripe

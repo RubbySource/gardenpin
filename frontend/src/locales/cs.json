@@ -1100,5 +1100,20 @@
     "created_few": "✅ Vytvořeny {{count}} úkony",
     "created_other": "✅ Vytvořeno {{count}} úkonů",
     "notes": "Sezónní moment: {{moment}}"
+  },
+  "phenology": {
+    "idealNow": "Ideální okno: teď",
+    "laterBy_one": "Letos asi o ~{{count}} den později",
+    "laterBy_few": "Letos asi o ~{{count}} dny později",
+    "laterBy_other": "Letos asi o ~{{count}} dní později",
+    "earlierBy_one": "Letos asi o ~{{count}} den dříve",
+    "earlierBy_few": "Letos asi o ~{{count}} dny dříve",
+    "earlierBy_other": "Letos asi o ~{{count}} dní dříve",
+    "shiftDate": "Posunout termín",
+    "scheduleNow": "Naplánovat na dnes",
+    "shifting": "Posouvám…",
+    "shifted": "🌡️ Termín posunut na {{date}}",
+    "shiftFailed": "Posun selhal: {{msg}}",
+    "tooltip": "Termín doladěn dle letošního průběhu teplot (odchylka {{temp}} °C od dlouhodobého normálu)."
   }
 }

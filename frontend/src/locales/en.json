@@ -1027,5 +1027,18 @@
     "created_one": "✅ Created {{count}} task",
     "created_other": "✅ Created {{count}} tasks",
     "notes": "Seasonal moment: {{moment}}"
+  },
+  "phenology": {
+    "idealNow": "Ideal window: now",
+    "laterBy_one": "About ~{{count}} day later this year",
+    "laterBy_other": "About ~{{count}} days later this year",
+    "earlierBy_one": "About ~{{count}} day earlier this year",
+    "earlierBy_other": "About ~{{count}} days earlier this year",
+    "shiftDate": "Shift date",
+    "scheduleNow": "Schedule for today",
+    "shifting": "Shifting…",
+    "shifted": "🌡️ Date shifted to {{date}}",
+    "shiftFailed": "Shift failed: {{msg}}",
+    "tooltip": "Timing tuned to this year's temperatures ({{temp}} °C vs. the long-term normal)."
   }
 }
