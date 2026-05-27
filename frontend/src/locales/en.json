@@ -1063,6 +1063,22 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Done {{date}} last year — not yet planned this year."
   },
+  "ageTasks": {
+    "title": "Pruning by plant age",
+    "ageSummary_one": "{{count}} year since planting",
+    "ageSummary_other": "{{count}} years since planting",
+    "guardTitle": "First year after planting",
+    "guardMeta": "Let the plant establish — hold off on pruning this year.",
+    "formativeTitle": "Formative pruning",
+    "formativeMeta": "Year {{age}} since planting — build the basic shape and framework.",
+    "rejuvenationTitle": "Rejuvenation pruning",
+    "rejuvenationMeta": "Older woody plant — thin it out and rejuvenate it.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Age-based pruning (year {{age}} after planting)."
+  },
   "idealDay": {
     "badge": "Best day: {{day}}",
     "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",

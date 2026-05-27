@@ -2851,3 +2851,86 @@ html[data-theme="dark"] .care-gap-card {
 }
 html[data-theme="dark"] .care-gap-title { color: #f0c98a; }
 html[data-theme="dark"] .care-gap-sub { color: #cda968; }
+
+/* Věkově citlivý řez — karta v PinDetail (Úkony tab). Zelená „růstová" paleta,
+   ať se vizuálně odliší od amber care-gap karty, když svítí obě. */
+.age-task-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e9f3ea, #f3f9f1);
+  border: 1px solid #9cc6a0;
+}
+.age-task-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.age-task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f6b46;
+}
+.age-task-sub {
+  font-size: 12px;
+  color: #5a8560;
+}
+.age-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.age-task-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.age-task-row.is-guard { background: rgba(124, 168, 137, 0.10); }
+.age-task-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #5a9a4d;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.age-task-badge.is-guard {
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  padding: 0;
+  min-width: 30px;
+}
+.age-task-main { flex: 1; min-width: 0; }
+.age-task-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.age-task-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.age-task-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #5a9a4d;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.age-task-btn:active { transform: scale(0.96); }
+.age-task-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .age-task-card {
+  background: linear-gradient(135deg, #1c2e1f, #16241a);
+  border-color: #3d5e42;
+}
+html[data-theme="dark"] .age-task-title { color: #a9d4ae; }
+html[data-theme="dark"] .age-task-sub { color: #86b08c; }

@@ -1211,6 +1211,24 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Vlani splnené {{date}} — tento rok zatiaľ nenaplánované."
   },
+  "ageTasks": {
+    "title": "Rez podľa veku rastliny",
+    "ageSummary_one": "{{count}} rok od výsadby",
+    "ageSummary_few": "{{count}} roky od výsadby",
+    "ageSummary_many": "{{count}} roka od výsadby",
+    "ageSummary_other": "{{count}} rokov od výsadby",
+    "guardTitle": "Prvý rok po výsadbe",
+    "guardMeta": "Nechaj rastlinu zakoreniť — tento rok ju zatiaľ nerež.",
+    "formativeTitle": "Výchovný rez",
+    "formativeMeta": "{{age}}. rok od výsadby — buduj základný tvar a kostru.",
+    "rejuvenationTitle": "Omladzovací rez",
+    "rejuvenationMeta": "Staršia drevina — presvetli ju a omlaď.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✂️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Vekovo citlivý rez ({{age}}. rok po výsadbe)."
+  },
   "idealDay": {
     "badge": "Najlepší deň: {{day}}",
     "tooltipDry": "Tento deň je suchý a bezveterný — ideálny na rez a postrek (dážď zmyje postrek, vlhké rany sú náchylné na huby).",

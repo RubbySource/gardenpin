@@ -1211,6 +1211,24 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Wykonano {{date}} w zeszłym roku — w tym roku jeszcze nie zaplanowano."
   },
+  "ageTasks": {
+    "title": "Cięcie według wieku rośliny",
+    "ageSummary_one": "{{count}} rok od posadzenia",
+    "ageSummary_few": "{{count}} lata od posadzenia",
+    "ageSummary_many": "{{count}} lat od posadzenia",
+    "ageSummary_other": "{{count}} lat od posadzenia",
+    "guardTitle": "Pierwszy rok po posadzeniu",
+    "guardMeta": "Pozwól roślinie się ukorzenić — w tym roku jeszcze jej nie tnij.",
+    "formativeTitle": "Cięcie formujące",
+    "formativeMeta": "{{age}}. rok od posadzenia — buduj podstawowy kształt i szkielet.",
+    "rejuvenationTitle": "Cięcie odmładzające",
+    "rejuvenationMeta": "Starszy krzew — prześwietl go i odmłódź.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Cięcie zależne od wieku ({{age}}. rok po posadzeniu)."
+  },
   "idealDay": {
     "badge": "Najlepszy dzień: {{day}}",
     "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",

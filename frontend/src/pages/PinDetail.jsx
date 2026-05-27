@@ -12,6 +12,7 @@ import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import CareGapCard from '../components/CareGapCard.jsx';
+import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -405,6 +406,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Mezery v péči — „loni ano, letos chybí" (vykreslí se jen jsou-li mezery) */}
       <CareGapCard pin={pin} onPlanned={onReload} />
+
+      {/* Věkově citlivý řez — dle stáří dřeviny (vykreslí se jen pro relevantní věk/kategorii) */}
+      <AgeTaskCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

@@ -1140,6 +1140,23 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Loni splněno {{date}} — letos zatím nenaplánováno."
   },
+  "ageTasks": {
+    "title": "Řez podle stáří rostliny",
+    "ageSummary_one": "{{count}} rok od výsadby",
+    "ageSummary_few": "{{count}} roky od výsadby",
+    "ageSummary_other": "{{count}} let od výsadby",
+    "guardTitle": "První rok po výsadbě",
+    "guardMeta": "Nech rostlinu zakořenit — letos ji zatím neřež.",
+    "formativeTitle": "Výchovný řez",
+    "formativeMeta": "{{age}}. rok od výsadby — buduj základní tvar a kostru.",
+    "rejuvenationTitle": "Omlazovací řez",
+    "rejuvenationMeta": "Starší dřevina — prosvětli ji a zmlaď.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Věkově citlivý řez ({{age}}. rok po výsadbě)."
+  },
   "idealDay": {
     "badge": "Nejlepší den: {{day}}",
     "tooltipDry": "Tenhle den je suchý a bezvětrný — ideální na řez a postřik (déšť smyje postřik, vlhké rány jsou náchylné k houbám).",

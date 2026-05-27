@@ -1063,6 +1063,22 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Letztes Jahr am {{date}} erledigt — dieses Jahr noch nicht geplant."
   },
+  "ageTasks": {
+    "title": "Schnitt nach Pflanzenalter",
+    "ageSummary_one": "{{count}} Jahr seit der Pflanzung",
+    "ageSummary_other": "{{count}} Jahre seit der Pflanzung",
+    "guardTitle": "Erstes Jahr nach der Pflanzung",
+    "guardMeta": "Lassen Sie die Pflanze anwachsen — schneiden Sie dieses Jahr noch nicht.",
+    "formativeTitle": "Erziehungsschnitt",
+    "formativeMeta": "{{age}}. Jahr nach der Pflanzung — bauen Sie die Grundform und das Gerüst auf.",
+    "rejuvenationTitle": "Verjüngungsschnitt",
+    "rejuvenationMeta": "Älteres Gehölz — lichten Sie es aus und verjüngen Sie es.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Altersgerechter Schnitt ({{age}}. Jahr nach der Pflanzung)."
+  },
   "idealDay": {
     "badge": "Bester Tag: {{day}}",
     "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",
