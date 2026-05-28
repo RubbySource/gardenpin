@@ -1301,6 +1301,22 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Množenie odrezkami — {{instr}}"
   },
+  "plantSupports": {
+    "title": "Čas na opory",
+    "subtitle": "Postav opory skôr, než rastlina vyženie",
+    "taskTitle": "Postaviť oporu {{plant}}",
+    "typeRing": "Kruhová opora",
+    "typeStake": "Oporná tyč",
+    "typeTrellis": "Mriežka / opora na priväzovanie",
+    "instrRing": "Postav priestorovú (kruhovú) oporu skoro zjari, ako trs pučí — výhonky ňou prerastú a schovajú ju.",
+    "instrStake": "Zapichni opornú tyč k vysokej byli a priebežne ju priväzuj, aby sa nezlomila.",
+    "instrTrellis": "Postav mriežku a priviaž nový jarný prírastok včas, skôr než zdrevnatie.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🪜 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Opora — {{instr}}"
+  },
   "graftingTasks": {
     "title": "Čas na štepenie",
     "subtitle": "Zaštep ovocné stromy na ušľachtilú odrodu",

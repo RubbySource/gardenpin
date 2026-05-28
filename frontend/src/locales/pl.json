@@ -1301,6 +1301,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Rozmnażanie z sadzonek — {{instr}}"
   },
+  "plantSupports": {
+    "title": "Czas na podpory",
+    "subtitle": "Ustaw podpory, zanim roślina wystrzeli",
+    "taskTitle": "Podeprzyj {{plant}}",
+    "typeRing": "Podpora pierścieniowa",
+    "typeStake": "Palik",
+    "typeTrellis": "Trejaż / podpora do wiązania",
+    "instrRing": "Ustaw podporę pierścieniową wczesną wiosną, gdy kępa rusza — pędy przerosną ją i zasłonią.",
+    "instrStake": "Wbij palik przy wysokim pędzie i przywiązuj go w miarę wzrostu, żeby się nie złamał.",
+    "instrTrellis": "Ustaw trejaż i przywiąż nowy wiosenny przyrost wcześnie, zanim zdrewnieje.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🪜 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Podpora — {{instr}}"
+  },
   "graftingTasks": {
     "title": "Czas na szczepienie",
     "subtitle": "Zaszczep drzewa owocowe na szlachetną odmianę",

@@ -1147,6 +1147,22 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Vermehrung durch Stecklinge — {{instr}}"
   },
+  "plantSupports": {
+    "title": "Zeit für Stützen",
+    "subtitle": "Stützen anbringen, bevor die Pflanze austreibt",
+    "taskTitle": "{{plant}} stützen",
+    "typeRing": "Ringstütze / Staudenhalter",
+    "typeStake": "Einzelstab",
+    "typeTrellis": "Rankgitter / Anbindehilfe",
+    "instrRing": "Setzen Sie früh im Frühjahr eine Ringstütze, sobald der Horst austreibt — die Triebe wachsen hindurch und verdecken sie.",
+    "instrStake": "Stecken Sie einen Stab neben den hohen Stängel und binden Sie ihn beim Wachsen an, damit er nicht knickt.",
+    "instrTrellis": "Stellen Sie das Rankgitter auf und binden Sie den neuen Frühjahrstrieb früh an, bevor er verholzt.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🪜 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Stütze — {{instr}}"
+  },
   "graftingTasks": {
     "title": "Zeit zum Veredeln",
     "subtitle": "Veredeln Sie Ihre Obstbäume auf eine edle Sorte",

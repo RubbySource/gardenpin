@@ -18,6 +18,7 @@ import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
+import PlantSupportCard from '../components/PlantSupportCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
@@ -424,6 +425,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Každoroční sestřih trvalek/trav — zjara (strukturní/trávy) nebo na podzim (měkké) */}
       <CutbackTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Jarní opory pro vysoké trvalky/popínavé — postav podpěry včas (vykreslí se jen v sezóně 4–5) */}
+      <PlantSupportCard pin={pin} onPlanned={onReload} />
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />

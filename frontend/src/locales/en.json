@@ -1147,6 +1147,22 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Propagation by cuttings — {{instr}}"
   },
+  "plantSupports": {
+    "title": "Time for supports",
+    "subtitle": "Put supports in before the plant shoots up",
+    "taskTitle": "Stake {{plant}}",
+    "typeRing": "Ring / grow-through support",
+    "typeStake": "Single stake",
+    "typeTrellis": "Trellis / tie-in support",
+    "instrRing": "Set a grow-through (ring) support early in spring as the clump emerges — the shoots grow up through it and hide it.",
+    "instrStake": "Push a stake in next to the tall stem and tie it in as it grows so it doesn't snap.",
+    "instrTrellis": "Put up the trellis and tie in new spring growth early, before it hardens off.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🪜 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Support — {{instr}}"
+  },
   "graftingTasks": {
     "title": "Time to graft",
     "subtitle": "Graft your fruit trees onto a named variety",

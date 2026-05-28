@@ -3313,6 +3313,83 @@ html[data-theme="dark"] .grafting-task-card {
 html[data-theme="dark"] .grafting-task-title { color: #e0b885; }
 html[data-theme="dark"] .grafting-task-sub { color: #c39b6a; }
 
+/* Jarní opory pro vysoké trvalky / popínavé — karta v detailu pinu (Úkony tab). Svěží
+   smaragdově-listová „nový jarní přírůstek po opoře" paleta + dark, ať se odliší od teplé
+   dřevité grafting, zemité olivové green-manure, tyrkysové řízkové i chladné modré
+   zazimovací karty. */
+.plant-support-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e4f1e6, #f3fbf4);
+  border: 1px solid #a9cdae;
+}
+.plant-support-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.plant-support-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f6b42;
+}
+.plant-support-sub {
+  font-size: 12px;
+  color: #5a8c66;
+}
+.plant-support-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.plant-support-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.plant-support-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #3f8a56;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.plant-support-main { flex: 1; min-width: 0; }
+.plant-support-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.plant-support-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.plant-support-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #3f8a56;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.plant-support-btn:active { transform: scale(0.96); }
+.plant-support-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .plant-support-card {
+  background: linear-gradient(135deg, #16241a, #101a13);
+  border-color: #2f5239;
+}
+html[data-theme="dark"] .plant-support-title { color: #8fd6a2; }
+html[data-theme="dark"] .plant-support-sub { color: #6fb585; }
+
 /* Bílení kmenů na zimu — karta v detailu pinu (Úkony tab). Chladná „vápenná/křídová"
    světle šedá paleta, ať se odliší od teplé dřevité grafting karty i modré zazimovací. */
 .trunk-whitewash-card {

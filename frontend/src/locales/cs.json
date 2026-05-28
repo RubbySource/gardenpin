@@ -1227,6 +1227,22 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Množení řízky — {{instr}}"
   },
+  "plantSupports": {
+    "title": "Čas na opory",
+    "subtitle": "Postav opory dřív, než rostlina vyžene",
+    "taskTitle": "Postavit oporu {{plant}}",
+    "typeRing": "Kruhová opora",
+    "typeStake": "Opěrná tyč",
+    "typeTrellis": "Treláž / opora k vyvázání",
+    "instrRing": "Postav prostorovou (kruhovou) oporu brzy zjara, jak trs raší — výhony jí prorostou a schovají ji.",
+    "instrStake": "Zapíchni opěrnou tyč k vysokému stonku a průběžně ho přivazuj, ať se nezlomí.",
+    "instrTrellis": "Postav treláž a vyvázej nový jarní přírůstek včas, dřív než zdřevnatí.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🪜 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Opora — {{instr}}"
+  },
   "graftingTasks": {
     "title": "Čas na roubování",
     "subtitle": "Naroubuj ovocné stromy na ušlechtilou odrůdu",
