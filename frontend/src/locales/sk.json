@@ -1384,6 +1384,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Bordeauxská kvapalina / Kuprikol — TESNE pred pučaním, v suchý deň, T > 5 °C."
   },
+  "summerPruning": {
+    "title": "Čas letného rezu",
+    "subtitle": "Sommerschnitt — mierny zelený rez tohtoročných výhonov reguluje rast, presvetlí korunu a zlepší dozrievanie plodov",
+    "taskTitle": "Letný rez {{plant}}",
+    "action": "Letný rez tohtoročných výhonov",
+    "instr": "Skráť tohtoročný výhon o 1/3 nad listom smerujúcim von, odstráň vlky a zahusťujúce výhony. Suchý bezveterný deň.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✂️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Sommerschnitt — skráť výhon o 1/3, odstráň vlky a zahusťujúce výhony."
+  },
   "fruitNetting": {
     "title": "Čas zakryť úrodu",
     "subtitle": "Natiahni sieť cez kríky a stromčeky, nech úrodu nezobú vtáky",

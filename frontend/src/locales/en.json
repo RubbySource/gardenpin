@@ -1230,6 +1230,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Bordeaux mixture / copper fungicide — JUST BEFORE bud break, on a dry day, T > 5 °C."
   },
+  "summerPruning": {
+    "title": "Time for summer pruning",
+    "subtitle": "Sommerschnitt — light green pruning of this year's shoots tames growth, opens the canopy and helps fruit ripen",
+    "taskTitle": "Summer prune {{plant}}",
+    "action": "Summer prune this year's shoots",
+    "instr": "Shorten this year's shoots by 1/3 above an outward-facing leaf, remove water sprouts and crowding shoots. Dry, calm day.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Sommerschnitt — shorten shoots by 1/3, remove water sprouts and crowding growth."
+  },
   "fruitNetting": {
     "title": "Time to cover the crop",
     "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",

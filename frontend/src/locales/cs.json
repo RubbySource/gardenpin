@@ -1310,6 +1310,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Bordeauxská jícha / Kuprikol — TĚSNĚ před pučením, suchý den, T > 5 °C."
   },
+  "summerPruning": {
+    "title": "Čas letního řezu",
+    "subtitle": "Sommerschnitt — mírný zelený řez letošních letorostů reguluje růst, prosvětlí korunu a zlepší zrání plodů",
+    "taskTitle": "Letní řez {{plant}}",
+    "action": "Letní řez letošních letorostů",
+    "instr": "Zkrať letošní letorost o 1/3 nad listem směřujícím ven, odstraň vlky a zahušťující výhony. Suchý bezvětrný den.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Sommerschnitt — zkrať letorost o 1/3, odstraň vlky a zahušťující výhony."
+  },
   "fruitNetting": {
     "title": "Čas zakrýt úrodu",
     "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",

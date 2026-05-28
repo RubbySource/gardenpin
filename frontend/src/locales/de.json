@@ -1230,6 +1230,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Bordeauxbrühe / Kupferfungizid — KURZ VOR dem Knospenaustrieb, an einem trockenen Tag, T > 5 °C."
   },
+  "summerPruning": {
+    "title": "Zeit für den Sommerschnitt",
+    "subtitle": "Sommerschnitt — der milde grüne Schnitt der diesjährigen Triebe zügelt das Wachstum, lichtet die Krone und fördert die Fruchtreife",
+    "taskTitle": "Sommerschnitt von {{plant}}",
+    "action": "Sommerschnitt der diesjährigen Triebe",
+    "instr": "Kürzen Sie die diesjährigen Triebe um 1/3 über einem nach außen weisenden Blatt, entfernen Sie Wasserschosse und zu dicht stehende Triebe. Trockener, windstiller Tag.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Sommerschnitt — Triebe um 1/3 kürzen, Wasserschosse und dichte Triebe entfernen."
+  },
   "fruitNetting": {
     "title": "Zeit, die Ernte abzudecken",
     "subtitle": "Spannen Sie das Netz über Sträucher und Bäumchen, damit Vögel die Ernte nicht holen",

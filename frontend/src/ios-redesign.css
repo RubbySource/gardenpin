@@ -3616,6 +3616,82 @@ html[data-theme="dark"] .peach-curl-spray-card {
 html[data-theme="dark"] .peach-curl-spray-title { color: #9ac0d8; }
 html[data-theme="dark"] .peach-curl-spray-sub { color: #7ea4bd; }
 
+/* Letní zelený řez ovocných stromů (Sommerschnitt) — karta v detailu pinu (Úkony tab). Zralá
+   olivově-zelená „letní list" paleta (#6b7d3a accent), ať se odliší od světle pastelové zelené
+   age-tasks zimního řezu, khaki cutback karty a jasně leaf-green hedge-trim. */
+.summer-pruning-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #dde4be, #ecefd6);
+  border: 1px solid #93a258;
+}
+.summer-pruning-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.summer-pruning-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4d5b25;
+}
+.summer-pruning-sub {
+  font-size: 12px;
+  color: #6b7d3a;
+}
+.summer-pruning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.summer-pruning-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.summer-pruning-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #6b7d3a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.summer-pruning-main { flex: 1; min-width: 0; }
+.summer-pruning-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.summer-pruning-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.summer-pruning-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #6b7d3a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.summer-pruning-btn:active { transform: scale(0.96); }
+.summer-pruning-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .summer-pruning-card {
+  background: linear-gradient(135deg, #1f2614, #181d0e);
+  border-color: #3f4a1f;
+}
+html[data-theme="dark"] .summer-pruning-title { color: #c8d68a; }
+html[data-theme="dark"] .summer-pruning-sub { color: #a3b06d; }
+
 /* Otužování sazenic — karta „🌤️ Čas otužit sazenici" v detailu pinu (Úkony tab). Jemně sluneční
    žluto-zelená „postupné slunce" paleta (úsvit + mladý list), ať se odliší od svěží listově zelené
    pinching, smaragdové plant-support, modré peach-curl-spray a teplé sowing karty. Drží stejnou

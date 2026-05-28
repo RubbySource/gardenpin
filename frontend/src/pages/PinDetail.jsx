@@ -13,6 +13,7 @@ import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
+import SummerPruningCard from '../components/SummerPruningCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import HedgeTrimCard from '../components/HedgeTrimCard.jsx';
@@ -428,6 +429,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Věkově citlivý řez — dle stáří dřeviny (vykreslí se jen pro relevantní věk/kategorii) */}
       <AgeTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Letní zelený řez ovocných stromů — regulace letošního přírůstku (vykreslí se jen pro jádroviny/třešeň v sezóně 7–8) */}
+      <SummerPruningCard pin={pin} onPlanned={onReload} />
 
       {/* Dělení trsu trvalek/trav dle cyklu (vykreslí se jen pro relevantní věk/kategorii) */}
       <DivisionTaskCard pin={pin} onPlanned={onReload} />
