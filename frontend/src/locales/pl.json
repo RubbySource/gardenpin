@@ -1396,6 +1396,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Uszczykiwanie — {{instr}}"
   },
+  "seedSaving": {
+    "title": "Czas zebrać nasiona",
+    "subtitle": "Jesienne pozyskiwanie nasion na następny sezon",
+    "taskTitle": "Zebrać nasiona {{plant}}",
+    "typeEarlyAutumn": "Wczesna jesień (zioła / nagietek)",
+    "typeMidAutumn": "Środek jesieni (rośliny jednoroczne)",
+    "typeLateAutumn": "Późna jesień (byliny / torebki)",
+    "instrEarlyAutumn": "Nasiona muszą być SUCHE na roślinie, ale jeszcze nie wysypane. Tnij baldachy / koszyczki do papierowej torebki w suchy dzień.",
+    "instrMidAutumn": "Pozwól koszyczkom dojrzeć na roślinie do brązowego koloru. Zbieraj w suchy dzień, aby nasiona nie były wilgotne.",
+    "instrLateAutumn": "Torebki muszą być SUCHE, ale jeszcze zamknięte (inaczej nasiona wysypią się). Dosuszaj w przewiewnym miejscu, przechowuj w papierze.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌾 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Zbiór nasion — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Czas odnowić truskawki",
     "subtitle": "Po zbiorach przytnij stare liście i odetnij nadmiar rozłogów",

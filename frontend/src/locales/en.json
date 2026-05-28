@@ -1242,6 +1242,22 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Pinching — {{instr}}"
   },
+  "seedSaving": {
+    "title": "Time to collect seeds",
+    "subtitle": "Autumn self-seeding — gather seeds and capsules for next season",
+    "taskTitle": "Collect seeds from {{plant}}",
+    "typeEarlyAutumn": "Early autumn (herbs / calendula)",
+    "typeMidAutumn": "Mid autumn (annuals)",
+    "typeLateAutumn": "Late autumn (perennials / capsules)",
+    "instrEarlyAutumn": "Seeds must be DRY on the plant but not yet shattered. Clip umbels / heads into a paper bag on a dry day.",
+    "instrMidAutumn": "Let the seed heads ripen on the plant to brown. Harvest on a dry day so the seeds aren't damp.",
+    "instrLateAutumn": "Capsules must be DRY but still closed (otherwise the seeds drop). Dry further in a cool airy spot, store in paper.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌾 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Seed saving — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Time to renew strawberries",
     "subtitle": "After the harvest, cut back old leaves and remove excess runners",

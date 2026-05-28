@@ -1242,6 +1242,22 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Entspitzen — {{instr}}"
   },
+  "seedSaving": {
+    "title": "Zeit, Samen zu sammeln",
+    "subtitle": "Herbstliche Selbstaussaat — sammeln Sie Samen und Kapseln für die nächste Saison",
+    "taskTitle": "Samen von {{plant}} sammeln",
+    "typeEarlyAutumn": "Frühherbst (Kräuter / Ringelblume)",
+    "typeMidAutumn": "Mittlerer Herbst (Einjährige)",
+    "typeLateAutumn": "Spätherbst (Stauden / Kapseln)",
+    "instrEarlyAutumn": "Die Samen müssen an der Pflanze TROCKEN sein, aber noch nicht ausfallen. Schneiden Sie Dolden / Köpfe an einem trockenen Tag in eine Papiertüte.",
+    "instrMidAutumn": "Lassen Sie die Samenstände an der Pflanze braun ausreifen. Ernten Sie an einem trockenen Tag, damit die Samen nicht feucht sind.",
+    "instrLateAutumn": "Die Kapseln müssen TROCKEN, aber noch geschlossen sein (sonst fallen die Samen aus). An einem luftigen Ort weitertrocknen, in Papier lagern.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌾 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Samen sammeln — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Zeit, die Erdbeeren zu verjüngen",
     "subtitle": "Schneiden Sie nach der Ernte das alte Laub zurück und entfernen Sie überzählige Ausläufer",

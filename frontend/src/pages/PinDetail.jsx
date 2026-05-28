@@ -28,6 +28,7 @@ import StrawberryRenewalCard from '../components/StrawberryRenewalCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
 import SoilAcidCard from '../components/SoilAcidCard.jsx';
 import WoodRipeningCard from '../components/WoodRipeningCard.jsx';
+import SeedSavingCard from '../components/SeedSavingCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -469,6 +470,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* PK přihnojení pro vyzrání dřeva (vykreslí se jen pro trvalé dřeviny v sezóně 8–9) */}
       <WoodRipeningCard pin={pin} onPlanned={onReload} />
+
+      {/* Sběr semen z odkvetlých rostlin — podzimní samosběr na příští sezónu (vykreslí se jen pro letnicky/bylinky/trvalky/zelenina/okrasne v sezóně 8–10) */}
+      <SeedSavingCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

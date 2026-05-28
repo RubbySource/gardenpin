@@ -1322,6 +1322,22 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Pinčování — {{instr}}"
   },
+  "seedSaving": {
+    "title": "Čas nasbírat semena",
+    "subtitle": "Podzimní samosběr nažek a tobolek pro příští sezónu",
+    "taskTitle": "Nasbírat semena {{plant}}",
+    "typeEarlyAutumn": "Časný podzim (bylinky / měsíček)",
+    "typeMidAutumn": "Vrcholný podzim (letničky)",
+    "typeLateAutumn": "Pozdní podzim (trvalky / tobolky)",
+    "instrEarlyAutumn": "Nažky musí být ZASCHLÉ na rostlině, ale ne se vysypat. Stříhej okolíky / tobolky do papírového sáčku v suchém dni.",
+    "instrMidAutumn": "Nech terčíky / hlávky dozrát na rostlině do hnědé barvy. Sklízej v suchém dni, aby semena nebyla vlhká.",
+    "instrLateAutumn": "Tobolky musí být ZASCHLÉ ale ne otevřené (jinak semena vypadnou). Suš dál na suchém vzdušném místě, skladuj v papíru.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌾 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Sběr semen — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Čas obnovit jahodník",
     "subtitle": "Po sklizni sestřihni staré listy a odeber přebytečné odnože",

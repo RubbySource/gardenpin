@@ -4362,3 +4362,80 @@ html[data-theme="dark"] .pinching-card {
 }
 html[data-theme="dark"] .pinching-title { color: #b8e08f; }
 html[data-theme="dark"] .pinching-sub { color: #9bc473; }
+
+/* Sběr semen — zlato-béžová „zralé lusky / suché nažky" paleta. Odlišená od:
+   - jantarové wood-ripening (.wood-ripening-* — tepleji oranžovo-hnědá),
+   - khaki perennial-cutback (chladnější olivová),
+   - růžovo-červené strawberry-renewal (úplně jiná škála). */
+.seed-saving-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f5e6b8, #faf3da);
+  border: 1px solid #d4b870;
+}
+.seed-saving-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.seed-saving-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b5219;
+}
+.seed-saving-sub {
+  font-size: 12px;
+  color: #8a6e2b;
+}
+.seed-saving-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.seed-saving-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.seed-saving-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #b08c34;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.seed-saving-main { flex: 1; min-width: 0; }
+.seed-saving-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.seed-saving-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.seed-saving-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #b08c34;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.seed-saving-btn:active { transform: scale(0.96); }
+.seed-saving-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .seed-saving-card {
+  background: linear-gradient(135deg, #2a2113, #1a140a);
+  border-color: #5a4625;
+}
+html[data-theme="dark"] .seed-saving-title { color: #e8c97a; }
+html[data-theme="dark"] .seed-saving-sub { color: #c9aa5b; }
