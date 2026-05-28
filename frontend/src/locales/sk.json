@@ -1370,6 +1370,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Preberanie násady — {{instr}}"
   },
+  "fruitNetting": {
+    "title": "Čas zakryť úrodu",
+    "subtitle": "Natiahni sieť cez kríky a stromčeky, nech úrodu nezobú vtáky",
+    "taskTitle": "Zasieťovať {{plant}}",
+    "action": "Zakryť {{plant}} ochrannou sieťou",
+    "instr": "Natiahni sieť TESNE PRED VYFARBENÍM plodov — neskoro = vtáky stihnú prv. Sieť ukotvi k zemi, aby sa vtáky nedostali pod ňu.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🕸️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Sieť proti vtákom — natiahni sieť tesne pred vyfarbením plodov a ukotvi ju k zemi."
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

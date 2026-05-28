@@ -1216,6 +1216,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Fruit thinning — {{instr}}"
   },
+  "fruitNetting": {
+    "title": "Time to cover the crop",
+    "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",
+    "taskTitle": "Net {{plant}}",
+    "action": "Cover {{plant}} with protective netting",
+    "instr": "Pull the netting JUST BEFORE the fruit colours — too late = birds get there first. Anchor the net to the ground so birds can't slip underneath.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🕸️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Bird netting — pull the net just before the fruit colours and anchor it to the ground."
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

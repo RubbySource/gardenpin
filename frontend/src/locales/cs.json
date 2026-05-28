@@ -1296,6 +1296,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Probírka násady — {{instr}}"
   },
+  "fruitNetting": {
+    "title": "Čas zakrýt úrodu",
+    "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",
+    "taskTitle": "Zasíťovat {{plant}}",
+    "action": "Zakrýt {{plant}} ochrannou sítí",
+    "instr": "Natáhni síť TĚSNĚ PŘED VYBARVENÍM plodů — pozdě = ptáci stihnou první. Síť ukotvi k zemi, ať se ptáci nedostanou pod ni.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🕸️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Zasíťování proti ptákům — natáhni síť těsně před vybarvením plodů a ukotvi ji k zemi."
+  },
   "winterPrep": {
     "title": "Připrav na zimu",
     "summary_one": "{{count}} rostlina potřebuje zazimovat před mrazem.",

@@ -1370,6 +1370,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Przerzedzanie owoców — {{instr}}"
   },
+  "fruitNetting": {
+    "title": "Czas zakryć plony",
+    "subtitle": "Naciągnij siatkę nad krzewy i drzewka, aby ptaki nie zjadły zbiorów",
+    "taskTitle": "Osiatkować {{plant}}",
+    "action": "Zakryj {{plant}} siatką ochronną",
+    "instr": "Naciągnij siatkę TUŻ PRZED WYBARWIENIEM owoców — za późno = ptaki będą szybsze. Zakotwicz siatkę przy ziemi, aby ptaki nie dostały się pod spód.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🕸️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Siatka przeciw ptakom — naciągnij siatkę tuż przed wybarwieniem owoców i zakotwicz przy ziemi."
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

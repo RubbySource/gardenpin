@@ -1216,6 +1216,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Fruchtausdünnung — {{instr}}"
   },
+  "fruitNetting": {
+    "title": "Zeit, die Ernte abzudecken",
+    "subtitle": "Spannen Sie das Netz über Sträucher und Bäumchen, damit Vögel die Ernte nicht holen",
+    "taskTitle": "{{plant}} mit Netz schützen",
+    "action": "{{plant}} mit Schutznetz abdecken",
+    "instr": "Spannen Sie das Netz KURZ VOR DEM AUSFÄRBEN der Früchte — zu spät = die Vögel sind zuerst da. Verankern Sie das Netz am Boden, damit keine Vögel darunter schlüpfen.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🕸️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Vogelnetz — spannen Sie das Netz kurz vor dem Ausfärben der Früchte und verankern Sie es am Boden."
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",
