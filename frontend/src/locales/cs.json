@@ -1296,6 +1296,20 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Probírka násady — {{instr}}"
   },
+  "peachLeafCurlSpray": {
+    "title": "Čas chránit broskev před kadeřavostí",
+    "subtitle": "Preventivní měďnatý postřik TĚSNĚ před pučením — bez něj kadeřavost zničí list a sníží úrodu o 50–80 %",
+    "taskTitle": "Postřik proti kadeřavosti {{plant}}",
+    "typeStrong": "Silně doporučeno (broskvoň)",
+    "typeMild": "Doporučeno (meruňka)",
+    "instrStrong": "Bordeauxská jícha / Kuprikol — TĚSNĚ před pučením (pupeny se nadouvají, ale nepukly). Suchý bezvětrný den, T > 5 °C.",
+    "instrMild": "Bordeauxská jícha / Kuprikol — preventivně před pučením. Suchý bezvětrný den, T > 5 °C.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🛡️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Bordeauxská jícha / Kuprikol — TĚSNĚ před pučením, suchý den, T > 5 °C."
+  },
   "fruitNetting": {
     "title": "Čas zakrýt úrodu",
     "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",

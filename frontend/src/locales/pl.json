@@ -1370,6 +1370,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Przerzedzanie owoców — {{instr}}"
   },
+  "peachLeafCurlSpray": {
+    "title": "Czas ochronić brzoskwinię przed kędzierzawością",
+    "subtitle": "Profilaktyczny oprysk miedzią TUŻ PRZED pękaniem pąków — bez niego kędzierzawość zniszczy liście i obniży plon o 50–80 %",
+    "taskTitle": "Oprysk {{plant}} przeciw kędzierzawości",
+    "typeStrong": "Mocno zalecane (brzoskwinia)",
+    "typeMild": "Zalecane (morela)",
+    "instrStrong": "Ciecz bordoska / fungicyd miedziowy — TUŻ PRZED pękaniem pąków (pąki nabrzmiałe, jeszcze nie otwarte). Suchy bezwietrzny dzień, T > 5 °C.",
+    "instrMild": "Ciecz bordoska / fungicyd miedziowy — profilaktycznie przed pękaniem pąków. Suchy bezwietrzny dzień, T > 5 °C.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🛡️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Ciecz bordoska / fungicyd miedziowy — TUŻ PRZED pękaniem pąków, w suchy dzień, T > 5 °C."
+  },
   "fruitNetting": {
     "title": "Czas zakryć plony",
     "subtitle": "Naciągnij siatkę nad krzewy i drzewka, aby ptaki nie zjadły zbiorów",

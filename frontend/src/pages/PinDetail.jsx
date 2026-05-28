@@ -23,6 +23,7 @@ import PlantSupportCard from '../components/PlantSupportCard.jsx';
 import PinchingCard from '../components/PinchingCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
+import PeachLeafCurlSprayCard from '../components/PeachLeafCurlSprayCard.jsx';
 import FruitNettingCard from '../components/FruitNettingCard.jsx';
 import StrawberryRenewalCard from '../components/StrawberryRenewalCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
@@ -455,6 +456,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Probírka násady ovoce — červnová protrhávka (vykreslí se jen pro jádroviny/velkoplodé peckoviny v sezóně 6) */}
       <FruitThinningCard pin={pin} onPlanned={onReload} />
+
+      {/* Preventivní jarní postřik proti kadeřavosti broskvoně (vykreslí se jen pro broskev/meruňka v sezóně 3) */}
+      <PeachLeafCurlSprayCard pin={pin} onPlanned={onReload} />
 
       {/* Síťování dozrávajícího ovoce proti ptákům (vykreslí se jen pro drobné ovoce / třešně v sezóně 6–7) */}
       <FruitNettingCard pin={pin} onPlanned={onReload} />

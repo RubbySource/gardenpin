@@ -1216,6 +1216,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Fruchtausdünnung — {{instr}}"
   },
+  "peachLeafCurlSpray": {
+    "title": "Zeit, den Pfirsich vor Kräuselkrankheit zu schützen",
+    "subtitle": "Vorbeugende Kupferspritzung KURZ VOR dem Knospenaustrieb — ohne sie zerstört die Kräuselkrankheit das Laub und mindert den Ertrag um 50–80 %",
+    "taskTitle": "{{plant}} gegen Kräuselkrankheit spritzen",
+    "typeStrong": "Dringend empfohlen (Pfirsich)",
+    "typeMild": "Empfohlen (Aprikose)",
+    "instrStrong": "Bordeauxbrühe / Kupferfungizid — KURZ VOR dem Knospenaustrieb (Knospen schwellen, aber noch nicht geöffnet). Trockener, windstiller Tag, T > 5 °C.",
+    "instrMild": "Bordeauxbrühe / Kupferfungizid — vorbeugend vor dem Knospenaustrieb. Trockener, windstiller Tag, T > 5 °C.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🛡️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Bordeauxbrühe / Kupferfungizid — KURZ VOR dem Knospenaustrieb, an einem trockenen Tag, T > 5 °C."
+  },
   "fruitNetting": {
     "title": "Zeit, die Ernte abzudecken",
     "subtitle": "Spannen Sie das Netz über Sträucher und Bäumchen, damit Vögel die Ernte nicht holen",

@@ -25,6 +25,7 @@ export const TASK_TYPES = [
   { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null,          windowDays: 14 },
   { id: 'sklizen',   label: 'Sklizeň',   icon: '🧺', iconName: 'leaf',     icalCategory: 'harvest',     windowDays: 14 },
   { id: 'kontrola',  label: 'Kontrola',  icon: '🔍', iconName: 'search',   icalCategory: null,          windowDays: 21, weatherPref: 'dry' },
+  { id: 'postrik',   label: 'Postřik',   icon: '🛡️', iconName: 'sparkles', icalCategory: 'prevention',  windowDays: 14, weatherPref: 'dry' },
   { id: 'jine',      label: 'Jiné',      icon: '📋', iconName: 'leaf',     icalCategory: null,          windowDays: 21 },
 ];
 

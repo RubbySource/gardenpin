@@ -1370,6 +1370,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Preberanie násady — {{instr}}"
   },
+  "peachLeafCurlSpray": {
+    "title": "Čas chrániť broskyňu pred kučeravosťou",
+    "subtitle": "Preventívny medený postrek TESNE pred pučaním — bez neho kučeravosť zničí list a zníži úrodu o 50–80 %",
+    "taskTitle": "Postrek proti kučeravosti {{plant}}",
+    "typeStrong": "Silne odporúčané (broskyňa)",
+    "typeMild": "Odporúčané (marhuľa)",
+    "instrStrong": "Bordeauxská kvapalina / Kuprikol — TESNE pred pučaním (puky napučané, ale neotvorené). Suchý bezveterný deň, T > 5 °C.",
+    "instrMild": "Bordeauxská kvapalina / Kuprikol — preventívne pred pučaním. Suchý bezveterný deň, T > 5 °C.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🛡️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Bordeauxská kvapalina / Kuprikol — TESNE pred pučaním, v suchý deň, T > 5 °C."
+  },
   "fruitNetting": {
     "title": "Čas zakryť úrodu",
     "subtitle": "Natiahni sieť cez kríky a stromčeky, nech úrodu nezobú vtáky",

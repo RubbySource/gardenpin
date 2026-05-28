@@ -1216,6 +1216,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Fruit thinning — {{instr}}"
   },
+  "peachLeafCurlSpray": {
+    "title": "Time to protect peach from leaf curl",
+    "subtitle": "Preventive copper spray JUST BEFORE bud break — without it leaf curl destroys foliage and cuts yield by 50–80 %",
+    "taskTitle": "Spray {{plant}} against leaf curl",
+    "typeStrong": "Strongly recommended (peach)",
+    "typeMild": "Recommended (apricot)",
+    "instrStrong": "Bordeaux mixture / copper fungicide — JUST BEFORE bud break (buds swelling, not yet open). Dry, calm day, T > 5 °C.",
+    "instrMild": "Bordeaux mixture / copper fungicide — preventively before bud break. Dry, calm day, T > 5 °C.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🛡️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Bordeaux mixture / copper fungicide — JUST BEFORE bud break, on a dry day, T > 5 °C."
+  },
   "fruitNetting": {
     "title": "Time to cover the crop",
     "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",

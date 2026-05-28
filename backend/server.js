@@ -1801,7 +1801,7 @@ const ICAL_TYPE_FILTERS = {
   planting:    { task_types: ['presazeni'], title_emojis: ['🪴'] },
   sowing:      { task_types: ['presazeni'], title_emojis: ['🪴', '🌱'] }, // alias k výsadbě/výsevu
   protection:  { task_types: [], title_emojis: ['🛡️', '🌾'] },
-  prevention:  { task_types: [], title_emojis: ['🛡️', '🐛'] },           // alias k ochraně + kontrole škůdců
+  prevention:  { task_types: ['postrik'], title_emojis: ['🛡️', '🐛'] },   // alias k ochraně + kontrole škůdců (postřik = preventivní fungicid)
   harvest:     { task_types: ['sklizen'], title_emojis: ['🧺'] },
 };
 
@@ -1881,7 +1881,7 @@ function firstOfNextMonth(dateStr) {
 
 const ICAL_TYPE_EMOJI = {
   zalivka: '💧', hnojeni: '🌱', strihani: '✂️', presazeni: '🪴',
-  plet: '🌿', sklizen: '🧺', kontrola: '🔍', jine: '📋',
+  plet: '🌿', sklizen: '🧺', kontrola: '🔍', postrik: '🛡️', jine: '📋',
 };
 
 // Vykreslí jeden VEVENT pro task. All-day events, VALARM -P1D.
@@ -2066,11 +2066,11 @@ app.get('/api/export/ical', (req, res) => {
 
   const typeEmoji = {
     zalivka: '💧', hnojeni: '🌱', strihani: '✂️', presazeni: '🪴',
-    plet: '🌿', sklizen: '🧺', kontrola: '🔍', jine: '📋',
+    plet: '🌿', sklizen: '🧺', kontrola: '🔍', postrik: '🛡️', jine: '📋',
   };
   const typeLabel = {
     zalivka: 'Zálivka', hnojeni: 'Hnojení', strihani: 'Stříhání', presazeni: 'Přesazení',
-    plet: 'Plení', sklizen: 'Sklizeň', kontrola: 'Kontrola', jine: 'Úkol',
+    plet: 'Plení', sklizen: 'Sklizeň', kontrola: 'Kontrola', postrik: 'Postřik', jine: 'Úkol',
   };
 
   // DTSTAMP must be UTC with Z suffix per RFC 5545
@@ -2183,7 +2183,7 @@ const MONTH_NAMES_CZ = [
 
 const TASK_TYPE_EMOJI_PDF = {
   zalivka: '💧', hnojeni: '🌱', strihani: '✂️', presazeni: '🪴',
-  plet: '🌿', sklizen: '🧺', kontrola: '🔍', jine: '📋',
+  plet: '🌿', sklizen: '🧺', kontrola: '🔍', postrik: '🛡️', jine: '📋',
 };
 
 app.get('/api/gardens/:id/season-plan', (req, res) => {
