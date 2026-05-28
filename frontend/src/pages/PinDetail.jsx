@@ -23,6 +23,7 @@ import PlantSupportCard from '../components/PlantSupportCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import FruitNettingCard from '../components/FruitNettingCard.jsx';
+import StrawberryRenewalCard from '../components/StrawberryRenewalCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
 import SoilAcidCard from '../components/SoilAcidCard.jsx';
 import WoodRipeningCard from '../components/WoodRipeningCard.jsx';
@@ -452,6 +453,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Síťování dozrávajícího ovoce proti ptákům (vykreslí se jen pro drobné ovoce / třešně v sezóně 6–7) */}
       <FruitNettingCard pin={pin} onPlanned={onReload} />
+
+      {/* Obnova jahodníku po sklizni — sestřih listů + odběr odnoží (vykreslí se jen pro Fragaria v sezóně 7) */}
+      <StrawberryRenewalCard pin={pin} onPlanned={onReload} />
 
       {/* Bílení kmenů na zimu (vykreslí se jen pro ovoce/stromy v podzimní sezóně 11–12) */}
       <TrunkWhitewashCard pin={pin} onPlanned={onReload} />

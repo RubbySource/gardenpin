@@ -1382,6 +1382,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Sieť proti vtákom — natiahni sieť tesne pred vyfarbením plodov a ukotvi ju k zemi."
   },
+  "strawberryRenewal": {
+    "title": "Čas obnoviť jahody",
+    "subtitle": "Po zbere zostrihni staré listy a odober prebytočné šľahúny",
+    "taskTitle": "Obnova jahôd {{plant}}",
+    "action": "Zostrihnúť listy {{plant}} a odobrať šľahúny",
+    "instr": "Zostrihni listy NÍZKO NAD SRDIEČKOM (nepoškoď stred trsu) a odober prebytočné šľahúny (stolóny) — trs vyženie čerstvé zdravé listy a založí kvetné púčiky pre budúcu sezónu.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✂️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Zostrihni listy nízko nad srdiečkom + odober prebytočné šľahúny (stolóny)."
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",

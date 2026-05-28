@@ -1228,6 +1228,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Vogelnetz — spannen Sie das Netz kurz vor dem Ausfärben der Früchte und verankern Sie es am Boden."
   },
+  "strawberryRenewal": {
+    "title": "Zeit, die Erdbeeren zu verjüngen",
+    "subtitle": "Schneiden Sie nach der Ernte das alte Laub zurück und entfernen Sie überzählige Ausläufer",
+    "taskTitle": "Erdbeeren {{plant}} verjüngen",
+    "action": "Laub von {{plant}} zurückschneiden und Ausläufer entfernen",
+    "instr": "Schneiden Sie das Laub TIEF ÜBER DEM HERZ ab (das Zentrum des Horstes nicht verletzen) und entfernen Sie überzählige Ausläufer (Stolonen) — die Pflanze treibt frisches gesundes Laub und legt Blütenknospen für die nächste Saison an.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Schneiden Sie das Laub tief über dem Herz ab und entfernen Sie überzählige Ausläufer (Stolonen)."
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

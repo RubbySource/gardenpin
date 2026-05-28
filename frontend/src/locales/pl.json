@@ -1382,6 +1382,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Siatka przeciw ptakom — naciągnij siatkę tuż przed wybarwieniem owoców i zakotwicz przy ziemi."
   },
+  "strawberryRenewal": {
+    "title": "Czas odnowić truskawki",
+    "subtitle": "Po zbiorach przytnij stare liście i odetnij nadmiar rozłogów",
+    "taskTitle": "Odnowić truskawki {{plant}}",
+    "action": "Przyciąć liście {{plant}} i usunąć rozłogi",
+    "instr": "Przytnij liście NISKO NAD SERCEM (nie uszkodź środka kępy) i usuń nadmiar rozłogów (stolonów) — kępa wypuści świeże zdrowe liście i zawiąże pąki kwiatowe na przyszły sezon.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Przytnij liście nisko nad sercem + usuń nadmiar rozłogów (stolonów)."
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

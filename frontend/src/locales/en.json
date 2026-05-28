@@ -1228,6 +1228,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Bird netting — pull the net just before the fruit colours and anchor it to the ground."
   },
+  "strawberryRenewal": {
+    "title": "Time to renew strawberries",
+    "subtitle": "After the harvest, cut back old leaves and remove excess runners",
+    "taskTitle": "Renew strawberries {{plant}}",
+    "action": "Cut back leaves on {{plant}} and remove runners",
+    "instr": "Cut leaves LOW ABOVE THE CROWN (don't damage the centre of the clump) and remove excess runners (stolons) — the plant pushes out fresh healthy leaves and sets flower buds for next season.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Cut leaves low above the crown + remove excess runners (stolons)."
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

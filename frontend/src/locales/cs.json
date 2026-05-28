@@ -1308,6 +1308,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Zasíťování proti ptákům — natáhni síť těsně před vybarvením plodů a ukotvi ji k zemi."
   },
+  "strawberryRenewal": {
+    "title": "Čas obnovit jahodník",
+    "subtitle": "Po sklizni sestřihni staré listy a odeber přebytečné odnože",
+    "taskTitle": "Obnova jahodníku {{plant}}",
+    "action": "Sestřihnout listy {{plant}} a odebrat odnože",
+    "instr": "Sestřihni listy NÍZKO NAD SRDÍČKEM (nepoškoď střed trsu) a odeber přebytečné odnože (stolony) — trs vyžene čerstvé zdravé listy a nasadí květní pupeny pro příští sezónu.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Sestřihni listy nízko nad srdíčkem + odeber přebytečné odnože (stolony)."
+  },
   "winterPrep": {
     "title": "Připrav na zimu",
     "summary_one": "{{count}} rostlina potřebuje zazimovat před mrazem.",

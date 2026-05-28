@@ -4209,3 +4209,79 @@ html[data-theme="dark"] .wood-ripening-card {
 }
 html[data-theme="dark"] .wood-ripening-title { color: #e8c285; }
 html[data-theme="dark"] .wood-ripening-sub { color: #c69960; }
+
+/* Sezónní obnova jahodníku po sklizni — karta „✂️ Čas obnovit jahodník" v detailu pinu
+   (Úkony tab). Růžovo-červená „jahodová" paleta, ať se odliší od chladně modré fruit-netting
+   karty (sítě proti ptákům) a jablečně-červené fruit-thinning karty (probírka násady). */
+.strawberry-renewal-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbd9dd, #fef0f2);
+  border: 1px solid #e08593;
+}
+.strawberry-renewal-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.strawberry-renewal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94304a;
+}
+.strawberry-renewal-sub {
+  font-size: 12px;
+  color: #b3526a;
+}
+.strawberry-renewal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.strawberry-renewal-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.strawberry-renewal-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #c84964;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.strawberry-renewal-main { flex: 1; min-width: 0; }
+.strawberry-renewal-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.strawberry-renewal-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.strawberry-renewal-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #c84964;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.strawberry-renewal-btn:active { transform: scale(0.96); }
+.strawberry-renewal-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .strawberry-renewal-card {
+  background: linear-gradient(135deg, #2a1218, #1f0c11);
+  border-color: #6b2536;
+}
+html[data-theme="dark"] .strawberry-renewal-title { color: #f0a3b1; }
+html[data-theme="dark"] .strawberry-renewal-sub { color: #d57b8d; }
