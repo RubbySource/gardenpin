@@ -314,7 +314,7 @@ export default function TasksPage({ onTaskComplete }) {
         </div>
       </div>
 
-      {gardens.length > 1 && (
+      {gardens.length > 1 && gardens.length <= 3 && (
         <div className="filter-pills overview-filter">
           <button
             className={`filter-pill ${gardenFilter === 'all' ? 'active' : ''}`}
@@ -331,6 +331,26 @@ export default function TasksPage({ onTaskComplete }) {
               {g.name}
             </button>
           ))}
+        </div>
+      )}
+
+      {gardens.length >= 4 && (
+        <div className="tasks-garden-select-wrap">
+          <Icon name="map" size={16} className="tasks-garden-select-icon" />
+          <select
+            className="tasks-garden-select"
+            value={gardenFilter}
+            onChange={(e) => setGardenFilter(e.target.value)}
+            aria-label={t('tasks.filterByGarden')}
+          >
+            <option value="all">{t('tasks.allGardens')}</option>
+            {gardens.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+          <Icon name="chevronDown" size={16} className="tasks-garden-select-chevron" />
         </div>
       )}
 

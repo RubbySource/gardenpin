@@ -42,6 +42,7 @@ import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
 import { openPhotoPicker } from '../native/camera.js';
+import { shareLink, isNativeShare } from '../native/share.js';
 
 // Tab keys odrážejí URL hash; pořadí = pořadí v tab baru.
 const PD_TABS = ['ukony', 'pece', 'fotky', 'info'];
@@ -89,6 +90,9 @@ export default function PinDetail({ pinId, onClose }) {
   const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [members, setMembers] = useState([]); // členové zahrady (pro přiřazení úkolů)
+  const [kebabOpen, setKebabOpen] = useState(false);
+  const [changingPlant, setChangingPlant] = useState(false);
+  const kebabRef = useRef(null);
 
   // Sticky header se objeví, když uživatel posune scroll dolů (a zmizí při zpětném scrollu).
   const sheetRef = useRef(null);
@@ -202,6 +206,42 @@ export default function PinDetail({ pinId, onClose }) {
     }
   };
 
+  const sharePin = async () => {
+    setKebabOpen(false);
+    if (!pin?.garden_id) {
+      toast(t('pin.toastShareNoGarden'));
+      return;
+    }
+    const url = `${window.location.origin}/zahrada/${pin.garden_id}?pin=${pin.id}`;
+    try {
+      const status = await shareLink({
+        url,
+        title: t('pin.shareTitle', { name: pin.name }),
+        text: t('pin.shareText', { name: pin.name }),
+      });
+      if (status === 'copied') toast(t('pin.toastShareCopied'));
+      else if (status === 'shown') toast('🔗 ' + url);
+    } catch (e) {
+      toast(t('common.error', { msg: e.message }));
+    }
+  };
+
+  // Click-outside zavře kebab dropdown.
+  useEffect(() => {
+    if (!kebabOpen) return;
+    const onDocClick = (e) => {
+      if (kebabRef.current && !kebabRef.current.contains(e.target)) {
+        setKebabOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
+    };
+  }, [kebabOpen]);
+
   if (loading || !pin) {
     return (
       <div className="pd-backdrop" onClick={onClose}>
@@ -259,9 +299,55 @@ export default function PinDetail({ pinId, onClose }) {
 
         {/* Hero */}
         <div className="pd-hero">
-          <button type="button" className="pd-back-floating" onClick={onClose}>
-            ‹ {t('pin.back')}
-          </button>
+          <div className="pd-hero-toprow">
+            <button type="button" className="pd-back-floating" onClick={onClose}>
+              ‹ {t('pin.back')}
+            </button>
+            <div className="pd-kebab-wrap" ref={kebabRef}>
+              <button
+                type="button"
+                className="pd-kebab-btn"
+                onClick={(e) => { e.stopPropagation(); setKebabOpen((v) => !v); }}
+                aria-label={t('pin.menuMore')}
+                aria-haspopup="menu"
+                aria-expanded={kebabOpen}
+              >
+                ⋯
+              </button>
+              {kebabOpen && (
+                <div className="pd-kebab-menu" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="pd-kebab-item"
+                    onClick={() => { setKebabOpen(false); setChangingPlant(true); }}
+                  >
+                    <span className="pd-kebab-icon" aria-hidden="true">🌱</span>
+                    <span>{t('pin.menuChangePlant')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="pd-kebab-item"
+                    onClick={sharePin}
+                  >
+                    <span className="pd-kebab-icon" aria-hidden="true">🔗</span>
+                    <span>{isNativeShare() ? t('pin.menuShare') : t('pin.menuCopyLink')}</span>
+                  </button>
+                  <div className="pd-kebab-divider" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="pd-kebab-item danger"
+                    onClick={() => { setKebabOpen(false); deletePin(); }}
+                  >
+                    <span className="pd-kebab-icon" aria-hidden="true">🗑️</span>
+                    <span>{t('pin.menuDelete')}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="pd-hero-row">
             <div className="pd-hero-icon" aria-hidden="true">{icon}</div>
             <div className="pd-hero-text">
@@ -338,6 +424,13 @@ export default function PinDetail({ pinId, onClose }) {
             members={members}
             onClose={() => setEditingTask(null)}
             onSaved={() => { setEditingTask(null); load(); }}
+          />
+        )}
+        {changingPlant && (
+          <ChangePlantForm
+            pin={pin}
+            onClose={() => setChangingPlant(false)}
+            onSaved={() => { setChangingPlant(false); load(); }}
           />
         )}
       </div>
@@ -849,6 +942,76 @@ function EditPinForm({ pin, onClose, onSaved }) {
               }}
             />
           </div>
+        </div>
+        <div className="row mt-3">
+          <button type="button" className="btn ghost" onClick={onClose}>
+            {t('common.cancel')}
+          </button>
+          <button type="submit" className="btn" disabled={saving}>
+            {saving ? t('common.saving') : t('common.save')}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+// Změna rostliny — zachová historii péče i úkoly (jen přepíše plant_name).
+// Drobný modal s autocomplete; lepší než plný edit formulář pro single-field změnu.
+function ChangePlantForm({ pin, onClose, onSaved }) {
+  const { t } = useTranslation();
+  const [plantName, setPlantName] = useState(pin.plant_name || '');
+  const [selectedPlant, setSelectedPlant] = useState(() => findPlantByName(pin.plant_name));
+  const [saving, setSaving] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!plantName.trim()) return toast(t('pin.toastEnterPlantName'));
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', pin.name);
+      fd.append('plant_name', plantName);
+      fd.append('planting_date', pin.planting_date || '');
+      fd.append('notes', pin.notes || '');
+      fd.append('color', pin.color || '#4a7c3a');
+      await api.updatePin(pin.id, fd);
+      toast(t('pin.toastPlantChanged'));
+      onSaved();
+    } catch (err) {
+      toast(t('common.error', { msg: err.message }));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal title={t('pin.changePlantTitle')} onClose={onClose}>
+      <form onSubmit={submit}>
+        <div className="pd-change-plant-hint">
+          {t('pin.changePlantHint')}
+        </div>
+        <div className="field">
+          <label>{t('pin.fieldPlant')}</label>
+          <PlantAutocomplete
+            value={plantName}
+            onChange={(val, plant) => {
+              setPlantName(val);
+              if (!plant) setSelectedPlant(null);
+            }}
+            onSelect={(plant) => {
+              setSelectedPlant(plant);
+              setPlantName(plant.nameCz);
+            }}
+            placeholder={t('pin.plantPlaceholder')}
+          />
+          {selectedPlant && (
+            <PlantInfoCard
+              plant={selectedPlant}
+              pinId={pin.id}
+              onTasksCreated={() => toast(t('pin.toastRecommendedAdded'))}
+            />
+          )}
         </div>
         <div className="row mt-3">
           <button type="button" className="btn ghost" onClick={onClose}>

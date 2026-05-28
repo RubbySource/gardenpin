@@ -3083,6 +3083,55 @@ input, textarea, select {
   border: 1px solid var(--border);
 }
 
+/* Tasks: iOS-style garden filter dropdown (used at 4+ gardens, místo pills) */
+.tasks-garden-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 12px;
+  margin-bottom: 14px;
+  min-height: 44px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tasks-garden-select-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(123, 168, 137, 0.18);
+}
+.tasks-garden-select-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.tasks-garden-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--charcoal);
+  font-size: 0.95rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 28px 10px 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tasks-garden-select-chevron {
+  color: var(--muted);
+  flex-shrink: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 /* Month groups */
 .task-month-group { margin-bottom: 16px; }
 .task-month-header {
@@ -5250,8 +5299,14 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   white-space: nowrap;
 }
 
+.pd-hero-toprow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+}
 .pd-back-floating {
-  align-self: flex-start;
   background: transparent;
   border: none;
   color: var(--primary);
@@ -5262,7 +5317,101 @@ html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: 6px;
+}
+/* Kebab menu (⋯) — 3-dots actions menu in PinDetail header */
+.pd-kebab-wrap {
+  position: relative;
+}
+.pd-kebab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pd-kebab-btn:hover,
+.pd-kebab-btn:focus-visible {
+  background: var(--ios-separator-opaque, rgba(0, 0, 0, 0.06));
+  outline: none;
+}
+.pd-kebab-btn:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+.pd-kebab-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  padding: 6px;
+  animation: pdKebabFadeIn 0.14s ease-out;
+}
+@keyframes pdKebabFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pd-kebab-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+.pd-kebab-item:hover,
+.pd-kebab-item:focus-visible {
+  background: var(--green-50, #eef4e7);
+  outline: none;
+}
+.pd-kebab-item.danger {
+  color: var(--danger, #d33);
+}
+.pd-kebab-item.danger:hover,
+.pd-kebab-item.danger:focus-visible {
+  background: rgba(211, 51, 51, 0.08);
+}
+.pd-kebab-icon {
+  font-size: 1.1rem;
+  width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pd-kebab-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+.pd-change-plant-hint {
+  background: var(--green-50, #eef4e7);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  line-height: 1.4;
 }
 .pd-back-sticky {
   background: transparent;

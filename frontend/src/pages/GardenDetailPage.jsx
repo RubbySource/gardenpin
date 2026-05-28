@@ -130,6 +130,20 @@ export default function GardenDetailPage() {
     load();
   }, [id]);
 
+  // Deep link: /zahrada/:id?pin=<pinId> otevře daný pin v detailu (shareLink z PinDetail).
+  // Query param vyčistíme, aby uživatel mohl ručně zavřít detail bez automatického znovuotevření.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pinParam = params.get('pin');
+    if (pinParam && /^\d+$/.test(pinParam)) {
+      setEditingPinId(parseInt(pinParam, 10));
+      params.delete('pin');
+      const qs = params.toString();
+      const newUrl = `${window.location.pathname}${qs ? '?' + qs : ''}${window.location.hash}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [id]);
+
   // P3: Upscale 4×
   const handleUpscale = async () => {
     if (!confirm(t('gardenDetail.upscaleConfirm'))) return;
