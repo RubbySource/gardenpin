@@ -1450,6 +1450,24 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Otužovanie — {{instr}}"
   },
+  "lateSowing": {
+    "title": "Čas druhého výsevu",
+    "subtitle": "Po hlavnej úrode využi uvoľnené záhony pre neskorú/zimnú úrodu — bez druhého výsevu zarastú burinou",
+    "taskTitle": "Druhý výsev {{plant}}",
+    "typeMidsummer": "Vrcholné leto (mangold / repa / reďkovka jesenná)",
+    "typeLateSummer": "Neskoré leto (špenát / valeriánka / rukola)",
+    "typeEarlyAutumn": "Začiatok jesene (zimný šalát)",
+    "typeAutumn": "Jeseň (ozimný cesnak)",
+    "instrMidsummer": "Vysej v júli — ešte stačí dorásť do zberu v 8–9. V chladnejších zónach štartuj DO polovice mesiaca, nie ku koncu okna.",
+    "instrLateSummer": "Vysej v auguste — chladnomilné druhy klíčia v chlade, zber 9–11 alebo prezimujú. Pôdu pred výsevom zalej.",
+    "instrEarlyAutumn": "Vysej v septembri — zimný šalát znesie mrazík, zbiera sa postupne do novembra. Drž záhon vlhký do vzídenia.",
+    "instrAutumn": "Sadz ozimný cesnak v októbri — strúčiky do hĺbky 5 cm, špička hore, do mrazu zakorenia. Zber 6–7 budúceho roka.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌱 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Druhý výsev — {{instr}}"
+  },
   "seedSaving": {
     "title": "Čas nazbierať semená",
     "subtitle": "Jesenný samozber nažiek a toboliek pre budúcu sezónu",

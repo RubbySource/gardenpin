@@ -1296,6 +1296,24 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Abhärten — {{instr}}"
   },
+  "lateSowing": {
+    "title": "Zeit für die zweite Aussaat",
+    "subtitle": "Nutzen Sie freie Beete nach der Haupternte für eine späte/winterliche Ernte — sonst übernehmen Unkräuter",
+    "taskTitle": "Zweite Aussaat von {{plant}}",
+    "typeMidsummer": "Hochsommer (Mangold / Rote Bete / Herbstradieschen)",
+    "typeLateSummer": "Spätsommer (Spinat / Feldsalat / Rucola)",
+    "typeEarlyAutumn": "Frühherbst (Wintersalat)",
+    "typeAutumn": "Herbst (Winterknoblauch)",
+    "instrMidsummer": "Säen Sie im Juli — die Pflanzen reifen noch bis zur Ernte im August–September. In kälteren Zonen Mitte des Monats, nicht erst am Ende.",
+    "instrLateSummer": "Säen Sie im August — kühletolerante Arten keimen im Kühlen, Ernte 9–11 oder überwintern. Beet vor der Aussaat gut wässern.",
+    "instrEarlyAutumn": "Säen Sie im September — Wintersalat verträgt leichten Frost, Ernte schrittweise bis November. Beet bis zum Auflaufen feucht halten.",
+    "instrAutumn": "Pflanzen Sie Winterknoblauch im Oktober — Zehen 5 cm tief, Spitze nach oben. Wurzelt vor dem Frost, Ernte im Juni–Juli des nächsten Jahres.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌱 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Späte Aussaat — {{instr}}"
+  },
   "seedSaving": {
     "title": "Zeit, Samen zu sammeln",
     "subtitle": "Herbstliche Selbstaussaat — sammeln Sie Samen und Kapseln für die nächste Saison",

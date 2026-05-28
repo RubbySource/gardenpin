@@ -1450,6 +1450,24 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Hartowanie — {{instr}}"
   },
+  "lateSowing": {
+    "title": "Czas na drugi siew",
+    "subtitle": "Po głównym zbiorze wykorzystaj zwolnione grządki na późny/zimowy plon — inaczej zarosną chwastami",
+    "taskTitle": "Drugi siew {{plant}}",
+    "typeMidsummer": "Pełnia lata (boćwina / burak / rzodkiewka jesienna)",
+    "typeLateSummer": "Późne lato (szpinak / roszponka / rukola)",
+    "typeEarlyAutumn": "Wczesna jesień (sałata zimowa)",
+    "typeAutumn": "Jesień (czosnek ozimy)",
+    "instrMidsummer": "Posiej w lipcu — rośliny zdążą dojrzeć do zbioru w 8–9. W chłodniejszych strefach do połowy miesiąca, nie na końcu okna.",
+    "instrLateSummer": "Posiej w sierpniu — gatunki chłodnolubne kiełkują w chłodzie, zbiór 9–11 lub zimowanie. Grządkę podlej przed siewem.",
+    "instrEarlyAutumn": "Posiej we wrześniu — sałata zimowa znosi lekki przymrozek, zbiór stopniowo do listopada. Utrzymuj grządkę wilgotną do wzejścia.",
+    "instrAutumn": "Sadź czosnek ozimy w październiku — ząbki na głębokość 5 cm, ostry koniec do góry. Ukorzeni się przed mrozem, zbiór w 6–7 następnego roku.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌱 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Drugi siew — {{instr}}"
+  },
   "seedSaving": {
     "title": "Czas zebrać nasiona",
     "subtitle": "Jesienne pozyskiwanie nasion na następny sezon",

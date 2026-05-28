@@ -1376,6 +1376,24 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Otužování — {{instr}}"
   },
+  "lateSowing": {
+    "title": "Čas druhého výsevu",
+    "subtitle": "Po sklizni hlavní úrody využij uvolněné záhony pro pozdní/zimní sklizeň — bez druhého výsevu zarostou plevelem",
+    "taskTitle": "Druhý výsev {{plant}}",
+    "typeMidsummer": "Vrcholné léto (mangold / řepa / ředkvička podzimní)",
+    "typeLateSummer": "Pozdní léto (špenát / polníček / rukola)",
+    "typeEarlyAutumn": "Začátek podzimu (zimní salát)",
+    "typeAutumn": "Podzim (ozimý česnek)",
+    "instrMidsummer": "Vysej v červenci — ještě stačí narůst do sklizně v 8–9. V chladnějších zónách startuj DO poloviny měsíce, ne až ke konci okna.",
+    "instrLateSummer": "Vysej v srpnu — chladomilné druhy startují na chladu, sklizeň 9–11 nebo přezimují. Půdu před výsevem zalij.",
+    "instrEarlyAutumn": "Vysej v září — zimní salát zvládne mrazík, sklízí se postupně do listopadu. Drž záhon vlhký do vyklíčení.",
+    "instrAutumn": "Sázej ozimý česnek v říjnu — stroužky na hloubku 5 cm, špička nahoru, do mrazu zakoření. Sklizeň 6–7 příštího roku.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌱 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Druhý výsev — {{instr}}"
+  },
   "seedSaving": {
     "title": "Čas nasbírat semena",
     "subtitle": "Podzimní samosběr nažek a tobolek pro příští sezónu",

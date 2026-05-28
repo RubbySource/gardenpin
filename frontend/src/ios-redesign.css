@@ -4823,3 +4823,80 @@ html[data-theme="dark"] .seed-saving-card {
 }
 html[data-theme="dark"] .seed-saving-title { color: #e8c97a; }
 html[data-theme="dark"] .seed-saving-sub { color: #c9aa5b; }
+
+/* Letní výsev pro pozdní/zimní sklizeň — karta „🌱 Čas druhého výsevu" v detailu pinu
+   (Úkony tab). Chladně modro-zelená „pozdně-letní studený výsev" paleta — vizuální
+   asociace = chladný vzduch, ranní rosa, listová zelenina; odliší se od teplé sowing-tasks
+   jarní karty (žluto-zelená), žluto-zelené hardening-off karty a olivové green-manure. */
+.late-sowing-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #d6e8e0, #e9f2eb);
+  border: 1px solid #6fa68a;
+}
+.late-sowing-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.late-sowing-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f5d4b;
+}
+.late-sowing-sub {
+  font-size: 12px;
+  color: #4a7a66;
+}
+.late-sowing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.late-sowing-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.late-sowing-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #4f8a72;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.late-sowing-main { flex: 1; min-width: 0; }
+.late-sowing-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.late-sowing-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.late-sowing-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #4f8a72;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.late-sowing-btn:active { transform: scale(0.96); }
+.late-sowing-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .late-sowing-card {
+  background: linear-gradient(135deg, #142420, #0e1a16);
+  border-color: #2c5a47;
+}
+html[data-theme="dark"] .late-sowing-title { color: #8ec9b0; }
+html[data-theme="dark"] .late-sowing-sub { color: #6ba98e; }
