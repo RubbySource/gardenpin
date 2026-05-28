@@ -4285,3 +4285,80 @@ html[data-theme="dark"] .strawberry-renewal-card {
 }
 html[data-theme="dark"] .strawberry-renewal-title { color: #f0a3b1; }
 html[data-theme="dark"] .strawberry-renewal-sub { color: #d57b8d; }
+
+/* Pinčování letniček + Chelsea chop trvalek — karta „✂️ Čas vyštípnout vrcholy" v detailu pinu
+   (Úkony tab). Svěží jarní listově-zelená „mladý čerstvý výhon" paleta, ať se odliší od
+   smaragdové plant-support karty (opory pro vysoké trvalky), khaki cutback karty (sestřih
+   odumřelé části) a teal cutting karty (množení řízkováním). */
+.pinching-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #d8efc4, #f1f9e6);
+  border: 1px solid #9ec773;
+}
+.pinching-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.pinching-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a7a2a;
+}
+.pinching-sub {
+  font-size: 12px;
+  color: #6b9445;
+}
+.pinching-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pinching-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.pinching-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #6a9c3a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.pinching-main { flex: 1; min-width: 0; }
+.pinching-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.pinching-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.pinching-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #6a9c3a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.pinching-btn:active { transform: scale(0.96); }
+.pinching-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .pinching-card {
+  background: linear-gradient(135deg, #1b2614, #11180c);
+  border-color: #3a5a25;
+}
+html[data-theme="dark"] .pinching-title { color: #b8e08f; }
+html[data-theme="dark"] .pinching-sub { color: #9bc473; }

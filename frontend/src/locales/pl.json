@@ -1382,6 +1382,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Siatka przeciw ptakom — naciągnij siatkę tuż przed wybarwieniem owoców i zakotwicz przy ziemi."
   },
+  "pinching": {
+    "title": "Czas uszczykać wierzchołki",
+    "subtitle": "Uszczykiwanie + Chelsea chop — dla gęstszej, zwartej kępy z 2–4× większą ilością kwiatów",
+    "taskTitle": "Uszczykać wierzchołki {{plant}}",
+    "typeChelseaChop": "Chelsea chop (późno kwitnąca bylina)",
+    "typeAnnualPinch": "Uszczykiwanie (roślina jednoroczna / zioło)",
+    "instrChelseaChop": "Przytnij całą roślinę o około 1/3 — wypuści więcej pędów bocznych i przesunie kwitnienie o 2–3 tygodnie później.",
+    "instrAnnualPinch": "Uszczyknij 2–3 górne liście nad węzłem, zanim utworzy się pęd kwiatowy — roślina wypuści pędy boczne dla gęstej kępy.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Uszczykiwanie — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Czas odnowić truskawki",
     "subtitle": "Po zbiorach przytnij stare liście i odetnij nadmiar rozłogów",

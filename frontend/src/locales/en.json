@@ -1228,6 +1228,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Bird netting — pull the net just before the fruit colours and anchor it to the ground."
   },
+  "pinching": {
+    "title": "Time to pinch the tips",
+    "subtitle": "Pinching + Chelsea chop — for a denser, bushier plant with 2–4× more blooms",
+    "taskTitle": "Pinch the tips of {{plant}}",
+    "typeChelseaChop": "Chelsea chop (late-blooming perennial)",
+    "typeAnnualPinch": "Pinching out (annual / herb)",
+    "instrChelseaChop": "Cut the whole plant back by about 1/3 — it pushes out more side shoots and shifts flowering 2–3 weeks later.",
+    "instrAnnualPinch": "Pinch out the top 2–3 leaves above a node before the flower stalk forms — it pushes out side shoots for a bushy clump.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Pinching — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Time to renew strawberries",
     "subtitle": "After the harvest, cut back old leaves and remove excess runners",

@@ -1382,6 +1382,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Sieť proti vtákom — natiahni sieť tesne pred vyfarbením plodov a ukotvi ju k zemi."
   },
+  "pinching": {
+    "title": "Čas vyštipnúť vrcholy",
+    "subtitle": "Pinčovanie + Chelsea chop — pre hustejší kompaktný trs s 2–4× viac kvetmi",
+    "taskTitle": "Vyštipnúť vrchol {{plant}}",
+    "typeChelseaChop": "Chelsea chop (neskoro kvitnúca trvalka)",
+    "typeAnnualPinch": "Pinčovanie (letnička / bylinka)",
+    "instrChelseaChop": "Zostrihni celú rastlinu o cca 1/3 — založí viac bočných výhonkov a posunie kvitnutie o 2–3 týždne neskôr.",
+    "instrAnnualPinch": "Vyštipni 2–3 horné listy nad uzlom, kým rastlina nemá kvetný stvol — vyženie bočné výhonky pre hustý trs.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "✂️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Pinčovanie — {{instr}}"
+  },
   "strawberryRenewal": {
     "title": "Čas obnoviť jahody",
     "subtitle": "Po zbere zostrihni staré listy a odober prebytočné šľahúny",

@@ -20,6 +20,7 @@ import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
 import PlantSupportCard from '../components/PlantSupportCard.jsx';
+import PinchingCard from '../components/PinchingCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import FruitNettingCard from '../components/FruitNettingCard.jsx';
@@ -435,6 +436,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Jarní opory pro vysoké trvalky/popínavé — postav podpěry včas (vykreslí se jen v sezóně 4–5) */}
       <PlantSupportCard pin={pin} onPlanned={onReload} />
+
+      {/* Pinčování letniček + Chelsea chop strukturních trvalek (vykreslí se jen pro letnicky/trvalky/bylinky v sezóně 5–6) */}
+      <PinchingCard pin={pin} onPlanned={onReload} />
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />
