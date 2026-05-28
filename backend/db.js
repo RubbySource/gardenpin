@@ -232,6 +232,9 @@ try { db.exec('ALTER TABLE care_history ADD COLUMN member_id INTEGER'); } catch 
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN stripe_customer_id TEXT'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT'); } catch {}
+// Streak "frozen day" — 1× týdně může user vynechat jeden den bez resetu streaku.
+// frozen_used_week = ISO týden (YYYY-Www) kdy byla zmrazovací výjimka naposledy použita.
+try { db.exec('ALTER TABLE user_stats ADD COLUMN frozen_used_week TEXT'); } catch {}
 
 // Single-user MVP — nasaď výchozího uživatele s id=1, pokud neexistuje.
 // Jakmile přidáme auth, bude se užívat reálné ID.

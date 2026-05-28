@@ -4924,6 +4924,12 @@ input, textarea, select {
   margin-top: 2px;
   font-weight: 500;
 }
+.streak-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
 .streak-badge {
   display: inline-flex;
   align-items: center;
@@ -4934,8 +4940,15 @@ input, textarea, select {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.3px;
-  margin-top: 4px;
   backdrop-filter: blur(4px);
+}
+.streak-badge.frozen {
+  background: rgba(174, 215, 240, 0.34);
+  color: #e7f4ff;
+}
+.streak-badge.frozen.used {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 html[data-theme="dark"] .streak-card { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55); }

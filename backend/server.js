@@ -1136,47 +1136,98 @@ app.delete('/api/tasks/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-// Bump streak counter — den-v-řadě logika, vrací updated row
+// ISO 8601 týden ve formátu YYYY-Www (např. 2026-W22). Použito pro frozen-day kvótu
+// "jednou týdně" — porovnává se proti uloženému `user_stats.frozen_used_week`.
+function isoWeekString(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  // ISO weekday: 1 (Mon) … 7 (Sun); JS getUTCDay 0=Sun → mapuj
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+}
+
+// Bump streak counter — den-v-řadě logika, vrací updated row.
+// Frozen-day pravidlo: 1× týdně může user vynechat přesně 1 den (gap=2) bez resetu —
+// streak se zvýší jako by den nechyběl, ale v daný ISO týden už nelze frozen použít znovu.
 function bumpStreakForToday(userId = 1) {
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const currentWeek = isoWeekString(now);
   const stats = db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(userId);
   if (!stats) {
     db.prepare(
       'INSERT INTO user_stats (user_id, current_streak, longest_streak, last_done_date, total_completed) VALUES (?, 1, 1, ?, 1)',
     ).run(userId, today);
-    return { current_streak: 1, longest_streak: 1, last_done_date: today, total_completed: 1, increased: true };
+    return { current_streak: 1, longest_streak: 1, last_done_date: today, total_completed: 1, increased: true, frozen_used: false };
   }
   const last = stats.last_done_date;
   let current = stats.current_streak || 0;
   let increased = false;
+  let frozenUsed = false;
+  let frozenUsedWeek = stats.frozen_used_week || null;
   if (last === today) {
     // už dnes počítáno — jen total++
   } else {
-    const yest = new Date();
+    const yest = new Date(now);
     yest.setDate(yest.getDate() - 1);
     const yestStr = yest.toISOString().slice(0, 10);
-    current = last === yestStr ? current + 1 : 1;
+    const dayBeforeYest = new Date(now);
+    dayBeforeYest.setDate(dayBeforeYest.getDate() - 2);
+    const dayBeforeYestStr = dayBeforeYest.toISOString().slice(0, 10);
+    if (last === yestStr) {
+      current = current + 1;
+    } else if (last === dayBeforeYestStr && current > 0 && frozenUsedWeek !== currentWeek) {
+      // Gap přesně 1 den (předevčírem byl poslední úkol) a frozen ještě nepoužitý
+      // tento ISO týden → zmrazení: streak pokračuje + 1 jako by včerejšek nechyběl.
+      current = current + 1;
+      frozenUsed = true;
+      frozenUsedWeek = currentWeek;
+    } else {
+      current = 1;
+    }
     increased = true;
   }
   const longest = Math.max(stats.longest_streak || 0, current);
   const total = (stats.total_completed || 0) + 1;
   db.prepare(
-    `UPDATE user_stats SET current_streak=?, longest_streak=?, last_done_date=?, total_completed=?, updated_at=datetime('now') WHERE user_id=?`,
-  ).run(current, longest, today, total, userId);
-  return { current_streak: current, longest_streak: longest, last_done_date: today, total_completed: total, increased };
+    `UPDATE user_stats SET current_streak=?, longest_streak=?, last_done_date=?, total_completed=?, frozen_used_week=?, updated_at=datetime('now') WHERE user_id=?`,
+  ).run(current, longest, today, total, frozenUsedWeek, userId);
+  return { current_streak: current, longest_streak: longest, last_done_date: today, total_completed: total, increased, frozen_used: frozenUsed };
 }
 
 // GET streak / user stats
 app.get('/api/stats/streak', (req, res) => {
   const row = db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(1);
-  const today = new Date().toISOString().slice(0, 10);
-  const yest = new Date();
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const yest = new Date(now);
   yest.setDate(yest.getDate() - 1);
   const yestStr = yest.toISOString().slice(0, 10);
-  // Pokud poslední splnění není dnes ani včera, current_streak je "spící" → vrať 0
+  const dayBeforeYest = new Date(now);
+  dayBeforeYest.setDate(dayBeforeYest.getDate() - 2);
+  const dayBeforeYestStr = dayBeforeYest.toISOString().slice(0, 10);
+  const currentWeek = isoWeekString(now);
+
   let current = row?.current_streak ?? 0;
-  if (row?.last_done_date && row.last_done_date !== today && row.last_done_date !== yestStr) {
-    current = 0;
+  let frozenAvailable = current > 0 && (row?.frozen_used_week ?? null) !== currentWeek;
+
+  if (row?.last_done_date) {
+    if (row.last_done_date === today || row.last_done_date === yestStr) {
+      // Streak živý — frozenAvailable už spočítáno výše
+    } else if (
+      row.last_done_date === dayBeforeYestStr
+      && current > 0
+      && row.frozen_used_week !== currentWeek
+    ) {
+      // Mezera přesně 1 den a frozen tento týden nevyužitý → streak je live,
+      // user může dnes splnit úkol a frozen se aplikuje při příštím bumpu.
+      // Žádný downgrade; jen necháme současný streak.
+    } else {
+      current = 0;
+      frozenAvailable = false;
+    }
   }
   res.json({
     current_streak: current,
@@ -1184,6 +1235,9 @@ app.get('/api/stats/streak', (req, res) => {
     last_done_date: row?.last_done_date ?? null,
     total_completed: row?.total_completed ?? 0,
     is_weekly_gardener: current >= 7,
+    frozen_available: frozenAvailable,
+    frozen_used_week: row?.frozen_used_week ?? null,
+    current_week: currentWeek,
   });
 });
 

@@ -13,6 +13,7 @@ import {
 } from '../push.js';
 import OnboardingFlow, { resetOnboardingFlow, getDemoGardenId, clearDemoGardenFlag } from '../components/OnboardingFlow.jsx';
 import { getStoredTheme, applyTheme } from '../components/ThemeToggle.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 
 const USER_NAME_KEY = 'gardenpin.userName';
 
@@ -69,6 +70,7 @@ export default function SettingsPage() {
   // — Ostatní —
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [wiping, setWiping] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   // Demo zahrada — řádek pro smazání se ukáže pouze pokud demo skutečně existuje
   // (id v localStorage + zahrada se vrátí z API).
   const [demoGardenExists, setDemoGardenExists] = useState(false);
@@ -246,7 +248,11 @@ export default function SettingsPage() {
   };
 
   const handleResetApp = () => {
-    if (!window.confirm(t('settings.resetConfirm'))) return;
+    setShowResetConfirm(true);
+  };
+
+  const confirmResetApp = () => {
+    setShowResetConfirm(false);
     ['gardenpin.theme', 'gardenpin.userName', 'gp_onboarded', 'notifReminderDays'].forEach(
       (k) => localStorage.removeItem(k),
     );
@@ -636,6 +642,18 @@ export default function SettingsPage() {
       </div>
 
       {showOnboarding && <OnboardingFlow onClose={() => setShowOnboarding(false)} />}
+
+      {showResetConfirm && (
+        <ConfirmDialog
+          icon="↺"
+          title={t('settings.resetApp')}
+          message={t('settings.resetConfirm')}
+          confirmLabel={t('settings.resetApp')}
+          danger
+          onConfirm={confirmResetApp}
+          onCancel={() => setShowResetConfirm(false)}
+        />
+      )}
     </div>
   );
 }

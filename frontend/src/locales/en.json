@@ -622,6 +622,10 @@
     "resultCount_other": "Found {{count}} plants",
     "emptyTitle": "No plant found",
     "emptyText": "Try changing the search term or filter.",
+    "emptyFilterQuery": "Nothing found for \"{{query}}\".",
+    "emptyFilterCategory": "Nothing in category {{category}}.",
+    "emptyFilterCombo": "Nothing in category {{category}} for \"{{query}}\".",
+    "emptyReset": "↺ Clear filter",
     "plantFallback": "Plant",
     "seasonalOverview": "Seasonal overview",
     "tasksPerYear_one": "{{count}} task per year",
@@ -829,7 +833,11 @@
     "daysInRow_other": "{{count}} days in a row",
     "longest_one": "Longest: {{count}} day",
     "longest_other": "Longest: {{count}} days",
-    "weeklyGardener": "🏅 Gardener of the week"
+    "weeklyGardener": "🏅 Gardener of the week",
+    "frozenAvailable": "Freeze available",
+    "frozenUsed": "Freeze used this week",
+    "frozenTooltip": "You can skip one day this week without losing your streak.",
+    "frozenUsedTooltip": "You've already used your freeze this week — a new one resets on Monday."
   },
   "frost": {
     "badge": "Frost {{date}}",
@@ -1553,5 +1561,15 @@
     "planned": "🍂 Scheduled for {{date}}",
     "planFailed": "Scheduling failed: {{msg}}",
     "notes": "Stop nitrogen — PK fertilizer for wood ripening and frost hardiness."
+  },
+  "polygonOnboarding": {
+    "title": "✂️ Outline your garden",
+    "add": "Add a point (tap a dot between corners)",
+    "remove": "Delete the selected point",
+    "undo": "Undo the last step",
+    "reset": "Reset to 4 corners",
+    "confirm": "Confirm and crop the photo",
+    "tipDot": "Tip: tap the white dot midway on a side to add a point.",
+    "ok": "Got it"
   }
 }

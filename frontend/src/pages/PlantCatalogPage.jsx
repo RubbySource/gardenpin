@@ -251,7 +251,36 @@ export default function PlantCatalogPage() {
         <div className="gp-empty" style={{ padding: '32px 16px' }}>
           <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🔍</span>
           <div className="gp-empty-title">{t('catalog.emptyTitle')}</div>
-          <div className="gp-empty-text">{t('catalog.emptyText')}</div>
+          <div className="gp-empty-text">
+            {(() => {
+              const activeCat = categoryFilter !== 'all'
+                ? categories.find((c) => c.key === categoryFilter)
+                : null;
+              if (debouncedQuery && activeCat) {
+                return t('catalog.emptyFilterCombo', { query: debouncedQuery, category: activeCat.label });
+              }
+              if (debouncedQuery) {
+                return t('catalog.emptyFilterQuery', { query: debouncedQuery });
+              }
+              if (activeCat) {
+                return t('catalog.emptyFilterCategory', { category: activeCat.label });
+              }
+              return t('catalog.emptyText');
+            })()}
+          </div>
+          {(debouncedQuery || categoryFilter !== 'all') && (
+            <button
+              type="button"
+              className="btn small"
+              style={{ marginTop: 14 }}
+              onClick={() => {
+                setQuery('');
+                setCategoryFilter('all');
+              }}
+            >
+              {t('catalog.emptyReset')}
+            </button>
+          )}
         </div>
       ) : (
         <div className="plant-catalog-grid">

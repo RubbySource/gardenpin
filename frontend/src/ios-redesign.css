@@ -5244,3 +5244,163 @@ html[data-theme="dark"] .late-sowing-card {
 }
 html[data-theme="dark"] .late-sowing-title { color: #8ec9b0; }
 html[data-theme="dark"] .late-sowing-sub { color: #6ba98e; }
+
+/* ---------- ConfirmDialog — iOS-style modal confirm ---------- */
+.confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, calc(100vw - 32px));
+  background: var(--ios-bg-elev);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.30), 0 4px 14px rgba(0, 0, 0, 0.18);
+  padding: 22px 20px 14px;
+  text-align: center;
+  animation: confirm-pop 180ms var(--ios-spring);
+}
+@keyframes confirm-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.confirm-dialog-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.confirm-dialog-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+}
+.confirm-dialog-message {
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--ios-label-secondary);
+  margin-bottom: 16px;
+}
+.confirm-dialog-actions {
+  display: flex;
+  gap: 8px;
+}
+.confirm-dialog-btn {
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.96rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms var(--ios-ease), transform 100ms var(--ios-ease);
+}
+.confirm-dialog-btn:active { transform: scale(0.97); }
+.confirm-dialog-btn.cancel {
+  background: var(--ios-fill);
+  color: var(--ios-label);
+}
+.confirm-dialog-btn.cancel:hover { background: var(--ios-separator); }
+.confirm-dialog-btn.primary {
+  background: var(--ios-accent);
+  color: #fff;
+}
+.confirm-dialog-btn.primary:hover { filter: brightness(0.95); }
+.confirm-dialog-btn.danger {
+  background: #FF3B30;
+  color: #fff;
+}
+.confirm-dialog-btn.danger:hover { background: #E03128; }
+html[data-theme="dark"] .confirm-dialog {
+  background: #1c1c1e;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.60), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- PolygonEditor onboarding overlay ---------- */
+.polygon-onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: polygon-onb-fade 160ms var(--ios-ease);
+}
+@keyframes polygon-onb-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+.polygon-onboarding-card {
+  background: var(--ios-bg-elev);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.30);
+  padding: 20px 18px 16px;
+  width: min(380px, 100%);
+  animation: confirm-pop 200ms var(--ios-spring);
+}
+.polygon-onboarding-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.polygon-onboarding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.polygon-onboarding-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  background: var(--ios-fill);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  color: var(--ios-label);
+}
+.polygon-onboarding-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--ios-accent);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.polygon-onboarding-hint {
+  font-size: 0.82rem;
+  color: var(--ios-label-secondary);
+  margin: 8px 4px 14px;
+  line-height: 1.35;
+}
+.polygon-onboarding-btn {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--ios-accent);
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms var(--ios-ease), transform 100ms var(--ios-ease);
+}
+.polygon-onboarding-btn:active { transform: scale(0.97); }
+.polygon-onboarding-btn:hover { filter: brightness(0.95); }
+html[data-theme="dark"] .polygon-onboarding-card {
+  background: #1c1c1e;
+}

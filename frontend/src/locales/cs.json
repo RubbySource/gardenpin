@@ -650,6 +650,10 @@
     "resultCount_other": "Nalezeno {{count}} rostlin",
     "emptyTitle": "Žádná rostlina nenalezena",
     "emptyText": "Zkus změnit hledaný výraz nebo filtr.",
+    "emptyFilterQuery": "Pro „{{query}}\" nic nenalezeno.",
+    "emptyFilterCategory": "V kategorii {{category}} nic nenalezeno.",
+    "emptyFilterCombo": "V kategorii {{category}} pro „{{query}}\" nic nenalezeno.",
+    "emptyReset": "↺ Zrušit filtr",
     "plantFallback": "Rostlina",
     "seasonalOverview": "Sezónní přehled",
     "tasksPerYear_one": "{{count}} úkon ročně",
@@ -879,7 +883,11 @@
     "longest_one": "Nejdelší: {{count}} den",
     "longest_few": "Nejdelší: {{count}} dny",
     "longest_other": "Nejdelší: {{count}} dní",
-    "weeklyGardener": "🏅 Zahradník týdne"
+    "weeklyGardener": "🏅 Zahradník týdne",
+    "frozenAvailable": "Mrazák k dispozici",
+    "frozenUsed": "Mrazák tento týden využit",
+    "frozenTooltip": "Tento týden můžeš jednou vynechat den bez resetu streaku.",
+    "frozenUsedTooltip": "Tento týden jsi už mrazák využil — další bude k dispozici v pondělí."
   },
   "frost": {
     "badge": "Mráz {{date}}",
@@ -1639,5 +1647,15 @@
     "planned": "🍂 Naplánováno na {{date}}",
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Konec dusíku — PK hnojivo pro vyzrání dřeva a mrazuvzdornost."
+  },
+  "polygonOnboarding": {
+    "title": "✂️ Ohraničení zahrady",
+    "add": "Přidat bod (klepni na tečku mezi rohy)",
+    "remove": "Smazat vybraný bod",
+    "undo": "Vrátit poslední krok",
+    "reset": "Reset na 4 rohy",
+    "confirm": "Potvrdit a oříznout fotku",
+    "tipDot": "Tip: ťukni na bílou tečku uprostřed strany pro přidání bodu.",
+    "ok": "Rozumím"
   }
 }

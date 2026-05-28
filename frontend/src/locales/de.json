@@ -622,6 +622,10 @@
     "resultCount_other": "{{count}} Pflanzen gefunden",
     "emptyTitle": "Keine Pflanze gefunden",
     "emptyText": "Versuchen Sie, den Suchbegriff oder Filter zu ändern.",
+    "emptyFilterQuery": "Nichts gefunden für „{{query}}\".",
+    "emptyFilterCategory": "Nichts in Kategorie {{category}}.",
+    "emptyFilterCombo": "Nichts in Kategorie {{category}} für „{{query}}\".",
+    "emptyReset": "↺ Filter zurücksetzen",
     "plantFallback": "Pflanze",
     "seasonalOverview": "Saisonübersicht",
     "tasksPerYear_one": "{{count}} Aufgabe pro Jahr",
@@ -829,7 +833,11 @@
     "daysInRow_other": "{{count}} Tage in Folge",
     "longest_one": "Längste: {{count}} Tag",
     "longest_other": "Längste: {{count}} Tage",
-    "weeklyGardener": "🏅 Gärtner der Woche"
+    "weeklyGardener": "🏅 Gärtner der Woche",
+    "frozenAvailable": "Freeze verfügbar",
+    "frozenUsed": "Freeze diese Woche genutzt",
+    "frozenTooltip": "Sie können diese Woche einen Tag auslassen, ohne Ihre Serie zu verlieren.",
+    "frozenUsedTooltip": "Sie haben Ihren Freeze diese Woche bereits genutzt — ein neuer ist am Montag verfügbar."
   },
   "frost": {
     "badge": "Frost {{date}}",
@@ -1553,5 +1561,15 @@
     "planned": "🍂 Geplant für {{date}}",
     "planFailed": "Planung fehlgeschlagen: {{msg}}",
     "notes": "Schluss mit Stickstoff — PK-Dünger für das Ausreifen des Holzes und Frosthärte."
+  },
+  "polygonOnboarding": {
+    "title": "✂️ Garten umranden",
+    "add": "Punkt hinzufügen (auf einen Zwischenpunkt tippen)",
+    "remove": "Ausgewählten Punkt löschen",
+    "undo": "Letzten Schritt rückgängig",
+    "reset": "Auf 4 Ecken zurücksetzen",
+    "confirm": "Bestätigen und Foto zuschneiden",
+    "tipDot": "Tipp: Tippen Sie auf den weißen Punkt in der Mitte einer Seite, um einen Punkt einzufügen.",
+    "ok": "Verstanden"
   }
 }

@@ -672,6 +672,10 @@
     "resultCount_other": "Znaleziono {{count}} rośliny",
     "emptyTitle": "Nie znaleziono rośliny",
     "emptyText": "Spróbuj zmienić wyszukiwane wyrażenie lub filtr.",
+    "emptyFilterQuery": "Nic nie znaleziono dla „{{query}}\".",
+    "emptyFilterCategory": "Nic w kategorii {{category}}.",
+    "emptyFilterCombo": "Nic w kategorii {{category}} dla „{{query}}\".",
+    "emptyReset": "↺ Wyczyść filtr",
     "plantFallback": "Roślina",
     "seasonalOverview": "Przegląd sezonowy",
     "tasksPerYear_one": "{{count}} czynność rocznie",
@@ -923,7 +927,11 @@
     "longest_few": "Najdłużej: {{count}} dni",
     "longest_many": "Najdłużej: {{count}} dni",
     "longest_other": "Najdłużej: {{count}} dnia",
-    "weeklyGardener": "🏅 Ogrodnik tygodnia"
+    "weeklyGardener": "🏅 Ogrodnik tygodnia",
+    "frozenAvailable": "Zamrożenie dostępne",
+    "frozenUsed": "Zamrożenie użyte w tym tygodniu",
+    "frozenTooltip": "W tym tygodniu możesz pominąć jeden dzień bez utraty serii.",
+    "frozenUsedTooltip": "Wykorzystałeś już zamrożenie w tym tygodniu — nowe będzie dostępne w poniedziałek."
   },
   "frost": {
     "badge": "Mróz {{date}}",
@@ -1719,5 +1727,15 @@
     "planned": "🍂 Zaplanowano na {{date}}",
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Koniec azotu — nawóz PK dla dojrzewania drewna i mrozoodporności."
+  },
+  "polygonOnboarding": {
+    "title": "✂️ Obrysuj ogród",
+    "add": "Dodaj punkt (stuknij kropkę między rogami)",
+    "remove": "Usuń wybrany punkt",
+    "undo": "Cofnij ostatni krok",
+    "reset": "Reset do 4 rogów",
+    "confirm": "Potwierdź i przytnij zdjęcie",
+    "tipDot": "Wskazówka: stuknij białą kropkę pośrodku boku, aby dodać punkt.",
+    "ok": "Rozumiem"
   }
 }

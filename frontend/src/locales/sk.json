@@ -672,6 +672,10 @@
     "resultCount_other": "Nájdených {{count}} rastlín",
     "emptyTitle": "Žiadna rastlina nenájdená",
     "emptyText": "Skús zmeniť hľadaný výraz alebo filter.",
+    "emptyFilterQuery": "Pre „{{query}}\" nič nenájdené.",
+    "emptyFilterCategory": "V kategórii {{category}} nič nenájdené.",
+    "emptyFilterCombo": "V kategórii {{category}} pre „{{query}}\" nič nenájdené.",
+    "emptyReset": "↺ Zrušiť filter",
     "plantFallback": "Rastlina",
     "seasonalOverview": "Sezónny prehľad",
     "tasksPerYear_one": "{{count}} úkon ročne",
@@ -923,7 +927,11 @@
     "longest_few": "Najdlhšie: {{count}} dni",
     "longest_many": "Najdlhšie: {{count}} dňa",
     "longest_other": "Najdlhšie: {{count}} dní",
-    "weeklyGardener": "🏅 Záhradník týždňa"
+    "weeklyGardener": "🏅 Záhradník týždňa",
+    "frozenAvailable": "Mrazák k dispozícii",
+    "frozenUsed": "Mrazák tento týždeň využitý",
+    "frozenTooltip": "Tento týždeň môžeš raz vynechať deň bez resetu streaku.",
+    "frozenUsedTooltip": "Tento týždeň si už mrazák využil — ďalší bude k dispozícii v pondelok."
   },
   "frost": {
     "badge": "Mráz {{date}}",
@@ -1719,5 +1727,15 @@
     "planned": "🍂 Naplánované na {{date}}",
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Koniec dusíka — PK hnojivo pre vyzretie dreva a mrazuvzdornosť."
+  },
+  "polygonOnboarding": {
+    "title": "✂️ Ohraničenie záhrady",
+    "add": "Pridať bod (klepni na bodku medzi rohmi)",
+    "remove": "Zmazať vybraný bod",
+    "undo": "Vrátiť posledný krok",
+    "reset": "Reset na 4 rohy",
+    "confirm": "Potvrdiť a orezať fotku",
+    "tipDot": "Tip: ťukni na bielu bodku v strede strany pre pridanie bodu.",
+    "ok": "Rozumiem"
   }
 }

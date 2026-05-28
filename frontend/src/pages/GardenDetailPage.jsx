@@ -101,6 +101,9 @@ export default function GardenDetailPage() {
   // delete) a toolbar je pak schopen vrátit krok zpět. Max 10 snapshotů.
   const [polygonSelectedIdx, setPolygonSelectedIdx] = useState(null);
   const [polygonUndoStack, setPolygonUndoStack] = useState([]);
+  // Onboarding overlay pro polygon editor — ukáže se jen poprvé, dokud user neklikne "Rozumím".
+  // Stav přežije remount, ale ne reload (žije v localStorage).
+  const [polygonOnboardingOpen, setPolygonOnboardingOpen] = useState(false);
 
   const load = async () => {
     try {
@@ -350,12 +353,21 @@ export default function GardenDetailPage() {
   useEffect(() => {
     if (polygonMode) {
       setPolygonPoints(parsePolygon(garden?.garden_polygon) || DEFAULT_POLYGON_POINTS);
+      // První zapnutí editoru → ukázat onboarding overlay s vysvětlením skrytých gestures.
+      if (!localStorage.getItem('gp_polygon_onboarded')) {
+        setPolygonOnboardingOpen(true);
+      }
     } else {
       setPolygonPoints(null);
     }
     setPolygonSelectedIdx(null);
     setPolygonUndoStack([]);
   }, [polygonMode, garden?.garden_polygon]);
+
+  const dismissPolygonOnboarding = () => {
+    localStorage.setItem('gp_polygon_onboarded', '1');
+    setPolygonOnboardingOpen(false);
+  };
 
   // Snapshot — editor volá PŘED každou změnou (drag-start, add midpoint).
   // Stejnou funkci volá toolbar před add/remove/reset, ať undo funguje konzistentně.
@@ -787,6 +799,52 @@ export default function GardenDetailPage() {
                 </div>
               )}
             </div>
+            {polygonOnboardingOpen && (
+              <div className="polygon-onboarding-backdrop" onClick={dismissPolygonOnboarding}>
+                <div
+                  className="polygon-onboarding-card"
+                  role="dialog"
+                  aria-modal="true"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="polygon-onboarding-title">
+                    {t('polygonOnboarding.title')}
+                  </div>
+                  <div className="polygon-onboarding-list">
+                    <div className="polygon-onboarding-row">
+                      <span className="polygon-onboarding-glyph">+</span>
+                      <span>{t('polygonOnboarding.add')}</span>
+                    </div>
+                    <div className="polygon-onboarding-row">
+                      <span className="polygon-onboarding-glyph">−</span>
+                      <span>{t('polygonOnboarding.remove')}</span>
+                    </div>
+                    <div className="polygon-onboarding-row">
+                      <span className="polygon-onboarding-glyph">↺</span>
+                      <span>{t('polygonOnboarding.undo')}</span>
+                    </div>
+                    <div className="polygon-onboarding-row">
+                      <span className="polygon-onboarding-glyph">⟲</span>
+                      <span>{t('polygonOnboarding.reset')}</span>
+                    </div>
+                    <div className="polygon-onboarding-row">
+                      <span className="polygon-onboarding-glyph">✓</span>
+                      <span>{t('polygonOnboarding.confirm')}</span>
+                    </div>
+                  </div>
+                  <p className="polygon-onboarding-hint">
+                    {t('polygonOnboarding.tipDot')}
+                  </p>
+                  <button
+                    type="button"
+                    className="polygon-onboarding-btn"
+                    onClick={dismissPolygonOnboarding}
+                  >
+                    {t('polygonOnboarding.ok')}
+                  </button>
+                </div>
+              </div>
+            )}
             {polygonMode && polygonPoints && (
               <div className="polygon-toolbar">
                 <p className="polygon-toolbar-hint">

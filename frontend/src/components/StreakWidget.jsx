@@ -22,7 +22,7 @@ export default function StreakWidget({ refreshKey = 0 }) {
 
   if (!data) return null;
 
-  const { current_streak, longest_streak, is_weekly_gardener } = data;
+  const { current_streak, longest_streak, is_weekly_gardener, frozen_available } = data;
   const cls = is_weekly_gardener
     ? 'streak-card weekly'
     : current_streak === 0
@@ -42,9 +42,22 @@ export default function StreakWidget({ refreshKey = 0 }) {
             ? t('streak.startHint')
             : t('streak.longest', { count: longest_streak })}
         </div>
-        {is_weekly_gardener && (
-          <span className="streak-badge">{t('streak.weeklyGardener')}</span>
-        )}
+        <div className="streak-badges">
+          {is_weekly_gardener && (
+            <span className="streak-badge">{t('streak.weeklyGardener')}</span>
+          )}
+          {current_streak > 0 && (
+            frozen_available ? (
+              <span className="streak-badge frozen" title={t('streak.frozenTooltip')}>
+                ❄️ {t('streak.frozenAvailable')}
+              </span>
+            ) : (
+              <span className="streak-badge frozen used" title={t('streak.frozenUsedTooltip')}>
+                ❄️ {t('streak.frozenUsed')}
+              </span>
+            )
+          )}
+        </div>
       </div>
     </div>
   );
