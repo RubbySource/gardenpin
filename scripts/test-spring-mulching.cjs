@@ -36,7 +36,7 @@ const CATEGORY_TYPE = {
   popinave: 'woody',
 };
 const SPRING_MULCH_GENERA_EXCLUDE = new Set([
-  'Helleborus', 'Lavandula', 'Thymus', 'Origanum',
+  'Helleborus', 'Lavandula', 'Thymus', 'Origanum', 'Fragaria',
 ]);
 const SPRING_MULCH_SPECIES_EXCLUDE = new Set([
   'Iris germanica', 'Salvia officinalis', 'Salvia rosmarinus',
@@ -146,7 +146,7 @@ function hasSpringMulchingInMonth(pinTasks, month, curYear) {
   ok(typeCz('Šanta Faassenova') === 'perennial', 'Nepeta x faassenii (trvalky) → perennial');
   ok(typeCz('Flox latnatý') === 'perennial', 'Phlox paniculata (trvalky) → perennial');
   ok(typeCz('Třapatka Goldsturm') === 'perennial', "Rudbeckia 'Goldsturm' (trvalky) → perennial");
-  ok(typeCz('Jahodník') === 'woody', 'jahodník Fragaria (ovoce) → woody (gate kategorie)');
+  ok(ruleCz('Jahodník') === null, 'jahodník Fragaria (ovoce) → null přes rod exclusion (řeší specifická vrstva strawberryStrawing.js — sláma, ne kůra)');
   ok(typeCz('Plamének Jackmanii') === 'woody', "Clematis 'Jackmanii' (popinave) → woody");
   ok(typeCz('Zimolez kozí list') === 'woody', 'Lonicera periclymenum (popinave) → woody');
   ok(typeCz('Šalvěj hajní') === 'perennial', 'Salvia nemorosa (trvalky, NE „officinalis"/„rosmarinus") → perennial');
@@ -193,8 +193,10 @@ function hasSpringMulchingInMonth(pinTasks, month, curYear) {
     'holý string category=kere + Rhododendron → woody');
   ok((springMulchingRuleForPlant({ category: 'stromy', nameLat: 'Malus domestica' }) || {}).type === 'woody',
     'holý string category=stromy + jabloň → woody');
-  ok((springMulchingRuleForPlant({ category: 'ovoce', nameLat: 'Fragaria vesca' }) || {}).type === 'woody',
-    'holý string category=ovoce + jahodník → woody (gate kategorie)');
+  ok(springMulchingRuleForPlant({ category: 'ovoce', nameLat: 'Fragaria vesca' }) === null,
+    'holý string category=ovoce + jahodník → null přes rod exclusion (řeší strawberryStrawing.js)');
+  ok((springMulchingRuleForPlant({ category: 'ovoce', nameLat: 'Malus sylvestris' }) || {}).type === 'woody',
+    'holý string category=ovoce + jabloň lesní (rod Malus, NE Fragaria) → woody (gate kategorie)');
   ok((springMulchingRuleForPlant({ category: 'popinave', nameLat: 'Clematis viticella' }) || {}).type === 'woody',
     'holý string category=popinave + Clematis → woody');
   ok((springMulchingRuleForPlant({ category: 'letnicky', nameLat: 'Petunia hybrida' }) || {}).type === 'perennial',

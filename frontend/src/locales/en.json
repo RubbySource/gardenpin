@@ -1356,6 +1356,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Seed saving — {{instr}}"
   },
+  "strawberryStrawing": {
+    "title": "Time to straw-mulch the strawberries",
+    "subtitle": "Straw keeps fruit off the ground — clean, no rot, no slugs",
+    "taskTitle": "Straw-mulch strawberries {{plant}}",
+    "action": "Spread dry straw between the plants",
+    "instr": "Spread dry straw between plants and under the trusses JUST BEFORE the fruit starts to ripen — keeps berries off the soil (no splash, no rot), repels slugs, reduces evaporation and keeps root-zone moisture steady.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌾 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Spread dry straw between plants under the trusses — keeps fruit off the ground, deters slugs, holds moisture."
+  },
   "strawberryRenewal": {
     "title": "Time to renew strawberries",
     "subtitle": "After the harvest, cut back old leaves and remove excess runners",

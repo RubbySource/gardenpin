@@ -3923,6 +3923,83 @@ html[data-theme="dark"] .tomato-suckering-card {
 html[data-theme="dark"] .tomato-suckering-title { color: #f0a890; }
 html[data-theme="dark"] .tomato-suckering-sub { color: #d18a72; }
 
+/* Mulčování jahodníku slámou — karta „🌾 Čas pomulčovat jahodník slámou" v detailu pinu
+   (Úkony tab). Zlato-žlutá „suchá sláma" paleta — odliší od hnědé spring-mulching kůry
+   (jiný materiál), zlato-zelené herb-harvest a chladnější jahodově-růžové strawberry-renewal
+   karty. Drží stejnou strukturu (card / head / list / row / badge / btn) jako sourozenecké karty. */
+.strawberry-strawing-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f5ebc4, #e8d98a);
+  border: 1px solid #c9a740;
+}
+.strawberry-strawing-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.strawberry-strawing-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6a4f0e;
+}
+.strawberry-strawing-sub {
+  font-size: 12px;
+  color: #9a7820;
+}
+.strawberry-strawing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.strawberry-strawing-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.strawberry-strawing-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #9a7820;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.strawberry-strawing-main { flex: 1; min-width: 0; }
+.strawberry-strawing-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.strawberry-strawing-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.strawberry-strawing-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #9a7820;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.strawberry-strawing-btn:active { transform: scale(0.96); }
+.strawberry-strawing-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .strawberry-strawing-card {
+  background: linear-gradient(135deg, #2d2410, #1f1808);
+  border-color: #6a4f0e;
+}
+html[data-theme="dark"] .strawberry-strawing-title { color: #e8d98a; }
+html[data-theme="dark"] .strawberry-strawing-sub { color: #c9a740; }
+
 /* Otužování sazenic — karta „🌤️ Čas otužit sazenici" v detailu pinu (Úkony tab). Jemně sluneční
    žluto-zelená „postupné slunce" paleta (úsvit + mladý list), ať se odliší od svěží listově zelené
    pinching, smaragdové plant-support, modré peach-curl-spray a teplé sowing karty. Drží stejnou

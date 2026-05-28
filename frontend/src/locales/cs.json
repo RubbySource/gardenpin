@@ -1436,6 +1436,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Sběr semen — {{instr}}"
   },
+  "strawberryStrawing": {
+    "title": "Čas pomulčovat jahodník slámou",
+    "subtitle": "Sláma drží plody nad zemí — čisté, neuhnijí, slimáci pryč",
+    "taskTitle": "Mulčování jahodníku {{plant}} slámou",
+    "action": "Rozprostři suchou slámu mezi rostliny",
+    "instr": "Rozprostři suchou slámu mezi rostliny a pod květenství TĚSNĚ PŘED dozráváním plodů — drží plody nad zemí (nešpiní se), odrazí slimáky, omezí výpar a drží stabilní vlhkost kořenovému balu.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌾 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Rozprostři suchou slámu mezi rostliny pod květenství — drží plody nad zemí, brání slimákům, drží vlhkost."
+  },
   "strawberryRenewal": {
     "title": "Čas obnovit jahodník",
     "subtitle": "Po sklizni sestřihni staré listy a odeber přebytečné odnože",

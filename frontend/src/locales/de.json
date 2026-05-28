@@ -1356,6 +1356,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Samen sammeln — {{instr}}"
   },
+  "strawberryStrawing": {
+    "title": "Zeit, die Erdbeeren mit Stroh zu mulchen",
+    "subtitle": "Stroh hält die Früchte über dem Boden — sauber, ohne Fäulnis, ohne Schnecken",
+    "taskTitle": "Erdbeeren {{plant}} mit Stroh mulchen",
+    "action": "Trockenes Stroh zwischen die Pflanzen verteilen",
+    "instr": "Verteilen Sie trockenes Stroh zwischen den Pflanzen und unter den Blütenständen KURZ BEVOR die Früchte reifen — hält die Beeren vom Boden (keine Erde, keine Fäulnis), wehrt Schnecken ab, reduziert die Verdunstung und hält die Wurzelfeuchte stabil.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌾 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Trockenes Stroh zwischen die Pflanzen unter die Blütenstände verteilen — hält die Früchte vom Boden, wehrt Schnecken ab, hält die Feuchte."
+  },
   "strawberryRenewal": {
     "title": "Zeit, die Erdbeeren zu verjüngen",
     "subtitle": "Schneiden Sie nach der Ernte das alte Laub zurück und entfernen Sie überzählige Ausläufer",

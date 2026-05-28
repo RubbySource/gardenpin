@@ -89,6 +89,8 @@ export const SPRING_MULCH_GENERA_EXCLUDE = new Set([
   'Lavandula',   // levandule (forward-looking; v DB jen `bylinky` mimo gate)
   'Thymus',      // tymián (forward-looking; v DB jen `bylinky` mimo gate)
   'Origanum',    // dobromysl/oregano (forward-looking; v DB jen `bylinky` mimo gate)
+  'Fragaria',    // jahodník (ovoce) — řešen specifickou vrstvou strawberryStrawing.js
+                 //                    (sláma místo kůry, jiná fenologická fáze)
 ]);
 
 // Druhy, KDE MULČ ŠKODÍ a jsou v gate kategorií. DRUH má přednost před RODEM (species

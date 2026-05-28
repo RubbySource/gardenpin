@@ -1510,6 +1510,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Zbiór nasion — {{instr}}"
   },
+  "strawberryStrawing": {
+    "title": "Czas ściółkować truskawki słomą",
+    "subtitle": "Słoma trzyma owoce nad ziemią — czyste, bez zgnilizny, bez ślimaków",
+    "taskTitle": "Ściółkowanie truskawek {{plant}} słomą",
+    "action": "Rozłóż suchą słomę między rośliny",
+    "instr": "Rozłóż suchą słomę między roślinami i pod kwiatostanami TUŻ PRZED dojrzewaniem owoców — utrzymuje owoce nad ziemią (czyste, bez gnicia), odstrasza ślimaki, ogranicza parowanie i stabilizuje wilgotność strefy korzeniowej.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌾 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Rozłóż suchą słomę między rośliny pod kwiatostanami — trzyma owoce nad ziemią, odstrasza ślimaki, zatrzymuje wilgoć."
+  },
   "strawberryRenewal": {
     "title": "Czas odnowić truskawki",
     "subtitle": "Po zbiorach przytnij stare liście i odetnij nadmiar rozłogów",

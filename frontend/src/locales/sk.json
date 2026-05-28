@@ -1510,6 +1510,18 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Zber semien — {{instr}}"
   },
+  "strawberryStrawing": {
+    "title": "Čas mulčovať jahody slamou",
+    "subtitle": "Slama drží plody nad zemou — čisté, neuhnijú, slimáky preč",
+    "taskTitle": "Mulčovanie jahôd {{plant}} slamou",
+    "action": "Rozprestri suchú slamu medzi rastliny",
+    "instr": "Rozprestri suchú slamu medzi rastlinami a pod kvetenstvom TESNE PRED dozrievaním plodov — drží plody nad zemou (nešpinia sa), odpudí slimáky, obmedzí výpar a drží stabilnú vlhkosť koreňovému balu.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌾 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Rozprestri suchú slamu medzi rastliny pod kvetenstvom — drží plody nad zemou, odpudzuje slimáky, drží vlhkosť."
+  },
   "strawberryRenewal": {
     "title": "Čas obnoviť jahody",
     "subtitle": "Po zbere zostrihni staré listy a odober prebytočné šľahúny",
