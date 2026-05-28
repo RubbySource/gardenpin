@@ -15,6 +15,7 @@ import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
+import HedgeTrimCard from '../components/HedgeTrimCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
@@ -425,6 +426,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Každoroční sestřih trvalek/trav — zjara (strukturní/trávy) nebo na podzim (měkké) */}
       <CutbackTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Letní tvarovací řez formálních živých plotů (vykreslí se jen pro plotové dřeviny v sezóně 7/9) */}
+      <HedgeTrimCard pin={pin} onPlanned={onReload} />
 
       {/* Jarní opory pro vysoké trvalky/popínavé — postav podpěry včas (vykreslí se jen v sezóně 4–5) */}
       <PlantSupportCard pin={pin} onPlanned={onReload} />

@@ -1257,6 +1257,19 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Sezonowe przycięcie części nadziemnej — {{meta}}"
   },
+  "hedgeTrim": {
+    "title": "Czas na formowanie żywopłotu",
+    "subtitle": "Przytnij formalny żywopłot, aby trzymał gęsty i ostry kształt",
+    "taskTitle": "Przytnij żywopłot {{plant}}",
+    "action": "Przytnij nowy przyrost żywopłotu",
+    "metaSummer1": "Pierwsze letnie cięcie po lęgach ptaków — przytnij nowy przyrost do kształtu.",
+    "metaSummer2": "Drugie cięcie późnym latem — aby żywopłot wszedł w zimę zadbany.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Letnie cięcie formujące żywopłotu — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Wysiew z nasion na rozsadę",
     "subtitle": "Wysiej do skrzynki z wyprzedzeniem przed wysadzeniem",

@@ -1184,6 +1184,19 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Sezónní seříznutí nadzemní části — {{meta}}"
   },
+  "hedgeTrim": {
+    "title": "Čas tvarovat plot",
+    "subtitle": "Sestřihni formální živý plot, ať drží hustý a ostrý tvar",
+    "taskTitle": "Sestřihnout plot {{plant}}",
+    "action": "Sestřihnout nový přírůstek plotu",
+    "metaSummer1": "První letní sestřih po hnízdění ptáků — seřízni nový přírůstek do tvaru.",
+    "metaSummer2": "Druhý sestřih koncem léta — ať plot jde do zimy upravený.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Letní tvarovací řez živého plotu — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Předpěstování ze semene",
     "subtitle": "Vyset dovnitř s předstihem před výsadbou ven",

@@ -1105,6 +1105,19 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Seasonal cutback of the top growth — {{meta}}"
   },
+  "hedgeTrim": {
+    "title": "Time to shape the hedge",
+    "subtitle": "Trim the formal hedge so it stays dense and crisp",
+    "taskTitle": "Trim {{plant}} hedge",
+    "action": "Trim the new hedge growth",
+    "metaSummer1": "First summer trim after the birds have nested — cut the new growth back to shape.",
+    "metaSummer2": "Second trim in late summer — so the hedge goes into winter tidy.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Summer shaping cut of the hedge — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Sow from seed indoors",
     "subtitle": "Start seedlings ahead of planting out",

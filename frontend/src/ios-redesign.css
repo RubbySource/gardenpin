@@ -3616,6 +3616,82 @@ html[data-theme="dark"] .cutback-task-card {
 html[data-theme="dark"] .cutback-task-title { color: #d8c879; }
 html[data-theme="dark"] .cutback-task-sub { color: #bfae6a; }
 
+/* Letní tvarovací řez živých plotů — karta v detailu pinu (Úkony tab). Sytě zelená „střižená
+   stěna / boxwood" paleta — tmavší a sytější než smaragdová support a světle zelená age,
+   a teplejší než khaki cutback. */
+.hedge-trim-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #d6e8cf, #e9f4e2);
+  border: 1px solid #8cb87e;
+}
+.hedge-trim-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.hedge-trim-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c5e22;
+}
+.hedge-trim-sub {
+  font-size: 12px;
+  color: #4d7a40;
+}
+.hedge-trim-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hedge-trim-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.hedge-trim-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #3c7a2a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.hedge-trim-main { flex: 1; min-width: 0; }
+.hedge-trim-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.hedge-trim-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.hedge-trim-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #3c7a2a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.hedge-trim-btn:active { transform: scale(0.96); }
+.hedge-trim-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .hedge-trim-card {
+  background: linear-gradient(135deg, #16240f, #101a0a);
+  border-color: #34521c;
+}
+html[data-theme="dark"] .hedge-trim-title { color: #a6cd79; }
+html[data-theme="dark"] .hedge-trim-sub { color: #8cae66; }
+
 /* Osevní postup — přehledová karta v detailu zahrady (Statistiky tab). Teal „rotační"
    paleta, ať se odliší od amber care-gap a zelené age-task karty. */
 .rotation-card {

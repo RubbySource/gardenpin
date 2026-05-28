@@ -1105,6 +1105,19 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Saisonaler Rückschnitt des oberirdischen Laubs — {{meta}}"
   },
+  "hedgeTrim": {
+    "title": "Zeit, die Hecke zu formen",
+    "subtitle": "Schneiden Sie die formale Hecke, damit sie dicht und scharf in Form bleibt",
+    "taskTitle": "Hecke {{plant}} schneiden",
+    "action": "Den neuen Heckentrieb schneiden",
+    "metaSummer1": "Erster Sommerschnitt nach dem Brüten der Vögel — schneiden Sie den neuen Trieb in Form.",
+    "metaSummer2": "Zweiter Schnitt im Spätsommer — damit die Hecke gepflegt in den Winter geht.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Sommerlicher Formschnitt der Hecke — {{meta}}"
+  },
   "sowingTasks": {
     "title": "Aus Samen vorziehen",
     "subtitle": "Sämlinge rechtzeitig vor dem Auspflanzen anziehen",
