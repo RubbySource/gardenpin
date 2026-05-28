@@ -13,10 +13,55 @@ import { monthName } from '../utils.js';
 import i18n from '../i18n.js';
 import { COUNTRIES, getZonesByCountry, getZoneCountry, describeZone, getZoneOffsetDays } from '../data/climateZones.js';
 import { taskTypeFromEmoji } from '../data/taskTypes.js';
+import { findPlantByName } from '../plantDatabase.js';
 import PlantAutocomplete from './PlantAutocomplete.jsx';
 
 const STORAGE_KEY = 'gp_onboarded';
 const USER_NAME_KEY = 'gardenpin.userName';
+const DEMO_GARDEN_KEY = 'gardenpin.demoGardenId';
+const DEMO_HINT_DISMISSED_KEY = 'gardenpin.demoHintDismissed';
+
+// Pevný seed demo zahrady — 3 rostliny rozmístěné po mapě, každá s jedním
+// hlavním sezónním úkonem v jiném měsíci (květen / červen / léto opakovaně).
+// Pozice x/y jsou procenta (0–100), task_type z `data/taskTypes.js`.
+const DEMO_PLANTS = [
+  { nameCz: 'Salát hlávkový', x: 25, y: 35, emoji: '🧺', taskType: 'sklizen',
+    titleKey: 'demoTaskLettuce', month: 5, recurring: false },
+  { nameCz: 'Rajče',          x: 50, y: 55, emoji: '🌱', taskType: 'hnojeni',
+    titleKey: 'demoTaskTomato', month: 6, recurring: false },
+  { nameCz: 'Máta peprná',    x: 75, y: 35, emoji: '🧺', taskType: 'sklizen',
+    titleKey: 'demoTaskMint',   month: 7, recurring: true  },
+];
+
+export function getDemoGardenId() {
+  try {
+    const v = localStorage.getItem(DEMO_GARDEN_KEY);
+    return v ? Number(v) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearDemoGardenFlag() {
+  try {
+    localStorage.removeItem(DEMO_GARDEN_KEY);
+    localStorage.removeItem(DEMO_HINT_DISMISSED_KEY);
+  } catch {}
+}
+
+export function isDemoHintDismissed() {
+  try {
+    return !!localStorage.getItem(DEMO_HINT_DISMISSED_KEY);
+  } catch {
+    return false;
+  }
+}
+
+export function dismissDemoHint() {
+  try {
+    localStorage.setItem(DEMO_HINT_DISMISSED_KEY, '1');
+  } catch {}
+}
 
 // Kroky průvodce — pořadí dle vize (zóna → zahrada → rostlina → úkon).
 const STEPS = ['welcome', 'zone', 'garden', 'plant', 'done'];
@@ -198,6 +243,57 @@ export default function OnboardingFlow({ onClose }) {
     }
   };
 
+  // Demo zahrada — jeden klik, založí "Moje testovací zahrada" se 3 piny a
+  // 3 sezónními úkony. ID demo zahrady uloží do localStorage, aby Home a
+  // Settings mohly nabídnout odpovídající hint / smazání.
+  const createDemoGarden = async () => {
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', i18n.t('onboarding.demoGardenName'));
+      if (zoneId) fd.append('climate_zone', zoneId);
+      const g = await api.createGarden(fd);
+
+      const pinPayloads = DEMO_PLANTS.map((dp) => {
+        const plant = findPlantByName(dp.nameCz);
+        return { dp, plant };
+      });
+
+      for (const { dp, plant } of pinPayloads) {
+        const pinFd = new FormData();
+        pinFd.append('garden_id', g.id);
+        pinFd.append('name', plant?.nameCz || dp.nameCz);
+        pinFd.append('plant_name', plant?.nameCz || dp.nameCz);
+        pinFd.append('x', String(dp.x));
+        pinFd.append('y', String(dp.y));
+        const pin = await api.createPin(pinFd);
+
+        await api.createTask({
+          pin_id: pin.id,
+          title: `${dp.emoji} ${i18n.t(`onboarding.${dp.titleKey}`)}`,
+          task_type: dp.taskType,
+          frequency_days: null,
+          specific_date: monthSpecificDate(dp.month, zoneId),
+          notes: i18n.t('onboarding.demoTaskNote'),
+          recurring: dp.recurring ? 1 : 0,
+          recurrence_pattern: dp.recurring ? 'yearly' : null,
+        });
+      }
+
+      try { localStorage.setItem(DEMO_GARDEN_KEY, String(g.id)); } catch {}
+      try { localStorage.removeItem(DEMO_HINT_DISMISSED_KEY); } catch {}
+      markOnboardingFlowDone();
+      persistName();
+      toast(t('onboarding.demoCreated'));
+      onClose?.();
+      nav(`/zahrada/${g.id}`);
+    } catch (err) {
+      toast(t('common.error', { msg: err.message }));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onPlantChange = (v, plant) => {
     setPlantValue(v);
     if (plant) setSelectedPlant(plant);
@@ -266,9 +362,19 @@ export default function OnboardingFlow({ onClose }) {
         </div>
 
         {kind === 'welcome' && (
-          <button type="button" className="ob-cta" onClick={() => { persistName(); goNext(); }}>
-            {t('onboarding.start')}
-          </button>
+          <>
+            <button type="button" className="ob-cta" onClick={() => { persistName(); goNext(); }}>
+              {t('onboarding.start')}
+            </button>
+            <button
+              type="button"
+              className="ob-secondary"
+              onClick={createDemoGarden}
+              disabled={busy}
+            >
+              {busy ? t('onboarding.creatingDemo') : t('onboarding.createDemo')}
+            </button>
+          </>
         )}
         {kind === 'zone' && (
           <button type="button" className="ob-cta" onClick={goNext}>

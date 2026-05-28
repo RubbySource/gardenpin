@@ -90,6 +90,9 @@
     "weekTasks_other": "{{count}} úkolů tento týden",
     "allUnderControl": "vše pod kontrolou",
     "urgentBadge": "{{count}} po termínu",
+    "demoHintTitle": "Toto je demo zahrada",
+    "demoHintSub": "Klikni na „+\" vpravo dole a založ vlastní zahradu. Demo můžeš kdykoli smazat v Nastavení.",
+    "demoHintDismiss": "Skrýt",
     "monthTips": [
       "Plánujte výsadbu na další sezónu",
       "Připravte sazenice na jaro",
@@ -195,6 +198,9 @@
     "groupData": "Data & zálohy",
     "exportData": "Export dat",
     "rerunOnboarding": "Spustit průvodce znovu",
+    "deleteDemo": "Smazat demo zahradu",
+    "deleteDemoConfirm": "Smazat demo zahradu? Demo úkony zmizí, tvoje vlastní data zůstanou.",
+    "demoDeleted": "✅ Demo zahrada smazána",
     "groupDanger": "Nebezpečná zóna",
     "resetApp": "Resetovat aplikaci",
     "deleteAllData": "Smazat všechna data",
@@ -727,7 +733,15 @@
     "doneScheduledForPlant_few": "Naplánovali jsme {{count}} sezónní úkony pro {{plant}}. Každý měsíc tě GardenPin upozorní, ať nic nezapomeneš.",
     "doneScheduledForPlant_other": "Naplánovali jsme {{count}} sezónních úkonů pro {{plant}}. Každý měsíc tě GardenPin upozorní, ať nic nezapomeneš.",
     "doneNoTasks": "Až přidáš rostliny, GardenPin ti sám naplánuje hlavní sezónní úkony a každý měsíc tě na ně upozorní.",
-    "firstTask": "Tvůj první úkon"
+    "firstTask": "Tvůj první úkon",
+    "createDemo": "✨ Vyzkoušet s demo zahradou",
+    "creatingDemo": "Vytvářím demo…",
+    "demoCreated": "✨ Demo zahrada připravena",
+    "demoGardenName": "Moje testovací zahrada",
+    "demoTaskLettuce": "Sklizeň salátu",
+    "demoTaskTomato": "Hnojení rajčat",
+    "demoTaskMint": "Sklizeň máty na sušení",
+    "demoTaskNote": "Ukázkový sezónní úkon. Klikni na puntík pro detail nebo na ✓ pro označení hotové."
   },
   "plantAuto": {
     "careNote": "Sezónní péče ({{month}})",

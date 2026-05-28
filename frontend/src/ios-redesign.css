@@ -2319,6 +2319,43 @@ html[data-theme="dark"] .follow-up {
 .hm-empty-title { font-weight: 700; font-size: 1rem; color: var(--ios-label); }
 .hm-empty-text { font-size: 0.86rem; color: var(--ios-label-secondary); margin-top: 1px; }
 
+/* Demo hint banner — sage paleta, decentní, dismissable. */
+.hm-demo-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 16px 16px;
+  padding: 14px 14px;
+  background: linear-gradient(135deg, #f0f6f0 0%, #e5efe2 100%);
+  border: 1px solid #cfe0cb;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+}
+[data-theme="dark"] .hm-demo-hint {
+  background: linear-gradient(135deg, #2a352a 0%, #1f2a1f 100%);
+  border-color: #3d4d3a;
+}
+.hm-demo-hint-icon { font-size: 1.6rem; flex-shrink: 0; }
+.hm-demo-hint-text { flex: 1; min-width: 0; }
+.hm-demo-hint-title { font-weight: 700; font-size: 0.95rem; color: var(--ios-label); }
+.hm-demo-hint-sub { font-size: 0.82rem; color: var(--ios-label-secondary); margin-top: 2px; line-height: 1.35; }
+.hm-demo-hint-dismiss {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  color: var(--ios-label-secondary);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+[data-theme="dark"] .hm-demo-hint-dismiss { background: rgba(255,255,255,0.08); }
+.hm-demo-hint-dismiss:hover { background: rgba(0,0,0,0.12); }
+[data-theme="dark"] .hm-demo-hint-dismiss:hover { background: rgba(255,255,255,0.14); }
+
 /* Tento týden — stat grid */
 .hm-stats-grid {
   display: grid;

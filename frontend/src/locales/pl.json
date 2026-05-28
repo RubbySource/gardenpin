@@ -95,6 +95,9 @@
     "weekTasks_other": "{{count}} zadania w tym tygodniu",
     "allUnderControl": "wszystko pod kontrolą",
     "urgentBadge": "{{count}} po terminie",
+    "demoHintTitle": "To jest ogród demonstracyjny",
+    "demoHintSub": "Stuknij „+\" w prawym dolnym rogu, by założyć własny ogród. Demo możesz w każdej chwili usunąć w Ustawieniach.",
+    "demoHintDismiss": "Ukryj",
     "monthTips": [
       "Zaplanuj nasadzenia na kolejny sezon",
       "Przygotuj rozsadę na wiosnę",
@@ -201,6 +204,9 @@
     "groupData": "Dane i kopie zapasowe",
     "exportData": "Eksport danych",
     "rerunOnboarding": "Uruchom przewodnik ponownie",
+    "deleteDemo": "Usuń ogród demo",
+    "deleteDemoConfirm": "Usunąć ogród demo? Czynności demo zostaną usunięte, Twoje dane pozostaną.",
+    "demoDeleted": "✅ Ogród demo usunięty",
     "groupDanger": "Strefa niebezpieczna",
     "resetApp": "Zresetuj aplikację",
     "deleteAllData": "Usuń wszystkie dane",
@@ -757,7 +763,15 @@
     "doneScheduledForPlant_many": "Zaplanowaliśmy {{count}} czynności sezonowych dla {{plant}}. Co miesiąc GardenPin Ci przypomni, abyś o niczym nie zapomniał.",
     "doneScheduledForPlant_other": "Zaplanowaliśmy {{count}} czynności sezonowej dla {{plant}}. Co miesiąc GardenPin Ci przypomni, abyś o niczym nie zapomniał.",
     "doneNoTasks": "Gdy dodasz rośliny, GardenPin sam zaplanuje główne czynności sezonowe i co miesiąc Ci o nich przypomni.",
-    "firstTask": "Twoja pierwsza czynność"
+    "firstTask": "Twoja pierwsza czynność",
+    "createDemo": "✨ Wypróbuj z ogrodem demo",
+    "creatingDemo": "Tworzę demo…",
+    "demoCreated": "✨ Ogród demo gotowy",
+    "demoGardenName": "Mój ogród demonstracyjny",
+    "demoTaskLettuce": "Zbiór sałaty",
+    "demoTaskTomato": "Nawożenie pomidorów",
+    "demoTaskMint": "Zbiór mięty do suszenia",
+    "demoTaskNote": "Przykładowa czynność sezonowa. Stuknij pinezkę, by zobaczyć szczegóły, lub ✓, by oznaczyć jako wykonaną."
   },
   "plantAuto": {
     "careNote": "Pielęgnacja sezonowa ({{month}})",

@@ -85,6 +85,9 @@
     "weekTasks_other": "{{count}} Aufgaben diese Woche",
     "allUnderControl": "alles unter Kontrolle",
     "urgentBadge": "{{count}} überfällig",
+    "demoHintTitle": "Dies ist ein Demo-Garten",
+    "demoHintSub": "Tippen Sie auf das „+\" unten rechts, um Ihren eigenen Garten anzulegen. Das Demo kann jederzeit in den Einstellungen gelöscht werden.",
+    "demoHintDismiss": "Ausblenden",
     "monthTips": [
       "Planen Sie die Pflanzung für die nächste Saison",
       "Bereiten Sie Setzlinge für den Frühling vor",
@@ -189,6 +192,9 @@
     "groupData": "Daten & Backups",
     "exportData": "Daten exportieren",
     "rerunOnboarding": "Assistenten erneut starten",
+    "deleteDemo": "Demo-Garten löschen",
+    "deleteDemoConfirm": "Demo-Garten löschen? Demo-Aufgaben werden entfernt, eigene Daten bleiben erhalten.",
+    "demoDeleted": "✅ Demo-Garten entfernt",
     "groupDanger": "Gefahrenzone",
     "resetApp": "App zurücksetzen",
     "deleteAllData": "Alle Daten löschen",
@@ -691,7 +697,15 @@
     "doneScheduledForPlant_one": "Wir haben {{count}} saisonale Aufgabe für {{plant}} eingeplant. GardenPin erinnert Sie jeden Monat, damit Sie nichts vergessen.",
     "doneScheduledForPlant_other": "Wir haben {{count}} saisonale Aufgaben für {{plant}} eingeplant. GardenPin erinnert Sie jeden Monat, damit Sie nichts vergessen.",
     "doneNoTasks": "Sobald Sie Pflanzen hinzufügen, plant GardenPin die wichtigsten saisonalen Aufgaben für Sie ein und erinnert Sie jeden Monat daran.",
-    "firstTask": "Ihre erste Aufgabe"
+    "firstTask": "Ihre erste Aufgabe",
+    "createDemo": "✨ Mit einem Demo-Garten ausprobieren",
+    "creatingDemo": "Erstelle Demo…",
+    "demoCreated": "✨ Demo-Garten bereit",
+    "demoGardenName": "Mein Demo-Garten",
+    "demoTaskLettuce": "Salat ernten",
+    "demoTaskTomato": "Tomaten düngen",
+    "demoTaskMint": "Minze zum Trocknen ernten",
+    "demoTaskNote": "Beispiel-Saisonaufgabe. Tippen Sie auf den Marker für Details oder ✓ zum Abhaken."
   },
   "plantAuto": {
     "careNote": "Saisonale Pflege ({{month}})",

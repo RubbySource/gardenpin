@@ -11,7 +11,7 @@ import {
   unsubscribePush,
   getCurrentSubscription,
 } from '../push.js';
-import OnboardingFlow, { resetOnboardingFlow } from '../components/OnboardingFlow.jsx';
+import OnboardingFlow, { resetOnboardingFlow, getDemoGardenId, clearDemoGardenFlag } from '../components/OnboardingFlow.jsx';
 import { getStoredTheme, applyTheme } from '../components/ThemeToggle.jsx';
 
 const USER_NAME_KEY = 'gardenpin.userName';
@@ -69,6 +69,10 @@ export default function SettingsPage() {
   // — Ostatní —
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [wiping, setWiping] = useState(false);
+  // Demo zahrada — řádek pro smazání se ukáže pouze pokud demo skutečně existuje
+  // (id v localStorage + zahrada se vrátí z API).
+  const [demoGardenExists, setDemoGardenExists] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
 
   useEffect(() => {
     api.globalIcalToken().then((r) => setGlobalIcalToken(r.token)).catch(() => {});
@@ -80,6 +84,14 @@ export default function SettingsPage() {
       setEmailEnabled(!!s.enabled);
       setEmailConfigured(s.configured !== false);
     }).catch(() => {});
+
+    // Demo zahrada — ověř, že id z localStorage pořád odkazuje na existující zahradu
+    const demoId = getDemoGardenId();
+    if (demoId) {
+      api.listGardens()
+        .then((gs) => setDemoGardenExists(gs.some((g) => g.id === demoId)))
+        .catch(() => setDemoGardenExists(false));
+    }
 
     // Premium + návrat z Stripe checkoutu
     const loadPremium = () =>
@@ -210,6 +222,27 @@ export default function SettingsPage() {
   const handleExport = (format) => {
     if (format === 'ical') window.location.href = '/api/export/ical';
     else window.location.href = `/api/export?format=${format}`;
+  };
+
+  const handleDeleteDemo = async () => {
+    const demoId = getDemoGardenId();
+    if (!demoId) {
+      clearDemoGardenFlag();
+      setDemoGardenExists(false);
+      return;
+    }
+    if (!window.confirm(t('settings.deleteDemoConfirm'))) return;
+    setDemoBusy(true);
+    try {
+      await api.deleteGarden(demoId);
+      clearDemoGardenFlag();
+      setDemoGardenExists(false);
+      toast(t('settings.demoDeleted'));
+    } catch (e) {
+      toast(t('common.error', { msg: e.message }));
+    } finally {
+      setDemoBusy(false);
+    }
   };
 
   const handleResetApp = () => {
@@ -555,6 +588,23 @@ export default function SettingsPage() {
             <span className="settings-row-label">{t('settings.rerunOnboarding')}</span>
             <span className="settings-row-chevron">›</span>
           </button>
+
+          {demoGardenExists && (
+            <>
+              <div className="settings-sep" />
+              <button
+                className="settings-row"
+                onClick={handleDeleteDemo}
+                disabled={demoBusy}
+              >
+                <RowIcon color="#FF9500">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></svg>
+                </RowIcon>
+                <span className="settings-row-label">{demoBusy ? t('settings.wiping') : t('settings.deleteDemo')}</span>
+                <span className="settings-row-chevron">›</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 

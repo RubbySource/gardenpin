@@ -85,6 +85,9 @@
     "weekTasks_other": "{{count}} tasks this week",
     "allUnderControl": "all under control",
     "urgentBadge": "{{count}} overdue",
+    "demoHintTitle": "This is a demo garden",
+    "demoHintSub": "Tap the “+” in the bottom right to create your own. You can delete the demo any time in Settings.",
+    "demoHintDismiss": "Dismiss",
     "monthTips": [
       "Plan planting for the next season",
       "Prepare seedlings for spring",
@@ -189,6 +192,9 @@
     "groupData": "Data & backups",
     "exportData": "Export data",
     "rerunOnboarding": "Run the guide again",
+    "deleteDemo": "Delete demo garden",
+    "deleteDemoConfirm": "Delete the demo garden? Demo tasks will be removed, your own data stays.",
+    "demoDeleted": "✅ Demo garden removed",
     "groupDanger": "Danger zone",
     "resetApp": "Reset app",
     "deleteAllData": "Delete all data",
@@ -691,7 +697,15 @@
     "doneScheduledForPlant_one": "We've scheduled {{count}} seasonal task for {{plant}}. GardenPin will remind you each month so you don't forget anything.",
     "doneScheduledForPlant_other": "We've scheduled {{count}} seasonal tasks for {{plant}}. GardenPin will remind you each month so you don't forget anything.",
     "doneNoTasks": "Once you add plants, GardenPin will schedule the main seasonal tasks for you and remind you about them each month.",
-    "firstTask": "Your first task"
+    "firstTask": "Your first task",
+    "createDemo": "✨ Try with a demo garden",
+    "creatingDemo": "Creating demo…",
+    "demoCreated": "✨ Demo garden ready",
+    "demoGardenName": "My demo garden",
+    "demoTaskLettuce": "Harvest lettuce",
+    "demoTaskTomato": "Feed tomatoes",
+    "demoTaskMint": "Harvest mint for drying",
+    "demoTaskNote": "Sample seasonal task. Tap the pin for details or ✓ to mark done."
   },
   "plantAuto": {
     "careNote": "Seasonal care ({{month}})",

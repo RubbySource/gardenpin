@@ -18,6 +18,7 @@ import PhenologyHint from '../components/PhenologyHint.jsx';
 import CareHistoryHint from '../components/CareHistoryHint.jsx';
 import IdealDayHint from '../components/IdealDayHint.jsx';
 import { toast, followUpForTask } from '../App.jsx';
+import { getDemoGardenId, isDemoHintDismissed, dismissDemoHint } from '../components/OnboardingFlow.jsx';
 import { daysFromToday, dueBadge, taskIconName } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
 import { usePhenology } from '../phenology.js';
@@ -58,6 +59,7 @@ export default function HomePage({ onTaskComplete }) {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [streakRefresh, setStreakRefresh] = useState(0);
+  const [demoHintHidden, setDemoHintHidden] = useState(() => isDemoHintDismissed());
   const forecast = useFrostForecast();
   const pheno = usePhenology();
   const careHistory = useCareHistory();
@@ -128,6 +130,9 @@ export default function HomePage({ onTaskComplete }) {
   const monthTip = t('home.monthTips', { returnObjects: true })[new Date().getMonth()];
   const urgentCount = stats ? stats.overdue + stats.dueToday : 0;
   const hasOverdue = stats && stats.overdue > 0;
+  const demoId = getDemoGardenId();
+  const demoActive = demoId && gardens.some((g) => g.id === demoId);
+  const showDemoHint = demoActive && !demoHintHidden;
 
   return (
     <div {...ptr.handlers} className="ptr-host hm-page">
@@ -161,6 +166,26 @@ export default function HomePage({ onTaskComplete }) {
           {monthTip && ` · ${monthTip}`}
         </p>
       </header>
+
+      {/* DEMO HINT — viditelný pouze dokud user nesmazal demo nebo banner */}
+      {showDemoHint && (
+        <div className="hm-demo-hint" role="note">
+          <span className="hm-demo-hint-icon" aria-hidden="true">🌱</span>
+          <div className="hm-demo-hint-text">
+            <div className="hm-demo-hint-title">{t('home.demoHintTitle')}</div>
+            <div className="hm-demo-hint-sub">{t('home.demoHintSub')}</div>
+          </div>
+          <button
+            type="button"
+            className="hm-demo-hint-dismiss"
+            onClick={() => { dismissDemoHint(); setDemoHintHidden(true); }}
+            aria-label={t('home.demoHintDismiss')}
+            title={t('home.demoHintDismiss')}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* DNES — grouped list widget */}
       <section className="hm-section">
