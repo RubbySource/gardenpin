@@ -1408,6 +1408,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Usuń przekwitłe kwiaty, skróć pęd o 1/3 nad zewnętrznym pięciolistkiem — dla drugiej fali kwitnienia."
   },
+  "herbHarvest": {
+    "title": "Czas zebrać zioło do suszenia",
+    "subtitle": "Aromat osiąga szczyt tuż przed kwitnieniem — zerwij, ususz w cieniu, schowaj na zimę",
+    "taskTitle": "Zbiór {{plant}} do suszenia",
+    "action": "Zerwij i ususz liście/ziele na zimę",
+    "instr": "Zbieraj w suchy dzień w południe, tuż przed pełnym kwitnieniem lub na jego początku — olejki eteryczne i aromat są wtedy najsilniejsze. Susz w cieniu w pęczkach lub na sicie, nigdy w słońcu.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌿 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Zbieraj w suchy dzień w południe, przed pełnym kwitnieniem. Susz w cieniu w pęczkach lub na sicie — nigdy w słońcu."
+  },
   "fruitNetting": {
     "title": "Czas zakryć plony",
     "subtitle": "Naciągnij siatkę nad krzewy i drzewka, aby ptaki nie zjadły zbiorów",

@@ -1254,6 +1254,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Deadhead spent blooms, cut shoots back 1/3 above an outward-facing 5-leaflet leaf — for the second flowering wave."
   },
+  "herbHarvest": {
+    "title": "Time to harvest the herb for drying",
+    "subtitle": "Aroma peaks just before flowering — pick, dry in the shade, store for winter",
+    "taskTitle": "Harvest {{plant}} for drying",
+    "action": "Pick and dry leaves/tops for winter",
+    "instr": "Harvest on a dry day around noon, just before full bloom or at flowering onset — essential oils and aroma are at their peak. Dry in the shade in small bunches or on a screen, never in direct sun.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌿 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Harvest on a dry day around noon, before full bloom. Dry in the shade in bunches or on a screen — never in direct sun."
+  },
   "fruitNetting": {
     "title": "Time to cover the crop",
     "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",

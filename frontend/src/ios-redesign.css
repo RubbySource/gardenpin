@@ -3768,6 +3768,83 @@ html[data-theme="dark"] .summer-rose-pruning-card {
 html[data-theme="dark"] .summer-rose-pruning-title { color: #f0a3b7; }
 html[data-theme="dark"] .summer-rose-pruning-sub { color: #d97a98; }
 
+/* Sběr a sušení bylinek pro kuchyňské použití — karta „🌿 Čas sklidit bylinku na sušení" v detailu
+   pinu (Úkony tab). Zlato-zelená „sušená bylinka" paleta (#8a7a2c accent — barva usušených oddenků
+   bazalky/oregana), ať se odliší od olivové summer-pruning, růžové summer-rose-pruning a chladné
+   modré peach-curl-spray. Drží stejnou strukturu (card / head / list / row / badge / btn). */
+.herb-harvest-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f0ecc8, #e5dfa6);
+  border: 1px solid #b8a85a;
+}
+.herb-harvest-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.herb-harvest-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5d5018;
+}
+.herb-harvest-sub {
+  font-size: 12px;
+  color: #8a7a2c;
+}
+.herb-harvest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.herb-harvest-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.herb-harvest-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #8a7a2c;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.herb-harvest-main { flex: 1; min-width: 0; }
+.herb-harvest-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.herb-harvest-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.herb-harvest-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #8a7a2c;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.herb-harvest-btn:active { transform: scale(0.96); }
+.herb-harvest-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .herb-harvest-card {
+  background: linear-gradient(135deg, #2a2615, #1e1a0c);
+  border-color: #5d5018;
+}
+html[data-theme="dark"] .herb-harvest-title { color: #d8c97a; }
+html[data-theme="dark"] .herb-harvest-sub { color: #b8a85a; }
+
 /* Otužování sazenic — karta „🌤️ Čas otužit sazenici" v detailu pinu (Úkony tab). Jemně sluneční
    žluto-zelená „postupné slunce" paleta (úsvit + mladý list), ať se odliší od svěží listově zelené
    pinching, smaragdové plant-support, modré peach-curl-spray a teplé sowing karty. Drží stejnou

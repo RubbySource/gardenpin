@@ -1334,6 +1334,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Odstraň odkvetlé květy, zkrať výhon o 1/3 nad 5-listým listem směrem ven — pro druhou vlnu kvetení."
   },
+  "herbHarvest": {
+    "title": "Čas sklidit bylinku na sušení",
+    "subtitle": "Aroma vrcholí těsně před květem — slíz, usuš ve stínu, schovej na zimu",
+    "taskTitle": "Sklizeň {{plant}} na sušení",
+    "action": "Sklidit + usušit listy/nať na zimní zásobu",
+    "instr": "Sklízej za sucha v poledne, těsně před plným kvetením nebo na začátku — aroma a éterické oleje jsou na vrcholu. Suš ve stínu, ve svazečcích nebo na sítě, ne na slunci.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌿 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Sklízej za sucha v poledne, před plným květem. Suš ve stínu, ve svazečcích nebo na sítě, ne na slunci."
+  },
   "fruitNetting": {
     "title": "Čas zakrýt úrodu",
     "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",

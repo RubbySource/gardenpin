@@ -15,6 +15,7 @@ import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import SummerPruningCard from '../components/SummerPruningCard.jsx';
 import SummerRosePruningCard from '../components/SummerRosePruningCard.jsx';
+import HerbHarvestCard from '../components/HerbHarvestCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import HedgeTrimCard from '../components/HedgeTrimCard.jsx';
@@ -437,6 +438,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Letní řez růží po prvním kvetení — deadheading + light cutback pro druhou vlnu (vykreslí se jen pro Rosa v sezóně 7, mimo historické jednou kvetoucí) */}
       <SummerRosePruningCard pin={pin} onPlanned={onReload} />
+
+      {/* Sběr a sušení bylinek pro kuchyňské použití — letní harvest 6–9 (vykreslí se jen pro kulinářské bylinky v sezóně) */}
+      <HerbHarvestCard pin={pin} onPlanned={onReload} />
 
       {/* Dělení trsu trvalek/trav dle cyklu (vykreslí se jen pro relevantní věk/kategorii) */}
       <DivisionTaskCard pin={pin} onPlanned={onReload} />
