@@ -1266,6 +1266,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "An einem trockenen Mittag vor der Vollblüte ernten. Im Schatten in Bündeln oder auf einem Sieb trocknen — nie in der Sonne."
   },
+  "tomatoSuckering": {
+    "title": "Zeit, die Tomate auszugeizen",
+    "subtitle": "Geiztriebe wöchentlich ausbrechen — Energie in die Früchte; im August die Spitze für die Reife stutzen",
+    "primaryTitle": "Tomate {{plant}} ausgeizen",
+    "apicalTitle": "Spitze der Tomate {{plant}} entspitzen",
+    "primaryInstr": "Brechen Sie wöchentlich die Geiztriebe in den Blattachseln aus — nur bei indeterminierten (hochwachsenden) Sorten. Buschtomaten werden nicht ausgegeizt.",
+    "apicalInstr": "Entspitzen Sie den Haupttrieb — die Pflanze wächst nicht mehr nach oben und steckt die Energie ins Ausreifen der verbleibenden Früchte vor Saisonende.",
+    "primaryNotes": "Geiztriebe wöchentlich ausbrechen — Energie in die Früchte, nicht in die Blätter. Nur bei indeterminierten Sorten.",
+    "apicalNotes": "Spitze des Haupttriebs ausbrechen — hilft den verbleibenden Früchten vor Saisonende auszureifen.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🍅 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}"
+  },
   "fruitNetting": {
     "title": "Zeit, die Ernte abzudecken",
     "subtitle": "Spannen Sie das Netz über Sträucher und Bäumchen, damit Vögel die Ernte nicht holen",

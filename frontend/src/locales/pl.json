@@ -1420,6 +1420,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Zbieraj w suchy dzień w południe, przed pełnym kwitnieniem. Susz w cieniu w pęczkach lub na sicie — nigdy w słońcu."
   },
+  "tomatoSuckering": {
+    "title": "Czas na pasynkowanie pomidora",
+    "subtitle": "Wyłamuj wilki co tydzień — energia do owoców; w sierpniu uszczyknij wierzchołek dla dojrzewania",
+    "primaryTitle": "Pasynkowanie pomidora {{plant}}",
+    "apicalTitle": "Uszczyknięcie wierzchołka pomidora {{plant}}",
+    "primaryInstr": "Co tydzień wyłamuj wilki (pędy boczne w kątach liści) — tylko u odmian indeterminowanych (wysoko rosnących). Pomidorów krzaczastych nie pasynkujemy.",
+    "apicalInstr": "Uszczyknij wierzchołek głównego pędu — roślina nie będzie rosła w górę, energia pójdzie w dojrzewanie pozostałych owoców przed końcem sezonu.",
+    "primaryNotes": "Co tydzień wyłamuj wilki w kątach liści — energia do owoców, nie do liści. Tylko u odmian indeterminowanych.",
+    "apicalNotes": "Uszczyknij wierzchołek pędu — pomoże dojrzeć pozostałym owocom przed końcem sezonu.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🍅 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}"
+  },
   "fruitNetting": {
     "title": "Czas zakryć plony",
     "subtitle": "Naciągnij siatkę nad krzewy i drzewka, aby ptaki nie zjadły zbiorów",

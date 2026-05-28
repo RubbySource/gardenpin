@@ -1266,6 +1266,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Harvest on a dry day around noon, before full bloom. Dry in the shade in bunches or on a screen — never in direct sun."
   },
+  "tomatoSuckering": {
+    "title": "Time to sucker your tomato",
+    "subtitle": "Pinch out the side shoots weekly — energy to fruit; in August pinch the tip to ripen",
+    "primaryTitle": "Sucker tomato {{plant}}",
+    "apicalTitle": "Pinch the tip of tomato {{plant}}",
+    "primaryInstr": "Weekly snap off the side shoots (suckers) in the leaf axils — only for indeterminate (tall) varieties. Bush/determinate tomatoes are not suckered.",
+    "apicalInstr": "Pinch out the top of the main stem — the plant stops growing upward and channels energy into ripening the remaining fruit before season's end.",
+    "primaryNotes": "Snap off the side shoots weekly — energy to fruit, not leaves. Only for indeterminate types.",
+    "apicalNotes": "Pinch the tip of the stem — helps the remaining fruit ripen before season's end.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🍅 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}"
+  },
   "fruitNetting": {
     "title": "Time to cover the crop",
     "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",

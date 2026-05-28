@@ -1420,6 +1420,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Zbieraj za sucha napoludnie, pred plným kvitnutím. Suš v tieni vo zväzočkoch alebo na site — nikdy na slnku."
   },
+  "tomatoSuckering": {
+    "title": "Čas pasienkovať paradajku",
+    "subtitle": "Vylom zálistky týždenne — energia do plodov; v auguste vyštipni vrchol pre dozretie",
+    "primaryTitle": "Pasienkovanie paradajky {{plant}}",
+    "apicalTitle": "Vyštipnutie vrchola paradajky {{plant}}",
+    "primaryInstr": "Týždenne vylamuj zálistky v pazuchách listov (bočné výhonky) — len ak je indeterminovaný (vysokorastúci) typ. Kríčkové paradajky sa nepasienkujú.",
+    "apicalInstr": "Vyštipni vrchol hlavného stonku — rastlina už nepustí novú hmotu nahor, energia pôjde do dozrievania zvyšných plodov pred koncom sezóny.",
+    "primaryNotes": "Vylom zálistky v pazuchách listov týždenne — energia do plodov, nie do listov. Len pri indeterminovanom type.",
+    "apicalNotes": "Vyštipni vrchol stonku — pomôže dozrieť zvyšným plodom pred koncom sezóny.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🍅 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}"
+  },
   "fruitNetting": {
     "title": "Čas zakryť úrodu",
     "subtitle": "Natiahni sieť cez kríky a stromčeky, nech úrodu nezobú vtáky",

@@ -1346,6 +1346,20 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Sklízej za sucha v poledne, před plným květem. Suš ve stínu, ve svazečcích nebo na sítě, ne na slunci."
   },
+  "tomatoSuckering": {
+    "title": "Čas pasínkovat rajče",
+    "subtitle": "Vylom zálistky týdně — energie do plodů; v srpnu vyštípni vrchol pro dozrání",
+    "primaryTitle": "Pasínkování rajčete {{plant}}",
+    "apicalTitle": "Vyštípnutí vrcholu rajčete {{plant}}",
+    "primaryInstr": "Týdně vylamuj zálistky v úžlabí listů (boční výhony) — pouze pokud indeterminovaný (vysoko rostoucí) typ. Keřová rajčata se nepasínkují.",
+    "apicalInstr": "Vyštípni vrchol hlavního stonku — rostlina už nepustí novou hmotu nahoru, energie půjde do dozrávání zbývajících plodů před koncem sezóny.",
+    "primaryNotes": "Vylom zálistky v úžlabí listů týdně — energie do plodů, ne do listů. Pouze u indeterminovaného typu.",
+    "apicalNotes": "Vyštípni vrchol stonku — pomůže dozrát zbývajícím plodům před koncem sezóny.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🍅 Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}"
+  },
   "fruitNetting": {
     "title": "Čas zakrýt úrodu",
     "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",

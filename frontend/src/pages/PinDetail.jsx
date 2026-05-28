@@ -16,6 +16,7 @@ import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import SummerPruningCard from '../components/SummerPruningCard.jsx';
 import SummerRosePruningCard from '../components/SummerRosePruningCard.jsx';
 import HerbHarvestCard from '../components/HerbHarvestCard.jsx';
+import TomatoSuckeringCard from '../components/TomatoSuckeringCard.jsx';
 import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import HedgeTrimCard from '../components/HedgeTrimCard.jsx';
@@ -441,6 +442,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Sběr a sušení bylinek pro kuchyňské použití — letní harvest 6–9 (vykreslí se jen pro kulinářské bylinky v sezóně) */}
       <HerbHarvestCard pin={pin} onPlanned={onReload} />
+
+      {/* Pasínkování rajčat (vylamování zálistků) + apical pinch v 8 — letní průběžný úkon (vykreslí se jen pro Solanum lycopersicum v sezóně) */}
+      <TomatoSuckeringCard pin={pin} onPlanned={onReload} />
 
       {/* Dělení trsu trvalek/trav dle cyklu (vykreslí se jen pro relevantní věk/kategorii) */}
       <DivisionTaskCard pin={pin} onPlanned={onReload} />
