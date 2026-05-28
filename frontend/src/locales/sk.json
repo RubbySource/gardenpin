@@ -1485,5 +1485,18 @@
     "planned": "🧪 Naplánované na {{date}}",
     "plannedCount": "🧪 Naplánované: {{count}}",
     "planFailed": "Plánovanie zlyhalo: {{msg}}"
+  },
+  "woodRipening": {
+    "title": "Čas posilniť drevo na zimu",
+    "subtitle": "Koniec dusíka — draselno-fosforečné (PK) hnojenie pre vyzretie dreva",
+    "taskTitle": "Draselné hnojenie {{plant}}",
+    "dedup": "drasel",
+    "action": "Aplikovať PK hnojivo (draslík + fosfor)",
+    "instr": "Koniec dusíka — draslík podporí vyzretie tohtoročného dreva a mrazuvzdornosť. Aplikuj síran draselný, popol alebo iné PK hnojivo.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🍂 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Koniec dusíka — PK hnojivo pre vyzretie dreva a mrazuvzdornosť."
   }
 }

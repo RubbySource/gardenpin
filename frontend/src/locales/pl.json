@@ -1485,5 +1485,18 @@
     "planned": "🧪 Zaplanowano na {{date}}",
     "plannedCount": "🧪 Zaplanowano: {{count}}",
     "planFailed": "Planowanie nie powiodło się: {{msg}}"
+  },
+  "woodRipening": {
+    "title": "Czas wzmocnić drewno przed zimą",
+    "subtitle": "Koniec azotu — nawóz potasowo-fosforowy (PK) dla dojrzewania drewna",
+    "taskTitle": "Nawóz potasowy dla {{plant}}",
+    "dedup": "potasow",
+    "action": "Zastosować nawóz PK (potas + fosfor)",
+    "instr": "Koniec azotu — potas pomoże dojrzeć tegorocznym pędom i zwiększy mrozoodporność. Użyj siarczanu potasu, popiołu drzewnego lub innego nawozu PK.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🍂 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Koniec azotu — nawóz PK dla dojrzewania drewna i mrozoodporności."
   }
 }

@@ -1319,5 +1319,18 @@
     "planned": "🧪 Geplant für {{date}}",
     "plannedCount": "🧪 Geplant: {{count}}",
     "planFailed": "Planung fehlgeschlagen: {{msg}}"
+  },
+  "woodRipening": {
+    "title": "Holz für den Winter ausreifen lassen",
+    "subtitle": "Schluss mit Stickstoff — Kalium-Phosphor-Düngung (PK) für das Ausreifen des Holzes",
+    "taskTitle": "Kaliumdüngung für {{plant}}",
+    "dedup": "kalium",
+    "action": "PK-Dünger ausbringen (Kalium + Phosphor)",
+    "instr": "Stickstoff einstellen — Kalium hilft dem diesjährigen Holz, auszureifen und frosthart zu werden. Verwenden Sie Patentkali, Holzasche oder einen anderen PK-Dünger.",
+    "plan": "Planen",
+    "planning": "Plane…",
+    "planned": "🍂 Geplant für {{date}}",
+    "planFailed": "Planung fehlgeschlagen: {{msg}}",
+    "notes": "Schluss mit Stickstoff — PK-Dünger für das Ausreifen des Holzes und Frosthärte."
   }
 }

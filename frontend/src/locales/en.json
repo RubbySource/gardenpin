@@ -1319,5 +1319,18 @@
     "planned": "🧪 Scheduled for {{date}}",
     "plannedCount": "🧪 Scheduled: {{count}}",
     "planFailed": "Scheduling failed: {{msg}}"
+  },
+  "woodRipening": {
+    "title": "Harden the wood for winter",
+    "subtitle": "Stop nitrogen — switch to potassium-phosphorus (PK) feed to ripen the wood",
+    "taskTitle": "Potassium feed for {{plant}}",
+    "dedup": "potassium",
+    "action": "Apply PK fertilizer (potassium + phosphorus)",
+    "instr": "Stop nitrogen — potassium helps this year's wood ripen and harden against frost. Use potassium sulfate, wood ash or another PK fertilizer.",
+    "plan": "Schedule",
+    "planning": "Scheduling…",
+    "planned": "🍂 Scheduled for {{date}}",
+    "planFailed": "Scheduling failed: {{msg}}",
+    "notes": "Stop nitrogen — PK fertilizer for wood ripening and frost hardiness."
   }
 }

@@ -24,6 +24,7 @@ import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import TrunkWhitewashCard from '../components/TrunkWhitewashCard.jsx';
 import SoilAcidCard from '../components/SoilAcidCard.jsx';
+import WoodRipeningCard from '../components/WoodRipeningCard.jsx';
 import SnoozeButton from '../components/SnoozeButton.jsx';
 import Icon from '../components/Icon.jsx';
 import { hapticNotification } from '../native/haptics.js';
@@ -453,6 +454,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Okyselení půdy pod acidofilní rostlinou (vykreslí se jen pro acidofilní v sezóně 10–11) */}
       <SoilAcidCard pin={pin} onPlanned={onReload} />
+
+      {/* PK přihnojení pro vyzrání dřeva (vykreslí se jen pro trvalé dřeviny v sezóně 8–9) */}
+      <WoodRipeningCard pin={pin} onPlanned={onReload} />
 
       {/* Choroby & škůdci — hned pod hlavními úkony (vykreslí se jen má-li rostlina záznamy) */}
       {pin.plant_name && (

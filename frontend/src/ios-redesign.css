@@ -4057,3 +4057,79 @@ html[data-theme="dark"] .soil-ph-card {
 }
 html[data-theme="dark"] .soil-ph-title { color: #b9aee6; }
 html[data-theme="dark"] .soil-ph-sub { color: #9b8fd0; }
+
+/* Podzimní draselné přihnojení pro vyzrání dřeva — karta v detailu pinu (Úkony tab).
+   Podzimní jantarově-hnědá paleta („vyzrávající dřevo / spadané listí"), ať se odliší
+   od lakmusové soil-ph (chemie pH) a olivové green-manure (meziplodina v půdě). */
+.wood-ripening-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbe7c8, #fef4e0);
+  border: 1px solid #d9a85a;
+}
+.wood-ripening-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.wood-ripening-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a4a14;
+}
+.wood-ripening-sub {
+  font-size: 12px;
+  color: #a36a2a;
+}
+.wood-ripening-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wood-ripening-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.wood-ripening-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #b97a2a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.wood-ripening-main { flex: 1; min-width: 0; }
+.wood-ripening-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.wood-ripening-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.wood-ripening-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #b97a2a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.wood-ripening-btn:active { transform: scale(0.96); }
+.wood-ripening-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .wood-ripening-card {
+  background: linear-gradient(135deg, #2a1f10, #1f1709);
+  border-color: #6b4a1d;
+}
+html[data-theme="dark"] .wood-ripening-title { color: #e8c285; }
+html[data-theme="dark"] .wood-ripening-sub { color: #c69960; }
