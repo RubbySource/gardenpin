@@ -1,0 +1,144 @@
+# GardenPin — Codemagic CI/CD pro iOS build do TestFlightu.
+#
+# Cloud build (bez vlastního Macu) — viz docs/IOS_BUILD.md sekce "Codemagic".
+# Spuštění: codemagic.io → New app → connect repo → vybrat workflow `ios-testflight`.
+#
+# Vyžaduje (Codemagic UI → App settings):
+#   - Code signing identities: Apple Developer accounts (automatic code signing)
+#     ↦ proměnné App Store Connect API key (KEY_ID, ISSUER_ID, .p8 file)
+#   - Bundle ID (`cz.gardenpin.app` nebo vlastní) registrované v Apple Developer
+#   - Capabilities: Push Notifications + Background Modes (Remote notifications)
+#
+# Žádné secrets v repu — vše přes Codemagic environment groups.
+
+workflows:
+  ios-testflight:
+    name: GardenPin → TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic_app_store_connect  # ↦ nastav v Codemagic UI
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: cz.gardenpin.app  # ↦ pokud používáš vlastní, přepiš
+      vars:
+        APP_STORE_APPLE_ID: 0000000000  # ↦ Apple ID číslo aplikace (App Store Connect → App Information)
+        XCODE_WORKSPACE: 'ios/App/App.xcworkspace'
+        XCODE_SCHEME: 'App'
+        BUNDLE_ID: 'cz.gardenpin.app'
+      node: 22.5.0
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events: []  # Manuální start z UI / přes API; auto-build na tag lze přidat sem.
+
+    scripts:
+      - name: Pre-flight check
+        script: |
+          set -e
+          node scripts/ios-preflight.cjs
+
+      - name: Install dependencies (root + frontend)
+        script: |
+          set -e
+          npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+          npm ci --prefix frontend --no-audit --no-fund || npm install --prefix frontend --no-audit --no-fund
+
+      - name: Build web (Vite → backend/public)
+        script: |
+          set -e
+          cd frontend && npm run build
+
+      - name: Switch to bundled assets (disable server.url)
+        script: |
+          set -e
+          # Codemagic build = TestFlight/App Store → vždy bundled assets (Apple 4.2).
+          # Vypneme server.url v capacitor.config.ts, aby app servovala backend/public
+          # z bundle namísto živé PWA. Návrat ke shell režimu = `git restore`.
+          node -e "
+            const fs = require('fs');
+            const p = 'capacitor.config.ts';
+            let s = fs.readFileSync(p, 'utf8');
+            // Zakomentuj celý server: blok (server: { url: '…', cleartext: false })
+            s = s.replace(/(\s*)server:\s*\{[\s\S]*?\},?/m, '\$1// server block disabled for App Store build (bundled assets)');
+            fs.writeFileSync(p, s);
+            console.log('server.url disabled — app will load bundled assets');
+          "
+
+      - name: Capacitor sync (copy web + install pods)
+        script: |
+          set -e
+          npx cap sync ios
+
+      - name: Set build number from Codemagic build counter
+        script: |
+          set -e
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + $PROJECT_BUILD_NUMBER))
+
+      - name: Build .ipa (App Store distribution)
+        script: |
+          set -e
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # beta_groups: ['Internal']  # ↦ odkomentuj a doplň název TestFlight skupiny
+        # submit_to_app_store: false  # ↦ true pro produkční submission (vyžaduje review)
+      email:
+        recipients:
+          - pt.rubby@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # Lehčí workflow — postaví .ipa pro ad-hoc/development bez TestFlight uploadu.
+  # Užitečné pro ověření, že build prochází, bez utracení review slotu.
+  ios-dryrun:
+    name: GardenPin → iOS dry-run (no publish)
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic_app_store_connect
+    environment:
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: cz.gardenpin.app
+      node: 22.5.0
+      xcode: latest
+      cocoapods: default
+    triggering:
+      events: []
+    scripts:
+      - name: Pre-flight check
+        script: node scripts/ios-preflight.cjs
+      - name: Install dependencies
+        script: |
+          set -e
+          npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+          npm ci --prefix frontend --no-audit --no-fund || npm install --prefix frontend --no-audit --no-fund
+      - name: Build web
+        script: cd frontend && npm run build
+      - name: Capacitor sync
+        script: npx cap sync ios
+      - name: Build .ipa (development)
+        script: |
+          set -e
+          xcode-project build-ipa \
+            --workspace ios/App/App.xcworkspace \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log

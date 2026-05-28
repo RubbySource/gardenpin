@@ -64,15 +64,37 @@ webview (Capacitor bridge se injektuje automaticky).
 npm install
 npm install --prefix frontend
 
-# 2) Sestav web (Vite outDir = backend/public)
+# 2) Pre-flight check (rychlá kontrola configu, ikon, Info.plist)
+npm run ios:preflight
+
+# 3) Sestav web (Vite outDir = backend/public)
 cd frontend && npm run build && cd ..
 
-# 3) Zkopíruj web + nainstaluj pody do iOS projektu
+# 4) Zkopíruj web + nainstaluj pody do iOS projektu
 npx cap sync ios
 
-# 4) Otevři ve Xcode
+# 5) Otevři ve Xcode
 npx cap open ios
 ```
+
+### Pre-flight check
+
+`npm run ios:preflight` (alias pro `node scripts/ios-preflight.cjs`) ověří před
+buildem:
+
+- root + frontend mají všechny Capacitor runtime pluginy v `dependencies`
+- `capacitor.config.ts` má `appId` + `webDir`
+- `ios/App/App.xcworkspace` + `App.xcodeproj` existují
+- `Info.plist` obsahuje všechny tři `NS*UsageDescription` klíče (kamera +
+  fotky) — bez nich App Store reject
+- `Assets.xcassets/AppIcon.appiconset` + `Splash.imageset` jsou vygenerované
+  (vč. 1024×1024 marketing ikony pro App Store)
+- `backend/public/index.html` existuje (build prošel)
+- `frontend/src/native.js` + `native/{camera,haptics,share,push}.js` existují
+
+Exit code 1 = blokující chyba, 0 = OK (warningy nevadí). Spouští se automaticky
+v Codemagic workflow před `npx cap sync ios`, takže neutratí slot na zbytečném
+buildu.
 
 Ve Xcode:
 
@@ -118,11 +140,54 @@ Apple Developer účtu):
 4. V [App Store Connect](https://appstoreconnect.apple.com) přiřaď build do
    TestFlightu (interní/externí testeři) nebo k App Store submission.
 
-### Bez Macu
+### Bez Macu — Codemagic (hotová konfigurace)
 
-Cloud build služby umí archivovat iOS bez vlastního Macu:
-[Codemagic](https://codemagic.io), [Bitrise](https://bitrise.io),
-[Ionic Appflow](https://ionic.io/appflow). Vyžadují nahrání signing certifikátů.
+V repu je `codemagic.yaml` s dvěma workflow:
+
+- **`ios-testflight`** — full build + upload do TestFlightu (pro releasy).
+- **`ios-dryrun`** — postaví `.ipa` bez publikace (ověření, že build prochází).
+
+**One-time setup v Codemagic:**
+
+1. [codemagic.io](https://codemagic.io) → **Add application** → vyber tento repo.
+2. **App settings → Code signing identities → Apple Developer accounts** →
+   přidej App Store Connect API key:
+   - Apple Developer → **Users and Access → Keys → App Store Connect API** →
+     `Generate API Key` (role: App Manager).
+   - Stáhni `.p8` soubor, poznamenej **Key ID** + **Issuer ID**.
+   - V Codemagic zadej all 3 → pojmenuj integraci `codemagic_app_store_connect`
+     (přesný název, na který odkazuje `codemagic.yaml`).
+3. **App settings → Environment variables** → nastav `APP_STORE_APPLE_ID`
+   (číselné App ID z App Store Connect → App Information → Apple ID).
+4. Pokud používáš vlastní Bundle ID (ne `cz.gardenpin.app`):
+   - V `codemagic.yaml` přepiš `bundle_identifier` ve workflow.
+   - V `capacitor.config.ts` přepiš `appId`.
+   - V Apple Developer → **Identifiers** registruj nový App ID s capabilities
+     **Push Notifications** + **Background Modes (Remote notifications)**.
+
+**Spuštění buildu:**
+
+- Codemagic UI → vyber workflow `ios-testflight` → **Start new build**.
+- Build trvá ~20–30 min (Mac M2 instance). Po úspěchu se `.ipa` automaticky
+  uploadne do TestFlightu, email přijde Patrikovi.
+- Pro pouhé ověření buildu bez publikace spusť `ios-dryrun`.
+
+**Co `codemagic.yaml` automaticky řeší:**
+
+- Pre-flight check (`scripts/ios-preflight.cjs`) před každým buildem.
+- Vypne `server.url` v `capacitor.config.ts`, aby app servovala bundled assets
+  z `backend/public` místo živé PWA (Apple guideline 4.2 = ne web wrapper).
+- `npm install` → frontend build → `npx cap sync ios` → `xcode-project build-ipa`.
+- Auto-increment build number z Codemagic counteru (aby každý build měl jiný
+  CFBundleVersion — App Store Connect odmítne duplicitní).
+- Notifikační email s výsledkem na `pt.rubby@gmail.com`.
+
+### Bez Macu — alternativy
+
+Pokud chceš jiný cloud build: [Bitrise](https://bitrise.io),
+[Ionic Appflow](https://ionic.io/appflow), GitHub Actions s
+`macos-latest` runnerem. Všechny vyžadují stejné secrets (App Store Connect API
+key + Bundle ID).
 
 ## Změna ikony / splash
 
