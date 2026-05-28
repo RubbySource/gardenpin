@@ -1242,6 +1242,18 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Sommerschnitt — Triebe um 1/3 kürzen, Wasserschosse und dichte Triebe entfernen."
   },
+  "summerRosePruning": {
+    "title": "Zeit für den Sommerschnitt der Rosen",
+    "subtitle": "Verblühtes ausputzen + leichter Rückschnitt nach der ersten Blüte — fördert die zweite Blütenwelle im August–September",
+    "taskTitle": "Sommerschnitt Rose {{plant}}",
+    "action": "Verblühtes entfernen + Triebe einkürzen",
+    "instr": "Entfernen Sie verblühte Blütenstände und kürzen Sie den Blütentrieb um 1/3 über einem gesunden, nach außen weisenden fünfteiligen Blatt. Schneiden Sie blinde (nicht blühende) Triebe heraus.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "✂️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Verblühtes entfernen und Triebe um 1/3 über einem nach außen weisenden Fünfblatt einkürzen — für die zweite Blütenwelle."
+  },
   "fruitNetting": {
     "title": "Zeit, die Ernte abzudecken",
     "subtitle": "Spannen Sie das Netz über Sträucher und Bäumchen, damit Vögel die Ernte nicht holen",

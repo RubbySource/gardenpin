@@ -1242,6 +1242,18 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Sommerschnitt — shorten shoots by 1/3, remove water sprouts and crowding growth."
   },
+  "summerRosePruning": {
+    "title": "Time for the summer rose prune",
+    "subtitle": "Deadhead + light cutback after the first flush — triggers the second flowering wave in August–September",
+    "taskTitle": "Summer prune rose {{plant}}",
+    "action": "Deadhead spent blooms + shorten shoots",
+    "instr": "Remove spent flower heads and cut the flowering shoot back by 1/3 above a healthy outward-facing 5-leaflet leaf. Remove blind (non-flowering) shoots.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "✂️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Deadhead spent blooms, cut shoots back 1/3 above an outward-facing 5-leaflet leaf — for the second flowering wave."
+  },
   "fruitNetting": {
     "title": "Time to cover the crop",
     "subtitle": "Pull netting over bushes and trees so birds don't get the harvest",

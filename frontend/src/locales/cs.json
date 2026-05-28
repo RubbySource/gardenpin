@@ -1322,6 +1322,18 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Sommerschnitt — zkrať letorost o 1/3, odstraň vlky a zahušťující výhony."
   },
+  "summerRosePruning": {
+    "title": "Čas letního řezu růže",
+    "subtitle": "Deadheading + light cutback po první vlně — stimuluje druhou vlnu kvetení v 8–9",
+    "taskTitle": "Letní řez růže {{plant}}",
+    "action": "Odstraň odkvetlé květy + zkrať výhony",
+    "instr": "Odstraň odkvetlá květenství a zkrať kvetoucí výhon o 1/3 nad zdravým 5-listým listem směrem ven z keře. Odřízni slepé (nekvetoucí) výhony.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "✂️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Odstraň odkvetlé květy, zkrať výhon o 1/3 nad 5-listým listem směrem ven — pro druhou vlnu kvetení."
+  },
   "fruitNetting": {
     "title": "Čas zakrýt úrodu",
     "subtitle": "Natáhni síť přes keře a stromky, ať úrodu nesezobou ptáci",

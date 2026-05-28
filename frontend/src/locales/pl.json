@@ -1396,6 +1396,18 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Sommerschnitt — skróć pędy o 1/3, usuń wilki i zagęszczające pędy."
   },
+  "summerRosePruning": {
+    "title": "Czas na letnie cięcie róży",
+    "subtitle": "Deadheading + lekkie cięcie po pierwszej fali — pobudza drugą falę kwitnienia w sierpniu–wrześniu",
+    "taskTitle": "Letnie cięcie róży {{plant}}",
+    "action": "Usuń przekwitłe kwiaty + skróć pędy",
+    "instr": "Usuń przekwitłe kwiatostany i skróć kwitnący pęd o 1/3 nad zdrowym, skierowanym na zewnątrz pięciolistkiem. Wytnij ślepe (nie kwitnące) pędy.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "✂️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Usuń przekwitłe kwiaty, skróć pęd o 1/3 nad zewnętrznym pięciolistkiem — dla drugiej fali kwitnienia."
+  },
   "fruitNetting": {
     "title": "Czas zakryć plony",
     "subtitle": "Naciągnij siatkę nad krzewy i drzewka, aby ptaki nie zjadły zbiorów",
