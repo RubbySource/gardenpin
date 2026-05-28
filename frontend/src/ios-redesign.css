@@ -3616,6 +3616,83 @@ html[data-theme="dark"] .peach-curl-spray-card {
 html[data-theme="dark"] .peach-curl-spray-title { color: #9ac0d8; }
 html[data-theme="dark"] .peach-curl-spray-sub { color: #7ea4bd; }
 
+/* Otužování sazenic — karta „🌤️ Čas otužit sazenici" v detailu pinu (Úkony tab). Jemně sluneční
+   žluto-zelená „postupné slunce" paleta (úsvit + mladý list), ať se odliší od svěží listově zelené
+   pinching, smaragdové plant-support, modré peach-curl-spray a teplé sowing karty. Drží stejnou
+   strukturu (card / head / list / row / badge / btn) jako sourozenecké karty. */
+.hardening-off-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbf5db, #eef6dc);
+  border: 1px solid #c9b85a;
+}
+.hardening-off-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.hardening-off-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a6014;
+}
+.hardening-off-sub {
+  font-size: 12px;
+  color: #9a7e22;
+}
+.hardening-off-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hardening-off-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.hardening-off-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #b08e1e;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.hardening-off-main { flex: 1; min-width: 0; }
+.hardening-off-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.hardening-off-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.hardening-off-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #b08e1e;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.hardening-off-btn:active { transform: scale(0.96); }
+.hardening-off-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .hardening-off-card {
+  background: linear-gradient(135deg, #2a2511, #1e1d0c);
+  border-color: #5a4a18;
+}
+html[data-theme="dark"] .hardening-off-title { color: #d8c478; }
+html[data-theme="dark"] .hardening-off-sub { color: #b8a55a; }
+
 /* Síťování dozrávajícího ovoce — karta „🕸️ Čas zakrýt úrodu" v detailu pinu (Úkony tab).
    Chladně modro-šedá „síťovaná" paleta, ať se odliší od jablečně-červené fruit-thinning karty.
    Drží stejnou strukturu (card / head / list / row / badge / btn) jako sourozenecké karty. */

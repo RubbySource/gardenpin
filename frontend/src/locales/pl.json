@@ -1410,6 +1410,22 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Uszczykiwanie — {{instr}}"
   },
+  "hardeningOff": {
+    "title": "Czas zahartować sadzonki",
+    "subtitle": "7–14 dniowe stopniowe wystawianie na zewnątrz — bez hartowania słońce poparzy liście, a szok termiczny zatrzyma wzrost o 2–3 tygodnie",
+    "taskTitle": "Zahartować sadzonki {{plant}}",
+    "typeCoolSeason": "Chłodny sezon (kapustowate / sałata)",
+    "typeWarmSeason": "Ciepły sezon (pomidor / papryka / ogórek)",
+    "typeHeatLoving": "Ciepłolubne (dynia / cukinia)",
+    "instrCoolSeason": "Zacznij w kwietniu — dni 1–2 w cieniu 1–2 h, stopniowo dodawaj słońce. Sadzenie na zewnątrz na początku maja.",
+    "instrWarmSeason": "Zacznij po zimnych ogrodnikach (~15. 5.) — 7–14 dni stopniowo, dni 1–2 cień 1–2 h, dni 11–14 na noc na zewnątrz (jeśli T_min > 10 °C).",
+    "instrHeatLoving": "Zacznij w czerwcu, gdy T_min nocą będzie powyżej 10 °C — dynia i cukinia potrzebują stabilnego ciepła, inaczej wzrost zamiera.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌤️ Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Hartowanie — {{instr}}"
+  },
   "seedSaving": {
     "title": "Czas zebrać nasiona",
     "subtitle": "Jesienne pozyskiwanie nasion na następny sezon",

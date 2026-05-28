@@ -17,6 +17,7 @@ import DivisionTaskCard from '../components/DivisionTaskCard.jsx';
 import CutbackTaskCard from '../components/CutbackTaskCard.jsx';
 import HedgeTrimCard from '../components/HedgeTrimCard.jsx';
 import SowingTaskCard from '../components/SowingTaskCard.jsx';
+import HardeningOffCard from '../components/HardeningOffCard.jsx';
 import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
 import PlantSupportCard from '../components/PlantSupportCard.jsx';
@@ -444,6 +445,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />
+
+      {/* Otužování předpěstovaných sazenic — postupné vystavení ven před výsadbou (vykreslí se jen pro zeleninu/letničky v sezóně 4–6) */}
+      <HardeningOffCard pin={pin} onPlanned={onReload} />
 
       {/* Podzimní výsadba jarních cibulovin (vykreslí se jen pro jarní cibule v podzimní sezóně) */}
       <BulbPlantingCard pin={pin} onPlanned={onReload} />

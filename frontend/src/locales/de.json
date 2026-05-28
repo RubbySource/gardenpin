@@ -1256,6 +1256,22 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Entspitzen — {{instr}}"
   },
+  "hardeningOff": {
+    "title": "Zeit, die Jungpflanzen abzuhärten",
+    "subtitle": "7–14 Tage schrittweise nach draußen — ohne Abhärten verbrennt die Sonne die Blätter und der Temperaturschock stoppt das Wachstum für 2–3 Wochen",
+    "taskTitle": "{{plant}}-Jungpflanzen abhärten",
+    "typeCoolSeason": "Kühle Saison (Kohl / Salat)",
+    "typeWarmSeason": "Warme Saison (Tomate / Paprika / Gurke)",
+    "typeHeatLoving": "Wärmeliebend (Kürbis / Zucchini)",
+    "instrCoolSeason": "Beginnen Sie im April — Tage 1–2 im Schatten 1–2 h, allmählich mehr Sonne. Auspflanzen Anfang Mai.",
+    "instrWarmSeason": "Beginnen Sie nach den Eisheiligen (~15. 5.) — 7–14 Tage schrittweise, Tage 1–2 Schatten 1–2 h, Tage 11–14 über Nacht draußen (wenn T_min > 10 °C).",
+    "instrHeatLoving": "Beginnen Sie im Juni, wenn T_min nachts über 10 °C bleibt — Kürbis und Zucchini brauchen stabile Wärme, sonst stoppt das Wachstum.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌤️ Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Abhärten — {{instr}}"
+  },
   "seedSaving": {
     "title": "Zeit, Samen zu sammeln",
     "subtitle": "Herbstliche Selbstaussaat — sammeln Sie Samen und Kapseln für die nächste Saison",

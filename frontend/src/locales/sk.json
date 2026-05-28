@@ -1410,6 +1410,22 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Pinčovanie — {{instr}}"
   },
+  "hardeningOff": {
+    "title": "Čas otužiť sadenice",
+    "subtitle": "7–14 dňové postupné vystavenie vonku — bez otužovania slnko spáli listy a teplotný šok zastaví rast o 2–3 týždne",
+    "taskTitle": "Otužiť sadenice {{plant}}",
+    "typeCoolSeason": "Chladnomilné (kapustovité / šalát)",
+    "typeWarmSeason": "Teplomilné (paradajka / paprika / uhorka)",
+    "typeHeatLoving": "Subtropické (tekvica / cuketa)",
+    "instrCoolSeason": "Začni v apríli — dni 1–2 v tieni 1–2 h, postupne pridávaj slnko. Výsadba vonku začiatkom mája.",
+    "instrWarmSeason": "Začni po ľadových mužoch (~15. 5.) — 7–14 dní postupne, dni 1–2 tieň 1–2 h, dni 11–14 cez noc vonku (ak T_min > 10 °C).",
+    "instrHeatLoving": "Začni v júni, keď bude T_min cez noc > 10 °C — tekvica a cuketa potrebujú stabilné teplo, inak rast zastane.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌤️ Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Otužovanie — {{instr}}"
+  },
   "seedSaving": {
     "title": "Čas nazbierať semená",
     "subtitle": "Jesenný samozber nažiek a toboliek pre budúcu sezónu",

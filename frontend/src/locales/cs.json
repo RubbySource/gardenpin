@@ -1336,6 +1336,22 @@
     "planFailed": "Plánování selhalo: {{msg}}",
     "notes": "Pinčování — {{instr}}"
   },
+  "hardeningOff": {
+    "title": "Čas otužit sazenici",
+    "subtitle": "7–14 denní postupné vystavení ven — bez otužování slunce spálí listy a teplotní šok zastaví růst o 2–3 týdny",
+    "taskTitle": "Otužit sazenici {{plant}}",
+    "typeCoolSeason": "Studenokříže (košťáloviny / salát)",
+    "typeWarmSeason": "Teplomilné (rajče / paprika / okurka)",
+    "typeHeatLoving": "Subtropické (dýně / cuketa)",
+    "instrCoolSeason": "Začni v dubnu — dny 1–2 stín 1–2 h, postupně přidávej slunce. Výsadba ven začátkem května.",
+    "instrWarmSeason": "Začni po ledových mužích (~15. 5.) — 7–14 dní postupně, dny 1–2 stín 1–2 h, dny 11–14 přes noc ven (pokud T_min > 10 °C).",
+    "instrHeatLoving": "Začni v červnu, až bude T_min > 10 °C přes noc — dýně/cuketa potřebují stabilní teplo, jinak růst zamrzne.",
+    "plan": "Naplánovat",
+    "planning": "Plánuji…",
+    "planned": "🌤️ Naplánováno na {{date}}",
+    "planFailed": "Plánování selhalo: {{msg}}",
+    "notes": "Otužování — {{instr}}"
+  },
   "seedSaving": {
     "title": "Čas nasbírat semena",
     "subtitle": "Podzimní samosběr nažek a tobolek pro příští sezónu",

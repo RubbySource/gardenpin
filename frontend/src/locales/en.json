@@ -1256,6 +1256,22 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Pinching — {{instr}}"
   },
+  "hardeningOff": {
+    "title": "Time to harden off the seedlings",
+    "subtitle": "7–14 day gradual exposure outdoors — without hardening, sun burns leaves and thermal shock stalls growth 2–3 weeks",
+    "taskTitle": "Harden off {{plant}} seedlings",
+    "typeCoolSeason": "Cool season (brassicas / lettuce)",
+    "typeWarmSeason": "Warm season (tomato / pepper / cucumber)",
+    "typeHeatLoving": "Heat-loving (squash / zucchini)",
+    "instrCoolSeason": "Start in April — days 1–2 in shade 1–2 h, gradually add sun. Plant out in early May.",
+    "instrWarmSeason": "Start after the ice saints (~May 15) — 7–14 days gradually, days 1–2 shade 1–2 h, days 11–14 overnight outside (if T_min > 10 °C).",
+    "instrHeatLoving": "Start in June, once T_min > 10 °C overnight — squash and zucchini need stable warmth, otherwise growth stalls.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌤️ Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Hardening off — {{instr}}"
+  },
   "seedSaving": {
     "title": "Time to collect seeds",
     "subtitle": "Autumn self-seeding — gather seeds and capsules for next season",
