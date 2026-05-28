@@ -95,6 +95,11 @@ export default function GardenDetailPage() {
   // Body polygonu drží rodič — tlačítka jsou MIMO mapu (v normálním flow),
   // takže musí mít přístup ke stavu.
   const [polygonPoints, setPolygonPoints] = useState(null);
+  // Lifted selection + undo stack — toolbar pod mapou s nimi pracuje.
+  // Snapshot pushuje editor PŘED každou diskrétní změnou (drag start, add,
+  // delete) a toolbar je pak schopen vrátit krok zpět. Max 10 snapshotů.
+  const [polygonSelectedIdx, setPolygonSelectedIdx] = useState(null);
+  const [polygonUndoStack, setPolygonUndoStack] = useState([]);
 
   const load = async () => {
     try {
@@ -333,7 +338,65 @@ export default function GardenDetailPage() {
     } else {
       setPolygonPoints(null);
     }
+    setPolygonSelectedIdx(null);
+    setPolygonUndoStack([]);
   }, [polygonMode, garden?.garden_polygon]);
+
+  // Snapshot — editor volá PŘED každou změnou (drag-start, add midpoint).
+  // Stejnou funkci volá toolbar před add/remove/reset, ať undo funguje konzistentně.
+  const pushPolygonSnapshot = () => {
+    setPolygonUndoStack((prev) => {
+      if (!polygonPoints) return prev;
+      return [polygonPoints, ...prev].slice(0, 10);
+    });
+  };
+
+  const handlePolygonUndo = () => {
+    setPolygonUndoStack((prev) => {
+      if (prev.length === 0) return prev;
+      const [head, ...rest] = prev;
+      setPolygonPoints(head);
+      setPolygonSelectedIdx(null);
+      return rest;
+    });
+  };
+
+  // Přidá bod uprostřed mezi vybraným bodem a jeho následníkem.
+  // Pokud žádný bod není vybraný, přidá za poslední (cyklicky mezi N-1 a 0).
+  const handlePolygonAdd = () => {
+    if (!polygonPoints) return;
+    pushPolygonSnapshot();
+    const i = polygonSelectedIdx ?? (polygonPoints.length - 1);
+    const a = polygonPoints[i];
+    const b = polygonPoints[(i + 1) % polygonPoints.length];
+    const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const next = [...polygonPoints];
+    next.splice(i + 1, 0, mid);
+    setPolygonPoints(next);
+    setPolygonSelectedIdx(i + 1);
+  };
+
+  const handlePolygonRemove = () => {
+    if (!polygonPoints) return;
+    if (polygonSelectedIdx == null) {
+      toast(t('gardenDetail.polygonSelectFirst'));
+      return;
+    }
+    if (polygonPoints.length <= 3) {
+      toast(t('gardenDetail.polygonMinPoints'));
+      return;
+    }
+    pushPolygonSnapshot();
+    setPolygonPoints(polygonPoints.filter((_, i) => i !== polygonSelectedIdx));
+    setPolygonSelectedIdx(null);
+  };
+
+  const handlePolygonResetShape = () => {
+    if (!polygonPoints) return;
+    pushPolygonSnapshot();
+    setPolygonPoints(DEFAULT_POLYGON_POINTS);
+    setPolygonSelectedIdx(null);
+  };
 
   // Stats polygonu pro toolbar pod mapou
   const polygonStats = (() => {
@@ -694,6 +757,9 @@ export default function GardenDetailPage() {
                   containerRef={mapStageRef}
                   points={polygonPoints}
                   onPointsChange={setPolygonPoints}
+                  selectedIdx={polygonSelectedIdx}
+                  onSelectedIdxChange={setPolygonSelectedIdx}
+                  onSnapshot={pushPolygonSnapshot}
                 />
               )}
               </div>
@@ -706,56 +772,77 @@ export default function GardenDetailPage() {
                 </div>
               )}
             </div>
-            {polygonMode && (
-              <p
-                className="polygon-hint"
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--text-dim)',
-                  textAlign: 'center',
-                  margin: '6px 0 4px',
-                }}
-              >
-                {t('gardenDetail.polygonHint')}
-              </p>
-            )}
-            {polygonMode && polygonStats && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                <div
-                  style={{
-                    fontSize: '0.82rem',
-                    color: 'var(--text-dim)',
-                    textAlign: 'center',
-                  }}
-                >
-                  📐 {t('gardenDetail.polygonPercentOfMap', { percent: polygonStats.percent.toFixed(1) })}
-                  {polygonStats.m2 != null && polygonStats.m2 > 0 && (
-                    <> · ~{polygonStats.m2.toFixed(polygonStats.m2 < 10 ? 1 : 0)} m²</>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            {polygonMode && polygonPoints && (
+              <div className="polygon-toolbar">
+                <p className="polygon-toolbar-hint">
+                  {polygonSelectedIdx != null
+                    ? t('gardenDetail.polygonHintSelected')
+                    : t('gardenDetail.polygonHintTap')}
+                </p>
+                <div className="polygon-toolbar-bar" role="toolbar" aria-label={t('gardenDetail.polygonToolbarAria')}>
                   <button
                     type="button"
-                    className="btn ghost small"
-                    onClick={() => setPolygonPoints(DEFAULT_POLYGON_POINTS)}
+                    className="polygon-tool-btn"
+                    onClick={handlePolygonAdd}
+                    aria-label={t('gardenDetail.polygonAddAria')}
+                    title={t('gardenDetail.polygonAddTitle')}
                   >
-                    {t('gardenDetail.polygonReset')}
+                    <span className="polygon-tool-glyph" aria-hidden="true">+</span>
                   </button>
                   <button
                     type="button"
-                    className="btn ghost small"
-                    onClick={() => setPolygonMode(false)}
+                    className="polygon-tool-btn"
+                    onClick={handlePolygonRemove}
+                    disabled={polygonPoints.length <= 3 || polygonSelectedIdx == null}
+                    aria-label={t('gardenDetail.polygonRemoveAria')}
+                    title={t('gardenDetail.polygonRemoveTitle')}
                   >
-                    {t('common.cancel')}
+                    <span className="polygon-tool-glyph" aria-hidden="true">−</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="polygon-tool-btn"
+                    onClick={handlePolygonUndo}
+                    disabled={polygonUndoStack.length === 0}
+                    aria-label={t('gardenDetail.polygonUndoAria')}
+                    title={t('gardenDetail.polygonUndoTitle')}
+                  >
+                    <span className="polygon-tool-glyph" aria-hidden="true">↺</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="polygon-tool-btn"
+                    onClick={handlePolygonResetShape}
+                    aria-label={t('gardenDetail.polygonResetAria')}
+                    title={t('gardenDetail.polygonResetTitle')}
+                  >
+                    <span className="polygon-tool-glyph" aria-hidden="true">⟲</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="polygon-tool-btn primary"
+                    onClick={() => handleCropPolygon(polygonPoints)}
+                    disabled={croppingPolygon || polygonPoints.length < 3}
+                    aria-label={t('gardenDetail.polygonConfirmAria')}
+                    title={t('gardenDetail.polygonConfirmTitle')}
+                  >
+                    <span className="polygon-tool-glyph" aria-hidden="true">{croppingPolygon ? '⏳' : '✓'}</span>
                   </button>
                 </div>
+                {polygonStats && (
+                  <div className="polygon-toolbar-stats">
+                    📐 {t('gardenDetail.polygonPercentOfMap', { percent: polygonStats.percent.toFixed(1) })}
+                    {polygonStats.m2 != null && polygonStats.m2 > 0 && (
+                      <> · ~{polygonStats.m2.toFixed(polygonStats.m2 < 10 ? 1 : 0)} m²</>
+                    )}
+                  </div>
+                )}
                 <button
                   type="button"
-                  className="btn"
-                  onClick={() => handleCropPolygon(polygonPoints)}
-                  disabled={croppingPolygon || polygonPoints.length < 3}
+                  className="btn ghost small polygon-toolbar-cancel"
+                  onClick={() => setPolygonMode(false)}
                 >
-                  {croppingPolygon ? t('gardenDetail.cropping') : t('gardenDetail.cropAndSave')}
+                  {t('common.cancel')}
                 </button>
               </div>
             )}

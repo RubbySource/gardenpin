@@ -1814,6 +1814,81 @@ html[data-theme="dark"] .follow-up {
   z-index: 12;
 }
 
+/* Polygon editor toolbar (UX-P1) — floating button bar pod mapou
+   Mobile-first: button row vždy viditelný, hint nad ním, stats pod ním,
+   cancel separátně. Touch targets >=44px (Apple HIG). */
+.polygon-toolbar {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.polygon-toolbar-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ios-text-2, var(--text-dim));
+  text-align: center;
+  line-height: 1.35;
+}
+.polygon-toolbar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--ios-bg-elev, #fff);
+  border-radius: 14px;
+  box-shadow: var(--ios-shadow-card, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+.polygon-tool-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--ios-bg-2, #f2f1ec);
+  color: var(--ios-text-1, #1a1a1a);
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.polygon-tool-btn:hover:not(:disabled) {
+  background: var(--ios-bg-3, #e8e6df);
+}
+.polygon-tool-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.polygon-tool-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+.polygon-tool-btn.primary {
+  background: #7BA889;
+  color: #fff;
+}
+.polygon-tool-btn.primary:hover:not(:disabled) {
+  background: #6b9a78;
+}
+.polygon-tool-glyph {
+  display: inline-block;
+  font-feature-settings: 'tnum';
+}
+.polygon-toolbar-stats {
+  font-size: 0.82rem;
+  color: var(--ios-text-2, var(--text-dim));
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.polygon-toolbar-cancel {
+  margin-top: 2px;
+}
+
 /* Segmented control wrapper */
 .gd-seg-wrap { margin: 0 0 16px; }
 .gd-seg-wrap .ios-segmented { width: 100%; }

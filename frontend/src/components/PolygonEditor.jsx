@@ -1,11 +1,11 @@
 // PolygonEditor — SVG overlay nad mapou zahrady pro ruční ohraničení.
-// Controlled component: body si drží rodič (lifted state), aby šly tlačítka
-// vykreslit MIMO mapu v normálním document flow (ne přes fotku).
-// Touch + mouse přes pointer events.
-// - drag bodu = přesun
-// - klik na midpoint handle = přidání nového bodu mezi sousedy
-// - dvojklik na bod = smazat (min. 3 body)
-// - oblast mimo polygon ztmavená přes SVG mask
+// Controlled component: body, selection a undo si drží rodič (lifted state),
+// aby šel button bar vykreslit MIMO mapu (v normálním document flow).
+//
+// Tap na bod = výběr (highlight ring). Drag bodu = přesun.
+// Klik na midpoint = přidání nového bodu mezi sousedy.
+// Smazání / undo / reset / add ovládá rodičův toolbar přes lifted state.
+// Min 3 body jsou tvrdě vynucené — pro hlášku používá rodič toast.
 import React, { useEffect, useRef, useState } from 'react';
 
 export const DEFAULT_POLYGON_POINTS = [
@@ -27,8 +27,16 @@ export function polygonAreaFraction(points) {
   return Math.abs(s) / 2 / (100 * 100);
 }
 
-export default function PolygonEditor({ containerRef, points, onPointsChange }) {
+export default function PolygonEditor({
+  containerRef,
+  points,
+  onPointsChange,
+  selectedIdx = null,
+  onSelectedIdxChange,
+  onSnapshot,
+}) {
   const [draggingIdx, setDraggingIdx] = useState(null);
+  const draggedRef = useRef(false);
   // Ref na nejnovější body — vyhneme se re-registraci listenerů při každém pohybu
   const pointsRef = useRef(points);
   pointsRef.current = points;
@@ -48,6 +56,7 @@ export default function PolygonEditor({ containerRef, points, onPointsChange }) 
   useEffect(() => {
     if (draggingIdx === null) return;
     const move = (e) => {
+      draggedRef.current = true;
       const pos = toPercent(e.clientX, e.clientY);
       onChangeRef.current(pointsRef.current.map((p, i) => (i === draggingIdx ? pos : p)));
     };
@@ -65,25 +74,24 @@ export default function PolygonEditor({ containerRef, points, onPointsChange }) 
   const handlePointDown = (e, idx) => {
     e.stopPropagation();
     e.preventDefault();
+    // Snapshot PŘED první změnou — undo vrátí pozici z doby před dragem.
+    onSnapshot?.();
+    draggedRef.current = false;
+    onSelectedIdxChange?.(idx);
     setDraggingIdx(idx);
-  };
-
-  const handlePointDoubleClick = (e, idx) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (points.length <= 3) return;
-    onPointsChange(points.filter((_, i) => i !== idx));
   };
 
   const handleMidClick = (e, i) => {
     e.stopPropagation();
     e.preventDefault();
+    onSnapshot?.();
     const a = points[i];
     const b = points[(i + 1) % points.length];
     const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
     const next = [...points];
     next.splice(i + 1, 0, mid);
     onPointsChange(next);
+    onSelectedIdxChange?.(i + 1);
   };
 
   const pathD = points.length === 0
@@ -128,49 +136,95 @@ export default function PolygonEditor({ containerRef, points, onPointsChange }) 
         strokeDasharray="1.4 0.9"
         vectorEffect="non-scaling-stroke"
       />
-      {/* Midpoint handles (klik = přidat bod) */}
+      {/* Midpoint handles (klik = přidat bod) — větší hit area + plus glyph */}
       {points.map((p, i) => {
         const b = points[(i + 1) % points.length];
         const mid = { x: (p.x + b.x) / 2, y: (p.y + b.y) / 2 };
         return (
-          <circle
-            key={`mid-${i}`}
-            cx={mid.x}
-            cy={mid.y}
-            r="1.1"
-            fill="rgba(255,255,255,0.85)"
-            stroke="#4a7c3a"
-            strokeWidth="0.3"
-            vectorEffect="non-scaling-stroke"
-            style={{ cursor: 'copy', pointerEvents: 'auto' }}
-            onPointerDown={(e) => handleMidClick(e, i)}
-          >
-            <title>Přidat bod</title>
-          </circle>
+          <g key={`mid-${i}`}>
+            {/* Neviditelná velká hit oblast (~24px @ typical 320px wide map) */}
+            <circle
+              cx={mid.x}
+              cy={mid.y}
+              r="3.5"
+              fill="transparent"
+              style={{ cursor: 'copy', pointerEvents: 'auto' }}
+              onPointerDown={(e) => handleMidClick(e, i)}
+            >
+              <title>Přidat bod</title>
+            </circle>
+            {/* Vizuální tečka */}
+            <circle
+              cx={mid.x}
+              cy={mid.y}
+              r="1.4"
+              fill="rgba(255,255,255,0.92)"
+              stroke="#7BA889"
+              strokeWidth="0.35"
+              vectorEffect="non-scaling-stroke"
+              style={{ pointerEvents: 'none' }}
+            />
+            {/* Plus glyph — naznačuje akci */}
+            <path
+              d={`M ${mid.x - 0.7} ${mid.y} L ${mid.x + 0.7} ${mid.y} M ${mid.x} ${mid.y - 0.7} L ${mid.x} ${mid.y + 0.7}`}
+              stroke="#4a7c3a"
+              strokeWidth="0.32"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ pointerEvents: 'none' }}
+            />
+          </g>
         );
       })}
-      {/* Hlavní body */}
-      {points.map((p, i) => (
-        <circle
-          key={`pt-${i}`}
-          cx={p.x}
-          cy={p.y}
-          r="1.8"
-          fill={draggingIdx === i ? '#2d5a27' : '#fff'}
-          stroke="#4a7c3a"
-          strokeWidth="0.5"
-          vectorEffect="non-scaling-stroke"
-          style={{
-            cursor: 'grab',
-            pointerEvents: 'auto',
-            touchAction: 'none',
-          }}
-          onPointerDown={(e) => handlePointDown(e, i)}
-          onDoubleClick={(e) => handlePointDoubleClick(e, i)}
-        >
-          <title>Táhni pro přesun · dvojklik pro smazání</title>
-        </circle>
-      ))}
+      {/* Hlavní body — vybraný má outer ring */}
+      {points.map((p, i) => {
+        const isSelected = i === selectedIdx;
+        const isDragging = i === draggingIdx;
+        return (
+          <g key={`pt-${i}`}>
+            {/* Outer ring pro vybraný bod */}
+            {isSelected && (
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r="3.2"
+                fill="none"
+                stroke="#4a7c3a"
+                strokeWidth="0.4"
+                strokeOpacity="0.55"
+                vectorEffect="non-scaling-stroke"
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+            {/* Neviditelná velká hit oblast (~32px @ typical map width) */}
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r="4.5"
+              fill="transparent"
+              style={{
+                cursor: 'grab',
+                pointerEvents: 'auto',
+                touchAction: 'none',
+              }}
+              onPointerDown={(e) => handlePointDown(e, i)}
+            >
+              <title>Táhni pro přesun · klepni pro výběr</title>
+            </circle>
+            {/* Vizuální tečka */}
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={isSelected ? 2.1 : 1.8}
+              fill={isDragging || isSelected ? '#2d5a27' : '#fff'}
+              stroke="#4a7c3a"
+              strokeWidth="0.5"
+              vectorEffect="non-scaling-stroke"
+              style={{ pointerEvents: 'none' }}
+            />
+          </g>
+        );
+      })}
     </svg>
   );
 }
