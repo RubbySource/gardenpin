@@ -80,6 +80,30 @@ export const api = {
     }),
   deleteBed: (id) => jsonFetch(`/api/beds/${id}`, { method: 'DELETE' }),
 
+  // Bed plants — rostliny v záhonu (many-to-many)
+  listBedPlants: (bedId) => jsonFetch(`/api/beds/${bedId}/plants`),
+  addBedPlant: (bedId, data) =>
+    jsonFetch(`/api/beds/${bedId}/plants`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updateBedPlant: (id, data) =>
+    jsonFetch(`/api/bed-plants/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  removeBedPlant: (id, { keepPin = false } = {}) =>
+    jsonFetch(`/api/bed-plants/${id}?keep_pin=${keepPin ? 1 : 0}`, { method: 'DELETE' }),
+  pinsInsideBed: (bedId) => jsonFetch(`/api/beds/${bedId}/pins-inside`),
+  mergePinsIntoBed: (bedId, pinIds) =>
+    jsonFetch(`/api/beds/${bedId}/merge-pins`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin_ids: pinIds }),
+    }),
+
   // Galerie fotek pinu
   listPinPhotos: (id) => jsonFetch(`/api/pins/${id}/photos`),
   uploadPinPhotos: (id, formData) =>

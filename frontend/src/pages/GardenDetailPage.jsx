@@ -8,6 +8,7 @@ import { formatDate } from '../utils.js';
 import { api } from '../api.js';
 import Modal from '../components/Modal.jsx';
 import Icon from '../components/Icon.jsx';
+import BedDetailModal from '../components/BedDetailModal.jsx';
 import PinDetail from './PinDetail.jsx';
 import MembersModal from '../components/MembersModal.jsx';
 import BulkCareModal from '../components/BulkCareModal.jsx';
@@ -1149,16 +1150,19 @@ export default function GardenDetailPage() {
       )}
 
       {editingBed && (
-        <BedEditModal
+        <BedDetailModal
           bed={editingBed}
           onClose={() => setEditingBed(null)}
-          onSaved={(b) => {
+          onBedUpdated={(b) => {
             setBeds((prev) => prev.map((x) => (x.id === b.id ? b : x)));
-            setEditingBed(null);
           }}
-          onDeleted={(bedId) => {
+          onBedDeleted={(bedId) => {
             setBeds((prev) => prev.filter((x) => x.id !== bedId));
             setEditingBed(null);
+          }}
+          onPinOpen={(pinId) => {
+            setEditingBed(null);
+            setEditingPinId(pinId);
           }}
         />
       )}

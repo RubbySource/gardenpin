@@ -695,7 +695,7 @@ app.get('/api/gardens/:id/beds', (req, res) => {
 });
 
 app.post('/api/beds', (req, res) => {
-  const { garden_id, name, x, y, width, height, width_m, height_m, color } = req.body || {};
+  const { garden_id, name, x, y, width, height, width_m, height_m, color, type } = req.body || {};
   if (!garden_id) return res.status(400).json({ error: 'garden_id je povinný' });
   const garden = db.prepare('SELECT id FROM gardens WHERE id = ?').get(garden_id);
   if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
@@ -704,8 +704,8 @@ app.post('/api/beds', (req, res) => {
   }
   const info = db
     .prepare(
-      `INSERT INTO beds (garden_id, name, x, y, width, height, width_m, height_m, color)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO beds (garden_id, name, x, y, width, height, width_m, height_m, color, type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       garden_id,
@@ -717,6 +717,7 @@ app.post('/api/beds', (req, res) => {
       width_m ?? null,
       height_m ?? null,
       color || '#8b6f47',
+      type || null,
     );
   res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(info.lastInsertRowid));
 });
@@ -733,9 +734,10 @@ app.put('/api/beds/:id', (req, res) => {
   const width_m = req.body.width_m !== undefined ? (req.body.width_m === null ? null : Number(req.body.width_m)) : current.width_m;
   const height_m = req.body.height_m !== undefined ? (req.body.height_m === null ? null : Number(req.body.height_m)) : current.height_m;
   const color = req.body.color ?? current.color;
+  const type = req.body.type !== undefined ? (req.body.type || null) : current.type;
   db.prepare(
-    `UPDATE beds SET name=?, x=?, y=?, width=?, height=?, width_m=?, height_m=?, color=? WHERE id=?`,
-  ).run(name, x, y, width, height, width_m, height_m, color, id);
+    `UPDATE beds SET name=?, x=?, y=?, width=?, height=?, width_m=?, height_m=?, color=?, type=? WHERE id=?`,
+  ).run(name, x, y, width, height, width_m, height_m, color, type, id);
   res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(id));
 });
 
@@ -744,6 +746,208 @@ app.delete('/api/beds/:id', (req, res) => {
   if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
   db.prepare('DELETE FROM beds WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
+});
+
+// ======================= BED PLANTS (rostliny v záhonu) =======================
+// Záhon ↔ rostliny many-to-many. Každá rostlina/odrůda = vlastní záznam s počtem kusů.
+// Pokud má pin_id, sezónní úkony se generují přes existující pin pipeline.
+// "Aktivní" rostliny = removed_at IS NULL.
+
+function bedCenter(bed) {
+  return {
+    x: bed.x + bed.width / 2,
+    y: bed.y + bed.height / 2,
+  };
+}
+
+// Vrátí všechny aktivní rostliny záhonu + propojený pin (pokud existuje).
+app.get('/api/beds/:bedId/plants', (req, res) => {
+  const bed = db.prepare('SELECT id FROM beds WHERE id = ?').get(req.params.bedId);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  const rows = db
+    .prepare(
+      `SELECT bp.*, p.name AS pin_name, p.x AS pin_x, p.y AS pin_y, p.color AS pin_color, p.photo_path AS pin_photo
+       FROM bed_plants bp
+       LEFT JOIN pins p ON p.id = bp.pin_id
+       WHERE bp.bed_id = ? AND bp.removed_at IS NULL
+       ORDER BY bp.created_at ASC`,
+    )
+    .all(req.params.bedId);
+  res.json(rows);
+});
+
+// Přidá rostlinu do záhonu. Volitelně vytvoří podkladový pin ve středu záhonu
+// (auto_pin=true, default), aby fungovaly sezónní úkony / care historie.
+// Pokud má klient existující pin, který chce propojit, předá link_pin_id.
+app.post('/api/beds/:bedId/plants', (req, res) => {
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(req.params.bedId);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  const {
+    plant_id = null,
+    plant_name = null,
+    count = 1,
+    planted_at = null,
+    notes = null,
+    link_pin_id = null,
+    auto_pin = true,
+    color = null,
+  } = req.body || {};
+
+  if (!plant_name || !String(plant_name).trim()) {
+    return res.status(400).json({ error: 'plant_name je povinný' });
+  }
+  const cnt = Math.max(1, parseInt(count, 10) || 1);
+
+  let pinId = link_pin_id ? Number(link_pin_id) : null;
+  if (pinId) {
+    const linked = db.prepare('SELECT id FROM pins WHERE id = ?').get(pinId);
+    if (!linked) return res.status(404).json({ error: 'Pin pro propojení nenalezen' });
+  } else if (auto_pin) {
+    const c = bedCenter(bed);
+    const info = db
+      .prepare(
+        `INSERT INTO pins (garden_id, name, x, y, plant_name, planting_date, notes, color)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        bed.garden_id,
+        plant_name,
+        c.x,
+        c.y,
+        plant_name,
+        planted_at || null,
+        notes || null,
+        color || bed.color || '#4a7c3a',
+      );
+    pinId = info.lastInsertRowid;
+  }
+
+  const result = db
+    .prepare(
+      `INSERT INTO bed_plants (bed_id, plant_id, plant_name, count, pin_id, planted_at, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(bed.id, plant_id, plant_name, cnt, pinId, planted_at || null, notes || null);
+
+  const row = db
+    .prepare(
+      `SELECT bp.*, p.name AS pin_name, p.x AS pin_x, p.y AS pin_y, p.color AS pin_color, p.photo_path AS pin_photo
+       FROM bed_plants bp
+       LEFT JOIN pins p ON p.id = bp.pin_id
+       WHERE bp.id = ?`,
+    )
+    .get(result.lastInsertRowid);
+  res.json(row);
+});
+
+app.put('/api/bed-plants/:id', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM bed_plants WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záznam nenalezen' });
+  const count = req.body.count !== undefined ? Math.max(1, parseInt(req.body.count, 10) || 1) : current.count;
+  const plant_name = req.body.plant_name ?? current.plant_name;
+  const plant_id = req.body.plant_id !== undefined ? (req.body.plant_id || null) : current.plant_id;
+  const planted_at = req.body.planted_at !== undefined ? (req.body.planted_at || null) : current.planted_at;
+  const notes = req.body.notes !== undefined ? (req.body.notes || null) : current.notes;
+
+  db.prepare(
+    `UPDATE bed_plants SET plant_id=?, plant_name=?, count=?, planted_at=?, notes=? WHERE id=?`,
+  ).run(plant_id, plant_name, count, planted_at, notes, id);
+
+  // Pokud existuje propojený pin, synchronizujeme název a planting_date — UI je očekává.
+  if (current.pin_id) {
+    db.prepare('UPDATE pins SET plant_name = ?, planting_date = ? WHERE id = ?').run(
+      plant_name,
+      planted_at,
+      current.pin_id,
+    );
+  }
+
+  const row = db
+    .prepare(
+      `SELECT bp.*, p.name AS pin_name, p.x AS pin_x, p.y AS pin_y, p.color AS pin_color, p.photo_path AS pin_photo
+       FROM bed_plants bp
+       LEFT JOIN pins p ON p.id = bp.pin_id
+       WHERE bp.id = ?`,
+    )
+    .get(id);
+  res.json(row);
+});
+
+// Odstraní rostlinu ze záhonu. Soft delete (removed_at). Volitelně i podkladový pin.
+// ?keep_pin=1 → pin zůstane samostatným pinem na mapě (default 0 = smaže i pin + jeho úkony).
+app.delete('/api/bed-plants/:id', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM bed_plants WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záznam nenalezen' });
+  const keepPin = req.query.keep_pin === '1' || req.query.keep_pin === 'true';
+  db.prepare('UPDATE bed_plants SET removed_at = datetime(\'now\') WHERE id = ?').run(id);
+  if (!keepPin && current.pin_id) {
+    db.prepare('DELETE FROM pins WHERE id = ?').run(current.pin_id);
+  }
+  res.json({ ok: true, keep_pin: keepPin });
+});
+
+// Detekce pinů geometricky uvnitř záhonu — podklad pro "Sloučit do záhonu?" CTA.
+app.get('/api/beds/:bedId/pins-inside', (req, res) => {
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(req.params.bedId);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  // Vyloučí piny, které jsou už propojené s nějakým bed_plants (jakýkoliv záhon).
+  const pins = db
+    .prepare(
+      `SELECT p.*
+       FROM pins p
+       WHERE p.garden_id = ?
+         AND p.x >= ? AND p.x <= ?
+         AND p.y >= ? AND p.y <= ?
+         AND p.id NOT IN (SELECT pin_id FROM bed_plants WHERE pin_id IS NOT NULL AND removed_at IS NULL)
+       ORDER BY p.created_at ASC`,
+    )
+    .all(bed.garden_id, bed.x, bed.x + bed.width, bed.y, bed.y + bed.height);
+  res.json(pins);
+});
+
+// Sloučí existující piny do záhonu — pro každý pin vytvoří bed_plants záznam.
+// Piny zůstávají (tasks/care_history přežijí); pouze získají vztah k záhonu.
+app.post('/api/beds/:bedId/merge-pins', (req, res) => {
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(req.params.bedId);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  const ids = Array.isArray(req.body?.pin_ids) ? req.body.pin_ids : [];
+  if (!ids.length) return res.status(400).json({ error: 'pin_ids prázdné' });
+
+  const insert = db.prepare(
+    `INSERT INTO bed_plants (bed_id, plant_id, plant_name, count, pin_id, planted_at, notes)
+     VALUES (?, NULL, ?, 1, ?, ?, ?)`,
+  );
+  const created = [];
+  const skipped = [];
+
+  const tx = db.transaction((pinIds) => {
+    for (const pid of pinIds) {
+      const pin = db
+        .prepare(
+          `SELECT * FROM pins
+           WHERE id = ? AND garden_id = ?
+             AND id NOT IN (SELECT pin_id FROM bed_plants WHERE pin_id IS NOT NULL AND removed_at IS NULL)`,
+        )
+        .get(pid, bed.garden_id);
+      if (!pin) {
+        skipped.push(pid);
+        continue;
+      }
+      const info = insert.run(
+        bed.id,
+        pin.plant_name || pin.name,
+        pin.id,
+        pin.planting_date || null,
+        pin.notes || null,
+      );
+      created.push(info.lastInsertRowid);
+    }
+  });
+  tx(ids);
+
+  res.json({ ok: true, created_count: created.length, skipped });
 });
 
 // ======================= TASKS =======================

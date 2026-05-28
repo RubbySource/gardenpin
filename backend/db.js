@@ -122,6 +122,27 @@ db.exec(`
     FOREIGN KEY (garden_id) REFERENCES gardens(id) ON DELETE CASCADE
   );
 
+  -- Záhon ↔ rostliny (many-to-many). Každý záznam reprezentuje jednu rostlinu/odrůdu v záhonu
+  -- s počtem kusů. Pokud je vyplněn pin_id, sezónní úkony se táhnou přes existující pin pipeline
+  -- (každá rostlina v záhonu = vlastní pin pro tasks/care_history). pin_id je NULL pouze dokud
+  -- backend nestihne pin vytvořit.
+  CREATE TABLE IF NOT EXISTS bed_plants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bed_id INTEGER NOT NULL,
+    plant_id TEXT,
+    plant_name TEXT,
+    count INTEGER NOT NULL DEFAULT 1,
+    pin_id INTEGER,
+    planted_at TEXT,
+    removed_at TEXT,
+    notes TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (bed_id) REFERENCES beds(id) ON DELETE CASCADE,
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE SET NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_bed_plants_bed ON bed_plants(bed_id);
+  CREATE INDEX IF NOT EXISTS idx_bed_plants_pin ON bed_plants(pin_id);
+
   CREATE TABLE IF NOT EXISTS harvests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pin_id INTEGER NOT NULL,
@@ -201,6 +222,8 @@ try { db.exec('ALTER TABLE gardens ADD COLUMN garden_polygon TEXT'); } catch {}
 try { db.exec('ALTER TABLE gardens ADD COLUMN ical_token TEXT'); } catch {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_ical_token ON gardens(ical_token) WHERE ical_token IS NOT NULL'); } catch {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
+// Záhony — kategorizace typu (vegetable/flower/herb/mixed) pro filtrování a doporučení.
+try { db.exec('ALTER TABLE beds ADD COLUMN type TEXT'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 // Spolupráce — přiřazení úkolu členovi + atribuce splnění
