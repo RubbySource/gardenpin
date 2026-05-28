@@ -1300,6 +1300,20 @@
     "planFailed": "Planning failed: {{msg}}",
     "notes": "Cut leaves low above the crown + remove excess runners (stolons)."
   },
+  "springMulching": {
+    "title": "Time to mulch",
+    "subtitle": "5–8 cm of bark / wood chips — 30–40% more soil moisture, less weeds, root insulation",
+    "taskTitle": "Mulch {{plant}}",
+    "typePerennial": "Perennial / annual (April)",
+    "typeWoody": "Shrub / tree / climber (May)",
+    "instrPerennial": "Apply 5–8 cm of shredded bark / wood chips / compost around the clump — NOT up against the stem (the crown needs air). Mulch only moist soil; water dry soil first.",
+    "instrWoody": "Apply 5–8 cm of shredded bark / wood chips / compost around the root zone — NOT up against the trunk (it would cause rot). Mulch only moist soil; water dry soil first.",
+    "plan": "Plan it",
+    "planning": "Planning…",
+    "planned": "🌿 Planned for {{date}}",
+    "planFailed": "Planning failed: {{msg}}",
+    "notes": "Mulching — {{instr}}"
+  },
   "winterPrep": {
     "title": "Get ready for winter",
     "summary_one": "{{count}} plant needs winterizing before frost.",

@@ -1300,6 +1300,20 @@
     "planFailed": "Planen fehlgeschlagen: {{msg}}",
     "notes": "Schneiden Sie das Laub tief über dem Herz ab und entfernen Sie überzählige Ausläufer (Stolonen)."
   },
+  "springMulching": {
+    "title": "Zeit zu mulchen",
+    "subtitle": "5–8 cm Rindenmulch / Holzhäcksel — 30–40 % mehr Bodenfeuchte, weniger Unkraut, Wurzelisolierung",
+    "taskTitle": "{{plant}} mulchen",
+    "typePerennial": "Staude / Sommerblume (April)",
+    "typeWoody": "Strauch / Baum / Kletterpflanze (Mai)",
+    "instrPerennial": "Tragen Sie 5–8 cm Rindenmulch / Holzhäcksel / Kompost rund um den Horst auf — NICHT bis an den Stängel (der Wurzelhals muss atmen). Mulchen Sie nur feuchten Boden; trockenen Boden vorher wässern.",
+    "instrWoody": "Tragen Sie 5–8 cm Rindenmulch / Holzhäcksel / Kompost rund um den Wurzelbereich auf — NICHT bis an den Stamm (Fäulnisgefahr). Mulchen Sie nur feuchten Boden; trockenen Boden vorher wässern.",
+    "plan": "Einplanen",
+    "planning": "Plane…",
+    "planned": "🌿 Geplant für {{date}}",
+    "planFailed": "Planen fehlgeschlagen: {{msg}}",
+    "notes": "Mulchen — {{instr}}"
+  },
   "winterPrep": {
     "title": "Machen Sie den Garten winterfest",
     "summary_one": "{{count}} Pflanze muss vor dem Frost winterfest gemacht werden.",

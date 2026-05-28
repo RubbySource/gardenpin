@@ -4516,6 +4516,85 @@ html[data-theme="dark"] .pinching-card {
 html[data-theme="dark"] .pinching-title { color: #b8e08f; }
 html[data-theme="dark"] .pinching-sub { color: #9bc473; }
 
+/* Jarní mulčování — čokoládově hnědá „kůrová mulč" paleta. Odlišená od:
+   - olivově zelené green-manure (zasetá meziplodina),
+   - lakmusové soil-ph (chemická úprava),
+   - jantarové wood-ripening (sklizňové okno dřevin),
+   - listově zelené pinching (mladý čerstvý výhon).
+   Vizuální asociace = vrstva kůry / štěpky na zemi. */
+.spring-mulching-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e8d4b3, #f4e8d2);
+  border: 1px solid #b08866;
+}
+.spring-mulching-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+.spring-mulching-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a3d22;
+}
+.spring-mulching-sub {
+  font-size: 12px;
+  color: #7a5a3a;
+}
+.spring-mulching-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.spring-mulching-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--separator);
+  border-radius: 11px;
+}
+.spring-mulching-badge {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #8a5e3a;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.spring-mulching-main { flex: 1; min-width: 0; }
+.spring-mulching-action { font-size: 13px; font-weight: 500; color: var(--label); }
+.spring-mulching-meta { font-size: 11px; color: var(--label-secondary, var(--muted)); margin-top: 1px; }
+.spring-mulching-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: none;
+  background: #8a5e3a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms var(--ios-ease), opacity 150ms var(--ios-ease);
+}
+.spring-mulching-btn:active { transform: scale(0.96); }
+.spring-mulching-btn:disabled { opacity: 0.6; cursor: default; }
+html[data-theme="dark"] .spring-mulching-card {
+  background: linear-gradient(135deg, #2a1d12, #1a120a);
+  border-color: #5a3d22;
+}
+html[data-theme="dark"] .spring-mulching-title { color: #d8b88a; }
+html[data-theme="dark"] .spring-mulching-sub { color: #b89870; }
+
 /* Sběr semen — zlato-béžová „zralé lusky / suché nažky" paleta. Odlišená od:
    - jantarové wood-ripening (.wood-ripening-* — tepleji oranžovo-hnědá),
    - khaki perennial-cutback (chladnější olivová),

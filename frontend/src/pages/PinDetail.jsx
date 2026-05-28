@@ -22,6 +22,7 @@ import BulbPlantingCard from '../components/BulbPlantingCard.jsx';
 import CuttingTaskCard from '../components/CuttingTaskCard.jsx';
 import PlantSupportCard from '../components/PlantSupportCard.jsx';
 import PinchingCard from '../components/PinchingCard.jsx';
+import SpringMulchingCard from '../components/SpringMulchingCard.jsx';
 import GraftingTaskCard from '../components/GraftingTaskCard.jsx';
 import FruitThinningCard from '../components/FruitThinningCard.jsx';
 import PeachLeafCurlSprayCard from '../components/PeachLeafCurlSprayCard.jsx';
@@ -442,6 +443,9 @@ function UkonyTab({ pin, onComplete, onSnoozed, onEdit, onDelete, onReload }) {
 
       {/* Pinčování letniček + Chelsea chop strukturních trvalek (vykreslí se jen pro letnicky/trvalky/bylinky v sezóně 5–6) */}
       <PinchingCard pin={pin} onPlanned={onReload} />
+
+      {/* Jarní mulčování trvalek a dřevin — 5–8 cm kůry/štěpky pro vlhkost a proti plevelu (vykreslí se jen pro trvalky/letnicky/kere/stromy/ovoce/popinave v sezóně 4–5) */}
+      <SpringMulchingCard pin={pin} onPlanned={onReload} />
 
       {/* Předjarní výsev do předpěstování (vykreslí se jen pro teplomilné plodiny v sezóně) */}
       <SowingTaskCard pin={pin} onPlanned={onReload} />

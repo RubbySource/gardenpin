@@ -1454,6 +1454,20 @@
     "planFailed": "Planowanie nie powiodło się: {{msg}}",
     "notes": "Przytnij liście nisko nad sercem + usuń nadmiar rozłogów (stolonów)."
   },
+  "springMulching": {
+    "title": "Czas mulczować",
+    "subtitle": "5–8 cm rozdrobnionej kory / zrębków — 30–40 % więcej wilgoci w glebie, mniej chwastów, izolacja korzeni",
+    "taskTitle": "Mulczować {{plant}}",
+    "typePerennial": "Bylina / kwiat letni (kwiecień)",
+    "typeWoody": "Krzew / drzewo / pnącze (maj)",
+    "instrPerennial": "Rozłóż 5–8 cm rozdrobnionej kory / zrębków / kompostu wokół kępy — NIE przy samej łodydze (szyjka korzeniowa musi oddychać). Mulczuj tylko wilgotną glebę, suchą najpierw podlej.",
+    "instrWoody": "Rozłóż 5–8 cm rozdrobnionej kory / zrębków / kompostu wokół strefy korzeniowej — NIE przy samym pniu (grozi gnicie). Mulczuj tylko wilgotną glebę, suchą najpierw podlej.",
+    "plan": "Zaplanuj",
+    "planning": "Planuję…",
+    "planned": "🌿 Zaplanowano na {{date}}",
+    "planFailed": "Planowanie nie powiodło się: {{msg}}",
+    "notes": "Mulczowanie — {{instr}}"
+  },
   "winterPrep": {
     "title": "Przygotuj na zimę",
     "summary_one": "{{count}} roślina wymaga zabezpieczenia przed mrozem.",

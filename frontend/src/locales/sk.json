@@ -1454,6 +1454,20 @@
     "planFailed": "Plánovanie zlyhalo: {{msg}}",
     "notes": "Zostrihni listy nízko nad srdiečkom + odober prebytočné šľahúny (stolóny)."
   },
+  "springMulching": {
+    "title": "Čas mulčovať",
+    "subtitle": "5–8 cm drvenej kôry / štiepky — o 30–40 % viac vlhkosti v pôde, menej buriny, izolácia koreňov",
+    "taskTitle": "Mulčovať {{plant}}",
+    "typePerennial": "Trvalka / letnička (apríl)",
+    "typeWoody": "Ker / strom / popínavá (máj)",
+    "instrPerennial": "Nasyp 5–8 cm drvenej kôry / štiepky / kompostu okolo trsu — NIE až ku stonke (koreňový krčok musí dýchať). Mulčuj len vlhkú pôdu, suchú najprv polej.",
+    "instrWoody": "Nasyp 5–8 cm drvenej kôry / štiepky / kompostu okolo koreňového taniera — NIE až ku kmeňu (vznikla by hniloba). Mulčuj len vlhkú pôdu, suchú najprv polej.",
+    "plan": "Naplánovať",
+    "planning": "Plánujem…",
+    "planned": "🌿 Naplánované na {{date}}",
+    "planFailed": "Plánovanie zlyhalo: {{msg}}",
+    "notes": "Mulčovanie — {{instr}}"
+  },
   "winterPrep": {
     "title": "Priprav na zimu",
     "summary_one": "{{count}} rastlina potrebuje zazimovať pred mrazom.",
