@@ -6,6 +6,13 @@
 // Klik na midpoint = přidání nového bodu mezi sousedy.
 // Smazání / undo / reset / add ovládá rodičův toolbar přes lifted state.
 // Min 3 body jsou tvrdě vynucené — pro hlášku používá rodič toast.
+//
+// Rotace: editor přijme `rotation` (stupně, kladná = CW) a aplikuje ji na
+// vnitřní <g> kolem středu (50,50). Body v stavu jsou tedy v "image
+// coords" (před rotací) — kliknutí převedeme přes getScreenCTM().inverse()
+// na <g>, takže matematika je čistě maticová a zahrne celou transformaci
+// včetně CSS scalování SVG na stage. Backend crop pak dostane body v
+// image % a nic neřeší o rotaci.
 import React, { useEffect, useRef, useState } from 'react';
 
 export const DEFAULT_POLYGON_POINTS = [
@@ -29,6 +36,7 @@ export function polygonAreaFraction(points) {
 
 export default function PolygonEditor({
   containerRef,
+  rotation = 0,
   points,
   onPointsChange,
   selectedIdx = null,
@@ -37,18 +45,38 @@ export default function PolygonEditor({
 }) {
   const [draggingIdx, setDraggingIdx] = useState(null);
   const draggedRef = useRef(false);
+  const svgRef = useRef(null);
+  const gRef = useRef(null);
   // Ref na nejnovější body — vyhneme se re-registraci listenerů při každém pohybu
   const pointsRef = useRef(points);
   pointsRef.current = points;
   const onChangeRef = useRef(onPointsChange);
   onChangeRef.current = onPointsChange;
 
+  // Převod screen (clientX, clientY) → image % (0–100) přes inverzní CTM
+  // <g> elementu. CTM zahrne CSS scale SVG na stage i rotate na <g>, takže
+  // matematicky odpovídá tomu, co uživatel reálně vidí.
   const toPercent = (clientX, clientY) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
+    const svg = svgRef.current;
+    const g = gRef.current;
+    if (!svg || !g || typeof svg.createSVGPoint !== 'function') {
+      // Fallback na container rect (pre-rotation chování) pokud SVG API není k dispozici
+      const rect = containerRef?.current?.getBoundingClientRect();
+      if (!rect) return { x: 0, y: 0 };
+      return {
+        x: clamp(((clientX - rect.left) / rect.width) * 100, 0, 100),
+        y: clamp(((clientY - rect.top) / rect.height) * 100, 0, 100),
+      };
+    }
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const ctm = g.getScreenCTM();
+    if (!ctm) return { x: 0, y: 0 };
+    const local = pt.matrixTransform(ctm.inverse());
     return {
-      x: clamp(((clientX - rect.left) / rect.width) * 100, 0, 100),
-      y: clamp(((clientY - rect.top) / rect.height) * 100, 0, 100),
+      x: clamp(local.x, 0, 100),
+      y: clamp(local.y, 0, 100),
     };
   };
 
@@ -100,6 +128,7 @@ export default function PolygonEditor({
 
   return (
     <svg
+      ref={svgRef}
       style={{
         position: 'absolute',
         inset: 0,
@@ -112,119 +141,126 @@ export default function PolygonEditor({
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
     >
-      <defs>
-        <mask id="polygon-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-          <rect x="0" y="0" width="100" height="100" fill="white" />
-          <path d={pathD} fill="black" />
-        </mask>
-      </defs>
-      {/* Ztmavení mimo polygon */}
-      <rect
-        x="0"
-        y="0"
-        width="100"
-        height="100"
-        fill="rgba(0,0,0,0.5)"
-        mask="url(#polygon-mask)"
-      />
-      {/* Obrys polygonu (dashed zelená) */}
-      <path
-        d={pathD}
-        fill="rgba(74,124,58,0.05)"
-        stroke="#4a7c3a"
-        strokeWidth="0.4"
-        strokeDasharray="1.4 0.9"
-        vectorEffect="non-scaling-stroke"
-      />
-      {/* Midpoint handles (klik = přidat bod) — větší hit area + plus glyph */}
-      {points.map((p, i) => {
-        const b = points[(i + 1) % points.length];
-        const mid = { x: (p.x + b.x) / 2, y: (p.y + b.y) / 2 };
-        return (
-          <g key={`mid-${i}`}>
-            {/* Neviditelná velká hit oblast (~24px @ typical 320px wide map) */}
-            <circle
-              cx={mid.x}
-              cy={mid.y}
-              r="3.5"
-              fill="transparent"
-              style={{ cursor: 'copy', pointerEvents: 'auto' }}
-              onPointerDown={(e) => handleMidClick(e, i)}
-            >
-              <title>Přidat bod</title>
-            </circle>
-            {/* Vizuální tečka */}
-            <circle
-              cx={mid.x}
-              cy={mid.y}
-              r="1.4"
-              fill="rgba(255,255,255,0.92)"
-              stroke="#7BA889"
-              strokeWidth="0.35"
-              vectorEffect="non-scaling-stroke"
-              style={{ pointerEvents: 'none' }}
-            />
-            {/* Plus glyph — naznačuje akci */}
-            <path
-              d={`M ${mid.x - 0.7} ${mid.y} L ${mid.x + 0.7} ${mid.y} M ${mid.x} ${mid.y - 0.7} L ${mid.x} ${mid.y + 0.7}`}
-              stroke="#4a7c3a"
-              strokeWidth="0.32"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              style={{ pointerEvents: 'none' }}
-            />
-          </g>
-        );
-      })}
-      {/* Hlavní body — vybraný má outer ring */}
-      {points.map((p, i) => {
-        const isSelected = i === selectedIdx;
-        const isDragging = i === draggingIdx;
-        return (
-          <g key={`pt-${i}`}>
-            {/* Outer ring pro vybraný bod */}
-            {isSelected && (
+      {/* Vše uvnitř <g> se otáčí s mapou kolem středu (50,50). Body v
+          props/stavu zůstávají v image coords (před rotací). */}
+      <g
+        ref={gRef}
+        transform={rotation ? `rotate(${rotation} 50 50)` : undefined}
+      >
+        <defs>
+          <mask id="polygon-mask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200">
+            <rect x="-50" y="-50" width="200" height="200" fill="white" />
+            <path d={pathD} fill="black" />
+          </mask>
+        </defs>
+        {/* Ztmavení mimo polygon — větší než viewBox, aby pokrylo i rotované rohy */}
+        <rect
+          x="-50"
+          y="-50"
+          width="200"
+          height="200"
+          fill="rgba(0,0,0,0.5)"
+          mask="url(#polygon-mask)"
+        />
+        {/* Obrys polygonu (dashed zelená) */}
+        <path
+          d={pathD}
+          fill="rgba(74,124,58,0.05)"
+          stroke="#4a7c3a"
+          strokeWidth="0.4"
+          strokeDasharray="1.4 0.9"
+          vectorEffect="non-scaling-stroke"
+        />
+        {/* Midpoint handles (klik = přidat bod) — větší hit area + plus glyph */}
+        {points.map((p, i) => {
+          const b = points[(i + 1) % points.length];
+          const mid = { x: (p.x + b.x) / 2, y: (p.y + b.y) / 2 };
+          return (
+            <g key={`mid-${i}`}>
+              {/* Neviditelná velká hit oblast (~24px @ typical 320px wide map) */}
               <circle
-                cx={p.x}
-                cy={p.y}
-                r="3.2"
-                fill="none"
-                stroke="#4a7c3a"
-                strokeWidth="0.4"
-                strokeOpacity="0.55"
+                cx={mid.x}
+                cy={mid.y}
+                r="3.5"
+                fill="transparent"
+                style={{ cursor: 'copy', pointerEvents: 'auto' }}
+                onPointerDown={(e) => handleMidClick(e, i)}
+              >
+                <title>Přidat bod</title>
+              </circle>
+              {/* Vizuální tečka */}
+              <circle
+                cx={mid.x}
+                cy={mid.y}
+                r="1.4"
+                fill="rgba(255,255,255,0.92)"
+                stroke="#7BA889"
+                strokeWidth="0.35"
                 vectorEffect="non-scaling-stroke"
                 style={{ pointerEvents: 'none' }}
               />
-            )}
-            {/* Neviditelná velká hit oblast (~32px @ typical map width) */}
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r="4.5"
-              fill="transparent"
-              style={{
-                cursor: 'grab',
-                pointerEvents: 'auto',
-                touchAction: 'none',
-              }}
-              onPointerDown={(e) => handlePointDown(e, i)}
-            >
-              <title>Táhni pro přesun · klepni pro výběr</title>
-            </circle>
-            {/* Vizuální tečka */}
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r={isSelected ? 2.1 : 1.8}
-              fill={isDragging || isSelected ? '#2d5a27' : '#fff'}
-              stroke="#4a7c3a"
-              strokeWidth="0.5"
-              vectorEffect="non-scaling-stroke"
-              style={{ pointerEvents: 'none' }}
-            />
-          </g>
-        );
-      })}
+              {/* Plus glyph — naznačuje akci */}
+              <path
+                d={`M ${mid.x - 0.7} ${mid.y} L ${mid.x + 0.7} ${mid.y} M ${mid.x} ${mid.y - 0.7} L ${mid.x} ${mid.y + 0.7}`}
+                stroke="#4a7c3a"
+                strokeWidth="0.32"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                style={{ pointerEvents: 'none' }}
+              />
+            </g>
+          );
+        })}
+        {/* Hlavní body — vybraný má outer ring */}
+        {points.map((p, i) => {
+          const isSelected = i === selectedIdx;
+          const isDragging = i === draggingIdx;
+          return (
+            <g key={`pt-${i}`}>
+              {/* Outer ring pro vybraný bod */}
+              {isSelected && (
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r="3.2"
+                  fill="none"
+                  stroke="#4a7c3a"
+                  strokeWidth="0.4"
+                  strokeOpacity="0.55"
+                  vectorEffect="non-scaling-stroke"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )}
+              {/* Neviditelná velká hit oblast (~32px @ typical map width) */}
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r="4.5"
+                fill="transparent"
+                style={{
+                  cursor: 'grab',
+                  pointerEvents: 'auto',
+                  touchAction: 'none',
+                }}
+                onPointerDown={(e) => handlePointDown(e, i)}
+              >
+                <title>Táhni pro přesun · klepni pro výběr</title>
+              </circle>
+              {/* Vizuální tečka */}
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r={isSelected ? 2.1 : 1.8}
+                fill={isDragging || isSelected ? '#2d5a27' : '#fff'}
+                stroke="#4a7c3a"
+                strokeWidth="0.5"
+                vectorEffect="non-scaling-stroke"
+                style={{ pointerEvents: 'none' }}
+              />
+            </g>
+          );
+        })}
+      </g>
     </svg>
   );
 }

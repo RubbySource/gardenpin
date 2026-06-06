@@ -782,6 +782,7 @@ export default function GardenDetailPage() {
               {polygonMode && polygonPoints && (
                 <PolygonEditor
                   containerRef={mapStageRef}
+                  rotation={rotation}
                   points={polygonPoints}
                   onPointsChange={setPolygonPoints}
                   selectedIdx={polygonSelectedIdx}
