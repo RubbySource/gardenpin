@@ -6145,3 +6145,201 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   object-fit: cover;
 }
 
+/* ============================================================
+   HomePage redesign [iOS-6]
+   - Streak / SeasonStats / YearOverYear widgety sjednoceny
+     na design-system tokeny (radius/shadow/spacing).
+   - Stat grid jemně doladěn (tabular-nums, dech).
+   - „Dnes" + „Nadcházející" karty už jsou grouped-list (z baseline).
+   - Empty state (0 zahrad) jede přes <EmptyState> z iOS-0.
+   ============================================================ */
+
+/* --- Streak — celebratory, ale zarovnaný na iOS card tokens.
+       Ponechán gradient (brand moment), srovnán radius/padding/shadow. */
+.streak-card {
+  border-radius: var(--ios-r-lg);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--ios-shadow-card);
+}
+.streak-card.cold {
+  box-shadow: var(--ios-shadow-card);
+}
+.streak-card.weekly {
+  box-shadow: var(--ios-shadow-card);
+}
+.streak-value { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* --- SeasonStats — bílá iOS card, čistší typografie, plochý mřížkový grid. */
+.season-stats.card {
+  padding: 18px 16px;
+  margin-top: 10px;
+}
+.season-stats-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+}
+.season-year-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ios-fill-secondary);
+  color: var(--ios-accent);
+  font-weight: 700;
+  transition: transform 100ms var(--ios-ease), background 160ms var(--ios-ease);
+}
+.season-year-btn:not(:disabled):hover { background: var(--ios-fill); }
+.season-year-btn:not(:disabled):active { transform: scale(0.92); }
+.season-year-btn:disabled { background: transparent; color: var(--ios-label-tertiary); }
+
+.season-stat-row {
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.season-stat-card {
+  background: var(--ios-fill-secondary);
+  border: none;
+  border-radius: var(--ios-r-md);
+  padding: 14px 12px;
+}
+.season-stat-value {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ios-label);
+  line-height: 1.05;
+}
+.season-stat-label {
+  font-size: 0.76rem;
+  color: var(--ios-label-secondary);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.season-chart-bars { gap: 6px; padding: 10px 0 4px; }
+.season-bar-track {
+  background: var(--ios-fill-secondary);
+  border-radius: var(--ios-r-xs);
+  height: 72px;
+}
+.season-bar {
+  background: var(--ios-accent);
+  border-radius: var(--ios-r-xs) var(--ios-r-xs) 0 0;
+}
+.season-bar-wrap.current .season-bar {
+  background: var(--ios-accent);
+  box-shadow: 0 0 0 2px rgba(123, 168, 137, 0.22);
+}
+.season-bar-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ios-accent);
+  font-weight: 700;
+}
+.season-bar-label { color: var(--ios-label-tertiary); }
+.season-bar-wrap.current .season-bar-label { color: var(--ios-accent); }
+
+/* --- YearOverYear — bílá iOS card, čistší typografie, ploché totals. */
+.yoy-card.card {
+  padding: 18px 16px;
+  margin-top: 14px;
+}
+.yoy-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+}
+.yoy-totals {
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.yoy-total {
+  background: var(--ios-fill-secondary);
+  border: none;
+  border-radius: var(--ios-r-md);
+  padding: 14px 8px;
+}
+.yoy-total-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ios-label);
+  line-height: 1.05;
+}
+.yoy-total-val.accent { color: var(--ios-accent); }
+.yoy-trend-up { color: var(--ios-accent); }
+.yoy-trend-down { color: var(--ios-red); }
+.yoy-trend-flat { color: var(--ios-label-secondary); }
+.yoy-total-lbl {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ios-label-secondary);
+  margin-top: 4px;
+}
+.yoy-total-sub { font-variant-numeric: tabular-nums; }
+
+.yoy-bar-track {
+  background: var(--ios-fill-secondary);
+  border-radius: var(--ios-r-xs);
+  height: 72px;
+  padding: 0 3px;
+}
+.yoy-bar { border-radius: var(--ios-r-xs) var(--ios-r-xs) 0 0; }
+.yoy-bar.this { background: var(--ios-accent); }
+.yoy-bar.last { background: var(--ios-fill); }
+.yoy-bar-wrap.current .yoy-bar-track {
+  background: var(--ios-fill);
+  box-shadow: inset 0 0 0 1.5px rgba(123, 168, 137, 0.28);
+}
+.yoy-bar-label { color: var(--ios-label-tertiary); }
+.yoy-bar-wrap.current .yoy-bar-label { color: var(--ios-accent); }
+.yoy-swatch.this { background: var(--ios-accent); }
+.yoy-swatch.last { background: var(--ios-fill); border: none; }
+.yoy-legend { color: var(--ios-label-secondary); }
+
+.yoy-missing {
+  border-top: 0.5px solid var(--ios-separator);
+  padding-top: 14px;
+}
+.yoy-missing-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+}
+.yoy-missing-item {
+  background: var(--ios-fill-secondary);
+  border: none;
+  border-radius: var(--ios-r-md);
+  padding: 12px 14px;
+}
+.yoy-missing-action {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+}
+.yoy-missing-meta a {
+  color: var(--ios-accent);
+  font-weight: 600;
+}
+
+/* --- HomePage stat grid — drobné doladění typografie (tabular nums + dýchání). */
+.hm-stat-val { font-variant-numeric: tabular-nums; }
+.hm-stat-lbl { letter-spacing: -0.005em; }
+
+/* --- „Dnes" prázdná karta — letter-spacing parita s ostatními řádky. */
+.hm-empty-title { letter-spacing: -0.01em; }
+.hm-empty-text { letter-spacing: -0.005em; line-height: 1.35; }
+
+/* --- HomePage hero typografie — větší tracking dech mezi greeting a title. */
+.hm-greeting { letter-spacing: -0.005em; }
+.hm-subtitle { letter-spacing: -0.005em; line-height: 1.35; }
+
+/* --- HomePage section title (parita s grouped-list titulky [iOS-0]). */
+.hm-section-title { letter-spacing: -0.02em; }
+

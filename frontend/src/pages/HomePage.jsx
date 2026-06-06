@@ -12,6 +12,7 @@ import StreakWidget from '../components/StreakWidget.jsx';
 import SeasonStats from '../components/SeasonStats.jsx';
 import YearOverYear from '../components/YearOverYear.jsx';
 import Icon from '../components/Icon.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import FrostWarning from '../components/FrostWarning.jsx';
 import SeasonWindowWarning from '../components/SeasonWindowWarning.jsx';
 import PhenologyHint from '../components/PhenologyHint.jsx';
@@ -328,16 +329,13 @@ export default function HomePage({ onTaskComplete }) {
           </div>
         </section>
       ) : (
-        <div className="gp-empty" style={{ padding: '24px 16px' }}>
-          <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>
-            🌻
-          </span>
-          <div className="gp-empty-title">{t('home.startFirst')}</div>
-          <div className="gp-empty-text">{t('home.startFirstText')}</div>
-          <button className="btn-cta" onClick={() => setShowNew(true)}>
-            {t('home.createGarden')}
-          </button>
-        </div>
+        <EmptyState
+          emoji="🌻"
+          title={t('home.startFirst')}
+          subtitle={t('home.startFirstText')}
+          actionLabel={t('home.createGarden')}
+          onAction={() => setShowNew(true)}
+        />
       )}
 
       {/* Sezónní statistiky + meziroční srovnání */}
