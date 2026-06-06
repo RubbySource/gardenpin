@@ -339,6 +339,20 @@ export default function GardenDetailPage() {
     }
   };
 
+  // UX2-2: vrátit ořez na originál (jen pokud existuje uložený originál).
+  const handleRevertCrop = async () => {
+    if (!confirm(t('gardenDetail.revertCropConfirm'))) return;
+    try {
+      const res = await fetch(`/api/gardens/${garden.id}/revert-crop`, { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json()).error || 'Chyba');
+      const updated = await res.json();
+      setGarden(updated);
+      toast(t('gardenDetail.cropReverted'));
+    } catch (err) {
+      toast(t('common.error', { msg: err.message }));
+    }
+  };
+
   // Odvozené měřítko z prvního záhonu, který má rozměry v metrech (orientačně pro m²)
   const scaleHints = (() => {
     const bed = beds.find((b) => b.width_m && b.height_m && b.width && b.height);
@@ -1026,6 +1040,16 @@ export default function GardenDetailPage() {
               >
                 {polygonMode ? t('gardenDetail.polygonCancel') : (garden.garden_polygon ? t('gardenDetail.polygonReoutline') : t('gardenDetail.polygonOutline'))}
               </button>
+              {/* UX2-2: Vrátit ořez — viditelné jen když máme uložený originál */}
+              {garden.original_image_path && (
+                <button
+                  className="btn ghost small"
+                  onClick={handleRevertCrop}
+                  title={t('gardenDetail.revertCropTitle')}
+                >
+                  ↩️ {t('gardenDetail.revertCrop')}
+                </button>
+              )}
               {/* Upscale */}
               <button
                 className="btn ghost small"

@@ -98,37 +98,87 @@ app.get('/api/gardens', (req, res) => {
   res.json(rows);
 });
 
-app.post('/api/gardens', upload.single('image'), (req, res) => {
+app.post('/api/gardens', upload.single('image'), async (req, res) => {
   const name = req.body.name || 'Nová zahrada';
   const imagePath = req.file ? '/uploads/' + req.file.filename : null;
-  const w = req.body.width ? parseInt(req.body.width, 10) : null;
-  const h = req.body.height ? parseInt(req.body.height, 10) : null;
+  // UX2-2: rozměry serverově z uploadnutého souboru (sharp metadata),
+  // nikoli z `req.body.width/height` — klient někdy posílá NaN/chybí,
+  // což pak rozhodí poměr stran na mapě (piny se kladou špatně).
+  let w = null;
+  let h = null;
+  if (req.file && sharp) {
+    try {
+      const meta = await sharp(req.file.path).metadata();
+      if (meta.width && meta.height) {
+        w = meta.width;
+        h = meta.height;
+      }
+    } catch (e) {
+      console.warn('sharp metadata selhalo, fallback na klienta:', e.message);
+    }
+  }
+  if (!w && req.body.width) w = parseInt(req.body.width, 10) || null;
+  if (!h && req.body.height) h = parseInt(req.body.height, 10) || null;
   // Klimatická zóna lze nastavit už při vytvoření (onboarding); jinak NULL a doplní se v detailu.
   const climate_zone = normalizeZoneId(req.body.climate_zone);
-  const info = db
-    .prepare('INSERT INTO gardens (name, image_path, image_width, image_height, climate_zone) VALUES (?, ?, ?, ?, ?)')
-    .run(name, imagePath, w, h, climate_zone);
-  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(info.lastInsertRowid);
-  res.json(garden);
+  try {
+    const info = db
+      .prepare('INSERT INTO gardens (name, image_path, image_width, image_height, climate_zone) VALUES (?, ?, ?, ?, ?)')
+      .run(name, imagePath, w, h, climate_zone);
+    const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(info.lastInsertRowid);
+    res.json(garden);
+  } catch (e) {
+    // Úklid: smaž osiřelý soubor v uploads/, ať se nehromadí.
+    if (req.file) {
+      try { fs.unlinkSync(req.file.path); } catch {}
+    }
+    console.error('POST /api/gardens failed:', e);
+    res.status(500).json({ error: 'Nepodařilo se vytvořit zahradu: ' + e.message });
+  }
 });
 
-app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
+app.put('/api/gardens/:id', upload.single('image'), async (req, res) => {
   const id = req.params.id;
   const current = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
   if (!current) return res.status(404).json({ error: 'Zahrada nenalezena' });
   const name = req.body.name ?? current.name;
   const rotation = req.body.rotation !== undefined ? parseInt(req.body.rotation, 10) : (current.rotation || 0);
   let imagePath = current.image_path;
+  let clearOriginal = false;
   if (req.file) {
     // Delete previous image
     if (current.image_path) {
       const old = path.join(__dirname, current.image_path);
       if (fs.existsSync(old)) fs.unlinkSync(old);
     }
+    // UX2-2: nová fotka invaliduje uložený originál ořezu — smaž ho a vyčisti referenci.
+    if (current.original_image_path && current.original_image_path !== current.image_path) {
+      const oldOrig = path.join(__dirname, current.original_image_path);
+      if (fs.existsSync(oldOrig)) {
+        try { fs.unlinkSync(oldOrig); } catch {}
+      }
+    }
+    clearOriginal = true;
     imagePath = '/uploads/' + req.file.filename;
   }
-  const w = req.body.width ? parseInt(req.body.width, 10) : current.image_width;
-  const h = req.body.height ? parseInt(req.body.height, 10) : current.image_height;
+  // UX2-2: rozměry serverově ze sharp metadat při uploadu nové fotky.
+  let w = current.image_width;
+  let h = current.image_height;
+  if (req.file && sharp) {
+    try {
+      const meta = await sharp(req.file.path).metadata();
+      if (meta.width && meta.height) { w = meta.width; h = meta.height; }
+    } catch (e) {
+      console.warn('PUT /api/gardens: sharp metadata selhalo:', e.message);
+    }
+  }
+  if (req.file && (!w || !h)) {
+    w = req.body.width ? parseInt(req.body.width, 10) : current.image_width;
+    h = req.body.height ? parseInt(req.body.height, 10) : current.image_height;
+  } else if (!req.file) {
+    if (req.body.width) w = parseInt(req.body.width, 10);
+    if (req.body.height) h = parseInt(req.body.height, 10);
+  }
 
   // Pěstební podmínky — všechna pole volitelná, prázdný string → NULL
   const soil_type = req.body.soil_type !== undefined
@@ -148,19 +198,16 @@ app.put('/api/gardens/:id', upload.single('image'), (req, res) => {
     ? (req.body.location ? String(req.body.location).slice(0, 240) : null)
     : current.location;
 
-  db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=?, location=? WHERE id=?').run(
-    name,
-    imagePath,
-    w,
-    h,
-    rotation,
-    soil_type,
-    exposure,
-    altitude_m,
-    climate_zone,
-    location,
-    id,
-  );
+  // UX2-2: pokud user nahrál novou fotku, originál (pre-crop) je k ní irelevantní → vynuluj.
+  if (clearOriginal) {
+    db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=?, location=?, original_image_path=NULL, garden_polygon=NULL WHERE id=?').run(
+      name, imagePath, w, h, rotation, soil_type, exposure, altitude_m, climate_zone, location, id,
+    );
+  } else {
+    db.prepare('UPDATE gardens SET name=?, image_path=?, image_width=?, image_height=?, rotation=?, soil_type=?, exposure=?, altitude_m=?, climate_zone=?, location=? WHERE id=?').run(
+      name, imagePath, w, h, rotation, soil_type, exposure, altitude_m, climate_zone, location, id,
+    );
+  }
   const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
   res.json(garden);
 });
@@ -175,6 +222,13 @@ app.delete('/api/gardens/:id', (req, res) => {
   if (g.image_path) {
     const p = path.join(__dirname, g.image_path);
     if (fs.existsSync(p)) fs.unlinkSync(p);
+  }
+  // UX2-2: smaž i uložený originál (pre-crop), pokud existuje a liší se od image_path.
+  if (g.original_image_path && g.original_image_path !== g.image_path) {
+    const op = path.join(__dirname, g.original_image_path);
+    if (fs.existsSync(op)) {
+      try { fs.unlinkSync(op); } catch {}
+    }
   }
   for (const pin of pins) {
     if (pin.photo_path) {
@@ -1773,19 +1827,83 @@ app.post('/api/gardens/:id/crop-polygon', async (req, res) => {
       .png()
       .toFile(destPath);
 
-    // Smaž starý soubor
-    try { fs.unlinkSync(srcPath); } catch {}
+    // UX2-2: aktualizuj rozměry z oříznutého PNG (jinak v DB zůstane starý
+    // aspect ratio a `<div class="map-container">` ho použije pro `aspectRatio`,
+    // takže piny v % sednou na špatné místo).
+    let newW = W;
+    let newH = H;
+    try {
+      const newMeta = await sharp(destPath).metadata();
+      if (newMeta.width && newMeta.height) {
+        newW = newMeta.width;
+        newH = newMeta.height;
+      }
+    } catch {}
 
+    // UX2-2: zachovej originál pro "Vrátit ořez". Při prvním ořezu přesuneme
+    // srcPath do `original_image_path` (nemažeme). Při re-cropu necháme původní
+    // originál (ten první) a smažeme aktuální mezisoubor.
     const newImagePath = '/uploads/' + newFilename;
     const polygonJson = JSON.stringify(points);
-    db.prepare('UPDATE gardens SET image_path=?, garden_polygon=? WHERE id=?').run(
-      newImagePath, polygonJson, id,
-    );
+    if (garden.original_image_path) {
+      // Re-crop — originál už máme, srcPath byl předchozí ořez → smaž.
+      try { fs.unlinkSync(srcPath); } catch {}
+      db.prepare('UPDATE gardens SET image_path=?, image_width=?, image_height=?, garden_polygon=? WHERE id=?').run(
+        newImagePath, newW, newH, polygonJson, id,
+      );
+    } else {
+      // První ořez — srcPath je originál, nemažeme, jen ho uložíme jako original_image_path.
+      db.prepare('UPDATE gardens SET image_path=?, image_width=?, image_height=?, original_image_path=?, garden_polygon=? WHERE id=?').run(
+        newImagePath, newW, newH, garden.image_path, polygonJson, id,
+      );
+    }
     res.json(db.prepare('SELECT * FROM gardens WHERE id = ?').get(id));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
   }
+});
+
+// UX2-2: vrátit ořez — obnovit originál uložený v `original_image_path`.
+// Smaže aktuální (oříznutou) verzi, přepne `image_path` na original, nuluje
+// `garden_polygon` (uživatel musí znovu označit, pokud chce), aktualizuje rozměry.
+app.post('/api/gardens/:id/revert-crop', async (req, res) => {
+  const id = req.params.id;
+  const garden = db.prepare('SELECT * FROM gardens WHERE id = ?').get(id);
+  if (!garden) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  if (!garden.original_image_path) {
+    return res.status(400).json({ error: 'Tato zahrada nemá uložený originál — ořez nelze vrátit.' });
+  }
+
+  const originalAbs = path.join(__dirname, garden.original_image_path);
+  if (!fs.existsSync(originalAbs)) {
+    // Originál byl smazán z disku — vyčisti referenci a vrať chybu.
+    db.prepare('UPDATE gardens SET original_image_path=NULL WHERE id=?').run(id);
+    return res.status(410).json({ error: 'Originál již není dostupný.' });
+  }
+
+  // Smaž aktuální oříznutý soubor (jen pokud se liší od originálu).
+  if (garden.image_path && garden.image_path !== garden.original_image_path) {
+    const curAbs = path.join(__dirname, garden.image_path);
+    if (fs.existsSync(curAbs)) {
+      try { fs.unlinkSync(curAbs); } catch {}
+    }
+  }
+
+  // Načti rozměry originálu, ať `aspectRatio` zase sedí.
+  let w = garden.image_width;
+  let h = garden.image_height;
+  if (sharp) {
+    try {
+      const meta = await sharp(originalAbs).metadata();
+      if (meta.width && meta.height) { w = meta.width; h = meta.height; }
+    } catch {}
+  }
+
+  db.prepare('UPDATE gardens SET image_path=?, image_width=?, image_height=?, garden_polygon=NULL, original_image_path=NULL WHERE id=?').run(
+    garden.original_image_path, w, h, id,
+  );
+  res.json(db.prepare('SELECT * FROM gardens WHERE id = ?').get(id));
 });
 
 // ======================= WEB PUSH =======================
