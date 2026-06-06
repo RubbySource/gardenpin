@@ -6037,3 +6037,111 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   font-weight: 600;
 }
 
+/* ============================================================
+   Plant Catalog redesign [iOS-5]
+   Detail rostliny: grouped lists (sezónní péče / pravidelné úkony / nároky /
+   doprovodné rostliny). Garden picker přes <Sheet> + .ios-group-list rows.
+   Sticky search + pills zůstávají (už jsou iOS-look).
+   ============================================================ */
+
+/* Karta: iOS card treatment — žádný border, soft shadow, větší radius. */
+.plant-catalog-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+}
+.plant-catalog-card:hover,
+.plant-catalog-card.expanded {
+  box-shadow: var(--ios-shadow-card);
+}
+.plant-catalog-card.expanded .plant-catalog-compact-row {
+  border-bottom: 0.5px solid var(--ios-separator);
+}
+
+/* Detail kontejner — žádný extra border-top (sekce mají vlastní spacing). */
+.plant-catalog-detail {
+  border-top: none;
+  padding-top: 4px;
+  gap: 4px;
+}
+
+/* Sekce uvnitř detailu — kompaktnější margin-top než výchozí .ios-list-section (22px),
+   ať detail nedýchá víc než původní layout. Label bez horizontálního paddingu, protože
+   uvnitř karty už je 14px padding. */
+.plant-catalog-section { margin-top: 14px; }
+.plant-catalog-section:first-of-type { margin-top: 8px; }
+.plant-catalog-section .ios-list-section-label {
+  padding: 0 4px 6px;
+}
+
+/* Sekce karta — .ios-group-list už má shadow-card; uvnitř plant cardu by to byla
+   karta-na-kartě, takže snížíme shadow a dáme jen jemný 1px border. */
+.plant-catalog-detail .ios-group-list {
+  box-shadow: none;
+  border: 0.5px solid var(--ios-separator);
+}
+
+/* Sezónní péče — měsíční řádek. Aktuální měsíc dostane sage tečku vlevo
+   (parita s overdue/today bar v TasksPage/WeekOverview). */
+.plant-month-row {
+  position: relative;
+}
+.plant-month-row.now::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--ios-accent);
+  border-radius: 0 2px 2px 0;
+}
+.plant-month-icon {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.plant-regular-icon {
+  font-size: 15px;
+}
+
+/* Nároky — vlasový separátor stejný jako .ios-list-sep, bez 58px odsazení (jen plné). */
+.ios-list-sep.narrow {
+  margin-left: 16px;
+}
+
+/* Doprovodné rostliny — bílá karta uvnitř sekce (companion-pills mají vlastní styl). */
+.plant-catalog-companions-card {
+  background: var(--ios-bg-elev);
+  border: 0.5px solid var(--ios-separator);
+  border-radius: var(--ios-r-lg);
+  padding: 12px 14px;
+}
+.plant-catalog-companions-card .companion-row:last-child { margin-bottom: 0; }
+
+/* CTA pruh dole — iOS fill-secondary, plochý, žádný border-top kdyby tam byl. */
+.plant-catalog-card-cta {
+  background: var(--ios-fill-secondary);
+  border-top: 0.5px solid var(--ios-separator);
+}
+
+/* Empty fallback uvnitř detailu (žádné sezónní úkony) — sand tint na cream. */
+.plant-catalog-empty {
+  color: var(--ios-label-secondary);
+  padding: 14px 4px;
+}
+
+/* Garden picker uvnitř Sheet — avatar 30×30 (parita s iOS-list-row-icon), foto cover. */
+.plant-garden-picker-list { margin-top: 4px; }
+.plant-garden-picker-avatar {
+  overflow: hidden;
+  background: var(--ios-fill);
+}
+.plant-garden-picker-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

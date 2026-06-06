@@ -1,10 +1,12 @@
-﻿// Katalog rostlin — procházení DB rostlin s filtry, sezónním přehledem a přidáním do zahrady
+// Katalog rostlin — procházení DB rostlin s filtry, sezónním přehledem a přidáním do zahrady
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PLANT_DATABASE, enrichPlant, CATEGORY_DEFS } from '../plantDatabase.js';
 import { buildSeasonalTaskPayloads } from '../components/PlantAutocomplete.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
+import Sheet from '../components/Sheet.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
 import { monthName, monthNameShort } from '../utils.js';
@@ -104,9 +106,6 @@ export default function PlantCatalogPage() {
   // skip kategorie, kde není žádná rostlina (kdyby přibyla v CATEGORY_DEFS ale ne v DB).
   const categories = useMemo(() => {
     const out = [];
-    for (const defKey of Object.values(CATEGORY_DEFS)) {
-      // CATEGORY_DEFS používá string klíče jako vegetables/fruits/…; defKey je objekt {key,label,icon,color}
-    }
     // Iterujeme přímo přes CATEGORY_ORDER, klíče v CATEGORY_DEFS jsou stringy (vegetables atd.)
     for (const cdKey of CATEGORY_ORDER) {
       const def = CATEGORY_DEFS[cdKey];
@@ -193,6 +192,19 @@ export default function PlantCatalogPage() {
     }
   };
 
+  // Spočítej tlačítko/akci pro empty state — kontextový text + případný reset filtru
+  const activeCat = categoryFilter !== 'all'
+    ? categories.find((c) => c.key === categoryFilter)
+    : null;
+  let emptySubtitle = t('catalog.emptyText');
+  if (debouncedQuery && activeCat) {
+    emptySubtitle = t('catalog.emptyFilterCombo', { query: debouncedQuery, category: activeCat.label });
+  } else if (debouncedQuery) {
+    emptySubtitle = t('catalog.emptyFilterQuery', { query: debouncedQuery });
+  } else if (activeCat) {
+    emptySubtitle = t('catalog.emptyFilterCategory', { category: activeCat.label });
+  }
+
   return (
     <>
       {/* Sticky stack — search bar + kategorie pills se posouvají dohromady při scrollu */}
@@ -248,40 +260,17 @@ export default function PlantCatalogPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="gp-empty" style={{ padding: '32px 16px' }}>
-          <span className="gp-empty-icon" style={{ fontSize: '2.4rem' }}>🔍</span>
-          <div className="gp-empty-title">{t('catalog.emptyTitle')}</div>
-          <div className="gp-empty-text">
-            {(() => {
-              const activeCat = categoryFilter !== 'all'
-                ? categories.find((c) => c.key === categoryFilter)
-                : null;
-              if (debouncedQuery && activeCat) {
-                return t('catalog.emptyFilterCombo', { query: debouncedQuery, category: activeCat.label });
-              }
-              if (debouncedQuery) {
-                return t('catalog.emptyFilterQuery', { query: debouncedQuery });
-              }
-              if (activeCat) {
-                return t('catalog.emptyFilterCategory', { category: activeCat.label });
-              }
-              return t('catalog.emptyText');
-            })()}
-          </div>
-          {(debouncedQuery || categoryFilter !== 'all') && (
-            <button
-              type="button"
-              className="btn small"
-              style={{ marginTop: 14 }}
-              onClick={() => {
-                setQuery('');
-                setCategoryFilter('all');
-              }}
-            >
-              {t('catalog.emptyReset')}
-            </button>
-          )}
-        </div>
+        <EmptyState
+          emoji="🔍"
+          title={t('catalog.emptyTitle')}
+          subtitle={emptySubtitle}
+          actionLabel={(debouncedQuery || categoryFilter !== 'all') ? t('catalog.emptyReset') : undefined}
+          onAction={(debouncedQuery || categoryFilter !== 'all') ? () => {
+            setQuery('');
+            setCategoryFilter('all');
+          } : undefined}
+          actionGhost
+        />
       ) : (
         <div className="plant-catalog-grid">
           {filtered.map((p) => (
@@ -330,6 +319,12 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
     });
     return m;
   }, [plant]);
+
+  const sortedMonths = useMemo(() => Array.from(byMonth.keys()).sort((a, b) => a - b), [byMonth]);
+  const hasSeasonal = sortedMonths.length > 0;
+  const hasRegular = (plant.tasks || []).length > 0;
+  const hasNeeds = plant.soil || plant.sun || plant.watering || plant.notes;
+  const hasCompanions = plant.companions && (plant.companions.good?.length > 0 || plant.companions.bad?.length > 0);
 
   return (
     <div className={`plant-catalog-card ${expanded ? 'expanded' : ' compact'}`}>
@@ -400,124 +395,174 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
         {expanded && (
           <div className="plant-catalog-detail">
-            {(plant.seasonalTasks || []).length === 0 && (plant.tasks || []).length === 0 ? (
+            {!hasSeasonal && !hasRegular && (
               <div className="plant-catalog-empty">
                 {t('catalog.noSeasonalTasks')}
               </div>
-            ) : (
-              <>
-                {byMonth.size > 0 && (
-                  <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">{t('catalog.seasonalCareTitle')}</div>
-                    <div className="plant-catalog-detail-months">
-                      {Array.from(byMonth.keys()).sort((a, b) => a - b).map((m) => (
-                        <div key={m} className="plant-catalog-detail-month">
-                          <div className="plant-catalog-detail-month-name">
-                            {monthName(m - 1)}
-                          </div>
-                          <div className="plant-catalog-detail-month-tasks">
-                            {byMonth.get(m).map((it, i) => (
-                              <div key={i} className="plant-catalog-detail-task">
-                                <span>{it.emoji}</span>
-                                <span>{it.action}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            )}
 
-                {(plant.tasks || []).length > 0 && (
-                  <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">{t('catalog.regularTasksTitle')}</div>
-                    <div className="plant-catalog-detail-tasks">
-                      {plant.tasks.map((it, i) => (
-                        <div key={i} className="plant-catalog-detail-task">
-                          <span>•</span>
-                          <span>
-                            {it.title}
-                            {it.frequency_days ? (
-                              <span className="muted small">
-                                {' '}
-                                · {t('catalog.everyDays', { count: it.frequency_days })}
-                              </span>
-                            ) : null}
+            {hasSeasonal && (
+              <section className="ios-list-section plant-catalog-section">
+                <div className="ios-list-section-label">{t('catalog.seasonalCareTitle')}</div>
+                <div className="ios-group-list">
+                  {sortedMonths.map((m, idx) => {
+                    const items = byMonth.get(m);
+                    const isNow = m === currentMonth;
+                    return (
+                      <React.Fragment key={m}>
+                        {idx > 0 && <div className="ios-list-sep" />}
+                        <div className={`ios-list-row plant-month-row ${isNow ? 'now' : ''}`}>
+                          <span
+                            className="ios-list-row-icon plant-month-icon"
+                            style={{ background: cat.color }}
+                            aria-hidden="true"
+                          >
+                            {items.length > 1 ? items.length : items[0].emoji}
                           </span>
+                          <div className="ios-list-row-label">
+                            {monthName(m - 1)}
+                            <span className="ios-list-row-sub">
+                              {items.map((it) => `${it.emoji} ${it.action}`).join(' · ')}
+                            </span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
-                {(plant.soil || plant.sun || plant.watering || plant.notes) && (
-                  <div className="plant-catalog-detail-section">
-                    <div className="plant-catalog-detail-title">{t('catalog.needsTitle')}</div>
-                    <div className="plant-catalog-detail-info">
-                      {plant.soil && <div><strong>{t('catalog.soil')}</strong> {plant.soil}</div>}
-                      {plant.sun && <div><strong>{t('catalog.light')}</strong> {plant.sun}</div>}
-                      {plant.watering && <div><strong>{t('catalog.watering')}</strong> {plant.watering}</div>}
-                      {plant.notes && <div><strong>{t('catalog.notes')}</strong> {plant.notes}</div>}
-                    </div>
-                  </div>
-                )}
+            {hasRegular && (
+              <section className="ios-list-section plant-catalog-section">
+                <div className="ios-list-section-label">{t('catalog.regularTasksTitle')}</div>
+                <div className="ios-group-list">
+                  {plant.tasks.map((it, i) => (
+                    <React.Fragment key={i}>
+                      {i > 0 && <div className="ios-list-sep" />}
+                      <div className="ios-list-row">
+                        <span
+                          className="ios-list-row-icon plant-regular-icon"
+                          style={{ background: 'var(--ios-fill)', color: 'var(--ios-accent)' }}
+                          aria-hidden="true"
+                        >
+                          🔁
+                        </span>
+                        <div className="ios-list-row-label">
+                          {it.title}
+                          {it.frequency_days ? (
+                            <span className="ios-list-row-sub">
+                              {t('catalog.everyDays', { count: it.frequency_days })}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </section>
+            )}
 
-                {plant.companions && (
-                  (plant.companions.good?.length > 0 || plant.companions.bad?.length > 0) && (
-                    <div className="plant-catalog-detail-section">
-                      <div className="plant-catalog-detail-title">{t('catalog.companionsTitle')}</div>
-                      <div className="companion-section" style={{ marginTop: 4 }}>
-                        {plant.companions.good?.length > 0 && (
-                          <div className="companion-row">
-                            <span className="companion-label">{t('catalog.companionsGood')}</span>
-                            <div className="companion-pills">
-                              {plant.companions.good.map((name) => (
-                                <button
-                                  key={name}
-                                  type="button"
-                                  className="companion-pill good"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onCompanionClick?.(name);
-                                  }}
-                                  title={t('catalog.filterBy', { name })}
-                                >
-                                  {name}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {plant.companions.bad?.length > 0 && (
-                          <div className="companion-row">
-                            <span className="companion-label">{t('catalog.companionsBad')}</span>
-                            <div className="companion-pills">
-                              {plant.companions.bad.map((name) => (
-                                <button
-                                  key={name}
-                                  type="button"
-                                  className="companion-pill bad"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onCompanionClick?.(name);
-                                  }}
-                                  title={t('catalog.filterBy', { name })}
-                                >
-                                  {name}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+            {hasNeeds && (
+              <section className="ios-list-section plant-catalog-section">
+                <div className="ios-list-section-label">{t('catalog.needsTitle')}</div>
+                <div className="ios-group-list">
+                  {plant.soil && (
+                    <div className="ios-list-row plant-needs-row">
+                      <div className="ios-list-row-label">
+                        {t('catalog.soil').replace(/:$/, '')}
+                        <span className="ios-list-row-sub">{plant.soil}</span>
                       </div>
                     </div>
-                  )
-                )}
-
-                <PlantWarnings plantName={plant.nameCz} />
-              </>
+                  )}
+                  {plant.sun && (
+                    <>
+                      {plant.soil && <div className="ios-list-sep narrow" />}
+                      <div className="ios-list-row plant-needs-row">
+                        <div className="ios-list-row-label">
+                          {t('catalog.light').replace(/:$/, '')}
+                          <span className="ios-list-row-sub">{plant.sun}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {plant.watering && (
+                    <>
+                      {(plant.soil || plant.sun) && <div className="ios-list-sep narrow" />}
+                      <div className="ios-list-row plant-needs-row">
+                        <div className="ios-list-row-label">
+                          {t('catalog.watering').replace(/:$/, '')}
+                          <span className="ios-list-row-sub">{plant.watering}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {plant.notes && (
+                    <>
+                      {(plant.soil || plant.sun || plant.watering) && <div className="ios-list-sep narrow" />}
+                      <div className="ios-list-row plant-needs-row">
+                        <div className="ios-list-row-label">
+                          {t('catalog.notes').replace(/:$/, '')}
+                          <span className="ios-list-row-sub">{plant.notes}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
             )}
+
+            {hasCompanions && (
+              <section className="ios-list-section plant-catalog-section">
+                <div className="ios-list-section-label">{t('catalog.companionsTitle')}</div>
+                <div className="plant-catalog-companions-card">
+                  {plant.companions.good?.length > 0 && (
+                    <div className="companion-row">
+                      <span className="companion-label">{t('catalog.companionsGood')}</span>
+                      <div className="companion-pills">
+                        {plant.companions.good.map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            className="companion-pill good"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onCompanionClick?.(name);
+                            }}
+                            title={t('catalog.filterBy', { name })}
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {plant.companions.bad?.length > 0 && (
+                    <div className="companion-row">
+                      <span className="companion-label">{t('catalog.companionsBad')}</span>
+                      <div className="companion-pills">
+                        {plant.companions.bad.map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            className="companion-pill bad"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onCompanionClick?.(name);
+                            }}
+                            title={t('catalog.filterBy', { name })}
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            <PlantWarnings plantName={plant.nameCz} />
           </div>
         )}
       </button>
@@ -550,55 +595,39 @@ function PlantCatalogCard({ plant, currentMonth, expanded, onToggle, onAdd, onCo
 
 function GardenPickerSheet({ plant, gardens, onPick, onClose }) {
   const { t } = useTranslation();
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>
-          <span>{t('catalog.pickerAddPrefix')} <em style={{ fontStyle: 'normal', color: 'var(--forest)' }}>{plant.nameCz}</em> {t('catalog.pickerAddSuffix')}</span>
-          <button className="close-btn" onClick={onClose} aria-label={t('common.close')}>×</button>
-        </h2>
-        <p className="small muted" style={{ marginTop: 0 }}>
-          {t('catalog.pickerHint')}
-        </p>
-        <div className="garden-picker-list">
-          {gardens.map((g) => (
+    <Sheet
+      title={`${t('catalog.pickerAddPrefix')} ${plant.nameCz} ${t('catalog.pickerAddSuffix')}`}
+      subtitle={t('catalog.pickerHint')}
+      onClose={onClose}
+    >
+      <div className="ios-group-list plant-garden-picker-list">
+        {gardens.map((g, idx) => (
+          <React.Fragment key={g.id}>
+            {idx > 0 && <div className="ios-list-sep" />}
             <button
-              key={g.id}
               type="button"
-              className="garden-picker-item"
+              className="ios-list-row plant-garden-picker-row"
               onClick={() => onPick(g)}
             >
-              <div className="garden-picker-img">
-                {g.image_path ? (
-                  <img src={g.image_path} alt={g.name} />
-                ) : (
-                  <span>🌱</span>
-                )}
-              </div>
-              <div className="garden-picker-info">
-                <div className="garden-picker-name">{g.name}</div>
-                <div className="garden-picker-meta">
+              <span
+                className="ios-list-row-icon plant-garden-picker-avatar"
+                style={g.image_path ? undefined : { background: 'var(--forest-soft)', color: 'var(--ios-accent)' }}
+                aria-hidden="true"
+              >
+                {g.image_path ? <img src={g.image_path} alt="" /> : '🌱'}
+              </span>
+              <div className="ios-list-row-label">
+                {g.name}
+                <span className="ios-list-row-sub">
                   📍 {t('catalog.pinCount', { count: g.pin_count || 0 })}
-                </div>
+                </span>
               </div>
-              <span className="garden-picker-arrow">›</span>
+              <span className="ios-list-row-chevron" aria-hidden="true">›</span>
             </button>
-          ))}
-        </div>
+          </React.Fragment>
+        ))}
       </div>
-    </div>
+    </Sheet>
   );
 }
