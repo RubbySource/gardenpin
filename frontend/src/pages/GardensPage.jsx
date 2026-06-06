@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n.js';
 import { api } from '../api.js';
-import Modal from '../components/Modal.jsx';
+import Sheet from '../components/Sheet.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import NewGardenModal from '../components/NewGardenModal.jsx';
 import TemplateGardenModal from '../components/TemplateGardenModal.jsx';
 import Icon from '../components/Icon.jsx';
@@ -150,21 +151,28 @@ export default function GardensPage() {
       {loading ? (
         <div className="empty">🌱 {t('common.loadingShort')}</div>
       ) : gardens.length === 0 ? (
-        <div className="card empty">
-          <div className="icon">🌻</div>
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>{t('gardens.emptyTitle')}</div>
-          <div className="small muted" style={{ marginBottom: 14 }}>
-            {t('gardens.emptyDesc')}
-          </div>
-          <div className="row" style={{ justifyContent: 'center', gap: 8 }}>
-            <button className="btn ghost" onClick={() => setShowTemplate(true)}>
+        <EmptyState
+          emoji="🌻"
+          title={t('gardens.emptyTitle')}
+          subtitle={t('gardens.emptyDesc')}
+        >
+          <div className="ios-empty-state-actions">
+            <button
+              type="button"
+              className="ios-empty-state-action ghost"
+              onClick={() => setShowTemplate(true)}
+            >
               {t('gardens.btnTemplate')}
             </button>
-            <button className="btn" onClick={() => setShowNew(true)}>
+            <button
+              type="button"
+              className="ios-empty-state-action"
+              onClick={() => setShowNew(true)}
+            >
               {t('gardens.btnCreate')}
             </button>
           </div>
-        </div>
+        </EmptyState>
       ) : filtered.length === 0 ? (
         <div className="empty small muted">{t('gardens.noMatch', { query })}</div>
       ) : (
@@ -217,22 +225,37 @@ export default function GardensPage() {
       )}
 
       {confirmDelete && (
-        <Modal title={t('gardens.deleteTitle')} onClose={() => setConfirmDelete(null)}>
+        <Sheet
+          title={t('gardens.deleteTitle')}
+          onClose={() => setConfirmDelete(null)}
+          footer={
+            <>
+              <button
+                type="button"
+                className="btn ghost"
+                style={{ flex: 1 }}
+                onClick={() => setConfirmDelete(null)}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn danger"
+                style={{ flex: 1 }}
+                onClick={() => handleDelete(confirmDelete)}
+              >
+                {t('common.delete')}
+              </button>
+            </>
+          }
+        >
           <p style={{ marginTop: 0 }}>
             {t('gardens.deleteConfirmPre')} <strong>{confirmDelete.name}</strong>{t('gardens.deleteConfirmPost')}
           </p>
           <p className="small muted">
             {t('gardens.deleteWarning', { count: confirmDelete.pin_count || 0 })}
           </p>
-          <div className="row mt-3" style={{ justifyContent: 'flex-end' }}>
-            <button className="btn ghost" onClick={() => setConfirmDelete(null)}>
-              {t('common.cancel')}
-            </button>
-            <button className="btn danger" onClick={() => handleDelete(confirmDelete)}>
-              {t('common.delete')}
-            </button>
-          </div>
-        </Modal>
+        </Sheet>
       )}
     </div>
   );
@@ -396,8 +419,32 @@ function RenameGardenModal({ garden, onClose, onSaved }) {
   };
 
   return (
-    <Modal title={t('gardens.renameTitle')} onClose={onClose}>
-      <form onSubmit={save}>
+    <Sheet
+      title={t('gardens.renameTitle')}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="btn ghost"
+            style={{ flex: 1 }}
+            onClick={onClose}
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            type="submit"
+            form="rename-garden-form"
+            className="btn"
+            style={{ flex: 1 }}
+            disabled={saving || !name.trim()}
+          >
+            {saving ? t('common.saving') : t('common.save')}
+          </button>
+        </>
+      }
+    >
+      <form id="rename-garden-form" onSubmit={save}>
         <div className="field">
           <label>{t('gardens.nameLabel')}</label>
           <input
@@ -411,15 +458,7 @@ function RenameGardenModal({ garden, onClose, onSaved }) {
         <p className="small muted" style={{ marginTop: 4 }}>
           {t('gardens.renameHint')}
         </p>
-        <div className="row mt-3" style={{ justifyContent: 'flex-end' }}>
-          <button type="button" className="btn ghost" onClick={onClose}>
-            {t('common.cancel')}
-          </button>
-          <button type="submit" className="btn" disabled={saving || !name.trim()}>
-            {saving ? t('common.saving') : t('common.save')}
-          </button>
-        </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

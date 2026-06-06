@@ -2090,7 +2090,7 @@ html[data-theme="dark"] .follow-up {
 /* Cell drží swipe-reveal vrstvu pod kartou */
 .gl-card-cell {
   position: relative;
-  border-radius: var(--ios-r-lg);
+  border-radius: var(--ios-r-xl);
   overflow: hidden;
   box-shadow: var(--ios-shadow-card);
 }
@@ -2123,7 +2123,7 @@ html[data-theme="dark"] .follow-up {
   position: relative;
   z-index: 1;
   background: var(--ios-bg-elev);
-  border-radius: var(--ios-r-lg);
+  border-radius: var(--ios-r-xl);
   overflow: hidden;
   cursor: pointer;
   will-change: transform;
@@ -5737,4 +5737,16 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   color: var(--ios-accent);
 }
 .ios-empty-state-action.ghost:hover { background: var(--ios-fill-secondary); }
+
+/* Group of 2+ actions side by side in an EmptyState (overrides single CTA spacing). */
+.ios-empty-state-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.ios-empty-state-actions .ios-empty-state-action {
+  margin-top: 0;
+}
 
