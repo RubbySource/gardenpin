@@ -626,6 +626,8 @@
     "assigneeNobody": "Nikomu (wspólne)"
   },
   "overview": {
+    "title": "Przegląd",
+    "gardenPickerTitle": "Wybierz ogród",
     "completed": "✅ Gotowe",
     "eyebrow": "📋 Zbiorczy przegląd",
     "waitingCount_one": "{{count}} zadanie czeka",

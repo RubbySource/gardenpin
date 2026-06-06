@@ -588,6 +588,8 @@
     "assigneeNobody": "Nobody (shared)"
   },
   "overview": {
+    "title": "Overview",
+    "gardenPickerTitle": "Select garden",
     "completed": "✅ Done",
     "eyebrow": "📋 Overview",
     "waitingCount_one": "{{count}} task waiting",

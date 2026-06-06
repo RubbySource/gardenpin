@@ -5760,3 +5760,280 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   margin-top: 0;
 }
 
+/* ============================================================
+   Week Overview redesign [iOS-4]
+   Large title + 4-col stats strip · grouped buckets (overdue/today/week/next)
+   · OverviewTaskRow uvnitř .ios-group-list · per-garden iOS list.
+   Neutralizuje starý forest-gradient hero (.overview-hero) a nahrazuje ho
+   plochou iOS sémantikou (parita s TasksPage [iOS-3] header/stats-strip).
+   ============================================================ */
+
+/* Override starého .overview-hero (styles.css ř. 3504) — žádný gradient,
+   žádné překryté hero. Místo toho použijeme .overview-header + stats-strip. */
+.overview-hero {
+  background: none;
+  color: var(--ios-label);
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+.overview-hero::before { display: none; }
+
+/* Large title block — parita s .tasks-header. */
+.overview-header { margin: 4px 0 0; }
+.overview-header .ios-large-title { margin: 6px 4px 0; }
+.overview-subtitle {
+  margin: 2px 4px 0;
+  font-size: 15px;
+  color: var(--ios-label-secondary);
+}
+
+/* 4-col stats strip (over/today/week/next) — větší repeat než tasks-stats-strip. */
+.overview-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+.overview-stat {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-md);
+  box-shadow: var(--ios-shadow-sm);
+  padding: 12px 4px;
+  text-align: center;
+}
+.overview-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ios-label);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.overview-stat-val.red { color: var(--ios-red); }
+.overview-stat-val.orange { color: var(--ios-orange); }
+.overview-stat-lbl {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ios-label-secondary);
+  letter-spacing: -0.005em;
+}
+
+/* Garden filter pills — overview varianta (≤3 zahrad). Padding parita s tasks. */
+.overview-filter {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  margin: 12px 0 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.overview-filter::-webkit-scrollbar { display: none; }
+
+/* Picker tlačítko (≥4 zahrad) sdílí classes z TasksPage (.tasks-garden-picker-*),
+   .overview-garden-picker-btn jen mění vertikální offset. */
+.overview-garden-picker-btn { margin: 12px 0 4px; }
+
+/* ---------- Buckety jako iOS grouped lists ---------- */
+.overview-bucket {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.overview-bucket-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 2px;
+}
+.overview-bucket-emoji {
+  font-size: 1rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
+}
+.overview-bucket-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ios-label-secondary);
+}
+.overview-bucket-count {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 22px;
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ios-fill);
+  color: var(--ios-label-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.overview-bucket-overdue .overview-bucket-title { color: var(--ios-red); }
+.overview-bucket-overdue .overview-bucket-count {
+  background: var(--ios-red);
+  color: #fff;
+}
+.overview-bucket-today .overview-bucket-title { color: var(--ios-orange); }
+.overview-bucket-today .overview-bucket-count {
+  background: var(--ios-orange);
+  color: #fff;
+}
+.overview-bucket-week .overview-bucket-title { color: var(--ios-accent); }
+.overview-bucket-week .overview-bucket-count {
+  background: var(--ios-accent);
+  color: #fff;
+}
+
+/* ---------- OverviewTaskRow uvnitř .ios-group-list ----------
+   Override starého .overview-task (styles.css ř. 3679) — žádný card wrapper,
+   žádný border-bottom (separuje .ios-list-sep), pouze levý state bar přes ::before
+   pro overdue/today (iOS Reminders look). */
+.overview-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px 12px 16px;
+  background: transparent;
+  border: none;
+  position: relative;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.15s ease;
+}
+.overview-task:last-child { border-bottom: none; }
+.overview-task:active { background: var(--ios-fill-secondary); }
+.overview-task::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 160ms var(--ios-ease);
+}
+.overview-task.overdue::before { background: var(--ios-red); }
+.overview-task.today::before { background: var(--ios-orange); }
+.overview-task.completing { opacity: 0; transform: translateX(20px); }
+.overview-task-body {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.overview-task-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ios-label);
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+.overview-task-icon-svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ios-fill);
+  color: var(--ios-accent);
+}
+.overview-task-icon-svg svg { width: 14px; height: 14px; }
+.overview-task.overdue .overview-task-icon-svg {
+  background: rgba(255, 59, 48, 0.14);
+  color: var(--ios-red);
+}
+.overview-task.today .overview-task-icon-svg {
+  background: rgba(255, 149, 0, 0.16);
+  color: #b45a00;
+}
+.overview-task-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.overview-task-meta {
+  font-size: 0.82rem;
+  color: var(--ios-label-secondary);
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+.overview-task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+/* Sage outline garden chip — pojmenovaný odkaz na zahradu. */
+.overview-task-tags .badge.badge-garden {
+  background: transparent;
+  color: var(--ios-accent);
+  border: 1px solid rgba(122, 168, 137, 0.35);
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.overview-task-tags .badge.badge-garden:hover {
+  background: var(--forest-soft);
+}
+.overview-task-tags .badge.type {
+  background: var(--ios-fill);
+  color: var(--ios-label-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.overview-task-trailing {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.overview-task-trailing .snooze-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--ios-fill);
+  border: none;
+  color: var(--ios-accent);
+}
+
+/* ---------- Per-garden iOS list (.overview-per-garden) ---------- */
+.overview-per-garden { margin-top: 22px; }
+/* Speciální avatar slot — větší než výchozí 30px iOS list ikona,
+   umožní pohodlně zobrazit fotku zahrady. */
+.overview-garden-avatar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ios-fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: var(--ios-label-secondary);
+}
+.overview-garden-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.overview-garden-row .ios-list-row-label {
+  font-weight: 600;
+}
+.overview-garden-urgent {
+  color: var(--ios-red);
+  font-weight: 600;
+}
+

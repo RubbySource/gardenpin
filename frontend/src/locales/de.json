@@ -588,6 +588,8 @@
     "assigneeNobody": "Niemand (gemeinsam)"
   },
   "overview": {
+    "title": "Übersicht",
+    "gardenPickerTitle": "Garten wählen",
     "completed": "✅ Erledigt",
     "eyebrow": "📋 Übersicht",
     "waitingCount_one": "{{count}} Aufgabe wartet",

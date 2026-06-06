@@ -626,6 +626,8 @@
     "assigneeNobody": "Nikomu (spoločné)"
   },
   "overview": {
+    "title": "Prehľad",
+    "gardenPickerTitle": "Vyber záhradu",
     "completed": "✅ Hotovo",
     "eyebrow": "📋 Súhrnný prehľad",
     "waitingCount_one": "{{count}} úloha čaká",
