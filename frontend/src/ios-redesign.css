@@ -5404,3 +5404,278 @@ html[data-theme="dark"] .confirm-dialog {
 html[data-theme="dark"] .polygon-onboarding-card {
   background: #1c1c1e;
 }
+
+/* ============================================================
+   iOS foundation primitives (BACKLOG: iOS-0)
+   Reusable building blocks generalised from SettingsPage so per-screen
+   redesigns just compose them. The .settings-* classes stay as-is to
+   avoid visual regression on Settings.
+   ============================================================ */
+
+/* ---------- iOS grouped list (table view) ---------- */
+/* Section = caption header + card + footnote. Mirrors .settings-group. */
+.ios-list-section { margin-top: 22px; }
+.ios-list-section-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ios-label-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 16px 6px;
+}
+.ios-list-section-label.danger { color: var(--ios-red); }
+.ios-list-section-foot {
+  font-size: 12px;
+  color: var(--ios-label-secondary);
+  padding: 6px 16px 0;
+  line-height: 1.4;
+}
+
+/* Card (group container) — white card, soft shadow, clipped corners. */
+.ios-group-list {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  overflow: hidden;
+}
+
+/* Row — 50px min height, 16px horizontal, icon + label + value + chevron. */
+.ios-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  min-height: 50px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ios-label);
+  font-family: var(--ios-font);
+}
+button.ios-list-row,
+a.ios-list-row {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+button.ios-list-row:active,
+a.ios-list-row:active { background: var(--ios-fill-secondary); }
+
+/* Hairline separator, indented past the icon (matches design-system ml-[58px]). */
+.ios-list-sep {
+  height: 0.5px;
+  background: var(--ios-separator);
+  margin-left: 58px;
+}
+
+.ios-list-row-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.ios-list-row-icon svg { width: 17px; height: 17px; }
+
+.ios-list-row-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.ios-list-row-label.danger { color: var(--ios-red); font-weight: 600; }
+
+.ios-list-row-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--ios-label-secondary);
+  letter-spacing: 0;
+}
+
+.ios-list-row-value {
+  font-size: 0.95rem;
+  color: var(--ios-label-secondary);
+  white-space: nowrap;
+}
+.ios-list-row-chevron {
+  color: var(--ios-label-tertiary);
+  font-size: 1.25rem;
+  line-height: 1;
+  flex: none;
+}
+
+/* Sub-content inside a row group (chips, inputs, helper buttons). */
+.ios-list-subrow {
+  padding: 4px 16px 14px 58px;
+}
+
+/* ---------- iOS bottom sheet ---------- */
+/* Backdrop dims content; sheet anchors to bottom, rounds top corners, has grabber. */
+.ios-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.40);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: ios-sheet-fade 200ms var(--ios-ease);
+}
+.ios-sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-2xl) var(--ios-r-2xl) 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.28);
+  padding: 6px 0 0;
+  animation: ios-sheet-slide 360ms var(--ios-spring);
+}
+.ios-sheet-grabber {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ios-separator-opaque);
+  margin: 6px auto 8px;
+  opacity: 0.6;
+  flex: none;
+}
+.ios-sheet-head {
+  position: relative;
+  padding: 4px 56px 10px;
+  text-align: center;
+  flex: none;
+}
+.ios-sheet-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.ios-sheet-subtitle {
+  font-size: 0.82rem;
+  color: var(--ios-label-secondary);
+  margin-top: 2px;
+  letter-spacing: -0.005em;
+}
+.ios-sheet-close {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ios-fill);
+  color: var(--ios-label-secondary);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 140ms var(--ios-ease);
+}
+.ios-sheet-close:hover { background: var(--ios-separator); color: var(--ios-label); }
+.ios-sheet-close:active { transform: scale(0.92); }
+.ios-sheet-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.ios-sheet-footer {
+  flex: none;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 0.5px solid var(--ios-separator);
+  display: flex;
+  gap: 8px;
+}
+
+@keyframes ios-sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ios-sheet-slide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ios-sheet-backdrop, .ios-sheet { animation: none; }
+}
+/* On wide screens render as a centered card, not a full-width sheet. */
+@media (min-width: 640px) {
+  .ios-sheet-backdrop { align-items: center; }
+  .ios-sheet {
+    max-width: 480px;
+    border-radius: var(--ios-r-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+  }
+  .ios-sheet-grabber { display: none; }
+}
+
+/* ---------- iOS empty state ---------- */
+/* Emoji (or icon) + title + subtitle + optional action. Centered. */
+.ios-empty-state {
+  text-align: center;
+  padding: 40px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ios-empty-state-emoji {
+  font-size: 3.2rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+}
+.ios-empty-state-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ios-label);
+}
+.ios-empty-state-subtitle {
+  font-size: 0.92rem;
+  color: var(--ios-label-secondary);
+  max-width: 320px;
+  line-height: 1.45;
+}
+.ios-empty-state-action {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--ios-r-md);
+  background: var(--ios-accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 160ms var(--ios-ease), transform 100ms var(--ios-ease);
+}
+.ios-empty-state-action:hover { background: var(--ios-accent-hover); }
+.ios-empty-state-action:active { transform: scale(0.96); }
+.ios-empty-state-action.ghost {
+  background: transparent;
+  color: var(--ios-accent);
+}
+.ios-empty-state-action.ghost:hover { background: var(--ios-fill-secondary); }
+

@@ -266,3 +266,104 @@ dark mode (dnes definovaný v `ios-redesign.css`) do nové sage/cream palety.
 > **Pozn. k posunu palety:** stávající `ios-redesign.css` používá forest `#2d5a27` jako akcent.
 > Nový systém posouvá brand na sage `#7BA889` (identita) + `#4A6E57` (akce/text) a pozadí z iOS
 > šedé `#f2f2f7` na teplý cream `#FAF7F2`. Refaktor proběhne v úkolu „Tailwind design tokens".
+
+---
+
+## 12. Sdílené primitivy (iOS-0) — třídy & komponenty
+
+Per-screen redesign (`GardenDetailPage`, `GardensPage`, …) skládá UI z těchto sdílených
+kousků — žádné ad-hoc karty/řádky/sheety. Vše v `frontend/src/ios-redesign.css`
+(layer načtený **po** `styles.css`, přebíjí legacy styly).
+
+> Třídy `.settings-group-card` / `.settings-row` zůstávají beze změny pro zpětnou
+> kompatibilitu se `SettingsPage.jsx`. Nový kód používá generalizované varianty níže.
+
+### 12.1 `.ios-group-list` + `.ios-list-row` (grouped table view)
+
+Použij na seznam volby/akce s jednou stavovou hodnotou na řádek (Nastavení, sekce
+v detailu zahrady, „Můj profil" atd.).
+
+```html
+<div class="ios-list-section">
+  <div class="ios-list-section-label">SEKCE</div>
+  <div class="ios-group-list">
+    <button class="ios-list-row" type="button">
+      <span class="ios-list-row-icon" style="background:#5F8C6E">…svg…</span>
+      <span class="ios-list-row-label">
+        Položka
+        <span class="ios-list-row-sub">Volitelný podtitul</span>
+      </span>
+      <span class="ios-list-row-value">42</span>
+      <span class="ios-list-row-chevron">›</span>
+    </button>
+    <div class="ios-list-sep"></div>
+    <div class="ios-list-row">…</div>
+  </div>
+  <div class="ios-list-section-foot">Krátký vysvětlující text.</div>
+</div>
+```
+
+Pravidla:
+
+- Karta `radius 20px`, bílá, soft shadow, vnitřní prvky bez vlastních zaoblení.
+- Hairline `.ios-list-sep` **odsazená 58 px** zleva (mimo ikonu) — žádné plné čáry přes celou kartu.
+- Ikona = 30×30 zaoblený čtverec s barvou kategorie, `currentColor` SVG (17×17). Emoji jen výjimečně.
+- Klikací řádek = `<button class="ios-list-row">` (active fill, chevron `›` vpravo). Statický řádek = `<div>`.
+- `min-height 50 px` (44 px tap target + dýchání).
+
+### 12.2 `<Sheet>` (iOS bottom sheet)
+
+Komponenta `frontend/src/components/Sheet.jsx` — nahrazuje generický `<Modal>` u všech
+modalů na detailech (edit/share/members/bulk care, plant picker, change plant…).
+
+```jsx
+import Sheet from '../components/Sheet.jsx';
+
+<Sheet title="Sdílet zahradu" subtitle="Read-only odkaz" onClose={close}>
+  …obsah, scrolluje uvnitř…
+</Sheet>
+
+// S patičkou (primární akce dole, mockup parity):
+<Sheet title="Pozvat člena" onClose={close} footer={<button className="btn">Odeslat</button>}>
+  …
+</Sheet>
+```
+
+Pravidla:
+
+- Backdrop `rgba(0,0,0,.40)` + 2 px blur. Klik mimo + Esc + tlačítko ✕ zavírá. Body scroll je zamčen.
+- Horní rohy `28 px` (`--ios-r-2xl`), grabber `36×5`, spring transition `360 ms`.
+- Hlavička: centrovaný title + subtitle, ✕ vpravo (kruhové 30 px, fill background).
+- Tělo scrolluje uvnitř (`max-height 88vh`, `safe-area-inset-bottom`), respektuje notch.
+- ≥ 640 px: vykreslí se jako centrovaná karta `radius 24 px` bez grabberu.
+- Respektuje `prefers-reduced-motion`.
+
+### 12.3 `<EmptyState>` (prázdný stav)
+
+Komponenta `frontend/src/components/EmptyState.jsx` — sjednocený prázdný stav s emoji,
+titulkem, podtitulkem a (volitelnou) akcí. Nahrazuje `.empty`, `.gp-empty` u nových
+obrazovek (legacy varianty zůstávají, dokud per-screen redesign neproběhne).
+
+```jsx
+import EmptyState from '../components/EmptyState.jsx';
+
+<EmptyState
+  emoji="🌻"
+  title="Žádná zahrada"
+  subtitle="Začni přidáním fotky mapy a první rostliny."
+  actionLabel="+ Přidat zahradu"
+  onAction={openCreate}
+/>
+
+// Více akcí / vlastní obsah:
+<EmptyState emoji="🌧️" title="Žádné úkoly na dnes">
+  <button className="btn ghost">Plán na zítra</button>
+</EmptyState>
+```
+
+Pravidla:
+
+- Centrované, padding `40/24 px`. Emoji `~3.2 rem` s jemným drop-shadowem.
+- Title = `Title 3` (`1.15 rem`, 700, tracking −0.02em). Subtitle = `Body` secondary label.
+- Akce: výška ≥ 44 px, plná sage (`brand-action`) nebo `actionGhost` = transparent + sage text.
+- Žádný dashed border (legacy `.gp-empty` měl) — na cream pozadí stačí prostor.
