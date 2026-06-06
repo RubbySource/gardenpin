@@ -5,7 +5,7 @@
 //   3) Přidat rostlinu (autocomplete) → vytvoří bed_plants + pin
 //   4) "Sloučit do záhonu?" CTA — detekuje 3+ osamocené piny geometricky uvnitř záhonu
 //   5) Záhon: editace (název, typ, rozměry m, barva, smazat)
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal.jsx';
 import PlantAutocomplete from './PlantAutocomplete.jsx';
@@ -81,7 +81,7 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
           <>
             {loading && <p className="muted">Načítám…</p>}
 
-            {!loading && plants.length === 0 && (
+            {!loading && plants.length === 0 && !showAdd && (
               <EmptyState onAdd={() => setShowAdd(true)} />
             )}
 
@@ -103,7 +103,7 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
               </div>
             )}
 
-            {!loading && plants.length > 0 && (
+            {!loading && plants.length > 0 && !showAdd && (
               <button
                 className="btn"
                 type="button"
@@ -117,10 +117,9 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
             {showAdd && (
               <AddPlantForm
                 bedId={localBed.id}
-                onCancel={() => setShowAdd(false)}
+                onDone={() => setShowAdd(false)}
                 onAdded={(row) => {
                   setPlants((prev) => [...prev, row]);
-                  setShowAdd(false);
                   toast('🌱 Rostlina přidána do záhonu');
                 }}
               />
@@ -410,14 +409,22 @@ function BedPlantRow({ bp, onChanged, onRemoved, onPinOpen }) {
   );
 }
 
-function AddPlantForm({ bedId, onCancel, onAdded }) {
+function AddPlantForm({ bedId, onDone, onAdded }) {
   const [name, setName] = useState('');
   const [plantId, setPlantId] = useState(null);
   const [count, setCount] = useState(1);
+  // plantedAt si držíme mezi přidáními — typicky sázíš víc rostlin ve stejný den.
   const [plantedAt, setPlantedAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
   const [color, setColor] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [addedCount, setAddedCount] = useState(0);
+  const autocompleteWrapRef = useRef(null);
+
+  const focusAutocomplete = () => {
+    const input = autocompleteWrapRef.current?.querySelector('input');
+    if (input) input.focus();
+  };
 
   const submit = async (e) => {
     e?.preventDefault?.();
@@ -434,6 +441,15 @@ function AddPlantForm({ bedId, onCancel, onAdded }) {
         auto_pin: true,
       });
       onAdded(row);
+      // Reset polí pro další rostlinu — plantedAt zachovat (stejný den).
+      setName('');
+      setPlantId(null);
+      setCount(1);
+      setNotes('');
+      setColor(null);
+      setAddedCount((n) => n + 1);
+      // Fokus zpět na našeptávač pro rychlé multi-add.
+      setTimeout(focusAutocomplete, 30);
     } catch (e2) {
       toast('Chyba: ' + e2.message);
     } finally {
@@ -454,7 +470,15 @@ function AddPlantForm({ bedId, onCancel, onAdded }) {
         border: '1px solid var(--border)',
       }}
     >
-      <div className="field">
+      {addedCount > 0 && (
+        <div
+          className="muted"
+          style={{ fontSize: 12, fontWeight: 600, color: 'var(--forest)' }}
+        >
+          ✅ Přidáno {addedCount} {addedCount === 1 ? 'rostlina' : addedCount < 5 ? 'rostliny' : 'rostlin'} — pokračuj nebo klikni na Hotovo.
+        </div>
+      )}
+      <div className="field" ref={autocompleteWrapRef}>
         <label>Rostlina</label>
         <PlantAutocomplete
           value={name}
@@ -500,11 +524,11 @@ function AddPlantForm({ bedId, onCancel, onAdded }) {
         />
       </div>
       <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-        <button className="btn ghost small" onClick={onCancel} type="button">
-          Zrušit
+        <button className="btn ghost small" onClick={onDone} type="button">
+          ✓ Hotovo
         </button>
         <button className="btn small" type="submit" disabled={busy}>
-          {busy ? 'Přidávám…' : '➕ Přidat'}
+          {busy ? 'Přidávám…' : addedCount > 0 ? '➕ Přidat další' : '➕ Přidat'}
         </button>
       </div>
     </form>
