@@ -370,6 +370,7 @@
     "statPlants": "Roślin",
     "statBeds": "Grządek",
     "statWithPhoto": "Ze zdjęciem",
+    "statArea": "Powierzchnia ogrodu",
     "areaBanner": "📐 Powierzchnia ogrodu ~{{area}} m²",
     "yearOverYearTitle": "Porównanie rok do roku · {{name}}",
     "bedFallbackName": "Grządka",

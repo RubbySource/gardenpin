@@ -4,7 +4,7 @@
 // viewer (jen čte). Atribuce splnění a přiřazování úkolů viz member.js.
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Modal from './Modal.jsx';
+import Sheet from './Sheet.jsx';
 import Icon from './Icon.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
@@ -87,7 +87,7 @@ export default function MembersModal({ garden, onClose }) {
   };
 
   return (
-    <Modal title={t('members.title')} onClose={onClose}>
+    <Sheet title={t('members.title')} onClose={onClose}>
       <p className="small muted mb-2">{t('members.intro')}</p>
 
       {/* Pozvat člena */}
@@ -181,7 +181,7 @@ export default function MembersModal({ garden, onClose }) {
           <div className="member-empty small muted">{t('members.empty')}</div>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 

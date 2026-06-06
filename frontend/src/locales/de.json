@@ -344,6 +344,7 @@
     "statPlants": "Pflanzen",
     "statBeds": "Beete",
     "statWithPhoto": "Mit Foto",
+    "statArea": "Gartenfläche",
     "areaBanner": "📐 Gartenfläche ~{{area}} m²",
     "yearOverYearTitle": "Jahresvergleich · {{name}}",
     "bedFallbackName": "Beet",

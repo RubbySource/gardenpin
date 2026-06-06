@@ -370,6 +370,7 @@
     "statPlants": "Rastlín",
     "statBeds": "Záhonov",
     "statWithPhoto": "S fotkou",
+    "statArea": "Plocha záhrady",
     "areaBanner": "📐 Plocha záhrady ~{{area}} m²",
     "yearOverYearTitle": "Medziročné porovnanie · {{name}}",
     "bedFallbackName": "Záhon",

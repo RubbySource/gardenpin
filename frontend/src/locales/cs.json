@@ -357,6 +357,7 @@
     "statPlants": "Rostlin",
     "statBeds": "Záhonů",
     "statWithPhoto": "S fotkou",
+    "statArea": "Plocha zahrady",
     "areaBanner": "📐 Plocha zahrady ~{{area}} m²",
     "yearOverYearTitle": "Meziroční srovnání · {{name}}",
     "bedFallbackName": "Záhon",

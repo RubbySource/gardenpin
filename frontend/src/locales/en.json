@@ -344,6 +344,7 @@
     "statPlants": "Plants",
     "statBeds": "Beds",
     "statWithPhoto": "With photo",
+    "statArea": "Garden area",
     "areaBanner": "📐 Garden area ~{{area}} m²",
     "yearOverYearTitle": "Year-over-year · {{name}}",
     "bedFallbackName": "Bed",

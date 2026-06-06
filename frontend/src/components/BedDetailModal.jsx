@@ -7,7 +7,7 @@
 //   5) Záhon: editace (název, typ, rozměry m, barva, smazat)
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Modal from './Modal.jsx';
+import Sheet from './Sheet.jsx';
 import PlantAutocomplete from './PlantAutocomplete.jsx';
 import { api } from '../api.js';
 import { toast } from '../App.jsx';
@@ -56,7 +56,7 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
   );
 
   return (
-    <Modal title={`🟫 ${localBed.name}`} onClose={onClose}>
+    <Sheet title={`🟫 ${localBed.name}`} onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <BedSummaryHeader bed={localBed} totalPlants={totalPlants} plantTypes={plants.length} />
 
@@ -162,7 +162,7 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
           />
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 

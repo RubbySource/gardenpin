@@ -1790,8 +1790,21 @@ html[data-theme="dark"] .follow-up {
 .gd-action-menu button + button { border-top: 0.5px solid var(--ios-separator); }
 .gd-action-menu button:active { background: var(--ios-fill); }
 
-/* Map card + floating hint */
-.gd-map-card { padding: 10px; margin-bottom: 14px; }
+/* Map card + floating hint — iOS card treatment (radius + soft shadow) */
+.gd-map-card {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-xl);
+  box-shadow: var(--ios-shadow-card);
+  padding: 8px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.gd-map-card .map-container {
+  border-radius: var(--ios-r-lg);
+  border: none;
+  background: var(--ios-fill);
+}
 .gd-map-hint {
   position: absolute;
   bottom: 10px;
@@ -1893,8 +1906,54 @@ html[data-theme="dark"] .follow-up {
 .gd-seg-wrap { margin: 0 0 16px; }
 .gd-seg-wrap .ios-segmented { width: 100%; }
 
-/* Map tools card spacing */
-.gd-tools { padding: 10px 14px; }
+/* Map tools card — iOS card */
+.gd-tools {
+  background: var(--ios-bg-elev);
+  border: none;
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+/* List tab — wrapper kolem ios-group-list + plant avatar uvnitř list rowy */
+.gd-plant-list-icon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--ios-fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--ios-accent);
+  overflow: hidden;
+}
+.gd-plant-list-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-plant-row-photo-btn {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--ios-accent);
+  font-size: 1.05rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -4px;
+}
+.gd-plant-row-photo-btn:hover { background: var(--ios-fill); }
+.gd-plant-row-photo-btn:active { transform: scale(0.92); }
+.gd-plant-row-photo-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* Stats tab — quick counts */
 .gd-stat-grid {

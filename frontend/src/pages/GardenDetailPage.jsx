@@ -6,7 +6,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import i18n from '../i18n.js';
 import { formatDate } from '../utils.js';
 import { api } from '../api.js';
-import Modal from '../components/Modal.jsx';
+import Sheet from '../components/Sheet.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import Icon from '../components/Icon.jsx';
 import BedDetailModal from '../components/BedDetailModal.jsx';
 import PinDetail from './PinDetail.jsx';
@@ -1063,89 +1064,118 @@ export default function GardenDetailPage() {
           </div>
 
           {beds.length > 0 && (
-            <>
-              <h3 className="section-title">
+            <div className="ios-list-section">
+              <div className="ios-list-section-label">
                 {t('gardenDetail.bedsSectionTitle', { count: beds.length })}
-              </h3>
-              <div className="bed-list">
-                {beds.map((b) => (
-                  <div
-                    key={b.id}
-                    className="bed-list-item"
-                    onClick={() => setEditingBed(b)}
-                  >
-                    <span
-                      className="bed-swatch"
-                      style={{ background: b.color || '#8b6f47' }}
-                    />
-                    <div className="bed-list-info">
-                      <div className="bed-list-name">{b.name}</div>
-                      <div className="bed-list-meta small muted">
-                        {b.width_m && b.height_m
-                          ? `${b.width_m} × ${b.height_m} m`
-                          : `${b.width.toFixed(1)} × ${b.height.toFixed(1)} %`}
-                      </div>
-                    </div>
-                    <span style={{ color: 'var(--text-dim)' }}>›</span>
-                  </div>
+              </div>
+              <div className="ios-group-list">
+                {beds.map((b, idx) => (
+                  <React.Fragment key={b.id}>
+                    <button
+                      type="button"
+                      className="ios-list-row"
+                      onClick={() => setEditingBed(b)}
+                    >
+                      <span
+                        className="ios-list-row-icon"
+                        style={{ background: b.color || '#8b6f47' }}
+                        aria-hidden="true"
+                      />
+                      <span className="ios-list-row-label">
+                        {b.name}
+                        <span className="ios-list-row-sub">
+                          {b.width_m && b.height_m
+                            ? `${b.width_m} × ${b.height_m} m`
+                            : `${b.width.toFixed(1)} × ${b.height.toFixed(1)} %`}
+                        </span>
+                      </span>
+                      <span className="ios-list-row-chevron" aria-hidden="true">›</span>
+                    </button>
+                    {idx < beds.length - 1 && <div className="ios-list-sep" />}
+                  </React.Fragment>
                 ))}
               </div>
-            </>
+            </div>
           )}
           </>
           )}
 
           {tab === 'list' && (
           <>
-          <h3 className="section-title">
-            {t('gardenDetail.placesSectionTitle', { count: pins.length })}
-          </h3>
-          {pins.length === 0 ? (
-            <div className="card empty small">
-              {t('gardenDetail.noPlaces')}
+          <div className="ios-list-section">
+            <div className="ios-list-section-label">
+              {t('gardenDetail.placesSectionTitle', { count: pins.length })}
             </div>
-          ) : (
-            pins.map((p) => (
-              <PlantRow
-                key={p.id}
-                pin={p}
-                onOpen={() => setEditingPinId(p.id)}
-                onPhotoUpdated={(photoPath) =>
-                  setPins((prev) =>
-                    prev.map((x) => (x.id === p.id ? { ...x, photo_path: photoPath } : x)),
-                  )
-                }
-              />
-            ))
-          )}
+            {pins.length === 0 ? (
+              <div className="ios-group-list">
+                <EmptyState
+                  emoji="📍"
+                  title={t('gardenDetail.noPlaces')}
+                  subtitle={t('gardenDetail.hintMapMode')}
+                />
+              </div>
+            ) : (
+              <div className="ios-group-list">
+                {pins.map((p, idx) => (
+                  <React.Fragment key={p.id}>
+                    <PlantRow
+                      pin={p}
+                      onOpen={() => setEditingPinId(p.id)}
+                      onPhotoUpdated={(photoPath) =>
+                        setPins((prev) =>
+                          prev.map((x) => (x.id === p.id ? { ...x, photo_path: photoPath } : x)),
+                        )
+                      }
+                    />
+                    {idx < pins.length - 1 && <div className="ios-list-sep" />}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
           </>
           )}
 
           {tab === 'stats' && (
           <>
-            <div className="gd-stat-grid">
-              <div className="gd-stat">
-                <div className="val">{pins.length}</div>
-                <div className="lbl">{t('gardenDetail.statPlaces')}</div>
-              </div>
-              <div className="gd-stat">
-                <div className="val">{plantCount}</div>
-                <div className="lbl">{t('gardenDetail.statPlants')}</div>
-              </div>
-              <div className="gd-stat">
-                <div className="val">{beds.length}</div>
-                <div className="lbl">{t('gardenDetail.statBeds')}</div>
-              </div>
-              <div className="gd-stat">
-                <div className="val">{photoCount}</div>
-                <div className="lbl">{t('gardenDetail.statWithPhoto')}</div>
+            <div className="ios-list-section">
+              <div className="ios-list-section-label">{t('gardenDetail.tabStats')}</div>
+              <div className="ios-group-list">
+                <div className="ios-list-row">
+                  <span className="ios-list-row-icon" style={{ background: '#4A7C3A' }} aria-hidden="true">📍</span>
+                  <span className="ios-list-row-label">{t('gardenDetail.statPlaces')}</span>
+                  <span className="ios-list-row-value">{pins.length}</span>
+                </div>
+                <div className="ios-list-sep" />
+                <div className="ios-list-row">
+                  <span className="ios-list-row-icon" style={{ background: '#7BA889' }} aria-hidden="true">🌿</span>
+                  <span className="ios-list-row-label">{t('gardenDetail.statPlants')}</span>
+                  <span className="ios-list-row-value">{plantCount}</span>
+                </div>
+                <div className="ios-list-sep" />
+                <div className="ios-list-row">
+                  <span className="ios-list-row-icon" style={{ background: '#8B6F47' }} aria-hidden="true">🟫</span>
+                  <span className="ios-list-row-label">{t('gardenDetail.statBeds')}</span>
+                  <span className="ios-list-row-value">{beds.length}</span>
+                </div>
+                <div className="ios-list-sep" />
+                <div className="ios-list-row">
+                  <span className="ios-list-row-icon" style={{ background: '#6B8FB5' }} aria-hidden="true">📷</span>
+                  <span className="ios-list-row-label">{t('gardenDetail.statWithPhoto')}</span>
+                  <span className="ios-list-row-value">{photoCount}</span>
+                </div>
+                {gardenAreaM2 != null && gardenAreaM2 > 0 && (
+                  <>
+                    <div className="ios-list-sep" />
+                    <div className="ios-list-row">
+                      <span className="ios-list-row-icon" style={{ background: '#C19A6B' }} aria-hidden="true">📐</span>
+                      <span className="ios-list-row-label">{t('gardenDetail.statArea')}</span>
+                      <span className="ios-list-row-value">~{gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0)} m²</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-            {gardenAreaM2 != null && gardenAreaM2 > 0 && (
-              <div className="gd-area-banner">
-                {t('gardenDetail.areaBanner', { area: gardenAreaM2.toFixed(gardenAreaM2 < 10 ? 1 : 0) })}
-              </div>
-            )}
             {/* Osevní postup — rotace plodin v záhonech */}
             <RotationCard beds={beds} pins={pins} />
             {/* Zazimování — vyrýt hlízy + zimní ochrana před prvním mrazem (jen 9–11) */}
@@ -1307,7 +1337,7 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
   };
 
   return (
-    <Modal title={t('gardenDetail.bedEditTitle')} onClose={onClose}>
+    <Sheet title={t('gardenDetail.bedEditTitle')} onClose={onClose}>
       <form onSubmit={save}>
         <div className="field">
           <label>{t('gardenDetail.bedNameLabel')}</label>
@@ -1361,7 +1391,7 @@ function BedEditModal({ bed, onClose, onSaved, onDeleted }) {
           </div>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -1418,7 +1448,7 @@ function ShareGardenModal({ garden, onClose }) {
   };
 
   return (
-    <Modal title={t('gardenDetail.shareModalTitle')} onClose={onClose}>
+    <Sheet title={t('gardenDetail.shareModalTitle')} onClose={onClose}>
       {loading ? (
         <div className="empty small">{t('common.loadingShort')}</div>
       ) : (
@@ -1464,7 +1494,7 @@ function ShareGardenModal({ garden, onClose }) {
           </div>
         </>
       )}
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -1573,7 +1603,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
     !(pinMode === 'pins' && selectedPinIds.size === 0);
 
   return (
-    <Modal title={t('gardenDetail.calendarModalTitle')} onClose={onClose}>
+    <Sheet title={t('gardenDetail.calendarModalTitle')} onClose={onClose}>
       {loading ? (
         <div className="empty small">{t('common.loadingShort')}</div>
       ) : !token ? (
@@ -1743,7 +1773,7 @@ function CalendarSubscribeModal({ garden, onClose }) {
           </div>
         </>
       )}
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -1780,44 +1810,40 @@ function PlantRow({ pin, onOpen, onPhotoUpdated }) {
     fileRef.current?.click();
   };
 
+  const subParts = [];
+  if (pin.plant_name) subParts.push(`🌿 ${pin.plant_name}`);
+  if (pin.planting_date) {
+    subParts.push(t('gardenDetail.plantedOn', { date: formatDate(pin.planting_date) }));
+  }
+
   return (
-    <div className="garden-card" onClick={onOpen}>
-      {pin.photo_path ? (
-        <img src={pin.photo_path} alt="" className="plant-avatar" />
-      ) : (
-        <div
-          className="plant-avatar plant-avatar-placeholder"
-          style={{ background: (pin.color || '#4a7c3a') + '22', color: pin.color || '#4a7c3a' }}
-        >
-          🌿
-        </div>
-      )}
-      <div className="details">
-        <div className="name">{pin.name}</div>
-        {pin.plant_name && <div className="meta">🌿 {pin.plant_name}</div>}
-        {pin.planting_date && (
-          <div className="meta">
-            {t('gardenDetail.plantedOn', { date: formatDate(pin.planting_date) })}
-          </div>
-        )}
-        <button
-          type="button"
-          className="btn ghost small mt-1"
-          onClick={openPicker}
-          disabled={uploading}
-        >
-          {uploading ? t('gardenDetail.uploadingPhoto') : pin.photo_path ? t('gardenDetail.changePhoto') : t('gardenDetail.addPhoto')}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleFile}
-        />
-      </div>
-      <span style={{ fontSize: '1.4rem', color: 'var(--text-dim)' }}>›</span>
-    </div>
+    <button type="button" className="ios-list-row" onClick={onOpen}>
+      <span className="gd-plant-list-icon" style={!pin.photo_path ? { background: (pin.color || '#4a7c3a') + '22', color: pin.color || '#4a7c3a' } : undefined}>
+        {pin.photo_path ? <img src={pin.photo_path} alt="" /> : '🌿'}
+      </span>
+      <span className="ios-list-row-label">
+        {pin.name}
+        {subParts.length > 0 && <span className="ios-list-row-sub">{subParts.join(' · ')}</span>}
+      </span>
+      <button
+        type="button"
+        className="gd-plant-row-photo-btn"
+        onClick={openPicker}
+        disabled={uploading}
+        title={pin.photo_path ? t('gardenDetail.changePhoto') : t('gardenDetail.addPhoto')}
+        aria-label={pin.photo_path ? t('gardenDetail.changePhoto') : t('gardenDetail.addPhoto')}
+      >
+        {uploading ? '⏳' : '📷'}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFile}
+      />
+      <span className="ios-list-row-chevron" aria-hidden="true">›</span>
+    </button>
   );
 }
 
@@ -1905,7 +1931,7 @@ function NewPinModal({ gardenId, gardenConditions, beds, pins, x, y, onClose, on
   };
 
   return (
-    <Modal title={t('gardenDetail.newPlaceTitle')} onClose={onClose}>
+    <Sheet title={t('gardenDetail.newPlaceTitle')} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="field">
           <label>{t('gardenDetail.placeNameLabel')}</label>
@@ -1995,7 +2021,7 @@ function NewPinModal({ gardenId, gardenConditions, beds, pins, x, y, onClose, on
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -2057,7 +2083,7 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
   };
 
   return (
-    <Modal title={t('gardenDetail.editGardenTitle')} onClose={onClose}>
+    <Sheet title={t('gardenDetail.editGardenTitle')} onClose={onClose}>
       <form onSubmit={save}>
         <div className="field">
           <label>{t('gardenDetail.bedNameLabel')}</label>
@@ -2181,6 +2207,6 @@ function EditGardenModal({ garden, onClose, onSaved, onDelete, onMapUpload, uplo
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
