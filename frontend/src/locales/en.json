@@ -116,6 +116,7 @@
     "clearSearch": "Clear search",
     "allGardens": "🗺️ All",
     "filterByGarden": "Filter by garden",
+    "gardenPickerTitle": "Select garden",
     "filterLabel": "Task filter",
     "segToday": "Today",
     "segWeek": "Week",

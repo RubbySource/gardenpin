@@ -7,6 +7,8 @@ import { toast, followUpForTask } from '../App.jsx';
 import PinDetail from './PinDetail.jsx';
 import Icon from '../components/Icon.jsx';
 import TaskRow from '../components/TaskRow.jsx';
+import Sheet from '../components/Sheet.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import { daysFromToday } from '../utils.js';
 import { useFrostForecast } from '../frost.js';
@@ -107,6 +109,7 @@ export default function TasksPage({ onTaskComplete }) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('today'); // today | week | all | done
   const [gardenFilter, setGardenFilter] = useState('all');
+  const [gardenPickerOpen, setGardenPickerOpen] = useState(false);
   const [openPin, setOpenPin] = useState(null);
   const [completingIds, setCompletingIds] = useState(new Set());
   const [deletingIds, setDeletingIds] = useState(new Set());
@@ -335,23 +338,20 @@ export default function TasksPage({ onTaskComplete }) {
       )}
 
       {gardens.length >= 4 && (
-        <div className="tasks-garden-select-wrap">
-          <Icon name="map" size={16} className="tasks-garden-select-icon" />
-          <select
-            className="tasks-garden-select"
-            value={gardenFilter}
-            onChange={(e) => setGardenFilter(e.target.value)}
-            aria-label={t('tasks.filterByGarden')}
-          >
-            <option value="all">{t('tasks.allGardens')}</option>
-            {gardens.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-          <Icon name="chevronDown" size={16} className="tasks-garden-select-chevron" />
-        </div>
+        <button
+          type="button"
+          className="tasks-garden-picker-btn"
+          onClick={() => setGardenPickerOpen(true)}
+          aria-label={t('tasks.filterByGarden')}
+        >
+          <Icon name="map" size={16} className="tasks-garden-picker-icon" />
+          <span className="tasks-garden-picker-label">
+            {gardenFilter === 'all'
+              ? t('tasks.allGardens')
+              : gardens.find((g) => String(g.id) === String(gardenFilter))?.name || t('tasks.allGardens')}
+          </span>
+          <Icon name="chevronDown" size={16} className="tasks-garden-picker-chevron" />
+        </button>
       )}
 
       {/* iOS segmented control: Dnes / Týden / Vše + Hotovo toggle */}
@@ -420,23 +420,19 @@ export default function TasksPage({ onTaskComplete }) {
         ))}
 
       {filter !== 'done' && taskSections.length === 0 && (
-        <div className="card empty">
-          <div className="icon">{emptyText().icon}</div>
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>{emptyText().title}</div>
-          <div className="small muted">{emptyText().sub}</div>
-        </div>
+        <EmptyState
+          emoji={emptyText().icon}
+          title={emptyText().title}
+          subtitle={emptyText().sub}
+        />
       )}
 
       {filter === 'done' && historyGroups.length === 0 && (
-        <div className="card empty">
-          <div className="icon">📭</div>
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>
-            {query ? t('tasks.noResults') : t('tasks.noHistoryTitle')}
-          </div>
-          <div className="small muted">
-            {query ? t('tasks.noResultsSub') : t('tasks.noHistorySub')}
-          </div>
-        </div>
+        <EmptyState
+          emoji="📭"
+          title={query ? t('tasks.noResults') : t('tasks.noHistoryTitle')}
+          subtitle={query ? t('tasks.noResultsSub') : t('tasks.noHistorySub')}
+        />
       )}
 
       {filter === 'done' &&
@@ -453,6 +449,57 @@ export default function TasksPage({ onTaskComplete }) {
             </div>
           </div>
         ))}
+
+      {gardenPickerOpen && (
+        <Sheet
+          title={t('tasks.gardenPickerTitle')}
+          onClose={() => setGardenPickerOpen(false)}
+        >
+          <div className="ios-group-list tasks-garden-picker-list">
+            <button
+              type="button"
+              className="ios-list-row"
+              onClick={() => {
+                setGardenFilter('all');
+                setGardenPickerOpen(false);
+              }}
+            >
+              <span className="ios-list-row-icon" style={{ background: 'var(--ios-accent)' }} aria-hidden="true">
+                <Icon name="map" size={16} />
+              </span>
+              <span className="ios-list-row-label">{t('tasks.allGardens')}</span>
+              {gardenFilter === 'all' && (
+                <Icon name="check" size={18} className="tasks-garden-picker-check" stroke={2.5} />
+              )}
+            </button>
+            {gardens.map((g, idx) => (
+              <React.Fragment key={g.id}>
+                <div className="ios-list-sep" />
+                <button
+                  type="button"
+                  className="ios-list-row"
+                  onClick={() => {
+                    setGardenFilter(g.id);
+                    setGardenPickerOpen(false);
+                  }}
+                >
+                  <span
+                    className="ios-list-row-icon"
+                    style={{ background: g.color || '#7BA889' }}
+                    aria-hidden="true"
+                  >
+                    🌿
+                  </span>
+                  <span className="ios-list-row-label">{g.name}</span>
+                  {String(gardenFilter) === String(g.id) && (
+                    <Icon name="check" size={18} className="tasks-garden-picker-check" stroke={2.5} />
+                  )}
+                </button>
+              </React.Fragment>
+            ))}
+          </div>
+        </Sheet>
+      )}
 
       {openPin && (
         <PinDetail
