@@ -1,6 +1,8 @@
 // Web Push setup: VAPID config, subscription storage, send helper, daily cron
 const path = require('path');
 const fs = require('fs');
+const http2 = require('http2');
+const crypto = require('crypto');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const webpush = require('web-push');
@@ -84,9 +86,96 @@ function apnsConfigured() {
   );
 }
 
-// Doručení nativních notifikací. Bez APNs creds je no-op (jen log), takže
-// produkce běží dál a klient může tokeny registrovat. Až creds přibudou,
-// zde se napojí HTTP/2 APNs odeslání (token-based JWT).
+// ---- APNs JWT (.p8 → ES256 bearer token) -----------------------------------
+// Apple chce JWT podepsaný ES256 (ECDSA P-256 SHA-256) klíčem z .p8 souboru.
+// Header: { alg:'ES256', kid: KEY_ID, typ:'JWT' }; payload: { iss: TEAM_ID, iat }.
+// Token je platný 1 hodinu — cachujeme a refreshujeme po ~55 min.
+let apnsPrivateKey = null;
+let apnsPrivateKeyPath = null;
+let cachedApnsJwt = null;
+let cachedApnsJwtAt = 0;
+
+function loadApnsPrivateKey() {
+  const keyPath = process.env.APNS_KEY_PATH;
+  if (apnsPrivateKey && apnsPrivateKeyPath === keyPath) return apnsPrivateKey;
+  if (!keyPath || !fs.existsSync(keyPath)) {
+    throw new Error(`APNs .p8 nenalezen na cestě "${keyPath}"`);
+  }
+  const pem = fs.readFileSync(keyPath, 'utf8');
+  apnsPrivateKey = crypto.createPrivateKey({ key: pem, format: 'pem' });
+  apnsPrivateKeyPath = keyPath;
+  cachedApnsJwt = null; // klíč se změnil → invalidate token cache
+  return apnsPrivateKey;
+}
+
+function buildApnsJwt() {
+  const now = Math.floor(Date.now() / 1000);
+  if (cachedApnsJwt && now - cachedApnsJwtAt < 55 * 60) return cachedApnsJwt;
+  const key = loadApnsPrivateKey();
+  const b64url = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+  const header = b64url({ alg: 'ES256', kid: process.env.APNS_KEY_ID, typ: 'JWT' });
+  const payload = b64url({ iss: process.env.APNS_TEAM_ID, iat: now });
+  const signingInput = `${header}.${payload}`;
+  // dsaEncoding 'ieee-p1363' = JOSE raw r||s (64 B); jinak Node vrací DER.
+  const sig = crypto.sign('SHA256', Buffer.from(signingInput), {
+    key,
+    dsaEncoding: 'ieee-p1363',
+  });
+  const jwt = `${signingInput}.${sig.toString('base64url')}`;
+  cachedApnsJwt = jwt;
+  cachedApnsJwtAt = now;
+  return jwt;
+}
+
+// HTTP/2 POST /3/device/<token> → APNs. Vrací { status, body }.
+function sendOneApns(client, token, payload, jwt, bundleId) {
+  return new Promise((resolve) => {
+    const body = JSON.stringify({
+      aps: {
+        alert: { title: payload.title || '🌿 GardenPin', body: payload.body || '' },
+        sound: 'default',
+        'mutable-content': 1,
+      },
+      data: { url: payload.url || '/' },
+    });
+    let req;
+    try {
+      req = client.request({
+        ':method': 'POST',
+        ':path': `/3/device/${token}`,
+        authorization: `bearer ${jwt}`,
+        'apns-topic': bundleId,
+        'apns-push-type': 'alert',
+        'apns-priority': '10',
+        'apns-expiration': '0',
+        'content-type': 'application/json',
+        'content-length': Buffer.byteLength(body),
+      });
+    } catch (e) {
+      resolve({ status: 0, error: e.message });
+      return;
+    }
+    let status = 0;
+    const chunks = [];
+    req.on('response', (h) => {
+      status = h[':status'];
+    });
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      resolve({ status, body: Buffer.concat(chunks).toString('utf8') });
+    });
+    req.on('error', (e) => resolve({ status: 0, error: e.message }));
+    req.setTimeout(10000, () => {
+      try { req.close(http2.constants.NGHTTP2_CANCEL); } catch (_) {}
+      resolve({ status: 0, error: 'timeout' });
+    });
+    req.end(body);
+  });
+}
+
+// Reálné doručení do APNs. Pro každý běh otevře jedno HTTP/2 spojení, pošle
+// všechny tokeny paralelně, zavře spojení. Tokeny se 400 (BadDeviceToken) nebo
+// 410 (Unregistered) se mažou z DB — odešly z device nebo jsou nevalidní.
 async function sendToNative(payload) {
   const tokens = listNativeTokens();
   if (tokens.length === 0) return { total: 0, sent: 0, skipped: 0 };
@@ -96,9 +185,63 @@ async function sendToNative(payload) {
     );
     return { total: tokens.length, sent: 0, skipped: tokens.length };
   }
-  // TODO(apns): odeslat přes APNs HTTP/2 + JWT (.p8). Vyžaduje Apple Push key.
-  console.log(`[push] APNs odeslání zatím neimplementováno (${tokens.length} tokenů)`);
-  return { total: tokens.length, sent: 0, skipped: tokens.length };
+
+  let jwt;
+  try {
+    jwt = buildApnsJwt();
+  } catch (e) {
+    console.error('[apns] JWT build selhal:', e.message);
+    return { total: tokens.length, sent: 0, skipped: tokens.length, error: e.message };
+  }
+
+  const host = process.env.APNS_HOST || 'https://api.push.apple.com';
+  const bundleId = process.env.APNS_BUNDLE_ID;
+
+  let client;
+  try {
+    client = await new Promise((resolve, reject) => {
+      const c = http2.connect(host);
+      const onError = (e) => { c.removeListener('connect', onConnect); reject(e); };
+      const onConnect = () => { c.removeListener('error', onError); resolve(c); };
+      c.once('connect', onConnect);
+      c.once('error', onError);
+    });
+  } catch (e) {
+    console.error('[apns] HTTP/2 connect selhal:', e.message);
+    return { total: tokens.length, sent: 0, skipped: tokens.length, error: e.message };
+  }
+
+  let results;
+  try {
+    results = await Promise.all(
+      tokens.map(async (row) => {
+        const r = await sendOneApns(client, row.token, payload, jwt, bundleId);
+        if (r.status === 200) return { ok: true };
+        // 410 (Unregistered) nebo 400 BadDeviceToken → token je nevalidní, smaž
+        const isStale =
+          r.status === 410 ||
+          (r.status === 400 && /BadDeviceToken|DeviceTokenNotForTopic/i.test(r.body || ''));
+        if (isStale) {
+          deleteNativeToken(row.token);
+          return { ok: false, removed: true, status: r.status };
+        }
+        return { ok: false, status: r.status, error: r.error || r.body };
+      }),
+    );
+  } finally {
+    try { client.close(); } catch (_) {}
+  }
+
+  const sent = results.filter((r) => r.ok).length;
+  const removed = results.filter((r) => r.removed).length;
+  const failed = results.filter((r) => !r.ok && !r.removed).length;
+  if (failed > 0) {
+    const sample = results.find((r) => !r.ok && !r.removed);
+    console.warn(
+      `[apns] ${failed}/${tokens.length} selhalo (vzorek: status=${sample.status} ${sample.error || ''})`,
+    );
+  }
+  return { total: tokens.length, sent, removed, failed, skipped: 0 };
 }
 
 async function sendToOne(row, payload) {
@@ -228,4 +371,6 @@ module.exports = {
   buildDailyDigest,
   runDailyDigest,
   startDailyCron,
+  // Hook pro testy/diagnostiku — neslouží jako veřejné API.
+  __test: { buildApnsJwt, apnsConfigured, sendToNative },
 };

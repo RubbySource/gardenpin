@@ -128,9 +128,13 @@ Apple Developer účtu):
 3. Dokud creds nejsou, backend nativní tokeny jen ukládá a při odeslání je
    přeskočí (log + `native.skipped` ve výsledku). Web push běží beze změny.
 
-> Implementace samotného APNs HTTP/2 odeslání (JWT z `.p8`) je v `backend/push.js`
-> ve funkci `sendToNative` označená `TODO(apns)` — napojí se až budou creds, bez
-> dotyku klienta.
+> APNs HTTP/2 odeslání je v `backend/push.js` (`sendToNative`): JWT je podepsaný
+> ES256 z `.p8` přes vestavěné `node:crypto` (žádná externí dependency), spojení
+> jede přes `node:http2`. Token se cachuje 55 minut. Tokeny se status 400
+> `BadDeviceToken` nebo 410 `Unregistered` se automaticky mažou z DB. Pro dev
+> build (Xcode → fyzický iPhone) lze přepnout na sandbox přes
+> `APNS_HOST=https://api.sandbox.push.apple.com`; default produkce funguje pro
+> TestFlight i App Store.
 
 ## App Store / TestFlight
 
