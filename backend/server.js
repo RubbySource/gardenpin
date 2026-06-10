@@ -1813,6 +1813,117 @@ app.get('/api/stats/harvests', (req, res) => {
   });
 });
 
+// ======================= PIN ISSUES (FEAT-3: choroby/škůdci na pinu) =======================
+// Záznam reálného výskytu (uživatel vidí varování z pestDatabase a zaloguje že to opravdu
+// nastalo). Aktivní vs. vyřešené (treated_at). Side effect: každá akce (detekce, vyřešení,
+// smazání) se zapisuje do care_history → splývá s ostatní péčí v historii pinu.
+const VALID_ISSUE_SEVERITIES = ['mild', 'moderate', 'severe'];
+const VALID_ISSUE_KINDS = ['disease', 'pest'];
+
+function normalizeSeverity(sev) {
+  return VALID_ISSUE_SEVERITIES.includes(sev) ? sev : 'moderate';
+}
+function normalizeIssueKind(k) {
+  return VALID_ISSUE_KINDS.includes(k) ? k : null;
+}
+function isoDate(input) {
+  if (!input) return null;
+  const s = String(input).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null;
+}
+
+app.get('/api/pins/:id/issues', (req, res) => {
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(req.params.id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  // Aktivní (treated_at IS NULL) první, pak vyřešené sestupně podle data vyřešení.
+  const rows = db
+    .prepare(
+      `SELECT * FROM pin_issues
+       WHERE pin_id = ?
+       ORDER BY (treated_at IS NULL) DESC, detected_at DESC, id DESC`,
+    )
+    .all(req.params.id);
+  res.json(rows);
+});
+
+app.post('/api/pins/:id/issues', (req, res) => {
+  const pin = db.prepare('SELECT id FROM pins WHERE id = ?').get(req.params.id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  const { issue_id, issue_name, kind, severity, detected_at, treatment_notes } = req.body || {};
+  const name = (issue_name || '').trim();
+  if (!name) return res.status(400).json({ error: 'issue_name je povinný' });
+  const sev = normalizeSeverity(severity);
+  const k = normalizeIssueKind(kind);
+  const date = isoDate(detected_at) || new Date().toISOString().slice(0, 10);
+  const info = db
+    .prepare(
+      `INSERT INTO pin_issues (pin_id, issue_id, issue_name, kind, severity, detected_at, treatment_notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(req.params.id, issue_id || null, name, k, sev, date, treatment_notes || null);
+  // Audit do care_history — „Detekováno: X (závažnost)" — viditelné v Historii péče i ve statistikách.
+  try {
+    const sevLabel = sev === 'severe' ? 'silné' : sev === 'mild' ? 'lehké' : 'střední';
+    db.prepare('INSERT INTO care_history (pin_id, action, notes) VALUES (?, ?, ?)').run(
+      req.params.id,
+      `Detekováno: ${name}`,
+      `Závažnost: ${sevLabel}${treatment_notes ? ` · ${treatment_notes}` : ''}`,
+    );
+  } catch {}
+  res.json(db.prepare('SELECT * FROM pin_issues WHERE id = ?').get(info.lastInsertRowid));
+});
+
+app.put('/api/pin-issues/:issueId', (req, res) => {
+  const id = req.params.issueId;
+  const existing = db.prepare('SELECT * FROM pin_issues WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Problém nenalezen' });
+  const body = req.body || {};
+  const fields = [];
+  const args = [];
+  if (body.severity !== undefined) { fields.push('severity = ?'); args.push(normalizeSeverity(body.severity)); }
+  if (body.treatment_notes !== undefined) { fields.push('treatment_notes = ?'); args.push(body.treatment_notes || null); }
+  if (body.detected_at !== undefined) {
+    const d = isoDate(body.detected_at);
+    if (d) { fields.push('detected_at = ?'); args.push(d); }
+  }
+  if (body.issue_name !== undefined) {
+    const name = (body.issue_name || '').trim();
+    if (name) { fields.push('issue_name = ?'); args.push(name); }
+  }
+  // mark_resolved: true → treated_at = dnes; false → vrátit zpět na active (NULL)
+  let resolvedChanged = null;
+  if (body.mark_resolved === true || body.treated_at) {
+    const d = isoDate(body.treated_at) || new Date().toISOString().slice(0, 10);
+    fields.push('treated_at = ?'); args.push(d);
+    if (!existing.treated_at) resolvedChanged = 'resolved';
+  } else if (body.mark_resolved === false) {
+    fields.push('treated_at = NULL');
+    if (existing.treated_at) resolvedChanged = 'reopened';
+  }
+  if (fields.length === 0) return res.json(existing);
+  args.push(id);
+  db.prepare(`UPDATE pin_issues SET ${fields.join(', ')} WHERE id = ?`).run(...args);
+  const updated = db.prepare('SELECT * FROM pin_issues WHERE id = ?').get(id);
+  // Audit přechodu do vyřešeného stavu (resolved = pozitivní akce, stojí za záznam v historii).
+  if (resolvedChanged === 'resolved') {
+    try {
+      db.prepare('INSERT INTO care_history (pin_id, action, notes) VALUES (?, ?, ?)').run(
+        existing.pin_id,
+        `Vyřešeno: ${updated.issue_name}`,
+        updated.treatment_notes || null,
+      );
+    } catch {}
+  }
+  res.json(updated);
+});
+
+app.delete('/api/pin-issues/:issueId', (req, res) => {
+  const existing = db.prepare('SELECT * FROM pin_issues WHERE id = ?').get(req.params.issueId);
+  if (!existing) return res.status(404).json({ error: 'Problém nenalezen' });
+  db.prepare('DELETE FROM pin_issues WHERE id = ?').run(req.params.issueId);
+  res.json({ ok: true });
+});
+
 // ======================= STATS =======================
 app.get('/api/stats', (req, res) => {
   const gardens = db.prepare('SELECT COUNT(*) AS c FROM gardens').get().c;

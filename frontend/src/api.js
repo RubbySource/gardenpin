@@ -159,6 +159,23 @@ export const api = {
   // Agregovaná historie (per pin+akce → den v roce) pro adaptivní termíny (careHistory.js)
   careHistoryDoy: () => jsonFetch('/api/care-history/doy'),
 
+  // FEAT-3: choroby/škůdci zalogované na pinu (reálný výskyt, ne katalog)
+  listPinIssues: (pinId) => jsonFetch(`/api/pins/${pinId}/issues`),
+  addPinIssue: (pinId, data) =>
+    jsonFetch(`/api/pins/${pinId}/issues`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  updatePinIssue: (issueId, data) =>
+    jsonFetch(`/api/pin-issues/${issueId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+  deletePinIssue: (issueId) =>
+    jsonFetch(`/api/pin-issues/${issueId}`, { method: 'DELETE' }),
+
   // Harvests (sklizeň) — globální výpis se nepoužívá, UI čte per-pin
   listPinHarvests: (pinId) => jsonFetch(`/api/pins/${pinId}/harvests`),
   createHarvest: (data) =>

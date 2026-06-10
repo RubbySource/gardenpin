@@ -143,6 +143,27 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_bed_plants_bed ON bed_plants(bed_id);
   CREATE INDEX IF NOT EXISTS idx_bed_plants_pin ON bed_plants(pin_id);
 
+  -- FEAT-3: záznam reálného výskytu choroby/škůdce na konkrétním pinu.
+  -- issue_id = stable ID z pestDatabase.js (např. 'plisen-bramborova') pokud volba ze
+  -- známých rizik; pro custom (uživatel napsal vlastní) zůstává NULL a uloží se jen issue_name.
+  -- kind ('disease'/'pest') je redundantní s pestDatabase, ale zapamatujeme si ji ať
+  -- frontend nemusí dopočítávat a custom záznamy mohou taky volit kind.
+  -- treated_at NULL = aktivní; vyplněné datum = vyřešeno.
+  CREATE TABLE IF NOT EXISTS pin_issues (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pin_id INTEGER NOT NULL,
+    issue_id TEXT,
+    issue_name TEXT NOT NULL,
+    kind TEXT,
+    severity TEXT NOT NULL DEFAULT 'moderate',
+    detected_at TEXT NOT NULL DEFAULT (date('now')),
+    treated_at TEXT,
+    treatment_notes TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_pin_issues_pin ON pin_issues(pin_id);
+
   CREATE TABLE IF NOT EXISTS harvests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pin_id INTEGER NOT NULL,

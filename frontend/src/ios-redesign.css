@@ -6559,3 +6559,308 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   .pd-photo-growth-seq { background: rgba(0, 0, 0, 0.7); }
 }
 
+/* =================================================================
+   PinDetail — Problémy (choroby/škůdci) [FEAT-3]
+   Karta v Info tabu — log aktivních problémů a historie vyřešených.
+   ================================================================= */
+.pd-issues { display: flex; flex-direction: column; gap: 12px; }
+
+.pd-issues-empty {
+  padding: 14px 16px;
+  background: var(--ios-fill-secondary);
+  border-radius: var(--ios-r-md);
+  color: var(--ios-label-secondary);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.pd-issues-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-issues-group-head {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ios-label-secondary);
+  padding: 0 4px;
+}
+.pd-issues-group-count { font-weight: 600; }
+
+.pd-issues-group-resolved .pd-issues-group-head { opacity: 0.7; }
+
+.pd-issue-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  box-shadow: var(--ios-shadow-card);
+  position: relative;
+  align-items: start;
+}
+
+/* Levý 3px severity bar — parita s .task-row.overdue/today */
+.pd-issue-row::before {
+  content: "";
+  position: absolute;
+  top: 12px; bottom: 12px; left: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--ios-orange);
+}
+.pd-issue-sev-mild::before { background: #c9b94c; }
+.pd-issue-sev-moderate::before { background: var(--ios-orange); }
+.pd-issue-sev-severe::before { background: var(--ios-red); }
+
+.pd-issue-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ios-r-md);
+  background: var(--ios-fill-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.pd-issue-sev-severe .pd-issue-icon { background: rgba(255, 59, 48, 0.13); }
+.pd-issue-sev-moderate .pd-issue-icon { background: rgba(255, 149, 0, 0.13); }
+.pd-issue-sev-mild .pd-issue-icon { background: rgba(201, 185, 76, 0.16); }
+
+.pd-issue-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pd-issue-name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+}
+
+.pd-issue-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.pd-issue-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ios-fill-secondary);
+  color: var(--ios-label-secondary);
+  letter-spacing: 0.01em;
+}
+.pd-issue-tag-sev-mild { background: rgba(201, 185, 76, 0.18); color: #8a7a1e; }
+.pd-issue-tag-sev-moderate { background: rgba(255, 149, 0, 0.18); color: #9c5a00; }
+.pd-issue-tag-sev-severe { background: rgba(255, 59, 48, 0.18); color: #a31a16; }
+
+.pd-issue-date {
+  font-size: 0.78rem;
+  color: var(--ios-label-tertiary, var(--ios-label-secondary));
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-issue-notes {
+  font-size: 0.88rem;
+  color: var(--ios-label-secondary);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.pd-issue-prevention {
+  font-size: 0.82rem;
+  color: #4a7c3a;
+  background: rgba(123, 168, 137, 0.12);
+  border-radius: var(--ios-r-sm);
+  padding: 6px 10px;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.pd-issue-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.pd-issue-action {
+  border: none;
+  background: var(--ios-fill-secondary);
+  color: var(--ios-label);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 10px;
+  border-radius: var(--ios-r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.12s ease, background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pd-issue-action:active { transform: scale(0.95); }
+.pd-issue-action.primary {
+  background: var(--ios-accent);
+  color: #fff;
+}
+.pd-issue-action.ghost { background: transparent; }
+.pd-issue-action.danger {
+  background: transparent;
+  color: var(--ios-red);
+  font-size: 1rem;
+  padding: 6px 8px;
+}
+
+.pd-issue-resolved {
+  opacity: 0.78;
+}
+.pd-issue-resolved .pd-issue-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--ios-label-tertiary, rgba(0, 0, 0, 0.3));
+}
+.pd-issue-resolved::before { background: var(--ios-accent); }
+.pd-issue-resolved .pd-issue-icon {
+  background: rgba(123, 168, 137, 0.14);
+  filter: grayscale(0.4);
+}
+
+/* ----- "+ Zaznamenat" tlačítko ----- */
+.pd-issue-add-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px dashed var(--ios-separator, rgba(60, 60, 67, 0.18));
+  background: transparent;
+  border-radius: var(--ios-r-md);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ios-accent);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pd-issue-add-btn:active {
+  background: var(--ios-fill-secondary);
+  border-color: var(--ios-accent);
+}
+
+/* ----- Form ----- */
+.pd-issue-form {
+  background: var(--ios-bg-elev);
+  border-radius: var(--ios-r-lg);
+  padding: 14px;
+  box-shadow: var(--ios-shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pd-issue-form .field { margin-bottom: 0; }
+
+.pd-issue-known-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ios-label-secondary);
+  margin-bottom: 6px;
+}
+.pd-issue-known-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pd-issue-chip {
+  border: 1px solid var(--ios-separator, rgba(60, 60, 67, 0.18));
+  background: var(--ios-fill-secondary);
+  color: var(--ios-label);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.pd-issue-chip:active { transform: scale(0.96); }
+.pd-issue-chip.active {
+  background: rgba(123, 168, 137, 0.18);
+  border-color: var(--ios-accent);
+  color: #4a7c3a;
+  font-weight: 600;
+}
+.pd-issue-chip.pest-disease.active { background: rgba(180, 100, 60, 0.16); border-color: #b4643c; color: #7a3f1c; }
+.pd-issue-chip.pest-pest.active { background: rgba(255, 149, 0, 0.18); border-color: #ff9500; color: #9c5a00; }
+.pd-issue-chip-custom { border-style: dashed; }
+
+.pd-issue-sev-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.pd-issue-sev-chip {
+  border: 1.5px solid var(--ios-separator, rgba(60, 60, 67, 0.18));
+  background: transparent;
+  border-radius: var(--ios-r-sm);
+  padding: 9px 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ios-label-secondary);
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pd-issue-sev-chip:active { transform: scale(0.96); }
+.pd-issue-sev-chip-mild.active {
+  background: rgba(201, 185, 76, 0.18);
+  border-color: #c9b94c;
+  color: #8a7a1e;
+}
+.pd-issue-sev-chip-moderate.active {
+  background: rgba(255, 149, 0, 0.18);
+  border-color: var(--ios-orange);
+  color: #9c5a00;
+}
+.pd-issue-sev-chip-severe.active {
+  background: rgba(255, 59, 48, 0.18);
+  border-color: var(--ios-red);
+  color: #a31a16;
+}
+
+.pd-issue-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pd-issue-empty { background: rgba(255, 255, 255, 0.06); }
+  .pd-issue-tag-sev-mild { color: #d6c160; }
+  .pd-issue-tag-sev-moderate { color: #ffaa33; }
+  .pd-issue-tag-sev-severe { color: #ff6b66; }
+  .pd-issue-prevention { color: #a0c89b; background: rgba(123, 168, 137, 0.16); }
+  .pd-issue-chip { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); }
+  .pd-issue-chip.active { color: #a8d1b0; }
+  .pd-issue-chip.pest-disease.active { color: #d99b6f; }
+  .pd-issue-chip.pest-pest.active { color: #ffb24d; }
+  .pd-issue-sev-chip-mild.active { color: #d6c160; }
+  .pd-issue-sev-chip-moderate.active { color: #ffaa33; }
+  .pd-issue-sev-chip-severe.active { color: #ff6b66; }
+  .pd-issue-resolved .pd-issue-name {
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+  }
+}
+

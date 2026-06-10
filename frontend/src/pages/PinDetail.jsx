@@ -9,6 +9,7 @@ import { toast, followUpForTask } from '../App.jsx';
 import { TASK_TYPES, dueBadge, formatDate, formatDateTime, formatDayMonth, taskLabel, taskIconName } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
+import { getWarningsForPlant, PEST_DATABASE } from '../pestDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
 import CompanionWarning from '../components/CompanionWarning.jsx';
@@ -783,6 +784,13 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
           />
         </div>
       )}
+
+      {/* FEAT-3: Problémy (choroby/škůdci) — reálný výskyt logovaný uživatelem.
+          Audit do care_history se děje server-side, aby Historie péče níže zahrnula tyto akce. */}
+      <div className="pd-section">
+        <div className="pd-section-title">{t('pin.issuesTitle')}</div>
+        <PinIssuesSection pin={pin} onChanged={onReload} />
+      </div>
 
       {/* Sklizeň */}
       <div className="pd-section">
@@ -1810,5 +1818,338 @@ function HarvestTab({ pinId }) {
         ))
       )}
     </div>
+  );
+}
+
+// ===================== Problémy (choroby/škůdci) — FEAT-3 =====================
+// Uživatel loguje reálný výskyt z katalogu rizik (pestDatabase) nebo zapíše vlastní.
+// Aktivní × vyřešené, severity 3 stupně. Server side-effect: zápis do care_history.
+
+const ISSUE_SEVERITIES = ['mild', 'moderate', 'severe'];
+
+function issueKindIcon(issue) {
+  if (issue.issue_id) {
+    const known = PEST_DATABASE.find((p) => p.id === issue.issue_id);
+    if (known?.icon) return known.icon;
+  }
+  if (issue.kind === 'pest') return '🐛';
+  if (issue.kind === 'disease') return '🍂';
+  return '⚠️';
+}
+
+function sevLabel(t, sev) {
+  if (sev === 'mild') return t('pin.issuesSevMild');
+  if (sev === 'severe') return t('pin.issuesSevSevere');
+  return t('pin.issuesSevModerate');
+}
+
+function PinIssuesSection({ pin, onChanged }) {
+  const { t } = useTranslation();
+  const [issues, setIssues] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const known = pin.plant_name ? getWarningsForPlant(pin.plant_name) : [];
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const list = await api.listPinIssues(pin.id);
+      setIssues(list);
+    } catch (e) {
+      toast(t('common.error', { msg: e.message }));
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => { load(); }, [pin.id]);
+
+  const active = issues.filter((i) => !i.treated_at);
+  const resolved = issues.filter((i) => i.treated_at);
+
+  const afterMutation = () => {
+    load();
+    if (onChanged) onChanged();
+  };
+
+  const handleResolve = async (it) => {
+    try {
+      await api.updatePinIssue(it.id, { mark_resolved: true });
+      toast(t('pin.issuesToastResolved'));
+      afterMutation();
+    } catch (e) { toast(t('common.error', { msg: e.message })); }
+  };
+  const handleReopen = async (it) => {
+    try {
+      await api.updatePinIssue(it.id, { mark_resolved: false });
+      toast(t('pin.issuesToastReopened'));
+      afterMutation();
+    } catch (e) { toast(t('common.error', { msg: e.message })); }
+  };
+  const handleDelete = async (it) => {
+    if (!confirm(t('pin.issuesConfirmDelete'))) return;
+    try {
+      await api.deletePinIssue(it.id);
+      toast(t('pin.issuesToastDeleted'));
+      afterMutation();
+    } catch (e) { toast(t('common.error', { msg: e.message })); }
+  };
+
+  return (
+    <div className="pd-issues">
+      {loading ? (
+        <div className="empty small">{t('common.loadingShort')}</div>
+      ) : (
+        <>
+          {issues.length === 0 ? (
+            <div className="pd-issues-empty">{t('pin.issuesEmpty')}</div>
+          ) : (
+            <>
+              {active.length > 0 && (
+                <div className="pd-issues-group">
+                  <div className="pd-issues-group-head">
+                    {t('pin.issuesActiveSection')} ·{' '}
+                    <span className="pd-issues-group-count">
+                      {t('pin.issuesActiveCount', { count: active.length })}
+                    </span>
+                  </div>
+                  {active.map((it) => (
+                    <IssueRow
+                      key={it.id}
+                      issue={it}
+                      onResolve={handleResolve}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+              {resolved.length > 0 && (
+                <div className="pd-issues-group pd-issues-group-resolved">
+                  <div className="pd-issues-group-head">{t('pin.issuesResolvedSection')}</div>
+                  {resolved.map((it) => (
+                    <IssueRow
+                      key={it.id}
+                      issue={it}
+                      resolved
+                      onReopen={handleReopen}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {!adding ? (
+            <button
+              type="button"
+              className="pd-issue-add-btn"
+              onClick={() => setAdding(true)}
+            >
+              {t('pin.issuesAdd')}
+            </button>
+          ) : (
+            <PinIssueForm
+              pin={pin}
+              known={known}
+              onCancel={() => setAdding(false)}
+              onSaved={() => { setAdding(false); afterMutation(); }}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function IssueRow({ issue, resolved, onResolve, onReopen, onDelete }) {
+  const { t } = useTranslation();
+  const icon = issueKindIcon(issue);
+  const kindTag =
+    issue.kind === 'pest' ? t('pin.issuesKindPest')
+    : issue.kind === 'disease' ? t('pin.issuesKindDisease')
+    : null;
+  const knownPest = issue.issue_id ? PEST_DATABASE.find((p) => p.id === issue.issue_id) : null;
+  return (
+    <div className={`pd-issue-row pd-issue-sev-${issue.severity}${resolved ? ' pd-issue-resolved' : ''}`}>
+      <div className="pd-issue-icon" aria-hidden="true">{icon}</div>
+      <div className="pd-issue-body">
+        <div className="pd-issue-name">{issue.issue_name}</div>
+        <div className="pd-issue-meta">
+          {kindTag && <span className="pd-issue-tag">{kindTag}</span>}
+          <span className={`pd-issue-tag pd-issue-tag-sev-${issue.severity}`}>
+            {sevLabel(t, issue.severity)}
+          </span>
+          <span className="pd-issue-date">
+            {resolved
+              ? t('pin.issuesTreatedOn', { date: formatDate(issue.treated_at) })
+              : t('pin.issuesDetectedOn', { date: formatDate(issue.detected_at) })}
+          </span>
+        </div>
+        {issue.treatment_notes && (
+          <div className="pd-issue-notes">{issue.treatment_notes}</div>
+        )}
+        {!resolved && knownPest?.prevention && (
+          <div className="pd-issue-prevention">
+            {t('pin.issuesPreventionHint', { text: knownPest.prevention })}
+          </div>
+        )}
+      </div>
+      <div className="pd-issue-actions">
+        {resolved ? (
+          <button
+            type="button"
+            className="pd-issue-action ghost"
+            onClick={() => onReopen(issue)}
+            title={t('pin.issuesReopen')}
+            aria-label={t('pin.issuesReopen')}
+          >
+            ↩️
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="pd-issue-action primary"
+            onClick={() => onResolve(issue)}
+          >
+            {t('pin.issuesMarkResolved')}
+          </button>
+        )}
+        <button
+          type="button"
+          className="pd-issue-action danger"
+          onClick={() => onDelete(issue)}
+          title={t('pin.issuesDelete')}
+          aria-label={t('pin.issuesDelete')}
+        >
+          🗑️
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PinIssueForm({ pin, known, onCancel, onSaved }) {
+  const { t } = useTranslation();
+  const [pickedId, setPickedId] = useState('');
+  const [name, setName] = useState('');
+  const [kind, setKind] = useState(null);
+  const [severity, setSeverity] = useState('moderate');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const choosePreset = (w) => {
+    setPickedId(w.id);
+    setName(w.name);
+    setKind(w.kind);
+  };
+  const chooseCustom = () => {
+    setPickedId('');
+    setKind(null);
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const finalName = (name || '').trim();
+    if (!finalName) { toast(t('pin.issuesToastEnterName')); return; }
+    setSaving(true);
+    try {
+      await api.addPinIssue(pin.id, {
+        issue_id: pickedId || null,
+        issue_name: finalName,
+        kind,
+        severity,
+        detected_at: date,
+        treatment_notes: notes || null,
+      });
+      toast(t('pin.issuesToastAdded'));
+      onSaved();
+    } catch (err) {
+      toast(t('common.error', { msg: err.message }));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form className="pd-issue-form" onSubmit={submit}>
+      {known.length > 0 && (
+        <div className="pd-issue-known">
+          <div className="pd-issue-known-label">
+            {t('pin.issuesSelectKnown', { plant: pin.plant_name })}
+          </div>
+          <div className="pd-issue-known-chips">
+            {known.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                className={`pd-issue-chip pest-${w.kind} ${pickedId === w.id ? 'active' : ''}`}
+                onClick={() => choosePreset(w)}
+              >
+                <span aria-hidden="true">{w.icon}</span> {w.name}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={`pd-issue-chip pd-issue-chip-custom ${pickedId === '' && name ? 'active' : ''}`}
+              onClick={chooseCustom}
+            >
+              ✏️ {t('pin.issuesCustomEntry')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="field">
+        <label className="small muted">{t('pin.issuesFieldName')}</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => { setName(e.target.value); if (pickedId) setPickedId(''); }}
+          placeholder={t('pin.issuesNamePlaceholder')}
+          autoFocus
+        />
+      </div>
+
+      <div className="field">
+        <label className="small muted">{t('pin.issuesFieldSeverity')}</label>
+        <div className="pd-issue-sev-picker">
+          {ISSUE_SEVERITIES.map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={`pd-issue-sev-chip pd-issue-sev-chip-${s} ${severity === s ? 'active' : ''}`}
+              onClick={() => setSeverity(s)}
+            >
+              {sevLabel(t, s)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="field">
+        <label className="small muted">{t('pin.issuesFieldDetectedAt')}</label>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      </div>
+
+      <div className="field">
+        <label className="small muted">{t('pin.issuesFieldTreatmentNotes')}</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder={t('pin.issuesTreatmentPlaceholder')}
+          rows={2}
+        />
+      </div>
+
+      <div className="pd-issue-form-actions">
+        <button type="button" className="btn ghost" onClick={onCancel}>
+          {t('pin.issuesCancel')}
+        </button>
+        <button type="submit" className="btn" disabled={saving}>
+          {saving ? t('common.saving') : t('pin.issuesAddSubmit')}
+        </button>
+      </div>
+    </form>
   );
 }
