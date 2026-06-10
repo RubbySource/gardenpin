@@ -19,9 +19,9 @@ const BED_TYPES = [
   { id: 'mixed', label: '🌻 Smíšený' },
 ];
 
-export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDeleted, onPinOpen }) {
+export default function BedDetailModal({ bed, garden, onClose, onBedUpdated, onBedDeleted, onPinOpen }) {
   const { t } = useTranslation();
-  const [tab, setTab] = useState('plants'); // 'plants' | 'edit'
+  const [tab, setTab] = useState('plants'); // 'plants' | 'plan' | 'edit'
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [insidePins, setInsidePins] = useState([]);
@@ -67,6 +67,15 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
             type="button"
           >
             🌱 Rostliny ({plants.length})
+          </button>
+          <button
+            className={`btn small${tab === 'plan' ? '' : ' ghost'}`}
+            onClick={() => setTab('plan')}
+            type="button"
+            disabled={!garden?.image_path}
+            title={garden?.image_path ? 'Vizuální plán záhonu' : 'Plán vyžaduje fotku zahrady'}
+          >
+            🗺️ Plán
           </button>
           <button
             className={`btn small${tab === 'edit' ? '' : ' ghost'}`}
@@ -144,6 +153,20 @@ export default function BedDetailModal({ bed, onClose, onBedUpdated, onBedDelete
               />
             )}
           </>
+        )}
+
+        {tab === 'plan' && (
+          <BedPlanView
+            bed={localBed}
+            garden={garden}
+            plants={plants}
+            loading={loading}
+            onPositionChanged={(bp) =>
+              setPlants((prev) => prev.map((x) => (x.id === bp.id ? bp : x)))
+            }
+            onPlantAdded={(bp) => setPlants((prev) => [...prev, bp])}
+            onPinOpen={onPinOpen}
+          />
         )}
 
         {tab === 'edit' && (
@@ -663,6 +686,352 @@ function BedEditForm({ bed, onClose, onSaved, onDeleted }) {
             {saving ? 'Ukládám…' : 'Uložit'}
           </button>
         </div>
+      </div>
+    </form>
+  );
+}
+
+// =====================================================================
+// BED-2: Vizuální plán záhonu — výřez fotky zahrady jako pozadí + draggable
+// piny rostlin. Klik na prázdné místo → mini-formulář pro přidání rostliny.
+// Pozice (bed_x, bed_y v %) se mapují zpět na souřadnice zahrady přes
+// backend a propisují se do pins.x/y, aby se piny rozprostřely i na hlavní mapě.
+// =====================================================================
+function BedPlanView({ bed, garden, plants, loading, onPositionChanged, onPlantAdded, onPinOpen }) {
+  const planRef = useRef(null);
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragPos, setDragPos] = useState(null); // { x, y } v % v rámci záhonu
+  const [savingId, setSavingId] = useState(null);
+  const [tapPos, setTapPos] = useState(null); // { x, y } — pozice pro mini-form
+  const [closeUp, setCloseUp] = useState(true); // close-up vs whole-garden context
+
+  if (!garden || !garden.image_path) {
+    return (
+      <div
+        className="muted"
+        style={{ padding: 24, textAlign: 'center', background: 'var(--sand)', borderRadius: 12 }}
+      >
+        🌅 Pro plán záhonu nahraj fotku zahrady. Bez fotky není kde piny zobrazit.
+      </div>
+    );
+  }
+
+  const bedW = Math.max(0.01, bed.width || 1);
+  const bedH = Math.max(0.01, bed.height || 1);
+  const aspectRatio = `${bedW} / ${bedH}`;
+
+  // Vrátí pozici (0-100 %) klepnutí v rámci záhonu (ne celé zahrady).
+  const getBedPercent = (clientX, clientY) => {
+    if (!planRef.current) return { x: 0, y: 0 };
+    const rect = planRef.current.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100)),
+    };
+  };
+
+  // Vrátí (bed_x, bed_y) pro rostlinu — preferuje uloženou pozici, fallback ke středu.
+  const plantPos = (bp) => {
+    if (bp.bed_x != null && bp.bed_y != null) return { x: bp.bed_x, y: bp.bed_y };
+    // Auto rostliny (mřížka): odvodíme z pin x/y, pokud existuje.
+    if (bp.pin_x != null && bp.pin_y != null) {
+      return {
+        x: ((bp.pin_x - bed.x) / bedW) * 100,
+        y: ((bp.pin_y - bed.y) / bedH) * 100,
+      };
+    }
+    return { x: 50, y: 50 };
+  };
+
+  const handlePinPointerDown = (e, bp) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    const start = plantPos(bp);
+    setDraggingId(bp.id);
+    setDragPos(start);
+  };
+
+  const handlePinPointerMove = (e) => {
+    if (draggingId == null) return;
+    setDragPos(getBedPercent(e.clientX, e.clientY));
+  };
+
+  const handlePinPointerUp = async (e, bp) => {
+    if (draggingId == null || !dragPos) {
+      setDraggingId(null);
+      setDragPos(null);
+      return;
+    }
+    try { e.currentTarget.releasePointerCapture?.(e.pointerId); } catch {}
+    const pos = dragPos;
+    const start = plantPos(bp);
+    setDraggingId(null);
+    setDragPos(null);
+    // Pokud se pin téměř nepohnul, otevři pin detail (tap).
+    const dx = Math.abs(pos.x - start.x);
+    const dy = Math.abs(pos.y - start.y);
+    if (dx < 1 && dy < 1) {
+      if (bp.pin_id && onPinOpen) onPinOpen(bp.pin_id);
+      return;
+    }
+    setSavingId(bp.id);
+    try {
+      const updated = await api.setBedPlantPosition(bp.id, { bed_x: pos.x, bed_y: pos.y });
+      onPositionChanged?.(updated);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  // Klik na prázdné místo → otevři mini-formulář na té pozici.
+  const handleBackgroundClick = (e) => {
+    if (e.target !== planRef.current && !e.target.classList.contains('bed-plan-bg')) return;
+    if (draggingId != null) return;
+    const pos = getBedPercent(e.clientX, e.clientY);
+    setTapPos(pos);
+  };
+
+  // Crop fotky zahrady na obdélník záhonu (CSS background trick).
+  // background-size: 100% celá fotka by se vešla do plánu; my chceme zvětšit ji
+  // tak, aby výřez záhonu vyplnil celý plán → size = (100/bedW)% × (100/bedH)%.
+  // background-position: posun musí být v % od levého horního rohu výřezu uvnitř
+  // origin fotky — pro background-position: x% y% platí, že y% se mapuje na
+  // (vp_height - bg_height) × y/100; standardní vzorec pro výřez:
+  //   pos_x% = bed.x / (100 - bedW) × 100, pos_y% = bed.y / (100 - bedH) × 100
+  // (když bedW/H = 100, pozice je libovolná — fotka pokrývá celý plán)
+  const closeUpBgSize = `${(100 / bedW) * 100}% ${(100 / bedH) * 100}%`;
+  const denomX = 100 - bedW;
+  const denomY = 100 - bedH;
+  const closeUpBgPos =
+    denomX <= 0 && denomY <= 0
+      ? '0% 0%'
+      : `${denomX > 0 ? (bed.x / denomX) * 100 : 0}% ${denomY > 0 ? (bed.y / denomY) * 100 : 0}%`;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <div className="muted" style={{ fontSize: 12 }}>
+          📍 Táhni piny — pozice se uloží. Klikni do prázdna → přidat rostlinu.
+        </div>
+        <button
+          className={`btn small${closeUp ? '' : ' ghost'}`}
+          onClick={() => setCloseUp((v) => !v)}
+          type="button"
+          title={closeUp ? 'Ukázat fotku celé zahrady' : 'Přiblížit na záhon'}
+        >
+          {closeUp ? '🔍 Detail' : '🌍 Celá'}
+        </button>
+      </div>
+
+      {loading && <p className="muted">Načítám…</p>}
+
+      <div
+        ref={planRef}
+        className="bed-plan-bg"
+        onClick={handleBackgroundClick}
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio,
+          maxHeight: '60vh',
+          backgroundImage: `url(${garden.image_path})`,
+          backgroundSize: closeUp ? closeUpBgSize : 'contain',
+          backgroundPosition: closeUp ? closeUpBgPos : 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'var(--sand)',
+          borderRadius: 12,
+          border: `2px solid ${bed.color || '#8b6f47'}`,
+          overflow: 'hidden',
+          cursor: 'crosshair',
+          touchAction: 'none',
+          userSelect: 'none',
+        }}
+      >
+        {/* lehký dim overlay aby piny byly čitelné na pestré fotce */}
+        <div
+          className="bed-plan-bg"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.08))',
+            pointerEvents: 'none',
+          }}
+        />
+        {plants.map((bp) => {
+          const isDragged = draggingId === bp.id;
+          const pos = isDragged && dragPos ? dragPos : plantPos(bp);
+          const isSaving = savingId === bp.id;
+          return (
+            <div
+              key={bp.id}
+              onPointerDown={(e) => handlePinPointerDown(e, bp)}
+              onPointerMove={handlePinPointerMove}
+              onPointerUp={(e) => handlePinPointerUp(e, bp)}
+              onPointerCancel={(e) => handlePinPointerUp(e, bp)}
+              style={{
+                position: 'absolute',
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                transform: 'translate(-50%, -50%)',
+                background: bp.pin_color || bp.color || '#4a7c3a',
+                color: 'white',
+                borderRadius: 14,
+                padding: '4px 8px',
+                fontSize: 11,
+                fontWeight: 700,
+                minWidth: 28,
+                maxWidth: 110,
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                boxShadow: isDragged
+                  ? '0 6px 14px rgba(0,0,0,0.35)'
+                  : '0 2px 4px rgba(0,0,0,0.25)',
+                border: '2px solid white',
+                cursor: isDragged ? 'grabbing' : 'grab',
+                touchAction: 'none',
+                opacity: isSaving ? 0.7 : 1,
+                zIndex: isDragged ? 10 : 1,
+                transition: isDragged ? 'none' : 'box-shadow 120ms ease',
+              }}
+              title={`${bp.plant_name} · ${bp.count}×${bp.bed_x == null ? ' · auto pozice' : ''}`}
+            >
+              {bp.plant_name}
+            </div>
+          );
+        })}
+
+        {/* Tap-add marker — bliká dokud user nepotvrdí v miniform */}
+        {tapPos && (
+          <div
+            style={{
+              position: 'absolute',
+              left: `${tapPos.x}%`,
+              top: `${tapPos.y}%`,
+              transform: 'translate(-50%, -50%)',
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              border: '2px dashed #4a7c3a',
+              background: 'rgba(74,124,58,0.2)',
+              pointerEvents: 'none',
+              animation: 'pulse 1.2s ease-in-out infinite',
+            }}
+            aria-hidden
+          />
+        )}
+      </div>
+
+      {tapPos && (
+        <BedPlanQuickAdd
+          bedId={bed.id}
+          pos={tapPos}
+          onCancel={() => setTapPos(null)}
+          onAdded={(row) => {
+            onPlantAdded?.(row);
+            setTapPos(null);
+            toast('🌱 Rostlina přidána do plánu');
+          }}
+        />
+      )}
+
+      {!loading && plants.length === 0 && !tapPos && (
+        <div
+          className="muted"
+          style={{ textAlign: 'center', fontSize: 13, padding: '4px 8px' }}
+        >
+          Klikni do plánu — přidáš rostlinu rovnou na vybrané místo.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Mini-formulář pro přidání rostliny rovnou na zvolené místo v plánu záhonu.
+// Použivá stejné API (`addBedPlant`) jako AddPlantForm, jen předá bed_x/bed_y.
+function BedPlanQuickAdd({ bedId, pos, onCancel, onAdded }) {
+  const [name, setName] = useState('');
+  const [plantId, setPlantId] = useState(null);
+  const [count, setCount] = useState(1);
+  const [color, setColor] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e?.preventDefault?.();
+    if (!name.trim()) return toast('Vyber rostlinu');
+    setBusy(true);
+    try {
+      const row = await api.addBedPlant(bedId, {
+        plant_id: plantId,
+        plant_name: name.trim(),
+        count: Math.max(1, parseInt(count, 10) || 1),
+        planted_at: new Date().toISOString().slice(0, 10),
+        color,
+        auto_pin: true,
+        bed_x: pos.x,
+        bed_y: pos.y,
+      });
+      onAdded(row);
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={submit}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+        padding: 12,
+        background: 'var(--sand)',
+        borderRadius: 12,
+        border: '1px solid var(--border)',
+      }}
+    >
+      <div style={{ fontSize: 12, fontWeight: 600 }}>
+        📍 Přidat rostlinu na pozici {pos.x.toFixed(0)} %, {pos.y.toFixed(0)} %
+      </div>
+      <div className="field">
+        <label>Rostlina</label>
+        <PlantAutocomplete
+          value={name}
+          onChange={(val, plant) => {
+            setName(val);
+            setPlantId(plant?.id || null);
+            if (plant?.color) setColor(plant.color);
+          }}
+          onSelect={(plant) => {
+            setName(plant.nameCz);
+            setPlantId(plant.id);
+            if (plant.color) setColor(plant.color);
+          }}
+          placeholder="např. Rajče"
+        />
+      </div>
+      <div className="field">
+        <label>Počet</label>
+        <input
+          type="number"
+          min="1"
+          value={count}
+          onChange={(e) => setCount(parseInt(e.target.value, 10) || 1)}
+        />
+      </div>
+      <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
+        <button className="btn ghost small" onClick={onCancel} type="button">
+          Zrušit
+        </button>
+        <button className="btn small" type="submit" disabled={busy}>
+          {busy ? 'Přidávám…' : '➕ Přidat sem'}
+        </button>
       </div>
     </form>
   );

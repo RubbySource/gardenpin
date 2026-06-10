@@ -96,6 +96,13 @@ export const api = {
     }),
   removeBedPlant: (id, { keepPin = false } = {}) =>
     jsonFetch(`/api/bed-plants/${id}?keep_pin=${keepPin ? 1 : 0}`, { method: 'DELETE' }),
+  // BED-2: nastaví pozici v plánu záhonu (% v rámci bed obdélníku). null = grid.
+  setBedPlantPosition: (id, { bed_x, bed_y } = {}) =>
+    jsonFetch(`/api/bed-plants/${id}/position`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bed_x, bed_y }),
+    }),
   pinsInsideBed: (bedId) => jsonFetch(`/api/beds/${bedId}/pins-inside`),
   mergePinsIntoBed: (bedId, pinIds) =>
     jsonFetch(`/api/beds/${bedId}/merge-pins`, {

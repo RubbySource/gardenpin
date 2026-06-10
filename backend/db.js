@@ -226,6 +226,10 @@ try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_ical_token ON garde
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_gardens_share_token ON gardens(share_token) WHERE share_token IS NOT NULL'); } catch {}
 // Záhony — kategorizace typu (vegetable/flower/herb/mixed) pro filtrování a doporučení.
 try { db.exec('ALTER TABLE beds ADD COLUMN type TEXT'); } catch {}
+// BED-2: ruční pozice rostliny v záhonu (% v rámci bed obdélníku, 0-100).
+// Když NULL → grid distribuce z `bedPlantPosition`. Když !NULL → manuální pozice z plánu.
+try { db.exec('ALTER TABLE bed_plants ADD COLUMN bed_x REAL'); } catch {}
+try { db.exec('ALTER TABLE bed_plants ADD COLUMN bed_y REAL'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 // Spolupráce — přiřazení úkolu členovi + atribuce splnění

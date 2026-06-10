@@ -1279,6 +1279,7 @@ export default function GardenDetailPage() {
       {editingBed && (
         <BedDetailModal
           bed={editingBed}
+          garden={garden}
           onClose={() => setEditingBed(null)}
           onBedUpdated={(b) => {
             setBeds((prev) => prev.map((x) => (x.id === b.id ? b : x)));

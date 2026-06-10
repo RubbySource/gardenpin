@@ -879,16 +879,16 @@ function bedPlantPosition(bed, index, total) {
   };
 }
 
-// BED-1: přepíše pozice všech aktivních bed_plant pinů záhonu podle mřížky
+// BED-1/BED-2: přepíše pozice bed_plant pinů záhonu. Rostliny s ručně nastavenou
+// pozicí (bed_x/bed_y !NULL — z plánu záhonu) zůstávají; zbytek se rozprostře mřížkou
 // (`bedPlantPosition`). Pořadí dle `created_at` (stabilní mezi voláními).
-// Volá se po add/remove bed_plant a v boot migraci pro stacknuté piny.
 const _redistributeUpdate = () => db.prepare('UPDATE pins SET x = ?, y = ? WHERE id = ?');
 function redistributeBedPins(bedId) {
   const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(bedId);
   if (!bed) return 0;
   const rows = db
     .prepare(
-      `SELECT bp.id, bp.pin_id
+      `SELECT bp.id, bp.pin_id, bp.bed_x, bp.bed_y
        FROM bed_plants bp
        WHERE bp.bed_id = ? AND bp.removed_at IS NULL AND bp.pin_id IS NOT NULL
        ORDER BY bp.created_at ASC, bp.id ASC`,
@@ -897,9 +897,21 @@ function redistributeBedPins(bedId) {
   const total = rows.length;
   if (total === 0) return 0;
   const upd = _redistributeUpdate();
+  // BED-2: rostliny s manuální pozicí přeskočíme; mřížka jede jen přes zbytek
+  // (auto rostliny dostávají index podle pořadí mezi sebou, ne globálně).
+  const autoRows = rows.filter((r) => r.bed_x == null || r.bed_y == null);
   const tx = db.transaction(() => {
-    rows.forEach((r, idx) => {
-      const pos = bedPlantPosition(bed, idx, total);
+    // Manuální: zaručíme, že pin x/y sedí na bed_x/bed_y (idempotent self-heal).
+    rows
+      .filter((r) => r.bed_x != null && r.bed_y != null)
+      .forEach((r) => {
+        const px = bed.x + (r.bed_x / 100) * bed.width;
+        const py = bed.y + (r.bed_y / 100) * bed.height;
+        upd.run(px, py, r.pin_id);
+      });
+    // Auto: grid přes zbylé rostliny.
+    autoRows.forEach((r, idx) => {
+      const pos = bedPlantPosition(bed, idx, autoRows.length);
       upd.run(pos.x, pos.y, r.pin_id);
     });
   });
@@ -966,21 +978,38 @@ app.post('/api/beds/:bedId/plants', (req, res) => {
     link_pin_id = null,
     auto_pin = true,
     color = null,
+    bed_x = null,
+    bed_y = null,
   } = req.body || {};
 
   if (!plant_name || !String(plant_name).trim()) {
     return res.status(400).json({ error: 'plant_name je povinný' });
   }
   const cnt = Math.max(1, parseInt(count, 10) || 1);
+  // BED-2: pokud klient klepl na konkrétní místo v plánu záhonu, dostaneme
+  // bed_x/bed_y v % (0-100). Klamp + ulož; null = grid distribuce z BED-1.
+  const hasManualPos =
+    bed_x != null && bed_y != null && !Number.isNaN(Number(bed_x)) && !Number.isNaN(Number(bed_y));
+  const manualBedX = hasManualPos ? Math.max(0, Math.min(100, Number(bed_x))) : null;
+  const manualBedY = hasManualPos ? Math.max(0, Math.min(100, Number(bed_y))) : null;
 
   let pinId = link_pin_id ? Number(link_pin_id) : null;
   if (pinId) {
     const linked = db.prepare('SELECT id FROM pins WHERE id = ?').get(pinId);
     if (!linked) return res.status(404).json({ error: 'Pin pro propojení nenalezen' });
   } else if (auto_pin) {
-    // BED-1: dočasná pozice ve středu — finální x/y dorovná `redistributeBedPins`
-    // hned po insertu, aby se piny rozprostřely do mřížky a nepřekrývaly.
-    const c = bedCenter(bed);
+    // BED-2: pokud máme manuální pozici, vytvoř pin rovnou tam; jinak ve středu
+    // a `redistributeBedPins` ho dorovná mřížkou.
+    let px;
+    let py;
+    if (hasManualPos) {
+      px = bed.x + (manualBedX / 100) * bed.width;
+      py = bed.y + (manualBedY / 100) * bed.height;
+    } else {
+      const c = bedCenter(bed);
+      px = c.x;
+      py = c.y;
+    }
     const info = db
       .prepare(
         `INSERT INTO pins (garden_id, name, x, y, plant_name, planting_date, notes, color)
@@ -989,8 +1018,8 @@ app.post('/api/beds/:bedId/plants', (req, res) => {
       .run(
         bed.garden_id,
         plant_name,
-        c.x,
-        c.y,
+        px,
+        py,
         plant_name,
         planted_at || null,
         notes || null,
@@ -1001,12 +1030,23 @@ app.post('/api/beds/:bedId/plants', (req, res) => {
 
   const result = db
     .prepare(
-      `INSERT INTO bed_plants (bed_id, plant_id, plant_name, count, pin_id, planted_at, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO bed_plants (bed_id, plant_id, plant_name, count, pin_id, planted_at, notes, bed_x, bed_y)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .run(bed.id, plant_id, plant_name, cnt, pinId, planted_at || null, notes || null);
+    .run(
+      bed.id,
+      plant_id,
+      plant_name,
+      cnt,
+      pinId,
+      planted_at || null,
+      notes || null,
+      manualBedX,
+      manualBedY,
+    );
 
   // BED-1: rozprostři aktivní bed_plant piny do mřížky (řeší stacking).
+  // BED-2: rostliny s manuální pozicí přeskočí (`redistributeBedPins`).
   redistributeBedPins(bed.id);
 
   const row = db
@@ -1042,6 +1082,50 @@ app.put('/api/bed-plants/:id', (req, res) => {
       current.pin_id,
     );
   }
+
+  const row = db
+    .prepare(
+      `SELECT bp.*, p.name AS pin_name, p.x AS pin_x, p.y AS pin_y, p.color AS pin_color, p.photo_path AS pin_photo
+       FROM bed_plants bp
+       LEFT JOIN pins p ON p.id = bp.pin_id
+       WHERE bp.id = ?`,
+    )
+    .get(id);
+  res.json(row);
+});
+
+// BED-2: nastaví pozici rostliny v plánu záhonu (% v rámci bed obdélníku).
+// bed_x/bed_y v % (0-100). Mapuje se na pins.x/y v souřadnicích zahrady.
+// null → zruší manuální pozici a nechá BED-1 grid distribuci.
+app.put('/api/bed-plants/:id/position', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM bed_plants WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záznam nenalezen' });
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(current.bed_id);
+  if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+
+  const { bed_x = null, bed_y = null } = req.body || {};
+  const clear = bed_x == null || bed_y == null;
+  let newBedX = null;
+  let newBedY = null;
+  if (!clear) {
+    if (Number.isNaN(Number(bed_x)) || Number.isNaN(Number(bed_y))) {
+      return res.status(400).json({ error: 'bed_x/bed_y musí být čísla v rozsahu 0-100' });
+    }
+    newBedX = Math.max(0, Math.min(100, Number(bed_x)));
+    newBedY = Math.max(0, Math.min(100, Number(bed_y)));
+  }
+
+  db.prepare('UPDATE bed_plants SET bed_x = ?, bed_y = ? WHERE id = ?').run(newBedX, newBedY, id);
+
+  // Mapuj manuální % na souřadnice zahrady a propíš do pinu (pokud existuje).
+  if (current.pin_id && !clear) {
+    const px = bed.x + (newBedX / 100) * bed.width;
+    const py = bed.y + (newBedY / 100) * bed.height;
+    db.prepare('UPDATE pins SET x = ?, y = ? WHERE id = ?').run(px, py, current.pin_id);
+  }
+  // Při clearu (návrat do mřížky) přepustí pozici redistribuci.
+  redistributeBedPins(current.bed_id);
 
   const row = db
     .prepare(
