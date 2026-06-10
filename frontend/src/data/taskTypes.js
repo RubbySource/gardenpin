@@ -14,12 +14,13 @@
 // při změně typů drž backend v souladu.
 
 // weatherPref = krátkodobá počasová preference pro výběr ideálního DNE v okně (idealDay.js):
-//   'dry'  = suchý bezvětrný den (řez — vlhké rány = houbová infekce; postřik/ochrana smyje déšť)
-//   'mild' = mírný den bez mrazu (přesazení/výsadba — tendr kořeny nesnesou mráz)
-// Bez flagu = úkon nemá počasovou preferenci (zálivka/hnojení/sklizeň/plení).
+//   'dry'      = suchý bezvětrný den (řez — vlhké rány = houbová infekce; postřik/ochrana smyje déšť)
+//   'mild'     = mírný den bez mrazu (přesazení/výsadba — tendr kořeny nesnesou mráz)
+//   'postrain' = odlož, čeká se déšť (zálivka — příroda zalije za tebe; hnojivo — déšť granule smyje)
+// Bez flagu = úkon nemá počasovou preferenci (sklizeň/plení).
 export const TASK_TYPES = [
-  { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null,          windowDays: 14 },
-  { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing', windowDays: 30 },
+  { id: 'zalivka',   label: 'Zálivka',   icon: '💧', iconName: 'droplet',  icalCategory: null,          windowDays: 14, weatherPref: 'postrain' },
+  { id: 'hnojeni',   label: 'Hnojení',   icon: '🌱', iconName: 'sparkles', icalCategory: 'fertilizing', windowDays: 30, weatherPref: 'postrain' },
   { id: 'strihani',  label: 'Stříhání',  icon: '✂️', iconName: 'scissors', icalCategory: 'pruning',     windowDays: 45, weatherPref: 'dry' },
   { id: 'presazeni', label: 'Přesazení', icon: '🪴', iconName: 'leaf',     icalCategory: 'planting',    windowDays: 45, frostSensitive: true, weatherPref: 'mild' },
   { id: 'plet',      label: 'Plení',     icon: '🌿', iconName: 'leaf',     icalCategory: null,          windowDays: 14 },
@@ -76,7 +77,7 @@ export function windowDaysForType(type) {
   return BY_ID.get(type)?.windowDays ?? DEFAULT_WINDOW_DAYS;
 }
 
-// Počasová preference task_type ('dry' / 'mild' / null) — pro výběr ideálního dne
+// Počasová preference task_type ('dry' / 'mild' / 'postrain' / null) — pro výběr ideálního dne
 // v rámci nejbližšího týdne dle předpovědi (viz idealDay.js).
 export function weatherPrefForType(type) {
   return BY_ID.get(type)?.weatherPref ?? null;

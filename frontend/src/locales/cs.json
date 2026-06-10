@@ -1558,6 +1558,7 @@
     "badge": "Nejlepší den: {{day}}",
     "tooltipDry": "Tenhle den je suchý a bezvětrný — ideální na řez a postřik (déšť smyje postřik, vlhké rány jsou náchylné k houbám).",
     "tooltipMild": "Mírný den bez mrazu — ideální na přesazení a výsadbu.",
+    "tooltipPostrain": "Na tenhle den se čeká déšť — zálivku nebo hnojení odlož na sušší den (déšť zalije, granule by smyl).",
     "move": "Přesunout na {{day}}",
     "moving": "Přesouvám…",
     "moved": "🌤️ Přesunuto na {{date}}",

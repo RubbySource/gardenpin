@@ -1633,6 +1633,7 @@
     "badge": "Najlepší deň: {{day}}",
     "tooltipDry": "Tento deň je suchý a bezveterný — ideálny na rez a postrek (dážď zmyje postrek, vlhké rany sú náchylné na huby).",
     "tooltipMild": "Mierny deň bez mrazu — ideálny na presádzanie a výsadbu.",
+    "tooltipPostrain": "Na tento deň sa čaká dážď — zálievku alebo hnojenie odlož na suchší deň (dážď zaleje, granule by zmyl).",
     "move": "Presunúť na {{day}}",
     "moving": "Presúvam…",
     "moved": "🌤️ Presunuté na {{date}}",

@@ -16,7 +16,7 @@ const MIN_DUE_DAYS = 3, MAX_DUE_DAYS = 7, WINDOW_RADIUS = 3;
 const FROST_C = 2, WIND_KMH = 30, MIN_IMPROVEMENT = 3;
 
 // weatherPrefForType (replika data/taskTypes.js)
-const PREF = { strihani: 'dry', kontrola: 'dry', presazeni: 'mild' };
+const PREF = { strihani: 'dry', kontrola: 'dry', postrik: 'dry', presazeni: 'mild', zalivka: 'postrain', hnojeni: 'postrain' };
 const weatherPrefForType = (type) => PREF[type] ?? null;
 
 function daysFromToday(dateStr) {
@@ -40,6 +40,9 @@ function dayCost(d, pref) {
   if (pref === 'mild') {
     const frost = d.tmin < FROST_C ? (FROST_C - d.tmin) * 4 + 8 : 0;
     return frost + d.precip * 0.6 + Math.max(0, d.wind - WIND_KMH) * 0.2;
+  }
+  if (pref === 'postrain') {
+    return d.precip * 2.0;
   }
   return d.precip * 1.5 + Math.max(0, d.wind - 20) * 0.3;
 }
@@ -117,11 +120,9 @@ function week(defaults, overrides = {}) {
   ok(s && s.date >= todayISO(), 'window: návrh nikdy do minulosti');
 }
 
-// e) typ bez počasové preference → null (hnojení/zálivka/sklizeň)
+// e) typ bez počasové preference → null (sklizeň/plení/jine)
 {
   const fc = week({ precip: 10, wind: 10, tmin: 14 }, { 5: { precip: 0 } });
-  ok(bestDayInWindow({ task_type: 'hnojeni', specific_date: mk(4) }, fc, false, false) === null,
-    'pref: hnojení nemá weatherPref → null');
   ok(bestDayInWindow({ task_type: 'sklizen', specific_date: mk(4) }, fc, false, false) === null,
     'pref: sklizeň nemá weatherPref → null');
 }
@@ -178,6 +179,31 @@ function week(defaults, overrides = {}) {
     'dayCost: déšť+vítr > sucho (dry)');
   ok(dayCost({ precip: 0, wind: 8, tmin: -3 }, 'mild') > dayCost({ precip: 0, wind: 8, tmin: 9 }, 'mild'),
     'dayCost: mráz > mírno (mild)');
+}
+
+// m) postrain (zálivka/hnojení): deštivý den > suchý, vítr ignorován
+{
+  ok(dayCost({ precip: 8, wind: 5, tmin: 14 }, 'postrain') > dayCost({ precip: 0, wind: 5, tmin: 14 }, 'postrain'),
+    'dayCost: déšť > sucho (postrain)');
+  // Vítr nemá penalizaci v postrain (zalévat se dá za větru)
+  ok(dayCost({ precip: 0, wind: 50, tmin: 14 }, 'postrain') === dayCost({ precip: 0, wind: 5, tmin: 14 }, 'postrain'),
+    'dayCost: vítr ignorován (postrain)');
+}
+
+// n) postrain: deštivý termín → navrhne sušší den (vícero kandidátů; libovolný sušší)
+{
+  const fc = week({ precip: 0, wind: 10, tmin: 14 }, { 4: { precip: 5 } });
+  const s = bestDayInWindow({ task_type: 'zalivka', specific_date: mk(4) }, fc, false, false);
+  ok(s && s.pref === 'postrain', 'postrain: zalivka má pref postrain');
+  ok(s && s.date !== mk(4), 'postrain: deštivý termín nahrazen sušším dnem');
+}
+
+// o) postrain (hnojení): podobné — sušší den vyhrává
+{
+  const fc = week({ precip: 5, wind: 10, tmin: 14 }, { 5: { precip: 0 } });
+  const s = bestDayInWindow({ task_type: 'hnojeni', specific_date: mk(4) }, fc, false, false);
+  ok(s && s.pref === 'postrain', 'postrain: hnojeni má pref postrain');
+  ok(s && s.date === mk(5), `postrain: hnojeni → sušší den (got ${s && s.date} vs ${mk(5)})`);
 }
 
 console.log(`\n✅ All ${passed} ideal-day assertions passed.`);

@@ -1634,6 +1634,7 @@
     "badge": "Najlepszy dzień: {{day}}",
     "tooltipDry": "Ten dzień jest suchy i bezwietrzny — idealny na cięcie i oprysk (deszcz zmywa oprysk, wilgotne rany sprzyjają infekcjom grzybowym).",
     "tooltipMild": "Łagodny dzień bez mrozu — idealny na przesadzanie i sadzenie.",
+    "tooltipPostrain": "Na ten dzień prognozowany jest deszcz — przełóż podlewanie lub nawożenie na suchszy dzień (deszcz podleje, ale granulat by zmył).",
     "move": "Przenieś na {{day}}",
     "moving": "Przenoszę…",
     "moved": "🌤️ Przeniesiono na {{date}}",

@@ -1476,6 +1476,7 @@
     "badge": "Best day: {{day}}",
     "tooltipDry": "This day is dry and calm — ideal for pruning and spraying (rain washes off sprays, damp cuts invite fungal infection).",
     "tooltipMild": "A mild, frost-free day — ideal for transplanting and planting.",
+    "tooltipPostrain": "Rain is forecast for this day — postpone watering or fertilizing to a drier day (rain will water, but would wash granules away).",
     "move": "Move to {{day}}",
     "moving": "Moving…",
     "moved": "🌤️ Moved to {{date}}",

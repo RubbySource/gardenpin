@@ -16,7 +16,12 @@ export default function IdealDayHint({ task, forecast, pheno, history, onShifted
   if (!state) return null;
 
   const day = formatWeekday(state.date);
-  const tip = state.pref === 'mild' ? t('idealDay.tooltipMild') : t('idealDay.tooltipDry');
+  const tip =
+    state.pref === 'mild'
+      ? t('idealDay.tooltipMild')
+      : state.pref === 'postrain'
+        ? t('idealDay.tooltipPostrain')
+        : t('idealDay.tooltipDry');
 
   const apply = async (e) => {
     e?.stopPropagation();

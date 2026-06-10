@@ -4,7 +4,9 @@
 // v rámci nejbližšího týdne: některé hlavní sezónní úkony mají počasové preference —
 //   řez + postřik/kontrola chtějí suchý bezvětrný den (déšť smyje postřik, vlhké řezné rány
 //     = houbové infekce → weatherPref 'dry'),
-//   přesazení/výsadba mírný den bez mrazu (weatherPref 'mild').
+//   přesazení/výsadba mírný den bez mrazu (weatherPref 'mild'),
+//   zálivka/hnojení chtějí odložit, když se čeká déšť (příroda zalije/granule smyje
+//     → weatherPref 'postrain').
 // Pro úkon s termínem 3–7 dní v budoucnu ohodnotíme dny v okně dle 7denní předpovědi
 // (precipitation_sum + wind_speed_10m_max + temperature_2m_min) a navrhneme posun na výrazně
 // lepší den, pokud existuje. Žádné nové endpointy ani schéma — jen weather fetch.
@@ -104,6 +106,11 @@ export function dayCost(d, pref) {
     // Mráz je tvrdá penalizace (citlivá výsadba), těžký déšť a silný vítr lehčí.
     const frost = d.tmin < FROST_C ? (FROST_C - d.tmin) * 4 + 8 : 0;
     return frost + d.precip * 0.6 + Math.max(0, d.wind - WIND_KMH) * 0.2;
+  }
+  if (pref === 'postrain') {
+    // Zálivka/hnojivo — déšť úkol nahradí (zalije za nás / granule smyje).
+    // Silná penalizace srážek (chceme suchý den po dešti), vítr ignorujeme — zalévat se dá za větru taky.
+    return d.precip * 2.0;
   }
   // 'dry' — déšť dominuje (smyje postřik / vlhké rány), vítr sekundárně.
   return d.precip * 1.5 + Math.max(0, d.wind - 20) * 0.3;

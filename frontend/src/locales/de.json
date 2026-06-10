@@ -1476,6 +1476,7 @@
     "badge": "Bester Tag: {{day}}",
     "tooltipDry": "Dieser Tag ist trocken und windstill — ideal für Schnitt und Spritzung (Regen wäscht Spritzmittel ab, feuchte Schnittwunden begünstigen Pilzbefall).",
     "tooltipMild": "Ein milder, frostfreier Tag — ideal zum Umpflanzen und Auspflanzen.",
+    "tooltipPostrain": "An diesem Tag wird Regen erwartet — Bewässerung oder Düngung auf einen trockeneren Tag verschieben (Regen gießt für dich, würde aber Dünger wegspülen).",
     "move": "Auf {{day}} verschieben",
     "moving": "Wird verschoben…",
     "moved": "🌤️ Auf {{date}} verschoben",
