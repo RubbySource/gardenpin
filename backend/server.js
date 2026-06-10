@@ -82,6 +82,49 @@ function computeNextDue(task) {
   return null;
 }
 
+// ---------- TASK-1: roční regenerace yearly recurring úkonů ----------
+// Když user yearly recurring task v sezóně nestihne (např. "ořež levanduli 15.8."),
+// zůstane stuck ve starém roce a v dalším roce se sám neobjeví. Tato funkce ho
+// lazy posune: zachová původní měsíc/den (klimatický shift je už zapečený),
+// nastaví rok na aktuální (pokud datum letos ještě nepřišlo), jinak na příští.
+// Spouští se 1× za den per proces (memoizace) na začátku list endpointů.
+// Idempotentní — po regeneraci už řádek do filtru nespadá. Care_history zůstává netknuté.
+let _lastYearlyRegenDay = null;
+function regenerateYearlyTasks() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (_lastYearlyRegenDay === today) return 0;
+  _lastYearlyRegenDay = today;
+  const todayYear = parseInt(today.slice(0, 4), 10);
+  const todayMonthDay = today.slice(5); // 'MM-DD'
+  const stale = db
+    .prepare(
+      `SELECT id, specific_date FROM tasks
+       WHERE recurring = 1 AND recurrence_pattern = 'yearly'
+         AND specific_date IS NOT NULL
+         AND length(specific_date) = 10
+         AND CAST(substr(specific_date, 1, 4) AS INTEGER) < ?`,
+    )
+    .all(todayYear);
+  if (!stale.length) return 0;
+  const upd = db.prepare('UPDATE tasks SET specific_date = ?, next_due = ? WHERE id = ?');
+  const tx = db.transaction((rows) => {
+    for (const t of rows) {
+      const monthDay = t.specific_date.slice(5); // 'MM-DD'
+      const targetYear = monthDay >= todayMonthDay ? todayYear : todayYear + 1;
+      const newDate = `${targetYear}-${monthDay}`;
+      upd.run(newDate, newDate, t.id);
+    }
+  });
+  tx(stale);
+  if (stale.length > 0) {
+    console.log(`[task-1] regenerated ${stale.length} yearly recurring task(s) → next occurrence`);
+  }
+  return stale.length;
+}
+
+// Spustit jednou při startu (zachytí dlouhý outage v WSL/PM2)
+try { regenerateYearlyTasks(); } catch (e) { console.warn('regenerateYearlyTasks at boot failed:', e.message); }
+
 // ======================= GARDENS =======================
 app.get('/api/gardens', (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
@@ -1006,6 +1049,7 @@ app.post('/api/beds/:bedId/merge-pins', (req, res) => {
 
 // ======================= TASKS =======================
 app.get('/api/tasks', (req, res) => {
+  regenerateYearlyTasks();
   // All tasks with related pin + garden data
   const rows = db
     .prepare(
@@ -1022,6 +1066,7 @@ app.get('/api/tasks', (req, res) => {
 });
 
 app.get('/api/tasks/today', (req, res) => {
+  regenerateYearlyTasks();
   const today = new Date().toISOString().slice(0, 10);
   const rows = db
     .prepare(
@@ -1039,6 +1084,7 @@ app.get('/api/tasks/today', (req, res) => {
 });
 
 app.get('/api/tasks/week', (req, res) => {
+  regenerateYearlyTasks();
   const today = new Date();
   const end = new Date();
   end.setDate(today.getDate() + 7);
@@ -1107,6 +1153,7 @@ app.get('/api/search', (req, res) => {
 
 // Souhrnný přehled — všechny úkony přes všechny zahrady, defaultně 14 dní dopředu (+overdue)
 app.get('/api/tasks/overview', (req, res) => {
+  regenerateYearlyTasks();
   const days = Math.max(1, Math.min(60, parseInt(req.query.days, 10) || 14));
   const today = new Date();
   const end = new Date();
