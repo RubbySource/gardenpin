@@ -1813,6 +1813,115 @@ app.get('/api/stats/harvests', (req, res) => {
   });
 });
 
+// FEAT-4: Forecast pro konkrétní pin — porovnání letošní YTD vs loňská YTD pro DRUH rostliny
+// (agreguje přes všechny piny stejné `plant_name`, ne jen tento jeden, aby data dávala smysl
+// i když si uživatel rostlinu loni vedl pod jiným pinem). Vrací totals per unit + měsíční
+// rozpad letošek/loňsko pro dominantní jednotku (bar chart). Pokud rostlina nesklízí → empty.
+app.get('/api/pins/:id/harvest-forecast', (req, res) => {
+  const pin = db.prepare('SELECT id, plant_name FROM pins WHERE id = ?').get(req.params.id);
+  if (!pin) return res.status(404).json({ error: 'Pin nenalezen' });
+  if (!pin.plant_name) {
+    return res.json({ plant_name: null, hasData: false });
+  }
+
+  const today = new Date();
+  const todayIso = today.toISOString().slice(0, 10);
+  const year = today.getFullYear();
+  const mmdd = todayIso.slice(5); // "MM-DD"
+  const thisYearStart = `${year}-01-01`;
+  const thisYearTodayEnd = todayIso; // YTD letošek
+  const lastYearStart = `${year - 1}-01-01`;
+  const lastYearSameDay = `${year - 1}-${mmdd}`; // YTD loňsko — stejný kalendářní den
+  const lastYearFullEnd = `${year - 1}-12-31`; // loňský celý rok (pro kontext)
+
+  // YTD totals per unit — JOIN přes pins na stejný plant_name (case-sensitive — DB stringy
+  // typicky pocházejí z plantDatabase, takže shoda by měla sedět; pokud by ne, je to risk
+  // pro budoucí normalizaci).
+  const sumYtd = (start, end) =>
+    db
+      .prepare(
+        `SELECT h.unit, ROUND(SUM(h.amount), 3) AS total, COUNT(*) AS entries
+         FROM harvests h
+         JOIN pins p ON p.id = h.pin_id
+         WHERE p.plant_name = ? AND h.date >= ? AND h.date <= ?
+         GROUP BY h.unit
+         ORDER BY total DESC`,
+      )
+      .all(pin.plant_name, start, end);
+
+  const thisYearTotals = sumYtd(thisYearStart, thisYearTodayEnd);
+  const lastYearTotals = sumYtd(lastYearStart, lastYearSameDay);
+  const lastYearFullTotals = sumYtd(lastYearStart, lastYearFullEnd);
+
+  // Dominantní jednotka = ta s nejvyšším součtem v letošku, jinak v loňsku, jinak 'kg'.
+  const allUnits = [...thisYearTotals, ...lastYearTotals];
+  const unitOrder = ['kg', 'g', 'ks', 'l', 'svazek'];
+  let dominantUnit = null;
+  if (thisYearTotals[0]) dominantUnit = thisYearTotals[0].unit;
+  else if (lastYearTotals[0]) dominantUnit = lastYearTotals[0].unit;
+  else if (allUnits[0]) dominantUnit = allUnits[0].unit;
+  else dominantUnit = 'kg';
+
+  // Měsíční rozpad pro dominantní jednotku — 12 hodnot per rok (Jan-Dec).
+  const monthlyForYear = (yearN) => {
+    const rows = db
+      .prepare(
+        `SELECT CAST(substr(h.date, 6, 2) AS INTEGER) AS m, ROUND(SUM(h.amount), 3) AS total
+         FROM harvests h
+         JOIN pins p ON p.id = h.pin_id
+         WHERE p.plant_name = ? AND h.unit = ?
+           AND h.date >= ? AND h.date <= ?
+         GROUP BY m
+         ORDER BY m`,
+      )
+      .all(pin.plant_name, dominantUnit, `${yearN}-01-01`, `${yearN}-12-31`);
+    const arr = Array.from({ length: 12 }, () => 0);
+    for (const r of rows) {
+      if (r.m >= 1 && r.m <= 12) arr[r.m - 1] = Number(r.total) || 0;
+    }
+    return arr;
+  };
+
+  const monthlyThis = monthlyForYear(year);
+  const monthlyLast = monthlyForYear(year - 1);
+
+  const thisYearDominant =
+    thisYearTotals.find((r) => r.unit === dominantUnit)?.total || 0;
+  const lastYearDominant =
+    lastYearTotals.find((r) => r.unit === dominantUnit)?.total || 0;
+  const lastYearFullDominant =
+    lastYearFullTotals.find((r) => r.unit === dominantUnit)?.total || 0;
+
+  // % změna letošek vs loňsko YTD — null pokud loni 0 (dělit nulou nemůžeme).
+  let deltaPct = null;
+  if (lastYearDominant > 0) {
+    deltaPct = Math.round(((thisYearDominant - lastYearDominant) / lastYearDominant) * 100);
+  }
+
+  const hasData =
+    thisYearTotals.length > 0 || lastYearTotals.length > 0 || lastYearFullDominant > 0;
+
+  res.json({
+    plant_name: pin.plant_name,
+    today: todayIso,
+    year,
+    hasData,
+    dominantUnit,
+    thisYear: {
+      totals: thisYearTotals,
+      dominantTotal: thisYearDominant,
+      monthly: monthlyThis,
+    },
+    lastYear: {
+      totals: lastYearTotals,
+      dominantTotal: lastYearDominant,
+      dominantFullYearTotal: lastYearFullDominant,
+      monthly: monthlyLast,
+    },
+    deltaPct,
+  });
+});
+
 // ======================= PIN ISSUES (FEAT-3: choroby/škůdci na pinu) =======================
 // Záznam reálného výskytu (uživatel vidí varování z pestDatabase a zaloguje že to opravdu
 // nastalo). Aktivní vs. vyřešené (treated_at). Side effect: každá akce (detekce, vyřešení,

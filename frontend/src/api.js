@@ -185,6 +185,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
   deleteHarvest: (id) => jsonFetch(`/api/harvests/${id}`, { method: 'DELETE' }),
+  // FEAT-4: forecast pro pin — letošní YTD vs loňské YTD pro daný druh rostliny
+  getPinHarvestForecast: (pinId) => jsonFetch(`/api/pins/${pinId}/harvest-forecast`),
 
   // Search
   search: (q) => jsonFetch(`/api/search?q=${encodeURIComponent(q)}`),

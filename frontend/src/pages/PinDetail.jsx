@@ -795,7 +795,7 @@ function InfoTab({ pin, plant, onReload, onDeletePin }) {
       {/* Sklizeň */}
       <div className="pd-section">
         <div className="pd-section-title">🧺 {t('pin.harvestTitle')}</div>
-        <HarvestTab pinId={pin.id} />
+        <HarvestTab pinId={pin.id} plantName={pin.plant_name} />
       </div>
 
       {/* Více — historie péče */}
@@ -1678,7 +1678,7 @@ function PinchImage({ src, alt }) {
 // ===================== Sklizeň (harvests) =====================
 const HARVEST_UNITS = ['kg', 'g', 'ks', 'l', 'svazek'];
 
-function HarvestTab({ pinId }) {
+function HarvestTab({ pinId, plantName }) {
   const { t } = useTranslation();
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1687,12 +1687,18 @@ function HarvestTab({ pinId }) {
   const [unit, setUnit] = useState('kg');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  // FEAT-4 forecast — letošek vs loňsko YTD; null = ještě nenačteno, hasData=false = bez záznamů
+  const [forecast, setForecast] = useState(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const list = await api.listPinHarvests(pinId);
+      const [list, fc] = await Promise.all([
+        api.listPinHarvests(pinId),
+        api.getPinHarvestForecast(pinId).catch(() => null),
+      ]);
       setHarvests(list);
+      setForecast(fc);
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     } finally {
@@ -1791,6 +1797,8 @@ function HarvestTab({ pinId }) {
         </div>
       )}
 
+      <HarvestForecastCard forecast={forecast} plantName={plantName} />
+
       {loading ? (
         <div className="empty small">{t('common.loadingShort')}</div>
       ) : harvests.length === 0 ? (
@@ -1816,6 +1824,153 @@ function HarvestTab({ pinId }) {
             </button>
           </div>
         ))
+      )}
+    </div>
+  );
+}
+
+// ===================== Forecast (loni vs letos YTD) — FEAT-4 =====================
+// Mini srovnávací karta nad výpisem sklizní. Backend agreguje přes všechny piny stejného
+// druhu rostliny (plant_name), takže má smysl i když Patrik letos rajče vede pod jiným
+// pinem než loni. Bar chart = 12 měsíců dominantní jednotky, letošek (sage) overlay nad
+// loňským rokem (béžová), pseudo-flame label "+X%" / "-X%" YTD vs YTD k dnešnímu dni.
+// Při poklesu ≥ 15 % zobrazí actionable hint (zálivka, hnojivo). Tichá: žádná data → null.
+
+const MONTH_KEYS_SHORT = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+function fmtAmount(v) {
+  if (!Number.isFinite(v)) return '0';
+  const abs = Math.abs(v);
+  if (abs === 0) return '0';
+  if (abs < 1) return v.toFixed(2).replace(/\.?0+$/, '');
+  if (abs < 10) return v.toFixed(2).replace(/\.?0+$/, '');
+  return v.toFixed(1).replace(/\.0$/, '');
+}
+
+function HarvestForecastCard({ forecast, plantName }) {
+  const { t, i18n } = useTranslation();
+  if (!forecast || !forecast.hasData) return null;
+  const { dominantUnit, thisYear, lastYear, deltaPct, today, year } = forecast;
+  const monthlyThis = thisYear?.monthly || Array(12).fill(0);
+  const monthlyLast = lastYear?.monthly || Array(12).fill(0);
+  const thisYearTotal = Number(thisYear?.dominantTotal) || 0;
+  const lastYearYtd = Number(lastYear?.dominantTotal) || 0;
+  const lastYearFull = Number(lastYear?.dominantFullYearTotal) || 0;
+  const maxVal = Math.max(1e-9, ...monthlyThis, ...monthlyLast);
+  const unitLabel = t(`pin.unit_${dominantUnit}`, { defaultValue: dominantUnit });
+
+  // Direction class — sage (better), amber (worse ≥ 15 %), neutral (within ±15 %).
+  let dirClass = 'neutral';
+  if (deltaPct != null) {
+    if (deltaPct >= 15) dirClass = 'up';
+    else if (deltaPct <= -15) dirClass = 'down';
+  }
+  const deltaLabel =
+    deltaPct == null
+      ? t('pin.forecastDeltaNa')
+      : `${deltaPct > 0 ? '+' : ''}${deltaPct} %`;
+
+  // Hint: pokud loni byl výnos a letos jsme aspoň o 15 % níž → akce.
+  const showHint = deltaPct != null && deltaPct <= -15;
+
+  // Locale months — i18next vrací jako array přes returnObjects:true; fallback čísla.
+  const monthShort =
+    i18n.getResource(i18n.language, 'translation', 'pin.forecastMonthsShort') ||
+    MONTH_KEYS_SHORT;
+  const months = Array.isArray(monthShort) ? monthShort : MONTH_KEYS_SHORT;
+
+  // Date for "do dnes" label — používá pouze MM-DD.
+  const todayDate = today ? new Date(today + 'T00:00:00') : new Date();
+  const dayMonthLabel = todayDate.toLocaleDateString(i18n.language || 'cs', {
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return (
+    <div className={`pd-forecast-card pd-forecast-${dirClass}`}>
+      <div className="pd-forecast-head">
+        <div className="pd-forecast-title">
+          📊 {t('pin.forecastTitle')}
+          {plantName ? <span className="pd-forecast-plant"> · {plantName}</span> : null}
+        </div>
+        <div className={`pd-forecast-delta pd-forecast-delta-${dirClass}`}>{deltaLabel}</div>
+      </div>
+
+      <div className="pd-forecast-totals">
+        <div className="pd-forecast-total-cell pd-forecast-total-last">
+          <div className="pd-forecast-total-label">
+            {t('pin.forecastLastYtd', { year: year - 1, dayMonth: dayMonthLabel })}
+          </div>
+          <div className="pd-forecast-total-value">
+            {fmtAmount(lastYearYtd)}{' '}
+            <span className="pd-forecast-unit">{unitLabel}</span>
+          </div>
+        </div>
+        <div className="pd-forecast-total-cell pd-forecast-total-this">
+          <div className="pd-forecast-total-label">
+            {t('pin.forecastThisYtd', { year, dayMonth: dayMonthLabel })}
+          </div>
+          <div className="pd-forecast-total-value">
+            {fmtAmount(thisYearTotal)}{' '}
+            <span className="pd-forecast-unit">{unitLabel}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="pd-forecast-chart" role="img" aria-label={t('pin.forecastChartAria')}>
+        {months.map((label, i) => {
+          const lastVal = monthlyLast[i] || 0;
+          const thisVal = monthlyThis[i] || 0;
+          const lastH = (lastVal / maxVal) * 100;
+          const thisH = (thisVal / maxVal) * 100;
+          const monthNum = i + 1;
+          const isCurrent = monthNum === todayDate.getMonth() + 1;
+          return (
+            <div
+              key={i}
+              className={`pd-forecast-col${isCurrent ? ' is-current' : ''}`}
+              title={`${label}: ${fmtAmount(lastVal)} → ${fmtAmount(thisVal)} ${unitLabel}`}
+            >
+              <div className="pd-forecast-bar-wrap">
+                <div
+                  className="pd-forecast-bar pd-forecast-bar-last"
+                  style={{ height: `${Math.max(lastH, lastVal > 0 ? 4 : 0)}%` }}
+                />
+                <div
+                  className="pd-forecast-bar pd-forecast-bar-this"
+                  style={{ height: `${Math.max(thisH, thisVal > 0 ? 4 : 0)}%` }}
+                />
+              </div>
+              <div className="pd-forecast-col-label">{label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="pd-forecast-legend">
+        <span className="pd-forecast-legend-item">
+          <i className="pd-forecast-swatch pd-forecast-swatch-last" />
+          {t('pin.forecastLegendLast', { year: year - 1 })}
+        </span>
+        <span className="pd-forecast-legend-item">
+          <i className="pd-forecast-swatch pd-forecast-swatch-this" />
+          {t('pin.forecastLegendThis', { year })}
+        </span>
+        {lastYearFull > 0 && (
+          <span className="pd-forecast-legend-item muted">
+            {t('pin.forecastLastFull', {
+              year: year - 1,
+              amount: fmtAmount(lastYearFull),
+              unit: unitLabel,
+            })}
+          </span>
+        )}
+      </div>
+
+      {showHint && (
+        <div className="pd-forecast-hint">
+          💡 {t('pin.forecastHintDecline')}
+        </div>
       )}
     </div>
   );

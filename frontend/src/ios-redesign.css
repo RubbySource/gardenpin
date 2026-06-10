@@ -6864,3 +6864,195 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
   }
 }
 
+/* ============================================================
+   HarvestForecastCard — FEAT-4 (loni vs letos YTD srovnání)
+   ============================================================ */
+.pd-forecast-card {
+  background: var(--ios-bg-elev, #ffffff);
+  border-radius: var(--ios-r-lg, 16px);
+  box-shadow: var(--ios-shadow-card, 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.05));
+  padding: 14px 14px 12px;
+  margin: 4px 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pd-forecast-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pd-forecast-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ios-text-primary, #1c1c1e);
+}
+.pd-forecast-plant {
+  color: var(--ios-text-secondary, #6b7280);
+  font-weight: 500;
+}
+.pd-forecast-delta {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  background: rgba(123, 168, 137, 0.13);
+  color: #4a7458;
+}
+.pd-forecast-delta-up {
+  background: rgba(123, 168, 137, 0.16);
+  color: #3f6a4d;
+}
+.pd-forecast-delta-down {
+  background: rgba(255, 149, 0, 0.16);
+  color: #c46a00;
+}
+.pd-forecast-delta-neutral {
+  background: rgba(120, 120, 128, 0.12);
+  color: #6b7280;
+}
+.pd-forecast-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pd-forecast-total-cell {
+  background: rgba(120, 120, 128, 0.06);
+  border-radius: var(--ios-r-md, 12px);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pd-forecast-total-this {
+  background: rgba(123, 168, 137, 0.12);
+}
+.pd-forecast-total-label {
+  font-size: 0.72rem;
+  color: var(--ios-text-secondary, #6b7280);
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+.pd-forecast-total-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ios-text-primary, #1c1c1e);
+}
+.pd-forecast-unit {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ios-text-secondary, #6b7280);
+  margin-left: 2px;
+}
+.pd-forecast-chart {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+  align-items: end;
+  height: 78px;
+  padding: 4px 0 0;
+}
+.pd-forecast-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+.pd-forecast-bar-wrap {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+}
+.pd-forecast-bar {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px 2px 0 0;
+  transition: height 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pd-forecast-bar-last {
+  background: rgba(180, 165, 140, 0.45);
+}
+.pd-forecast-bar-this {
+  background: var(--ios-accent, #7ba889);
+}
+.pd-forecast-col.is-current .pd-forecast-bar-this {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.7) inset;
+}
+.pd-forecast-col-label {
+  font-size: 0.62rem;
+  color: var(--ios-text-secondary, #6b7280);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.pd-forecast-col.is-current .pd-forecast-col-label {
+  color: var(--ios-text-primary, #1c1c1e);
+  font-weight: 600;
+}
+.pd-forecast-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  font-size: 0.74rem;
+  color: var(--ios-text-secondary, #6b7280);
+}
+.pd-forecast-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: -0.005em;
+}
+.pd-forecast-legend-item.muted { opacity: 0.78; }
+.pd-forecast-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.pd-forecast-swatch-last { background: rgba(180, 165, 140, 0.65); }
+.pd-forecast-swatch-this { background: var(--ios-accent, #7ba889); }
+.pd-forecast-hint {
+  background: rgba(255, 149, 0, 0.10);
+  border-radius: var(--ios-r-sm, 10px);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #8a4d00;
+  letter-spacing: -0.005em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pd-forecast-card {
+    background: rgba(28, 28, 30, 0.94);
+  }
+  .pd-forecast-title { color: rgba(255, 255, 255, 0.92); }
+  .pd-forecast-plant { color: rgba(235, 235, 245, 0.6); }
+  .pd-forecast-delta { background: rgba(123, 168, 137, 0.22); color: #a8d1b0; }
+  .pd-forecast-delta-up { background: rgba(123, 168, 137, 0.25); color: #b5d9bb; }
+  .pd-forecast-delta-down { background: rgba(255, 149, 0, 0.22); color: #ffb24d; }
+  .pd-forecast-delta-neutral { background: rgba(235, 235, 245, 0.12); color: rgba(235, 235, 245, 0.7); }
+  .pd-forecast-total-cell { background: rgba(255, 255, 255, 0.05); }
+  .pd-forecast-total-this { background: rgba(123, 168, 137, 0.18); }
+  .pd-forecast-total-label { color: rgba(235, 235, 245, 0.6); }
+  .pd-forecast-total-value { color: rgba(255, 255, 255, 0.95); }
+  .pd-forecast-unit { color: rgba(235, 235, 245, 0.6); }
+  .pd-forecast-bar-last { background: rgba(180, 165, 140, 0.35); }
+  .pd-forecast-col-label { color: rgba(235, 235, 245, 0.6); }
+  .pd-forecast-col.is-current .pd-forecast-col-label { color: rgba(255, 255, 255, 0.95); }
+  .pd-forecast-legend { color: rgba(235, 235, 245, 0.6); }
+  .pd-forecast-hint {
+    background: rgba(255, 149, 0, 0.14);
+    color: #ffc070;
+  }
+}
+
