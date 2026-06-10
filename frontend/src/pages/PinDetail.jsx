@@ -6,7 +6,7 @@ import i18n from '../i18n.js';
 import Modal from '../components/Modal.jsx';
 import { api } from '../api.js';
 import { toast, followUpForTask } from '../App.jsx';
-import { TASK_TYPES, dueBadge, formatDate, formatDateTime, taskLabel, taskIconName } from '../utils.js';
+import { TASK_TYPES, dueBadge, formatDate, formatDateTime, formatDayMonth, taskLabel, taskIconName } from '../utils.js';
 import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplete.jsx';
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
@@ -1345,6 +1345,7 @@ function PhotoGallery({ pinId }) {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [lightbox, setLightbox] = useState(null);
+  const [view, setView] = useState('gallery'); // 'gallery' | 'growth'
   const fileRef = useRef();
 
   const load = async () => {
@@ -1362,6 +1363,18 @@ function PhotoGallery({ pinId }) {
   useEffect(() => {
     load();
   }, [pinId]);
+
+  // Růst = chronologicky od nejstaršího (API vrací DESC, takže reverse).
+  // Lightbox index = pozice v displayPhotos (closed-over).
+  const displayPhotos = view === 'growth' ? [...photos].reverse() : photos;
+
+  const daysBetween = (laterIso, earlierIso) => {
+    if (!laterIso || !earlierIso) return null;
+    const a = new Date(laterIso);
+    const b = new Date(earlierIso);
+    if (isNaN(a) || isNaN(b)) return null;
+    return Math.round((a - b) / 86400000);
+  };
 
   const uploadFiles = async (files) => {
     if (!files || files.length === 0) return;
@@ -1429,22 +1442,85 @@ function PhotoGallery({ pinId }) {
       ) : photos.length === 0 ? (
         <div className="empty small">{t('pin.photosEmpty')}</div>
       ) : (
-        <div className="pd-photo-strip">
-          {photos.map((p, i) => (
+        <>
+          <div className="pd-photo-view-toggle" role="tablist">
             <button
-              key={p.id}
               type="button"
-              className="pd-photo-cell"
-              onClick={() => setLightbox(i)}
-              aria-label={t('pin.viewPhoto')}
+              role="tab"
+              aria-selected={view === 'gallery'}
+              className={`pd-photo-view-btn${view === 'gallery' ? ' active' : ''}`}
+              onClick={() => setView('gallery')}
             >
-              <img src={p.url} alt={p.caption || t('pin.plantPhotoAlt')} loading="lazy" />
+              🖼️ {t('pin.viewGallery')}
             </button>
-          ))}
-        </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={view === 'growth'}
+              className={`pd-photo-view-btn${view === 'growth' ? ' active' : ''}`}
+              onClick={() => setView('growth')}
+            >
+              📈 {t('pin.viewGrowth')}
+            </button>
+          </div>
+
+          {view === 'gallery' ? (
+            <div className="pd-photo-strip">
+              {displayPhotos.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="pd-photo-cell"
+                  onClick={() => setLightbox(i)}
+                  aria-label={t('pin.viewPhoto')}
+                >
+                  <img src={p.url} alt={p.caption || t('pin.plantPhotoAlt')} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="pd-photo-growth-strip">
+              {displayPhotos.map((p, i) => {
+                const prev = i > 0 ? displayPhotos[i - 1] : null;
+                const delta = prev ? daysBetween(p.uploaded_at, prev.uploaded_at) : null;
+                return (
+                  <React.Fragment key={p.id}>
+                    {delta != null && delta > 0 && (
+                      <div className="pd-photo-growth-delta" aria-hidden="true">
+                        <span className="pd-photo-growth-delta-line" />
+                        <span className="pd-photo-growth-delta-label">
+                          +{t('pin.growthDays', { count: delta })}
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className="pd-photo-growth-cell"
+                      onClick={() => setLightbox(i)}
+                      aria-label={t('pin.viewPhoto')}
+                    >
+                      <div className="pd-photo-growth-img">
+                        <img src={p.url} alt={p.caption || t('pin.plantPhotoAlt')} loading="lazy" />
+                        <span className="pd-photo-growth-seq">{i + 1}</span>
+                      </div>
+                      <div className="pd-photo-growth-date">
+                        {p.uploaded_at ? formatDayMonth(p.uploaded_at) : ''}
+                      </div>
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+              {displayPhotos.length === 1 && (
+                <div className="pd-photo-growth-hint small muted">
+                  {t('pin.growthHintOnePhoto')}
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
-      {lightbox != null && photos[lightbox] && (
+      {lightbox != null && displayPhotos[lightbox] && (
         <div
           className="photo-lightbox pd-lightbox"
           onClick={() => setLightbox(null)}
@@ -1460,11 +1536,11 @@ function PhotoGallery({ pinId }) {
             ✕
           </button>
 
-          {photos.length > 1 && (
+          {displayPhotos.length > 1 && (
             <button
               type="button"
               className="pd-lb-nav prev"
-              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length); }}
+              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + displayPhotos.length) % displayPhotos.length); }}
               aria-label={t('pin.prevPhoto')}
             >
               ‹
@@ -1473,17 +1549,17 @@ function PhotoGallery({ pinId }) {
 
           <div className="pd-lb-stage" onClick={(e) => e.stopPropagation()}>
             <PinchImage
-              key={photos[lightbox].id}
-              src={photos[lightbox].url}
-              alt={photos[lightbox].caption || ''}
+              key={displayPhotos[lightbox].id}
+              src={displayPhotos[lightbox].url}
+              alt={displayPhotos[lightbox].caption || ''}
             />
           </div>
 
-          {photos.length > 1 && (
+          {displayPhotos.length > 1 && (
             <button
               type="button"
               className="pd-lb-nav next"
-              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}
+              onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % displayPhotos.length); }}
               aria-label={t('pin.nextPhoto')}
             >
               ›
@@ -1492,10 +1568,10 @@ function PhotoGallery({ pinId }) {
 
           <div className="pd-lb-bar" onClick={(e) => e.stopPropagation()}>
             <div className="small muted">
-              {photos[lightbox].uploaded_at ? formatDateTime(photos[lightbox].uploaded_at) : ''}
-              {photos.length > 1 ? ` · ${lightbox + 1}/${photos.length}` : ''}
+              {displayPhotos[lightbox].uploaded_at ? formatDateTime(displayPhotos[lightbox].uploaded_at) : ''}
+              {displayPhotos.length > 1 ? ` · ${lightbox + 1}/${displayPhotos.length}` : ''}
             </div>
-            <button className="btn danger small" onClick={() => handleDelete(photos[lightbox])}>
+            <button className="btn danger small" onClick={() => handleDelete(displayPhotos[lightbox])}>
               🗑️ {t('common.delete')}
             </button>
           </div>

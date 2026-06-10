@@ -6414,3 +6414,148 @@ a.ios-list-row:active { background: var(--ios-fill-secondary); }
 /* --- HomePage section title (parita s grouped-list titulky [iOS-0]). */
 .hm-section-title { letter-spacing: -0.02em; }
 
+/* =========================================================================
+   PhotoGallery view toggle + Growth timeline [FEAT-2]
+   Galerie = mřížka jako dřív; Růst = chronologicky s datumy a delta odsazením.
+   ========================================================================= */
+.pd-photo-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ios-fill);
+  border-radius: var(--ios-r-sm);
+  padding: 3px;
+  margin: 4px 0 10px;
+}
+.pd-photo-view-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ios-label-secondary);
+  border-radius: calc(var(--ios-r-sm) - 3px);
+  cursor: pointer;
+  transition: color 180ms var(--ios-ease), background 180ms var(--ios-ease), transform 100ms var(--ios-ease);
+}
+.pd-photo-view-btn:active { transform: scale(0.96); }
+.pd-photo-view-btn.active {
+  color: var(--ios-label);
+  background: var(--ios-bg-elev);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+
+/* Growth strip — horizontální chronologický timeline */
+.pd-photo-growth-strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px 10px;
+  margin: 0 -2px;
+}
+.pd-photo-growth-strip::-webkit-scrollbar { height: 0; }
+
+.pd-photo-growth-cell {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.pd-photo-growth-cell:active { transform: scale(0.97); }
+.pd-photo-growth-img {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: var(--ios-r-lg, 18px);
+  overflow: hidden;
+  background: var(--ios-fill-secondary);
+  box-shadow: var(--ios-shadow-card, 0 1px 3px rgba(0, 0, 0, 0.10));
+}
+.pd-photo-growth-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pd-photo-growth-seq {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.pd-photo-growth-date {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ios-label-secondary);
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Delta mezi fotkami — vertikální čára s odlišovacím labelem */
+.pd-photo-growth-delta {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 56px;
+  padding: 0 6px;
+  align-self: stretch;
+}
+.pd-photo-growth-delta-line {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 0;
+  border-top: 1.5px dashed var(--ios-accent, #7BA889);
+  opacity: 0.7;
+}
+.pd-photo-growth-delta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ios-accent, #7BA889);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pd-photo-growth-hint {
+  flex: 0 0 auto;
+  align-self: center;
+  max-width: 180px;
+  padding: 0 14px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pd-photo-view-btn.active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+  }
+  .pd-photo-growth-seq { background: rgba(0, 0, 0, 0.7); }
+}
+
