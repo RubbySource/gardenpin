@@ -839,10 +839,75 @@ app.put('/api/beds/:id', (req, res) => {
 });
 
 app.delete('/api/beds/:id', (req, res) => {
-  const bed = db.prepare('SELECT id FROM beds WHERE id = ?').get(req.params.id);
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(req.params.id);
   if (!bed) return res.status(404).json({ error: 'Záhon nenalezen' });
+  // BED-3: úklid vlastní fotky záhonu + uložený originál (pre-crop), pokud existují,
+  // jinak by zůstaly osiřelé soubory v uploads/.
+  for (const rel of [bed.image_path, bed.original_image_path]) {
+    if (rel) {
+      const abs = path.join(__dirname, rel);
+      try { if (fs.existsSync(abs)) fs.unlinkSync(abs); } catch {}
+    }
+  }
   db.prepare('DELETE FROM beds WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
+});
+
+// ======================= BED PHOTO (BED-3) =======================
+// Vlastní close-up fotka záhonu (volitelně). Když existuje, BedPlanView ji
+// použije jako pozadí místo výřezu fotky zahrady. Reuse multer `upload` (25 MB
+// limit, image-only filter) a sharp metadata pipeline ze /api/gardens.
+
+app.put('/api/beds/:id/photo', upload.single('image'), async (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM beds WHERE id = ?').get(id);
+  if (!current) {
+    // 404 — úklid osiřelého uploadu (multer ho stihl uložit, než zjistíme, že bed neexistuje)
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch {} }
+    return res.status(404).json({ error: 'Záhon nenalezen' });
+  }
+  if (!req.file) return res.status(400).json({ error: 'Chybí soubor (image)' });
+
+  // Smaž předchozí fotku + uložený originál (kdyby v budoucnu šel crop, invaliduje se).
+  for (const rel of [current.image_path, current.original_image_path]) {
+    if (rel) {
+      const abs = path.join(__dirname, rel);
+      try { if (fs.existsSync(abs)) fs.unlinkSync(abs); } catch {}
+    }
+  }
+
+  let w = null;
+  let h = null;
+  if (sharp) {
+    try {
+      const meta = await sharp(req.file.path).metadata();
+      if (meta.width && meta.height) { w = meta.width; h = meta.height; }
+    } catch (e) {
+      console.warn('PUT /api/beds/:id/photo: sharp metadata selhalo:', e.message);
+    }
+  }
+
+  const imagePath = '/uploads/' + req.file.filename;
+  db.prepare(
+    'UPDATE beds SET image_path=?, image_width=?, image_height=?, original_image_path=NULL, bed_polygon=NULL WHERE id=?',
+  ).run(imagePath, w, h, id);
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(id));
+});
+
+app.delete('/api/beds/:id/photo', (req, res) => {
+  const id = req.params.id;
+  const current = db.prepare('SELECT * FROM beds WHERE id = ?').get(id);
+  if (!current) return res.status(404).json({ error: 'Záhon nenalezen' });
+  for (const rel of [current.image_path, current.original_image_path]) {
+    if (rel) {
+      const abs = path.join(__dirname, rel);
+      try { if (fs.existsSync(abs)) fs.unlinkSync(abs); } catch {}
+    }
+  }
+  db.prepare(
+    'UPDATE beds SET image_path=NULL, image_width=NULL, image_height=NULL, original_image_path=NULL, bed_polygon=NULL WHERE id=?',
+  ).run(id);
+  res.json(db.prepare('SELECT * FROM beds WHERE id = ?').get(id));
 });
 
 // ======================= BED PLANTS (rostliny v záhonu) =======================

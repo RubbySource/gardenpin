@@ -79,6 +79,10 @@ export const api = {
       body: JSON.stringify(data),
     }),
   deleteBed: (id) => jsonFetch(`/api/beds/${id}`, { method: 'DELETE' }),
+  // BED-3: vlastní close-up fotka záhonu (volitelně)
+  setBedPhoto: (id, formData) =>
+    fetch(`/api/beds/${id}/photo`, { method: 'PUT', body: formData }).then(handle),
+  deleteBedPhoto: (id) => jsonFetch(`/api/beds/${id}/photo`, { method: 'DELETE' }),
 
   // Bed plants — rostliny v záhonu (many-to-many)
   listBedPlants: (bedId) => jsonFetch(`/api/beds/${bedId}/plants`),

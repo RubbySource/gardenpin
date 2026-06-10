@@ -72,8 +72,12 @@ export default function BedDetailModal({ bed, garden, onClose, onBedUpdated, onB
             className={`btn small${tab === 'plan' ? '' : ' ghost'}`}
             onClick={() => setTab('plan')}
             type="button"
-            disabled={!garden?.image_path}
-            title={garden?.image_path ? 'Vizuální plán záhonu' : 'Plán vyžaduje fotku zahrady'}
+            disabled={!garden?.image_path && !localBed.image_path}
+            title={
+              garden?.image_path || localBed.image_path
+                ? 'Vizuální plán záhonu'
+                : 'Plán vyžaduje fotku zahrady nebo vlastní fotku záhonu'
+            }
           >
             🗺️ Plán
           </button>
@@ -589,6 +593,39 @@ function BedEditForm({ bed, onClose, onSaved, onDeleted }) {
   const [heightM, setHeightM] = useState(bed.height_m ?? '');
   const [color, setColor] = useState(bed.color || '#8b6f47');
   const [saving, setSaving] = useState(false);
+  const photoInputRef = useRef(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+    setPhotoBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const updated = await api.setBedPhoto(bed.id, fd);
+      onSaved(updated);
+      toast('📷 Fotka záhonu uložena');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setPhotoBusy(false);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+    }
+  };
+
+  const removePhoto = async () => {
+    if (!confirm('Smazat vlastní fotku záhonu? Plán záhonu se vrátí k výřezu fotky zahrady.')) return;
+    setPhotoBusy(true);
+    try {
+      const updated = await api.deleteBedPhoto(bed.id);
+      onSaved(updated);
+      toast('📷 Fotka záhonu smazána');
+    } catch (err) {
+      toast('Chyba: ' + err.message);
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -622,6 +659,87 @@ function BedEditForm({ bed, onClose, onSaved, onDeleted }) {
 
   return (
     <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="field">
+        <label>📷 Vlastní fotka záhonu (volitelně)</label>
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+            alignItems: 'center',
+            padding: 10,
+            background: 'var(--sand)',
+            borderRadius: 12,
+            border: '1px solid var(--border)',
+          }}
+        >
+          {bed.image_path ? (
+            <img
+              src={bed.image_path}
+              alt=""
+              style={{
+                width: 64,
+                height: 64,
+                objectFit: 'cover',
+                borderRadius: 8,
+                border: '1px solid var(--border)',
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: 8,
+                background: 'rgba(0,0,0,0.04)',
+                border: '1px dashed var(--border)',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 24,
+              }}
+              aria-hidden
+            >
+              🌅
+            </div>
+          )}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="muted" style={{ fontSize: 12, lineHeight: 1.35 }}>
+              {bed.image_path
+                ? 'Plán záhonu používá tuto fotku jako pozadí.'
+                : 'Nahraj close-up fotku — plán záhonu ji použije místo výřezu fotky zahrady.'}
+            </div>
+            <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn small ghost"
+                disabled={photoBusy}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                {photoBusy ? 'Pracuji…' : bed.image_path ? '🔄 Nahradit' : '📤 Nahrát fotku'}
+              </button>
+              {bed.image_path && (
+                <button
+                  type="button"
+                  className="btn small ghost danger"
+                  disabled={photoBusy}
+                  onClick={removePhoto}
+                >
+                  🗑️ Smazat
+                </button>
+              )}
+            </div>
+          </div>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => uploadPhoto(e.target.files?.[0])}
+          />
+        </div>
+      </div>
       <div className="field">
         <label>Název záhonu</label>
         <input
@@ -705,20 +823,29 @@ function BedPlanView({ bed, garden, plants, loading, onPositionChanged, onPlantA
   const [tapPos, setTapPos] = useState(null); // { x, y } — pozice pro mini-form
   const [closeUp, setCloseUp] = useState(true); // close-up vs whole-garden context
 
-  if (!garden || !garden.image_path) {
+  const hasBedPhoto = !!bed.image_path;
+  const hasGardenPhoto = !!garden?.image_path;
+
+  if (!hasBedPhoto && !hasGardenPhoto) {
     return (
       <div
         className="muted"
         style={{ padding: 24, textAlign: 'center', background: 'var(--sand)', borderRadius: 12 }}
       >
-        🌅 Pro plán záhonu nahraj fotku zahrady. Bez fotky není kde piny zobrazit.
+        🌅 Pro plán záhonu nahraj fotku zahrady (nebo vlastní close-up fotku záhonu v záložce Záhon). Bez fotky není kde piny zobrazit.
       </div>
     );
   }
 
   const bedW = Math.max(0.01, bed.width || 1);
   const bedH = Math.max(0.01, bed.height || 1);
-  const aspectRatio = `${bedW} / ${bedH}`;
+  // BED-3: pokud má bed vlastní fotku, použij její nativní aspect — bed_x/bed_y
+  // v % stále reprezentují bed obdélník v geometrii zahrady, ale UI je rendrujeme
+  // přímo na fotce (cover). Když není bed photo, fallback na bed geometrický poměr
+  // (výřez fotky zahrady přes background-position triky níže).
+  const aspectRatio = hasBedPhoto && bed.image_width && bed.image_height
+    ? `${bed.image_width} / ${bed.image_height}`
+    : `${bedW} / ${bedH}`;
 
   // Vrátí pozici (0-100 %) klepnutí v rámci záhonu (ne celé zahrady).
   const getBedPercent = (clientX, clientY) => {
@@ -810,20 +937,56 @@ function BedPlanView({ bed, garden, plants, loading, onPositionChanged, onPlantA
       ? '0% 0%'
       : `${denomX > 0 ? (bed.x / denomX) * 100 : 0}% ${denomY > 0 ? (bed.y / denomY) * 100 : 0}%`;
 
+  // BED-3: rozhodni zdroj pozadí. Priorita pro `closeUp` (default true):
+  //   1) bed photo, pokud existuje — vždy přímý "cover" render (aspect = bed photo)
+  //   2) výřez fotky zahrady (původní background-position trick)
+  // Pro `!closeUp` ("Celá") vždy garden photo (pokud existuje), jinak fallback na bed photo.
+  let bgImage = null;
+  let bgSize = 'cover';
+  let bgPos = 'center';
+  if (closeUp) {
+    if (hasBedPhoto) {
+      bgImage = bed.image_path;
+      bgSize = 'cover';
+      bgPos = 'center';
+    } else if (hasGardenPhoto) {
+      bgImage = garden.image_path;
+      bgSize = closeUpBgSize;
+      bgPos = closeUpBgPos;
+    }
+  } else {
+    if (hasGardenPhoto) {
+      bgImage = garden.image_path;
+      bgSize = 'contain';
+      bgPos = 'center';
+    } else if (hasBedPhoto) {
+      bgImage = bed.image_path;
+      bgSize = 'cover';
+      bgPos = 'center';
+    }
+  }
+  // Toggle "Detail / Celá" má smysl jen když máme obě fotky (jinak by druhá pozice
+  // byla buď prázdná, nebo identická). Šetří overhead pro uživatele bez garden photo.
+  const showToggle = hasBedPhoto && hasGardenPhoto;
+  const detailLabel = hasBedPhoto ? '🔍 Detail záhonu' : '🔍 Detail';
+  const wideLabel = hasGardenPhoto ? '🌍 Zahrada' : '🌍 Celá';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div className="muted" style={{ fontSize: 12 }}>
           📍 Táhni piny — pozice se uloží. Klikni do prázdna → přidat rostlinu.
         </div>
-        <button
-          className={`btn small${closeUp ? '' : ' ghost'}`}
-          onClick={() => setCloseUp((v) => !v)}
-          type="button"
-          title={closeUp ? 'Ukázat fotku celé zahrady' : 'Přiblížit na záhon'}
-        >
-          {closeUp ? '🔍 Detail' : '🌍 Celá'}
-        </button>
+        {showToggle && (
+          <button
+            className={`btn small${closeUp ? '' : ' ghost'}`}
+            onClick={() => setCloseUp((v) => !v)}
+            type="button"
+            title={closeUp ? 'Ukázat kontext celé zahrady' : 'Přiblížit na záhon'}
+          >
+            {closeUp ? detailLabel : wideLabel}
+          </button>
+        )}
       </div>
 
       {loading && <p className="muted">Načítám…</p>}
@@ -837,9 +1000,9 @@ function BedPlanView({ bed, garden, plants, loading, onPositionChanged, onPlantA
           width: '100%',
           aspectRatio,
           maxHeight: '60vh',
-          backgroundImage: `url(${garden.image_path})`,
-          backgroundSize: closeUp ? closeUpBgSize : 'contain',
-          backgroundPosition: closeUp ? closeUpBgPos : 'center',
+          backgroundImage: bgImage ? `url(${bgImage})` : 'none',
+          backgroundSize: bgSize,
+          backgroundPosition: bgPos,
           backgroundRepeat: 'no-repeat',
           backgroundColor: 'var(--sand)',
           borderRadius: 12,

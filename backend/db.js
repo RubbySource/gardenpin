@@ -230,6 +230,15 @@ try { db.exec('ALTER TABLE beds ADD COLUMN type TEXT'); } catch {}
 // Když NULL → grid distribuce z `bedPlantPosition`. Když !NULL → manuální pozice z plánu.
 try { db.exec('ALTER TABLE bed_plants ADD COLUMN bed_x REAL'); } catch {}
 try { db.exec('ALTER TABLE bed_plants ADD COLUMN bed_y REAL'); } catch {}
+// BED-3: vlastní close-up fotka záhonu (volitelně). Když existuje, plán záhonu
+// ji použije jako pozadí místo výřezu fotky zahrady (BedPlanView v BedDetailModal).
+// `original_image_path` rezervováno pro budoucí bed-level crop (zatím nevyužito,
+// ponecháno aby šlo později přidat bez další migrace).
+try { db.exec('ALTER TABLE beds ADD COLUMN image_path TEXT'); } catch {}
+try { db.exec('ALTER TABLE beds ADD COLUMN image_width INTEGER'); } catch {}
+try { db.exec('ALTER TABLE beds ADD COLUMN image_height INTEGER'); } catch {}
+try { db.exec('ALTER TABLE beds ADD COLUMN original_image_path TEXT'); } catch {}
+try { db.exec('ALTER TABLE beds ADD COLUMN bed_polygon TEXT'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 // Spolupráce — přiřazení úkolu členovi + atribuce splnění
