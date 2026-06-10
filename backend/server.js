@@ -857,6 +857,84 @@ function bedCenter(bed) {
   };
 }
 
+// BED-1: aspekt-citlivá mřížka uvnitř obdélníku záhonu. Index = 0-based pořadí
+// rostliny v záhonu, total = aktuální počet aktivních bed_plants (řídí cols/rows).
+// Margin 14 % uvnitř záhonu, aby piny nelepily na hranici a zůstaly viditelné.
+function bedPlantPosition(bed, index, total) {
+  const t = Math.max(1, parseInt(total, 10) || 1);
+  const i = Math.max(0, Math.min(t - 1, parseInt(index, 10) || 0));
+  const w = Math.max(0.01, bed.width || 0);
+  const h = Math.max(0.01, bed.height || 0);
+  const aspect = w / h;
+  const cols = Math.max(1, Math.round(Math.sqrt(t * aspect))) || 1;
+  const rows = Math.max(1, Math.ceil(t / cols));
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const margin = 0.14;
+  const usableW = w * (1 - 2 * margin);
+  const usableH = h * (1 - 2 * margin);
+  return {
+    x: bed.x + w * margin + (col + 0.5) * (usableW / cols),
+    y: bed.y + h * margin + (row + 0.5) * (usableH / rows),
+  };
+}
+
+// BED-1: přepíše pozice všech aktivních bed_plant pinů záhonu podle mřížky
+// (`bedPlantPosition`). Pořadí dle `created_at` (stabilní mezi voláními).
+// Volá se po add/remove bed_plant a v boot migraci pro stacknuté piny.
+const _redistributeUpdate = () => db.prepare('UPDATE pins SET x = ?, y = ? WHERE id = ?');
+function redistributeBedPins(bedId) {
+  const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(bedId);
+  if (!bed) return 0;
+  const rows = db
+    .prepare(
+      `SELECT bp.id, bp.pin_id
+       FROM bed_plants bp
+       WHERE bp.bed_id = ? AND bp.removed_at IS NULL AND bp.pin_id IS NOT NULL
+       ORDER BY bp.created_at ASC, bp.id ASC`,
+    )
+    .all(bedId);
+  const total = rows.length;
+  if (total === 0) return 0;
+  const upd = _redistributeUpdate();
+  const tx = db.transaction(() => {
+    rows.forEach((r, idx) => {
+      const pos = bedPlantPosition(bed, idx, total);
+      upd.run(pos.x, pos.y, r.pin_id);
+    });
+  });
+  tx();
+  return total;
+}
+
+// BED-1: jednorázová boot migrace — najde záhony, kde mají 2+ bed_plant piny
+// shodnou pozici (stacknuté od staré `bedCenter` logiky) a rozprostře je.
+// Idempotentní: po prvním běhu už žádné stacknuté nejsou, takže další start no-op.
+function bed1MigrateStackedPins() {
+  try {
+    const stackedBeds = db
+      .prepare(
+        `SELECT bp.bed_id, COUNT(*) AS dup
+         FROM bed_plants bp
+         JOIN pins p ON p.id = bp.pin_id
+         WHERE bp.removed_at IS NULL AND bp.pin_id IS NOT NULL
+         GROUP BY bp.bed_id, ROUND(p.x, 4), ROUND(p.y, 4)
+         HAVING dup > 1`,
+      )
+      .all();
+    if (!stackedBeds.length) return 0;
+    const uniqueBedIds = [...new Set(stackedBeds.map((r) => r.bed_id))];
+    let total = 0;
+    for (const bedId of uniqueBedIds) total += redistributeBedPins(bedId);
+    console.log(`[bed-1] redistributed ${total} stacked bed_plant pin(s) across ${uniqueBedIds.length} bed(s)`);
+    return total;
+  } catch (e) {
+    console.warn('[bed-1] migration failed:', e.message);
+    return 0;
+  }
+}
+try { bed1MigrateStackedPins(); } catch (e) { console.warn('bed1MigrateStackedPins at boot failed:', e.message); }
+
 // Vrátí všechny aktivní rostliny záhonu + propojený pin (pokud existuje).
 app.get('/api/beds/:bedId/plants', (req, res) => {
   const bed = db.prepare('SELECT id FROM beds WHERE id = ?').get(req.params.bedId);
@@ -900,6 +978,8 @@ app.post('/api/beds/:bedId/plants', (req, res) => {
     const linked = db.prepare('SELECT id FROM pins WHERE id = ?').get(pinId);
     if (!linked) return res.status(404).json({ error: 'Pin pro propojení nenalezen' });
   } else if (auto_pin) {
+    // BED-1: dočasná pozice ve středu — finální x/y dorovná `redistributeBedPins`
+    // hned po insertu, aby se piny rozprostřely do mřížky a nepřekrývaly.
     const c = bedCenter(bed);
     const info = db
       .prepare(
@@ -925,6 +1005,9 @@ app.post('/api/beds/:bedId/plants', (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(bed.id, plant_id, plant_name, cnt, pinId, planted_at || null, notes || null);
+
+  // BED-1: rozprostři aktivní bed_plant piny do mřížky (řeší stacking).
+  redistributeBedPins(bed.id);
 
   const row = db
     .prepare(
@@ -982,6 +1065,8 @@ app.delete('/api/bed-plants/:id', (req, res) => {
   if (!keepPin && current.pin_id) {
     db.prepare('DELETE FROM pins WHERE id = ?').run(current.pin_id);
   }
+  // BED-1: po odebrání rostliny rozprostři zbývající piny záhonu (mřížka N-1).
+  redistributeBedPins(current.bed_id);
   res.json({ ok: true, keep_pin: keepPin });
 });
 
