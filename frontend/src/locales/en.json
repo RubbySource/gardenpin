@@ -210,7 +210,13 @@
     "canceled": "Canceled",
     "deletedGardens": "Deleted {{count}} gardens and everything with them",
     "pushSent": "Sent: {{sent}}/{{total}}",
-    "missingStripeUrl": "Error: missing URL from Stripe"
+    "missingStripeUrl": "Error: missing URL from Stripe",
+    "groupAbout": "About",
+    "privacyPolicy": "Privacy policy",
+    "support": "Support & help",
+    "contactEmail": "Contact email",
+    "appVersion": "App version",
+    "aboutFoot": "Questions, ideas or bug reports — send them to the contact email. We reply within 3 working days."
   },
   "lang": {
     "cs": "Čeština",

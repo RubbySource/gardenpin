@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#7BA889" />
+    <title>Podpora · GardenPin</title>
+    <style>
+      :root {
+        --sage: #7BA889;
+        --sage-dark: #5F8C6E;
+        --sage-soft: #e8f1ea;
+        --cream: #FAF7F2;
+        --ink: #1c1c1e;
+        --ink-2: #3a3a3c;
+        --mute: #6e6e73;
+        --card: #ffffff;
+        --line: #e5e5ea;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #0f1311;
+          --sage-soft: #1f2c23;
+          --ink: #f2f2f7;
+          --ink-2: #d1d1d6;
+          --mute: #98989f;
+          --card: #1c1f1d;
+          --line: #2c2c2e;
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: env(safe-area-inset-top) 20px 80px;
+      }
+      header.top {
+        display: flex; align-items: center; gap: 12px;
+        padding: 24px 0 12px;
+      }
+      .badge {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: var(--sage);
+        color: white;
+        display: grid; place-items: center;
+        font-size: 24px;
+        box-shadow: 0 2px 8px rgba(123, 168, 137, 0.4);
+      }
+      h1.title {
+        font-size: 28px; font-weight: 700;
+        margin: 0; letter-spacing: -0.02em;
+      }
+      .sub { color: var(--mute); font-size: 13px; margin: 2px 0 0; }
+      .tabs {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        padding: 8px 0 20px;
+        position: sticky; top: 0; background: var(--cream); z-index: 10;
+      }
+      .tab {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        font: inherit; font-size: 14px;
+        padding: 8px 14px; border-radius: 999px;
+        cursor: pointer; transition: all 0.15s ease;
+      }
+      .tab.active {
+        background: var(--sage); color: white;
+        border-color: var(--sage); font-weight: 600;
+      }
+      .lang { display: none; }
+      .lang.active { display: block; }
+      h2 {
+        font-size: 19px; font-weight: 600;
+        margin: 28px 0 10px; letter-spacing: -0.01em;
+      }
+      h2:first-of-type { margin-top: 12px; }
+      p { margin: 0 0 12px; color: var(--ink-2); }
+      ul { margin: 0 0 12px; padding-left: 22px; color: var(--ink-2); }
+      li { margin: 4px 0; }
+      a { color: var(--sage-dark); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .contact-card {
+        background: var(--sage-soft);
+        border: 1px solid var(--sage);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin: 16px 0;
+      }
+      .contact-card a {
+        display: inline-block;
+        font-size: 17px;
+        font-weight: 600;
+        margin-top: 4px;
+      }
+      .meta {
+        color: var(--mute);
+        font-size: 13px;
+        padding: 16px 0 0;
+        border-top: 1px solid var(--line);
+        margin-top: 32px;
+      }
+      details {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 8px 0;
+      }
+      details[open] { background: var(--card); }
+      summary {
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 0;
+        list-style: none;
+      }
+      summary::-webkit-details-marker { display: none; }
+      summary::after {
+        content: '›';
+        float: right;
+        color: var(--mute);
+        font-size: 22px;
+        line-height: 1;
+        transition: transform 0.2s;
+      }
+      details[open] summary::after { transform: rotate(90deg); }
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: var(--sage-dark); font-weight: 500;
+        padding: 10px 0; font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">‹ <span data-i18n="back">Zpět do aplikace</span></a>
+      <header class="top">
+        <div class="badge">📍</div>
+        <div>
+          <h1 class="title">GardenPin</h1>
+          <p class="sub" data-i18n="sub">Podpora a kontakt</p>
+        </div>
+      </header>
+
+      <div class="tabs" role="tablist" aria-label="Language">
+        <button class="tab active" data-lang="cs" type="button">🇨🇿 Čeština</button>
+        <button class="tab" data-lang="en" type="button">🇬🇧 English</button>
+        <button class="tab" data-lang="sk" type="button">🇸🇰 Slovenčina</button>
+        <button class="tab" data-lang="de" type="button">🇩🇪 Deutsch</button>
+        <button class="tab" data-lang="pl" type="button">🇵🇱 Polski</button>
+      </div>
+
+      <!-- ============== ČEŠTINA ============== -->
+      <section class="lang active" data-lang="cs">
+        <p>Děkujeme, že pěstuješ s GardenPin. Pokud něco nefunguje, nebo máš nápad na zlepšení, ozvi se nám e-mailem.</p>
+
+        <div class="contact-card">
+          <div style="font-size: 13px; color: var(--mute);">📧 Kontaktní e-mail</div>
+          <a href="mailto:pt.rubby@gmail.com?subject=GardenPin%20support">pt.rubby@gmail.com</a>
+          <p style="margin: 8px 0 0; font-size: 13px; color: var(--mute);">
+            Odpovídáme do 3 pracovních dnů. Pro rychlejší pomoc přilož verzi aplikace (Nastavení → patička) a popis problému.
+          </p>
+        </div>
+
+        <h2>Často kladené otázky</h2>
+
+        <details>
+          <summary>Jak nastavím push notifikace?</summary>
+          <p>V Nastavení → Notifikace → <strong>Push notifikace</strong>. Pokud iOS nebo prohlížeč zobrazí žádost o povolení, klikni „Povolit". V iOS Safari je nutné nejdřív appku přidat na plochu (Sdílet → „Přidat na plochu").</p>
+        </details>
+
+        <details>
+          <summary>Proč mi nechodí týdenní e-mail?</summary>
+          <p>Zkontroluj, jestli je v Nastavení → Notifikace → <strong>Týdenní email digest</strong> přepínač zapnutý a adresa správně uložená. Digest chodí v pondělí ráno. Při samohostované instanci ověř, že má provozovatel nastavené Gmail SMTP přihlašovací údaje.</p>
+        </details>
+
+        <details>
+          <summary>Jak přidám rostlinu, která není v databázi?</summary>
+          <p>V mapě zahrady klikni na „+" pro nový pin a do pole „Rostlina" napiš svoje vlastní jméno. Sezónní úkony si pak nadefinuješ ručně přes „+ Úkol".</p>
+        </details>
+
+        <details>
+          <summary>Jak sdílím zahradu s rodinou?</summary>
+          <p>V detailu zahrady klikni na „Sdílet" → vygeneruje se odkaz pro čtení (read-only). Pro editory pošli pozvánku e-mailem v sekci „Členové".</p>
+        </details>
+
+        <details>
+          <summary>Funguje appka offline?</summary>
+          <p>Většina obrazovek (mapa, piny, úkoly) funguje i bez sítě. Synchronizace proběhne, jakmile se připojíš. Push notifikace a počasí vyžadují internet.</p>
+        </details>
+
+        <details>
+          <summary>Jak zruším Premium předplatné?</summary>
+          <p>Premium se zatím spravuje přes <a href="https://billing.stripe.com">Stripe Customer Portal</a>. Najdeš tam i fakturační historii.</p>
+        </details>
+
+        <details>
+          <summary>Jak exportuju nebo zazálohuju data?</summary>
+          <p>Nastavení → Data &amp; zálohy → <strong>Export dat</strong>. Volby: JSON (kompletní záloha), CSV (úkoly do Excelu), iCal (kalendář).</p>
+        </details>
+
+        <details>
+          <summary>Smazal jsem všechna data. Lze je obnovit?</summary>
+          <p>Bohužel ne. „Smazat všechna data" v Nebezpečné zóně je nevratné. Doporučujeme předtím vždy spustit Export → JSON.</p>
+        </details>
+
+        <h2>Nahlášení chyby</h2>
+        <p>Pošli e-mail s krátkým popisem (co se stalo, co jsi čekal, co se stalo místo toho) a ideálně screenshot. Pomohou i tyto údaje:</p>
+        <ul>
+          <li>Verze aplikace: <strong>1.0</strong></li>
+          <li>Zařízení (iPhone 14, Android 14, MacBook…)</li>
+          <li>Prohlížeč (Safari, Chrome…)</li>
+          <li>Jazyk aplikace</li>
+        </ul>
+
+        <h2>Návrh na funkci</h2>
+        <p>Máš nápad, co by GardenPin mohl umět? Napiš nám — backlog řídíme my, ale komunitní nápady jsou cenné a dostávají se do plánu.</p>
+
+        <h2>Soukromí a smazání účtu</h2>
+        <p>Detaily o tom, jaká data ukládáme, jsou v <a href="/privacy.html">Zásadách ochrany osobních údajů</a>. Účet smažeš v Nastavení → Nebezpečná zóna → <strong>Smazat všechna data</strong>.</p>
+
+        <div class="meta">© 2026 GardenPin · Verze 1.0</div>
+      </section>
+
+      <!-- ============== ENGLISH ============== -->
+      <section class="lang" data-lang="en">
+        <p>Thanks for growing with GardenPin. If something isn't working, or you have an idea, reach out by email.</p>
+
+        <div class="contact-card">
+          <div style="font-size: 13px; color: var(--mute);">📧 Contact email</div>
+          <a href="mailto:pt.rubby@gmail.com?subject=GardenPin%20support">pt.rubby@gmail.com</a>
+          <p style="margin: 8px 0 0; font-size: 13px; color: var(--mute);">
+            We reply within 3 working days. Please include the app version (Settings → footer) and a description of the problem.
+          </p>
+        </div>
+
+        <h2>Frequently asked questions</h2>
+
+        <details>
+          <summary>How do I enable push notifications?</summary>
+          <p>Settings → Notifications → <strong>Push notifications</strong>. When iOS or your browser asks for permission, tap "Allow". On iOS Safari you first need to add the app to your home screen (Share → "Add to Home Screen").</p>
+        </details>
+
+        <details>
+          <summary>Why isn't the weekly email arriving?</summary>
+          <p>Check that the toggle in Settings → Notifications → <strong>Weekly digest</strong> is on and your address is saved. The digest is sent on Monday mornings. If you self-host, make sure the operator configured Gmail SMTP credentials.</p>
+        </details>
+
+        <details>
+          <summary>How do I add a plant that isn't in the database?</summary>
+          <p>On the garden map tap "+" to add a pin and type your own name into the "Plant" field. Then add seasonal tasks manually via "+ Task".</p>
+        </details>
+
+        <details>
+          <summary>How do I share a garden with my family?</summary>
+          <p>In the garden detail tap "Share" — that creates a read-only link. For editors, send an invitation by email in the "Members" section.</p>
+        </details>
+
+        <details>
+          <summary>Does the app work offline?</summary>
+          <p>Most screens (map, pins, tasks) work without a connection. Data syncs as soon as you're online. Push notifications and weather need internet.</p>
+        </details>
+
+        <details>
+          <summary>How do I cancel a Premium subscription?</summary>
+          <p>Premium is managed through the <a href="https://billing.stripe.com">Stripe Customer Portal</a>. You'll find billing history there too.</p>
+        </details>
+
+        <details>
+          <summary>How do I export or back up my data?</summary>
+          <p>Settings → Data &amp; backups → <strong>Export data</strong>. Options: JSON (full backup), CSV (tasks for Excel), iCal (calendar).</p>
+        </details>
+
+        <details>
+          <summary>I deleted all data. Can I recover it?</summary>
+          <p>Unfortunately not. "Delete all data" in the Danger zone is irreversible. We recommend running Export → JSON beforehand.</p>
+        </details>
+
+        <h2>Reporting a bug</h2>
+        <p>Send an email with a short description (what happened, what you expected, what happened instead) and ideally a screenshot. Also helpful:</p>
+        <ul>
+          <li>App version: <strong>1.0</strong></li>
+          <li>Device (iPhone 14, Android 14, MacBook…)</li>
+          <li>Browser (Safari, Chrome…)</li>
+          <li>App language</li>
+        </ul>
+
+        <h2>Feature request</h2>
+        <p>Have an idea for GardenPin? Write to us. The backlog is ours to drive, but community ideas are valuable and do make it onto the roadmap.</p>
+
+        <h2>Privacy and account deletion</h2>
+        <p>Details about what data we store are in the <a href="/privacy.html">Privacy Policy</a>. Delete your account in Settings → Danger zone → <strong>Delete all data</strong>.</p>
+
+        <div class="meta">© 2026 GardenPin · Version 1.0</div>
+      </section>
+
+      <!-- ============== SLOVENČINA ============== -->
+      <section class="lang" data-lang="sk">
+        <p>Ďakujeme, že pestuješ s GardenPin. Ak niečo nefunguje, alebo máš nápad, napíš nám e-mail.</p>
+
+        <div class="contact-card">
+          <div style="font-size: 13px; color: var(--mute);">📧 Kontaktný e-mail</div>
+          <a href="mailto:pt.rubby@gmail.com?subject=GardenPin%20support">pt.rubby@gmail.com</a>
+          <p style="margin: 8px 0 0; font-size: 13px; color: var(--mute);">
+            Odpovedáme do 3 pracovných dní. Pre rýchlejšiu pomoc prilož verziu aplikácie a popis problému.
+          </p>
+        </div>
+
+        <h2>Často kladené otázky</h2>
+
+        <details>
+          <summary>Ako zapnem push notifikácie?</summary>
+          <p>Nastavenia → Notifikácie → <strong>Push notifikácie</strong>. V iOS Safari treba aplikáciu najprv pridať na plochu (Zdieľať → „Pridať na plochu").</p>
+        </details>
+
+        <details>
+          <summary>Prečo mi nechodí týždenný e-mail?</summary>
+          <p>Skontroluj prepínač Nastavenia → Notifikácie → <strong>Týždenný digest</strong> a uloženú adresu. Digest chodí v pondelok ráno.</p>
+        </details>
+
+        <details>
+          <summary>Ako pridám rastlinu, ktorá nie je v databáze?</summary>
+          <p>V mape záhrady klikni na „+" a do poľa „Rastlina" napíš vlastný názov. Sezónne úkony pridáš ručne cez „+ Úkol".</p>
+        </details>
+
+        <details>
+          <summary>Ako zdieľam záhradu s rodinou?</summary>
+          <p>V detaile záhrady klikni na „Zdieľať" — vytvorí sa odkaz na čítanie. Editori sa pozývajú e-mailom v sekcii „Členovia".</p>
+        </details>
+
+        <details>
+          <summary>Funguje aplikácia offline?</summary>
+          <p>Väčšina obrazoviek funguje aj bez siete. Synchronizácia prebehne po pripojení.</p>
+        </details>
+
+        <details>
+          <summary>Ako zruším Premium predplatné?</summary>
+          <p>Cez <a href="https://billing.stripe.com">Stripe Customer Portal</a> — nájdeš tam aj fakturačnú históriu.</p>
+        </details>
+
+        <details>
+          <summary>Ako exportujem alebo zálohujem dáta?</summary>
+          <p>Nastavenia → Dáta &amp; zálohy → <strong>Export dát</strong>. Voľby: JSON, CSV, iCal.</p>
+        </details>
+
+        <details>
+          <summary>Zmazal som všetky dáta. Dá sa to obnoviť?</summary>
+          <p>Žiaľ nie. „Zmazať všetky dáta" je nevratné. Odporúčame najprv spustiť Export → JSON.</p>
+        </details>
+
+        <h2>Nahlásenie chyby</h2>
+        <p>Pošli e-mail s krátkym popisom a ideálne screenshotom. Verzia aplikácie: <strong>1.0</strong>.</p>
+
+        <h2>Návrh funkcie</h2>
+        <p>Napíš nám — komunitné nápady dostávajú miesto v pláne.</p>
+
+        <h2>Súkromie a zmazanie účtu</h2>
+        <p>Detaily v <a href="/privacy.html">Zásadách ochrany osobných údajov</a>. Účet zmažeš v Nastaveniach → Nebezpečná zóna.</p>
+
+        <div class="meta">© 2026 GardenPin · Verzia 1.0</div>
+      </section>
+
+      <!-- ============== DEUTSCH ============== -->
+      <section class="lang" data-lang="de">
+        <p>Danke, dass du mit GardenPin gärtnerst. Wenn etwas nicht funktioniert oder du eine Idee hast, melde dich per E-Mail.</p>
+
+        <div class="contact-card">
+          <div style="font-size: 13px; color: var(--mute);">📧 Kontakt-E-Mail</div>
+          <a href="mailto:pt.rubby@gmail.com?subject=GardenPin%20support">pt.rubby@gmail.com</a>
+          <p style="margin: 8px 0 0; font-size: 13px; color: var(--mute);">
+            Wir antworten innerhalb von 3 Arbeitstagen. Bitte App-Version und Problembeschreibung mitschicken.
+          </p>
+        </div>
+
+        <h2>Häufige Fragen</h2>
+
+        <details>
+          <summary>Wie aktiviere ich Push-Nachrichten?</summary>
+          <p>Einstellungen → Benachrichtigungen → <strong>Push</strong>. Auf iOS Safari die App zuerst zum Home-Bildschirm hinzufügen.</p>
+        </details>
+
+        <details>
+          <summary>Warum kommt die wöchentliche E-Mail nicht?</summary>
+          <p>Prüfe den Schalter Einstellungen → Benachrichtigungen → <strong>Wochen-Digest</strong> und die gespeicherte Adresse. Versand: Montag morgens.</p>
+        </details>
+
+        <details>
+          <summary>Wie füge ich eine Pflanze hinzu, die nicht in der Datenbank ist?</summary>
+          <p>Auf der Gartenkarte „+" tippen und einen eigenen Namen ins Feld „Pflanze" eintragen. Saisonale Aufgaben manuell über „+ Aufgabe" anlegen.</p>
+        </details>
+
+        <details>
+          <summary>Wie teile ich einen Garten mit der Familie?</summary>
+          <p>Im Garten-Detail auf „Teilen" — erstellt einen schreibgeschützten Link. Editoren werden im Bereich „Mitglieder" per E-Mail eingeladen.</p>
+        </details>
+
+        <details>
+          <summary>Funktioniert die App offline?</summary>
+          <p>Die meisten Bildschirme funktionieren ohne Verbindung. Synchronisation, sobald du online bist.</p>
+        </details>
+
+        <details>
+          <summary>Wie kündige ich Premium?</summary>
+          <p>Über das <a href="https://billing.stripe.com">Stripe Customer Portal</a> — dort auch Rechnungshistorie.</p>
+        </details>
+
+        <details>
+          <summary>Wie exportiere/sichere ich meine Daten?</summary>
+          <p>Einstellungen → Daten &amp; Backups → <strong>Daten exportieren</strong>. Optionen: JSON, CSV, iCal.</p>
+        </details>
+
+        <details>
+          <summary>Ich habe alle Daten gelöscht. Kann ich sie wiederherstellen?</summary>
+          <p>Leider nein. „Alle Daten löschen" ist endgültig. Vorher Export → JSON empfohlen.</p>
+        </details>
+
+        <h2>Fehler melden</h2>
+        <p>E-Mail mit kurzer Beschreibung und idealerweise Screenshot. App-Version: <strong>1.0</strong>.</p>
+
+        <h2>Funktionswunsch</h2>
+        <p>Schreib uns. Community-Ideen schaffen es regelmäßig in die Roadmap.</p>
+
+        <h2>Datenschutz und Kontolöschung</h2>
+        <p>Details in der <a href="/privacy.html">Datenschutzerklärung</a>. Konto löschen: Einstellungen → Gefahrenzone.</p>
+
+        <div class="meta">© 2026 GardenPin · Version 1.0</div>
+      </section>
+
+      <!-- ============== POLSKI ============== -->
+      <section class="lang" data-lang="pl">
+        <p>Dziękujemy, że uprawiasz z GardenPin. Jeśli coś nie działa albo masz pomysł, napisz do nas e-mail.</p>
+
+        <div class="contact-card">
+          <div style="font-size: 13px; color: var(--mute);">📧 E-mail kontaktowy</div>
+          <a href="mailto:pt.rubby@gmail.com?subject=GardenPin%20support">pt.rubby@gmail.com</a>
+          <p style="margin: 8px 0 0; font-size: 13px; color: var(--mute);">
+            Odpowiadamy w ciągu 3 dni roboczych. Dołącz wersję aplikacji i opis problemu.
+          </p>
+        </div>
+
+        <h2>Często zadawane pytania</h2>
+
+        <details>
+          <summary>Jak włączyć powiadomienia push?</summary>
+          <p>Ustawienia → Powiadomienia → <strong>Push</strong>. Na iOS Safari najpierw dodaj aplikację do ekranu głównego.</p>
+        </details>
+
+        <details>
+          <summary>Dlaczego nie przychodzi tygodniowy e-mail?</summary>
+          <p>Sprawdź przełącznik Ustawienia → Powiadomienia → <strong>Tygodniowy digest</strong> i zapisany adres. Digest wysyłany w poniedziałek rano.</p>
+        </details>
+
+        <details>
+          <summary>Jak dodać roślinę, której nie ma w bazie?</summary>
+          <p>Na mapie ogrodu kliknij „+" i wpisz własną nazwę w pole „Roślina". Sezonowe zadania dodasz ręcznie przez „+ Zadanie".</p>
+        </details>
+
+        <details>
+          <summary>Jak udostępnić ogród rodzinie?</summary>
+          <p>W szczegółach ogrodu kliknij „Udostępnij" — utworzy się link tylko do odczytu. Edytorów zaprasza się e-mailem w sekcji „Członkowie".</p>
+        </details>
+
+        <details>
+          <summary>Czy aplikacja działa offline?</summary>
+          <p>Większość ekranów działa bez połączenia. Synchronizacja po podłączeniu.</p>
+        </details>
+
+        <details>
+          <summary>Jak anulować Premium?</summary>
+          <p>Przez <a href="https://billing.stripe.com">Stripe Customer Portal</a> — tam też historia rozliczeń.</p>
+        </details>
+
+        <details>
+          <summary>Jak wyeksportować lub zarchiwizować dane?</summary>
+          <p>Ustawienia → Dane &amp; kopie → <strong>Eksport danych</strong>. Opcje: JSON, CSV, iCal.</p>
+        </details>
+
+        <details>
+          <summary>Usunąłem wszystkie dane. Czy można je odzyskać?</summary>
+          <p>Niestety nie. „Usuń wszystkie dane" jest nieodwracalne. Przed tym zalecamy Eksport → JSON.</p>
+        </details>
+
+        <h2>Zgłoszenie błędu</h2>
+        <p>E-mail z krótkim opisem i screenshotem. Wersja aplikacji: <strong>1.0</strong>.</p>
+
+        <h2>Sugestia funkcji</h2>
+        <p>Napisz do nas — pomysły społeczności trafiają na roadmapę.</p>
+
+        <h2>Prywatność i usunięcie konta</h2>
+        <p>Szczegóły w <a href="/privacy.html">Polityce prywatności</a>. Usunięcie konta: Ustawienia → Strefa zagrożenia.</p>
+
+        <div class="meta">© 2026 GardenPin · Wersja 1.0</div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        var BACK = { cs: 'Zpět do aplikace', en: 'Back to the app', sk: 'Späť do aplikácie', de: 'Zurück zur App', pl: 'Powrót do aplikacji' };
+        var SUB = { cs: 'Podpora a kontakt', en: 'Support & contact', sk: 'Podpora a kontakt', de: 'Support & Kontakt', pl: 'Pomoc i kontakt' };
+        var TITLE = { cs: 'Podpora · GardenPin', en: 'Support · GardenPin', sk: 'Podpora · GardenPin', de: 'Support · GardenPin', pl: 'Pomoc · GardenPin' };
+
+        function pickLang() {
+          var url = new URLSearchParams(location.search).get('lang');
+          if (url && BACK[url]) return url;
+          var saved = localStorage.getItem('gardenpin.lang');
+          if (saved && BACK[saved]) return saved;
+          var nav = (navigator.language || 'cs').slice(0, 2);
+          return BACK[nav] ? nav : 'cs';
+        }
+
+        function apply(lang) {
+          document.documentElement.lang = lang;
+          document.title = TITLE[lang];
+          document.querySelectorAll('[data-i18n="back"]').forEach(function (el) { el.textContent = BACK[lang]; });
+          document.querySelectorAll('[data-i18n="sub"]').forEach(function (el) { el.textContent = SUB[lang]; });
+          document.querySelectorAll('.lang').forEach(function (s) {
+            s.classList.toggle('active', s.getAttribute('data-lang') === lang);
+          });
+          document.querySelectorAll('.tab').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+          });
+        }
+
+        document.querySelectorAll('.tab').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var lang = b.getAttribute('data-lang');
+            try { localStorage.setItem('gardenpin.lang', lang); } catch (e) {}
+            apply(lang);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+
+        apply(pickLang());
+      })();
+    </script>
+  </body>
+</html>

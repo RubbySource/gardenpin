@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#7BA889" />
+    <title>Zásady ochrany osobních údajů · GardenPin</title>
+    <style>
+      :root {
+        --sage: #7BA889;
+        --sage-dark: #5F8C6E;
+        --cream: #FAF7F2;
+        --ink: #1c1c1e;
+        --ink-2: #3a3a3c;
+        --mute: #6e6e73;
+        --card: #ffffff;
+        --line: #e5e5ea;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #0f1311;
+          --ink: #f2f2f7;
+          --ink-2: #d1d1d6;
+          --mute: #98989f;
+          --card: #1c1f1d;
+          --line: #2c2c2e;
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: env(safe-area-inset-top) 20px 80px;
+      }
+      header.top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 24px 0 12px;
+      }
+      .badge {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: var(--sage);
+        color: white;
+        display: grid; place-items: center;
+        font-size: 24px;
+        box-shadow: 0 2px 8px rgba(123, 168, 137, 0.4);
+      }
+      h1.title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        color: var(--mute);
+        font-size: 13px;
+        margin: 2px 0 0;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 8px 0 20px;
+        position: sticky;
+        top: 0;
+        background: var(--cream);
+        z-index: 10;
+      }
+      .tab {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .tab.active {
+        background: var(--sage);
+        color: white;
+        border-color: var(--sage);
+        font-weight: 600;
+      }
+      .lang { display: none; }
+      .lang.active { display: block; }
+      h2 {
+        font-size: 19px;
+        font-weight: 600;
+        margin: 28px 0 10px;
+        letter-spacing: -0.01em;
+      }
+      h2:first-of-type { margin-top: 12px; }
+      p, ul { margin: 0 0 12px; color: var(--ink-2); }
+      ul { padding-left: 22px; }
+      li { margin: 4px 0; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin: 16px 0;
+      }
+      .meta {
+        color: var(--mute);
+        font-size: 13px;
+        padding: 16px 0 0;
+        border-top: 1px solid var(--line);
+        margin-top: 32px;
+      }
+      a { color: var(--sage-dark); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      code {
+        background: var(--card);
+        border: 1px solid var(--line);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--sage-dark);
+        font-weight: 500;
+        padding: 10px 0;
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">‹ <span data-i18n="back">Zpět do aplikace</span></a>
+      <header class="top">
+        <div class="badge">📍</div>
+        <div>
+          <h1 class="title">GardenPin</h1>
+          <p class="sub" data-i18n="sub">Zásady ochrany osobních údajů</p>
+        </div>
+      </header>
+
+      <div class="tabs" role="tablist" aria-label="Language">
+        <button class="tab active" data-lang="cs" type="button">🇨🇿 Čeština</button>
+        <button class="tab" data-lang="en" type="button">🇬🇧 English</button>
+        <button class="tab" data-lang="sk" type="button">🇸🇰 Slovenčina</button>
+        <button class="tab" data-lang="de" type="button">🇩🇪 Deutsch</button>
+        <button class="tab" data-lang="pl" type="button">🇵🇱 Polski</button>
+      </div>
+
+      <!-- ============== ČEŠTINA ============== -->
+      <section class="lang active" data-lang="cs">
+        <p><strong>Účinnost:</strong> 11. června 2026 · <strong>Verze aplikace:</strong> 1.0</p>
+        <p>GardenPin je zahradní plánovač, který si může každý nainstalovat na svůj telefon, do prohlížeče nebo na vlastní server. Tyto zásady vysvětlují, jaká data aplikace zpracovává, kde se ukládají a kdo k nim má přístup.</p>
+
+        <h2>1. Kdo je správce dat</h2>
+        <p>Provozovatelem oficiální instance GardenPin (<a href="https://gardenpin.tailcec1ab.ts.net/">gardenpin.tailcec1ab.ts.net</a>) je <strong>Patrik Příkrylík</strong> (CZ, soukromá osoba). Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>. Pokud používáš samohostovanou instanci, správcem dat jsi ty nebo provozovatel tvého serveru.</p>
+
+        <h2>2. Jaká data zpracováváme</h2>
+        <ul>
+          <li><strong>Obsah, který sám vytvoříš</strong> — názvy zahrad a rostlin, polohy pinů na mapě, úkoly, sklizňové záznamy, záznamy o chorobách, fotky zahrad a rostlin, poznámky.</li>
+          <li><strong>Volitelně tvoje jméno</strong> (do pozdravu na úvodní obrazovce) — uložené pouze lokálně v prohlížeči.</li>
+          <li><strong>Volitelně emailová adresa</strong> — pokud zapneš týdenní email digest.</li>
+          <li><strong>Push notifikační token</strong> — pokud povolíš push notifikace; vytváří ho prohlížeč nebo iOS, sami token nečteme.</li>
+          <li><strong>Předvolby v zařízení</strong> (jazyk, tmavý režim, počet dní upozornění předem) — uložené v <code>localStorage</code> prohlížeče, neopouští zařízení.</li>
+          <li><strong>Stripe payment data</strong> — pokud si pořídíš Premium, platbu zpracovává Stripe. GardenPin ukládá pouze identifikátor předplatného a stav (active/canceled). Číslo karty nikdy nevidíme.</li>
+        </ul>
+        <p>GardenPin <strong>nesbírá</strong> analytiku návštěvnosti, nepoužívá reklamní cookies, nesleduje polohu zařízení a nevytváří uživatelský profil pro marketing.</p>
+
+        <h2>3. Kde se data ukládají</h2>
+        <p>Veškerá tvoje data (zahrady, piny, úkoly, fotky) jsou uložená v <strong>SQLite databázi na serveru</strong>, kde běží tvoje instance GardenPin. U oficiální instance je server umístěn v České republice a přístupný přes Tailscale Funnel.</p>
+        <p>Fotky se ukládají na disk serveru ve složce <code>uploads/</code>. Originály ani metadata se nesdílí s žádnou třetí stranou.</p>
+
+        <h2>4. Sdílení dat s třetími stranami</h2>
+        <ul>
+          <li><strong>Stripe</strong> (placené Premium) — zpracovává jen platební transakce. <a href="https://stripe.com/privacy">Zásady Stripe</a>.</li>
+          <li><strong>Open-Meteo</strong> (počasí) — předáváme jen souřadnice tvojí zahrady (zaokrouhlené), bez osobních údajů. <a href="https://open-meteo.com/en/terms">Podmínky Open-Meteo</a>.</li>
+          <li><strong>Apple Push Notification Service / Web Push</strong> — doručuje push notifikace, pokud je povolíš.</li>
+          <li><strong>Gmail SMTP</strong> — pokud zapneš týdenní email digest, vlastní zpráva projde přes Gmail.</li>
+        </ul>
+        <p>S nikým jiným data nesdílíme. Neprodáváme je, neposíláme do reklamních sítí a neposkytujeme je AI tréninkovým službám.</p>
+
+        <h2>5. Jak dlouho data uchováváme</h2>
+        <p>Data uchováváme, dokud je sám nesmažeš. V Nastavení → Data můžeš:</p>
+        <ul>
+          <li><strong>Exportovat všechna data</strong> (JSON, CSV, iCal),</li>
+          <li><strong>Smazat demo zahradu</strong>,</li>
+          <li><strong>Smazat všechna data</strong> v sekci „Nebezpečná zóna" — akce je nevratná.</li>
+        </ul>
+
+        <h2>6. Tvoje práva (GDPR)</h2>
+        <p>Jako uživatel z EU máš právo:</p>
+        <ul>
+          <li>na přístup k datům (Export v Nastavení),</li>
+          <li>na opravu nebo doplnění (editace přímo v aplikaci),</li>
+          <li>na výmaz (Smazat všechna data),</li>
+          <li>na přenositelnost (export JSON/CSV),</li>
+          <li>na omezení zpracování nebo vznesení námitky (emailem na kontaktní adresu).</li>
+        </ul>
+        <p>Pokud si myslíš, že tvoje práva nebyla respektována, můžeš podat stížnost u <a href="https://www.uoou.cz">Úřadu pro ochranu osobních údajů</a>.</p>
+
+        <h2>7. Bezpečnost</h2>
+        <p>Komunikace mezi telefonem a serverem je šifrovaná HTTPS (Tailscale Funnel). Databáze běží lokálně na serveru, není přístupná z veřejného internetu mimo aplikační rozhraní. Heslo k Premium předplatnému nikdy nezadáváš v GardenPin — všechno řeší Stripe.</p>
+
+        <h2>8. Děti</h2>
+        <p>GardenPin není určen dětem mladším 13 let. Aplikace vědomě nesbírá data o dětech.</p>
+
+        <h2>9. Změny zásad</h2>
+        <p>Pokud zásady upravíme, oznámíme to v aplikaci a aktualizujeme datum účinnosti nahoře. Podstatné změny vyhlásíme alespoň 14 dní předem.</p>
+
+        <h2>10. Kontakt</h2>
+        <p>Otázky nebo žádosti směřuj na <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>.</p>
+
+        <div class="meta">© 2026 GardenPin · Aktualizováno 11. 6. 2026</div>
+      </section>
+
+      <!-- ============== ENGLISH ============== -->
+      <section class="lang" data-lang="en">
+        <p><strong>Effective date:</strong> 11 June 2026 · <strong>App version:</strong> 1.0</p>
+        <p>GardenPin is a garden planner that anyone can install on their phone, in a browser, or on their own server. This policy explains what data the app processes, where it lives, and who can access it.</p>
+
+        <h2>1. Who is the data controller</h2>
+        <p>The official GardenPin instance (<a href="https://gardenpin.tailcec1ab.ts.net/">gardenpin.tailcec1ab.ts.net</a>) is operated by <strong>Patrik Příkrylík</strong> (Czech Republic, private individual). Contact: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>. If you self-host, you or your server operator are the data controller.</p>
+
+        <h2>2. What data we process</h2>
+        <ul>
+          <li><strong>Content you create</strong> — garden and plant names, pin locations on the map, tasks, harvest entries, disease records, photos of gardens and plants, notes.</li>
+          <li><strong>Optionally your first name</strong> (for the home screen greeting) — stored only locally in your browser.</li>
+          <li><strong>Optionally an email address</strong> — if you enable the weekly email digest.</li>
+          <li><strong>Push notification token</strong> — if you enable push notifications; created by your browser or iOS, we never read the token itself.</li>
+          <li><strong>Device preferences</strong> (language, dark mode, reminder lead time) — stored in browser <code>localStorage</code>, never leave your device.</li>
+          <li><strong>Stripe payment data</strong> — if you upgrade to Premium, Stripe processes the payment. GardenPin only stores the subscription ID and status (active/canceled). We never see your card number.</li>
+        </ul>
+        <p>GardenPin <strong>does not</strong> collect usage analytics, does not use advertising cookies, does not track device location, and does not build a marketing profile.</p>
+
+        <h2>3. Where data lives</h2>
+        <p>All your data (gardens, pins, tasks, photos) is stored in a <strong>SQLite database on the server</strong> running your GardenPin instance. For the official instance the server is located in the Czech Republic and exposed via Tailscale Funnel.</p>
+        <p>Photos are saved to disk in the <code>uploads/</code> folder. Originals and metadata are not shared with any third party.</p>
+
+        <h2>4. Sharing data with third parties</h2>
+        <ul>
+          <li><strong>Stripe</strong> (paid Premium) — handles payment transactions only. <a href="https://stripe.com/privacy">Stripe privacy policy</a>.</li>
+          <li><strong>Open-Meteo</strong> (weather) — receives only your garden coordinates (rounded), no personal data. <a href="https://open-meteo.com/en/terms">Open-Meteo terms</a>.</li>
+          <li><strong>Apple Push Notification Service / Web Push</strong> — delivers push notifications if you enable them.</li>
+          <li><strong>Gmail SMTP</strong> — if you enable the weekly email digest, the message itself passes through Gmail.</li>
+        </ul>
+        <p>We share data with no one else. We do not sell it, do not send it to ad networks, and do not provide it to AI training services.</p>
+
+        <h2>5. How long we keep data</h2>
+        <p>We keep data until you delete it. In Settings → Data you can:</p>
+        <ul>
+          <li><strong>Export all data</strong> (JSON, CSV, iCal),</li>
+          <li><strong>Delete the demo garden</strong>,</li>
+          <li><strong>Delete all data</strong> in the "Danger zone" section — the action is irreversible.</li>
+        </ul>
+
+        <h2>6. Your rights (GDPR)</h2>
+        <p>As an EU user you have the right:</p>
+        <ul>
+          <li>to access your data (Export in Settings),</li>
+          <li>to rectify or complete it (edit directly in the app),</li>
+          <li>to erasure (Delete all data),</li>
+          <li>to portability (JSON/CSV export),</li>
+          <li>to restrict processing or object (email the contact address).</li>
+        </ul>
+        <p>If you believe your rights were violated, you may file a complaint with the <a href="https://www.uoou.cz">Czech Data Protection Authority</a>.</p>
+
+        <h2>7. Security</h2>
+        <p>Communication between your phone and the server is HTTPS-encrypted (Tailscale Funnel). The database runs locally on the server and is not exposed to the public internet outside the app API. You never type your Premium subscription password into GardenPin — Stripe handles everything.</p>
+
+        <h2>8. Children</h2>
+        <p>GardenPin is not intended for children under 13. The app does not knowingly collect data about children.</p>
+
+        <h2>9. Changes to this policy</h2>
+        <p>If we update the policy, we will announce it in the app and update the effective date at the top. We will announce material changes at least 14 days in advance.</p>
+
+        <h2>10. Contact</h2>
+        <p>Questions or requests: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>.</p>
+
+        <div class="meta">© 2026 GardenPin · Updated 11 June 2026</div>
+      </section>
+
+      <!-- ============== SLOVENČINA ============== -->
+      <section class="lang" data-lang="sk">
+        <p><strong>Účinnosť:</strong> 11. júna 2026 · <strong>Verzia aplikácie:</strong> 1.0</p>
+        <p>GardenPin je záhradný plánovač, ktorý si môže každý nainštalovať do telefónu, prehliadača alebo na vlastný server. Tieto zásady vysvetľujú, aké údaje aplikácia spracúva, kde sú uložené a kto k nim má prístup.</p>
+
+        <h2>1. Prevádzkovateľ</h2>
+        <p>Oficiálnu inštanciu (<a href="https://gardenpin.tailcec1ab.ts.net/">gardenpin.tailcec1ab.ts.net</a>) prevádzkuje <strong>Patrik Příkrylík</strong> (ČR, súkromná osoba). Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>. Pri samohostovanej inštancii si prevádzkovateľom ty alebo prevádzkovateľ tvojho servera.</p>
+
+        <h2>2. Aké údaje spracúvame</h2>
+        <ul>
+          <li><strong>Obsah, ktorý sám vytvoríš</strong> — názvy záhrad a rastlín, polohy pinov, úlohy, sklizňové záznamy, záznamy o chorobách, fotografie, poznámky.</li>
+          <li><strong>Voliteľne meno</strong> — uložené iba lokálne v prehliadači.</li>
+          <li><strong>Voliteľne e-mail</strong> — ak zapneš týždenný digest.</li>
+          <li><strong>Push token</strong> — ak povolíš notifikácie.</li>
+          <li><strong>Predvoľby zariadenia</strong> (jazyk, tmavý režim) v <code>localStorage</code>.</li>
+          <li><strong>Stripe payment data</strong> — len ID predplatného a stav; číslo karty nevidíme.</li>
+        </ul>
+        <p>GardenPin <strong>nezbiera</strong> analytiku, nepoužíva reklamné cookies, nesleduje polohu.</p>
+
+        <h2>3. Kde sú údaje uložené</h2>
+        <p>V SQLite databáze na serveri, kde beží tvoja inštancia. Pri oficiálnej inštancii je server v ČR a prístupný cez Tailscale Funnel.</p>
+
+        <h2>4. Zdieľanie s tretími stranami</h2>
+        <ul>
+          <li><strong>Stripe</strong> (Premium platby).</li>
+          <li><strong>Open-Meteo</strong> (počasie) — len súradnice záhrady.</li>
+          <li><strong>Apple / Web Push</strong> — doručovanie notifikácií.</li>
+          <li><strong>Gmail SMTP</strong> — pri zapnutom e-mail digest.</li>
+        </ul>
+        <p>Údaje nepredávame ani neposkytujeme reklamným sieťam.</p>
+
+        <h2>5. Doba uchovávania</h2>
+        <p>Údaje uchovávame, kým ich sám nezmažeš. V Nastaveniach → Dáta môžeš exportovať alebo zmazať všetko.</p>
+
+        <h2>6. Tvoje práva (GDPR)</h2>
+        <p>Prístup, oprava, výmaz, prenositeľnosť, námietka. Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>.</p>
+
+        <h2>7. Bezpečnosť</h2>
+        <p>Komunikácia je šifrovaná HTTPS. Heslo k Premium nikdy nezadávaš v GardenPin — všetko rieši Stripe.</p>
+
+        <h2>8. Deti</h2>
+        <p>Aplikácia nie je určená deťom do 13 rokov.</p>
+
+        <h2>9. Zmeny zásad</h2>
+        <p>Podstatné zmeny vyhlásime aspoň 14 dní vopred.</p>
+
+        <h2>10. Kontakt</h2>
+        <p><a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a></p>
+
+        <div class="meta">© 2026 GardenPin · Aktualizované 11. 6. 2026</div>
+      </section>
+
+      <!-- ============== DEUTSCH ============== -->
+      <section class="lang" data-lang="de">
+        <p><strong>Gültig ab:</strong> 11. Juni 2026 · <strong>App-Version:</strong> 1.0</p>
+        <p>GardenPin ist ein Gartenplaner, den man auf dem Telefon, im Browser oder auf einem eigenen Server installieren kann. Diese Erklärung beschreibt, welche Daten die App verarbeitet, wo sie liegen und wer Zugriff hat.</p>
+
+        <h2>1. Verantwortlicher</h2>
+        <p>Die offizielle Instanz (<a href="https://gardenpin.tailcec1ab.ts.net/">gardenpin.tailcec1ab.ts.net</a>) wird betrieben von <strong>Patrik Příkrylík</strong> (Tschechische Republik, Privatperson). Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>. Bei Self-Hosting bist du selbst Verantwortlicher.</p>
+
+        <h2>2. Verarbeitete Daten</h2>
+        <ul>
+          <li><strong>Selbst erstellte Inhalte</strong> — Garten- und Pflanzennamen, Pin-Positionen, Aufgaben, Ernten, Krankheitseinträge, Fotos, Notizen.</li>
+          <li><strong>Optional dein Name</strong> — nur lokal im Browser.</li>
+          <li><strong>Optional E-Mail-Adresse</strong> — wenn du den wöchentlichen Digest aktivierst.</li>
+          <li><strong>Push-Token</strong> — bei aktivierten Push-Nachrichten.</li>
+          <li><strong>Geräte-Einstellungen</strong> (Sprache, Dunkelmodus) im <code>localStorage</code>.</li>
+          <li><strong>Stripe-Zahlungsdaten</strong> — nur Abo-ID und Status; die Kartennummer sehen wir nie.</li>
+        </ul>
+        <p>GardenPin <strong>erhebt keine</strong> Nutzungsanalyse, verwendet keine Werbe-Cookies und verfolgt keinen Standort.</p>
+
+        <h2>3. Speicherort</h2>
+        <p>SQLite-Datenbank auf dem Server deiner GardenPin-Instanz. Offizielle Instanz: Server in der Tschechischen Republik, erreichbar über Tailscale Funnel.</p>
+
+        <h2>4. Weitergabe an Dritte</h2>
+        <ul>
+          <li><strong>Stripe</strong> (Premium-Zahlungen).</li>
+          <li><strong>Open-Meteo</strong> (Wetter) — nur Garten-Koordinaten.</li>
+          <li><strong>Apple / Web Push</strong> — Zustellung von Push-Nachrichten.</li>
+          <li><strong>Gmail SMTP</strong> — wenn E-Mail-Digest aktiv ist.</li>
+        </ul>
+        <p>Wir verkaufen keine Daten und geben sie nicht an Werbenetzwerke.</p>
+
+        <h2>5. Aufbewahrungsdauer</h2>
+        <p>Bis zur Löschung durch dich. In Einstellungen → Daten kannst du alles exportieren oder löschen.</p>
+
+        <h2>6. Deine Rechte (DSGVO)</h2>
+        <p>Auskunft, Berichtigung, Löschung, Übertragbarkeit, Widerspruch. Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>.</p>
+
+        <h2>7. Sicherheit</h2>
+        <p>HTTPS-verschlüsselte Übertragung. Premium-Zahlungsdaten verbleiben bei Stripe.</p>
+
+        <h2>8. Kinder</h2>
+        <p>GardenPin richtet sich nicht an Kinder unter 13 Jahren.</p>
+
+        <h2>9. Änderungen</h2>
+        <p>Wesentliche Änderungen kündigen wir mindestens 14 Tage im Voraus an.</p>
+
+        <h2>10. Kontakt</h2>
+        <p><a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a></p>
+
+        <div class="meta">© 2026 GardenPin · Aktualisiert am 11. Juni 2026</div>
+      </section>
+
+      <!-- ============== POLSKI ============== -->
+      <section class="lang" data-lang="pl">
+        <p><strong>Obowiązuje od:</strong> 11 czerwca 2026 · <strong>Wersja aplikacji:</strong> 1.0</p>
+        <p>GardenPin to planer ogrodu, który można zainstalować na telefonie, w przeglądarce lub na własnym serwerze. Ta polityka wyjaśnia, jakie dane aplikacja przetwarza, gdzie są przechowywane i kto ma do nich dostęp.</p>
+
+        <h2>1. Administrator danych</h2>
+        <p>Oficjalną instancję (<a href="https://gardenpin.tailcec1ab.ts.net/">gardenpin.tailcec1ab.ts.net</a>) prowadzi <strong>Patrik Příkrylík</strong> (Czechy, osoba prywatna). Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>. Przy self-hostingu administratorem jesteś ty lub operator twojego serwera.</p>
+
+        <h2>2. Jakie dane przetwarzamy</h2>
+        <ul>
+          <li><strong>Twoje treści</strong> — nazwy ogrodów i roślin, pozycje pinezek, zadania, zbiory, choroby, zdjęcia, notatki.</li>
+          <li><strong>Opcjonalnie imię</strong> — przechowywane lokalnie w przeglądarce.</li>
+          <li><strong>Opcjonalnie e-mail</strong> — przy włączonym tygodniowym digeście.</li>
+          <li><strong>Token push</strong> — przy włączonych powiadomieniach.</li>
+          <li><strong>Ustawienia urządzenia</strong> (język, tryb ciemny) w <code>localStorage</code>.</li>
+          <li><strong>Dane płatności Stripe</strong> — tylko ID subskrypcji i status; nie widzimy numeru karty.</li>
+        </ul>
+        <p>GardenPin <strong>nie zbiera</strong> analityki, nie używa cookie reklamowych, nie śledzi lokalizacji.</p>
+
+        <h2>3. Gdzie dane są przechowywane</h2>
+        <p>W bazie SQLite na serwerze twojej instancji GardenPin. Oficjalna instancja: serwer w Czechach, dostęp przez Tailscale Funnel.</p>
+
+        <h2>4. Udostępnianie podmiotom trzecim</h2>
+        <ul>
+          <li><strong>Stripe</strong> (płatności Premium).</li>
+          <li><strong>Open-Meteo</strong> (pogoda) — tylko współrzędne ogrodu.</li>
+          <li><strong>Apple / Web Push</strong> — dostarczanie powiadomień.</li>
+          <li><strong>Gmail SMTP</strong> — przy aktywnym digeście.</li>
+        </ul>
+        <p>Nie sprzedajemy danych i nie przekazujemy ich sieciom reklamowym.</p>
+
+        <h2>5. Okres przechowywania</h2>
+        <p>Do czasu usunięcia przez ciebie. W Ustawieniach → Dane możesz wyeksportować lub usunąć wszystko.</p>
+
+        <h2>6. Twoje prawa (RODO)</h2>
+        <p>Dostęp, sprostowanie, usunięcie, przenośność, sprzeciw. Kontakt: <a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a>.</p>
+
+        <h2>7. Bezpieczeństwo</h2>
+        <p>Komunikacja szyfrowana HTTPS. Dane karty pozostają u Stripe.</p>
+
+        <h2>8. Dzieci</h2>
+        <p>Aplikacja nie jest przeznaczona dla dzieci poniżej 13 lat.</p>
+
+        <h2>9. Zmiany polityki</h2>
+        <p>Istotne zmiany ogłaszamy z co najmniej 14-dniowym wyprzedzeniem.</p>
+
+        <h2>10. Kontakt</h2>
+        <p><a href="mailto:pt.rubby@gmail.com">pt.rubby@gmail.com</a></p>
+
+        <div class="meta">© 2026 GardenPin · Zaktualizowano 11 czerwca 2026</div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        var BACK = { cs: 'Zpět do aplikace', en: 'Back to the app', sk: 'Späť do aplikácie', de: 'Zurück zur App', pl: 'Powrót do aplikacji' };
+        var SUB = { cs: 'Zásady ochrany osobních údajů', en: 'Privacy Policy', sk: 'Zásady ochrany osobných údajov', de: 'Datenschutzerklärung', pl: 'Polityka prywatności' };
+        var TITLE = { cs: 'Zásady ochrany osobních údajů · GardenPin', en: 'Privacy Policy · GardenPin', sk: 'Zásady ochrany osobných údajov · GardenPin', de: 'Datenschutzerklärung · GardenPin', pl: 'Polityka prywatności · GardenPin' };
+
+        function pickLang() {
+          var url = new URLSearchParams(location.search).get('lang');
+          if (url && BACK[url]) return url;
+          var saved = localStorage.getItem('gardenpin.lang');
+          if (saved && BACK[saved]) return saved;
+          var nav = (navigator.language || 'cs').slice(0, 2);
+          return BACK[nav] ? nav : 'cs';
+        }
+
+        function apply(lang) {
+          document.documentElement.lang = lang;
+          document.title = TITLE[lang];
+          document.querySelectorAll('[data-i18n="back"]').forEach(function (el) { el.textContent = BACK[lang]; });
+          document.querySelectorAll('[data-i18n="sub"]').forEach(function (el) { el.textContent = SUB[lang]; });
+          document.querySelectorAll('.lang').forEach(function (s) {
+            s.classList.toggle('active', s.getAttribute('data-lang') === lang);
+          });
+          document.querySelectorAll('.tab').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+          });
+        }
+
+        document.querySelectorAll('.tab').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var lang = b.getAttribute('data-lang');
+            try { localStorage.setItem('gardenpin.lang', lang); } catch (e) {}
+            apply(lang);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+
+        apply(pickLang());
+      })();
+    </script>
+  </body>
+</html>

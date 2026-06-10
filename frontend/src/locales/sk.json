@@ -222,7 +222,13 @@
     "canceled": "Zrušené",
     "deletedGardens": "Zmazaných {{count}} záhrad a všetko s nimi",
     "pushSent": "Odoslané: {{sent}}/{{total}}",
-    "missingStripeUrl": "Chyba: chýba URL zo Stripe"
+    "missingStripeUrl": "Chyba: chýba URL zo Stripe",
+    "groupAbout": "O aplikácii",
+    "privacyPolicy": "Zásady ochrany osobných údajov",
+    "support": "Podpora a pomoc",
+    "contactEmail": "Kontaktný e-mail",
+    "appVersion": "Verzia aplikácie",
+    "aboutFoot": "Otázky, nápady alebo nahlásenie chyby pošli na kontaktný e-mail. Odpovedáme do 3 pracovných dní."
   },
   "lang": {
     "cs": "Čeština",

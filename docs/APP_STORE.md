@@ -15,9 +15,9 @@ obrazovek v 5 jazycích. Připraveno pro první submission po dokončení TestFl
 | Age rating | **4+** (žádný objektivní obsah) |
 | Cena | Zdarma (s volitelným Premium předplatným – In-App Purchase) |
 | Podporované jazyky | čeština, angličtina, němčina, polština, slovenština |
-| Support URL | https://gardenpin.tailcec1ab.ts.net/ |
+| Support URL | https://gardenpin.tailcec1ab.ts.net/support.html |
 | Marketing URL | https://gardenpin.tailcec1ab.ts.net/ |
-| Privacy Policy URL | https://gardenpin.tailcec1ab.ts.net/ (doplnit dedikovanou stránku) |
+| Privacy Policy URL | https://gardenpin.tailcec1ab.ts.net/privacy.html |
 | Copyright | © 2026 GardenPin |
 
 > **Lokalizace v App Store Connect:** primární jazyk = čeština. Přidat lokalizace

@@ -222,7 +222,13 @@
     "canceled": "Anulowano",
     "deletedGardens": "Usunięto {{count}} ogrodów i wszystko, co z nimi związane",
     "pushSent": "Wysłano: {{sent}}/{{total}}",
-    "missingStripeUrl": "Błąd: brakuje URL ze Stripe"
+    "missingStripeUrl": "Błąd: brakuje URL ze Stripe",
+    "groupAbout": "O aplikacji",
+    "privacyPolicy": "Polityka prywatności",
+    "support": "Pomoc i wsparcie",
+    "contactEmail": "E-mail kontaktowy",
+    "appVersion": "Wersja aplikacji",
+    "aboutFoot": "Pytania, pomysły lub zgłoszenia błędów wysyłaj na adres kontaktowy. Odpowiadamy w ciągu 3 dni roboczych."
   },
   "lang": {
     "cs": "Čeština",

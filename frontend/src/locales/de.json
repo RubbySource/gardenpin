@@ -210,7 +210,13 @@
     "canceled": "Abgebrochen",
     "deletedGardens": "{{count}} Gärten und alles damit gelöscht",
     "pushSent": "Gesendet: {{sent}}/{{total}}",
-    "missingStripeUrl": "Fehler: URL von Stripe fehlt"
+    "missingStripeUrl": "Fehler: URL von Stripe fehlt",
+    "groupAbout": "Über die App",
+    "privacyPolicy": "Datenschutzerklärung",
+    "support": "Support & Hilfe",
+    "contactEmail": "Kontakt-E-Mail",
+    "appVersion": "App-Version",
+    "aboutFoot": "Fragen, Ideen oder Fehlerberichte an die Kontakt-E-Mail. Wir antworten innerhalb von 3 Arbeitstagen."
   },
   "lang": {
     "cs": "Čeština",

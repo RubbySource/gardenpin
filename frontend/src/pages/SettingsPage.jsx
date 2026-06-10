@@ -614,6 +614,45 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* ── O APLIKACI ── */}
+      <div className="settings-group">
+        <div className="settings-group-label">{t('settings.groupAbout')}</div>
+        <div className="settings-group-card">
+          <a className="settings-row" href={`/privacy.html?lang=${currentLang}`} target="_blank" rel="noopener noreferrer">
+            <RowIcon color="#5856D6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.4 8 9 4.6-.6 8-4.5 8-9V6l-8-3Z" /></svg>
+            </RowIcon>
+            <span className="settings-row-label">{t('settings.privacyPolicy')}</span>
+            <span className="settings-row-chevron">›</span>
+          </a>
+          <div className="settings-sep" />
+          <a className="settings-row" href={`/support.html?lang=${currentLang}`} target="_blank" rel="noopener noreferrer">
+            <RowIcon color="#34C759">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7v.5M12 17v.01" /></svg>
+            </RowIcon>
+            <span className="settings-row-label">{t('settings.support')}</span>
+            <span className="settings-row-chevron">›</span>
+          </a>
+          <div className="settings-sep" />
+          <a className="settings-row" href="mailto:pt.rubby@gmail.com?subject=GardenPin">
+            <RowIcon color="#FF9500">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+            </RowIcon>
+            <span className="settings-row-label">{t('settings.contactEmail')}</span>
+            <span className="settings-row-value">pt.rubby@gmail.com</span>
+          </a>
+          <div className="settings-sep" />
+          <div className="settings-row">
+            <RowIcon color="#8E8E93">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v5l3 2" /></svg>
+            </RowIcon>
+            <span className="settings-row-label">{t('settings.appVersion')}</span>
+            <span className="settings-row-value">1.0</span>
+          </div>
+        </div>
+        <div className="settings-group-foot">{t('settings.aboutFoot')}</div>
+      </div>
+
       {/* ── NEBEZPEČNÁ ZÓNA ── */}
       <div className="settings-group">
         <div className="settings-group-label danger">{t('settings.groupDanger')}</div>
