@@ -1492,6 +1492,13 @@
     "actProtectAfterTransplant": "Protect the new planting",
     "actPruneAfterHarvest": "Prune after harvest"
   },
+  "companionWarn": {
+    "badTitle": "Incompatible neighbors",
+    "badBody": "Growing nearby: {{neighbors}}. This combination doesn't get along — consider replanting.",
+    "goodSuffix": "On the bright side, it does well next to: {{neighbors}}.",
+    "goodTitle": "Great companions",
+    "goodBody": "Growing nearby: {{neighbors}} — these plants help each other."
+  },
   "cropRotation": {
     "cardTitle": "Crop rotation",
     "cardSub_one": "{{count}} bed with vegetables",

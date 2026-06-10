@@ -1575,6 +1575,13 @@
     "actProtectAfterTransplant": "Ochránit novou výsadbu",
     "actPruneAfterHarvest": "Prořezat po sklizni"
   },
+  "companionWarn": {
+    "badTitle": "Nesedící sousedi",
+    "badBody": "V okolí roste: {{neighbors}}. Tahle kombinace si nesedí — zvaž přesazení.",
+    "goodSuffix": "Naopak dobře vychází s: {{neighbors}}.",
+    "goodTitle": "Skvělé sousedství",
+    "goodBody": "V okolí roste: {{neighbors}} — tahle kombinace si pomáhá."
+  },
   "cropRotation": {
     "cardTitle": "Osevní postup",
     "cardSub_one": "{{count}} záhon se zeleninou",

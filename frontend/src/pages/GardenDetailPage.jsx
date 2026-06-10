@@ -22,6 +22,7 @@ import WinterPrepCard from '../components/WinterPrepCard.jsx';
 import GreenManureCard from '../components/GreenManureCard.jsx';
 import SoilPhCard from '../components/SoilPhCard.jsx';
 import RotationPlantWarning from '../components/RotationPlantWarning.jsx';
+import { countBadCompanions } from '../components/CompanionWarning.jsx';
 import { COUNTRIES, getZonesByCountry, getClimateZone, describeZone } from '../data/climateZones.js';
 import { ICAL_CATEGORIES } from '../data/taskTypes.js';
 import { shareLink, isNativeShare } from '../native/share.js';
@@ -762,6 +763,9 @@ export default function GardenDetailPage() {
               {pins.map((p) => {
                 const isDragging = draggingPin?.id === p.id;
                 const pos = isDragging && dragPos ? dragPos : { x: p.x, y: p.y };
+                // FEAT-1: spočti bad sousedy jednou per render (memoization by tu pinům daly
+                // celkem O(n²) — pro běžný počet pinů to v pohodě stíhá realtime).
+                const badCount = countBadCompanions(p, pins);
                 return (
                   <div
                     key={p.id}
@@ -779,9 +783,17 @@ export default function GardenDetailPage() {
                     onPointerUp={handlePinPointerUp}
                     onPointerCancel={handlePinPointerUp}
                     onClick={(e) => e.stopPropagation()}
-                    title={p.name}
+                    title={badCount > 0 ? `${p.name} · ${t('companionWarn.badTitle')}` : p.name}
                   >
                     <div className="pin-body" style={{ background: p.color || '#4a7c3a' }} />
+                    {badCount > 0 && (
+                      <div
+                        className="pin-companion-badge"
+                        aria-label={t('companionWarn.badTitle')}
+                      >
+                        ⚠
+                      </div>
+                    )}
                     <div className="pin-label">{p.name}</div>
                   </div>
                 );

@@ -1652,6 +1652,13 @@
     "actProtectAfterTransplant": "Zabezpiecz nowe nasadzenie",
     "actPruneAfterHarvest": "Przytnij po zbiorze"
   },
+  "companionWarn": {
+    "badTitle": "Niedopasowani sąsiedzi",
+    "badBody": "W pobliżu rosną: {{neighbors}}. Ta kombinacja się nie lubi — rozważ przesadzenie.",
+    "goodSuffix": "Za to świetnie pasuje obok: {{neighbors}}.",
+    "goodTitle": "Świetne sąsiedztwo",
+    "goodBody": "W pobliżu rosną: {{neighbors}} — te rośliny sobie pomagają."
+  },
   "cropRotation": {
     "cardTitle": "Płodozmian",
     "cardSub_one": "{{count}} grządka z warzywami",

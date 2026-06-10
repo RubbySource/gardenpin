@@ -1492,6 +1492,13 @@
     "actProtectAfterTransplant": "Neue Pflanzung schützen",
     "actPruneAfterHarvest": "Nach der Ernte schneiden"
   },
+  "companionWarn": {
+    "badTitle": "Unverträgliche Nachbarn",
+    "badBody": "In der Nähe wächst: {{neighbors}}. Diese Kombination verträgt sich nicht — Umpflanzen erwägen.",
+    "goodSuffix": "Dafür harmoniert die Pflanze mit: {{neighbors}}.",
+    "goodTitle": "Gute Nachbarschaft",
+    "goodBody": "In der Nähe wächst: {{neighbors}} — diese Pflanzen helfen sich gegenseitig."
+  },
   "cropRotation": {
     "cardTitle": "Fruchtfolge",
     "cardSub_one": "{{count}} Beet mit Gemüse",

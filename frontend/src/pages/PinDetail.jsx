@@ -11,6 +11,7 @@ import PlantAutocomplete, { PlantInfoCard } from '../components/PlantAutocomplet
 import { findPlantByName } from '../plantDatabase.js';
 import RecommendedTasks from '../components/RecommendedTasks.jsx';
 import PlantWarnings from '../components/PlantWarnings.jsx';
+import CompanionWarning from '../components/CompanionWarning.jsx';
 import CareGapCard from '../components/CareGapCard.jsx';
 import AgeTaskCard from '../components/AgeTaskCard.jsx';
 import SummerPruningCard from '../components/SummerPruningCard.jsx';
@@ -90,6 +91,7 @@ export default function PinDetail({ pinId, onClose }) {
   const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [members, setMembers] = useState([]); // členové zahrady (pro přiřazení úkolů)
+  const [gardenPins, setGardenPins] = useState([]); // sousedi v zahradě (FEAT-1 companion check)
   const [kebabOpen, setKebabOpen] = useState(false);
   const [changingPlant, setChangingPlant] = useState(false);
   const kebabRef = useRef(null);
@@ -122,7 +124,11 @@ export default function PinDetail({ pinId, onClose }) {
     try {
       const p = await api.getPin(pinId);
       setPin(p);
-      if (p.garden_id) api.listMembers(p.garden_id).then(setMembers).catch(() => {});
+      if (p.garden_id) {
+        api.listMembers(p.garden_id).then(setMembers).catch(() => {});
+        // Sousedi v zahradě — FEAT-1 companion check (best-effort, neselhává PinDetail).
+        api.listPins(p.garden_id).then(setGardenPins).catch(() => {});
+      }
     } catch (e) {
       toast(t('common.error', { msg: e.message }));
     } finally {
@@ -385,7 +391,7 @@ export default function PinDetail({ pinId, onClose }) {
               onReload={load}
             />
           )}
-          {tab === 'pece' && <PeceTab pin={pin} plant={plant} onEditPin={() => setEditing(true)} />}
+          {tab === 'pece' && <PeceTab pin={pin} plant={plant} gardenPins={gardenPins} onEditPin={() => setEditing(true)} />}
           {tab === 'fotky' && <PhotoGallery pinId={pin.id} />}
           {tab === 'info' && (
             <InfoTab
@@ -627,7 +633,7 @@ function CareRow({ icon, label, value }) {
   );
 }
 
-function PeceTab({ pin, plant, onEditPin }) {
+function PeceTab({ pin, plant, gardenPins, onEditPin }) {
   const { t } = useTranslation();
   const nav = useNavigate();
   const companions = plant?.companions;
@@ -642,6 +648,10 @@ function PeceTab({ pin, plant, onEditPin }) {
   const goToCatalog = (name) => nav(`/katalog?q=${encodeURIComponent(name)}`);
   return (
     <div>
+      {/* FEAT-1: kontextuálni varování — opravdoví sousedi v zahradě se dotazují
+          companions.good/bad. Nad statickým seznamem companions (níže) — alert první. */}
+      <CompanionWarning pin={pin} pins={gardenPins} />
+
       {pin.photo_path && (
         <img
           src={pin.photo_path}

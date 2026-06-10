@@ -1652,6 +1652,13 @@
     "actProtectAfterTransplant": "Ochrániť novú výsadbu",
     "actPruneAfterHarvest": "Prerezať po zbere"
   },
+  "companionWarn": {
+    "badTitle": "Nesediaci susedia",
+    "badBody": "V okolí rastie: {{neighbors}}. Táto kombinácia si nesadne — zváž presadenie.",
+    "goodSuffix": "Naopak dobre sa znáša s: {{neighbors}}.",
+    "goodTitle": "Skvelé susedstvo",
+    "goodBody": "V okolí rastie: {{neighbors}} — táto kombinácia si pomáha."
+  },
   "cropRotation": {
     "cardTitle": "Striedanie plodín",
     "cardSub_one": "{{count}} záhon so zeleninou",
