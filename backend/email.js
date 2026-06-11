@@ -240,10 +240,17 @@ async function sendGardenInvite({ to, gardenName, inviterName, memberName, role,
 }
 
 async function runWeeklyDigestForAll() {
+  // AS-5: graceful skip když GMAIL_FROM/GMAIL_APP_PASSWORD chybí — bez tohohle guardu by cron tick
+  // prošel přes všechny řádky `email_settings` a každý padl na getTransporter() throwu, což by
+  // zaplevelilo logy N × "Chyba při odeslání". Patrik creds doplní později; cron běží naprázdno.
+  if (!isConfigured()) {
+    console.log('[email] Weekly digest skipped — SMTP creds (GMAIL_FROM/GMAIL_APP_PASSWORD) chybí.');
+    return { skipped: true, reason: 'not_configured' };
+  }
   const rows = db.prepare('SELECT email FROM email_settings WHERE enabled = 1 AND email IS NOT NULL').all();
   if (rows.length === 0) {
     console.log('[email] Žádné aktivní odběratele týdenního digestu.');
-    return { skipped: true };
+    return { skipped: true, reason: 'no_subscribers' };
   }
   let sent = 0;
   let failed = 0;

@@ -478,7 +478,9 @@ app.post('/api/gardens/:id/members', async (req, res) => {
   if (!g) return res.status(404).json({ error: 'Zahrada nenalezena' });
   const name = (req.body?.name || '').toString().trim();
   if (!name) return res.status(400).json({ error: 'Jméno člena je povinné' });
-  const email = (req.body?.email || '').toString().trim() || null;
+  // AS-5: pojmenované `memberEmail`, ne `email` — nesmí stínit outer `email` modul (line 25),
+  // jinak `email.sendGardenInvite(...)` níže volá metodu na stringu a tichý TypeError pohřbí invite.
+  const memberEmail = (req.body?.email || '').toString().trim() || null;
   const role = MEMBER_ROLES.includes(req.body?.role) ? req.body.role : 'editor';
   const inviterName = (req.body?.inviter || '').toString().trim() || null;
 
@@ -497,16 +499,16 @@ app.post('/api/gardens/:id/members', async (req, res) => {
 
   const info = db.prepare(
     'INSERT INTO garden_members (garden_id, name, email, role, color, invite_token) VALUES (?, ?, ?, ?, ?, ?)',
-  ).run(id, name, email, role, color, token);
+  ).run(id, name, memberEmail, role, color, token);
   const member = db.prepare('SELECT * FROM garden_members WHERE id = ?').get(info.lastInsertRowid);
 
   // Email pozvánka (pokud je email modul nakonfigurovaný a člen má adresu).
   let emailSent = false;
   const origin = (req.body?.origin || '').toString().replace(/\/+$/, '');
   const inviteUrl = origin ? `${origin}/pozvanka/${token}` : `/pozvanka/${token}`;
-  if (email && emailModuleHasInvite()) {
+  if (memberEmail && emailModuleHasInvite()) {
     try {
-      await email.sendGardenInvite({ to: email, gardenName: g.name, inviterName, memberName: name, role, url: inviteUrl });
+      await email.sendGardenInvite({ to: memberEmail, gardenName: g.name, inviterName, memberName: name, role, url: inviteUrl });
       emailSent = true;
     } catch (e) {
       console.error('[members] invite email selhal:', e.message);
@@ -3455,10 +3457,15 @@ if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Zahradní tracker běží na portu ${PORT}`);
     if (push) push.startDailyCron();
-    if (email && email.isConfigured()) {
+    // AS-5: cron pouštíme vždy. `runWeeklyDigestForAll` short-circuit, když chybí
+    // GMAIL_FROM/GMAIL_APP_PASSWORD (env captured at module load → restart nutný po doplnění).
+    // Tick každé pondělí 08:00 Europe/Prague jen zaloguje "skipped — SMTP creds chybí" dokud
+    // Patrik creds nedoplní; jakmile dodá + pm2 restart, cron pošle digest bez další úpravy.
+    if (email) {
       email.startWeeklyCron();
-    } else if (email) {
-      console.log('[email] Modul načten, ale GMAIL_FROM/GMAIL_APP_PASSWORD chybí — cron neaktivní.');
+      if (!email.isConfigured()) {
+        console.log('[email] Cron aktivní, ale GMAIL_FROM/GMAIL_APP_PASSWORD chybí — týdenní digest běží naprázdno (graceful skip).');
+      }
     }
   });
 }
