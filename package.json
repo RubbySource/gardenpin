@@ -7,7 +7,8 @@
     "build": "cd frontend && npm install && npm run build",
     "start": "node backend/server.js",
     "install": "npm install --prefix backend && npm install --prefix frontend",
-    "ios:preflight": "node scripts/ios-preflight.cjs"
+    "ios:preflight": "node scripts/ios-preflight.cjs",
+    "test": "node --test tests/smoke.test.cjs"
   },
   "engines": {
     "node": ">=22.5.0"

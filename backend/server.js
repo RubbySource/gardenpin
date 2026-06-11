@@ -3448,12 +3448,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Server error' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Zahradní tracker běží na portu ${PORT}`);
-  if (push) push.startDailyCron();
-  if (email && email.isConfigured()) {
-    email.startWeeklyCron();
-  } else if (email) {
-    console.log('[email] Modul načten, ale GMAIL_FROM/GMAIL_APP_PASSWORD chybí — cron neaktivní.');
-  }
-});
+// AS-4: app.listen jen při přímém spuštění (`node server.js`), ne při `require('./server')`
+// ze smoke testů. Smoke testy spustí vlastní listener na portu 0 (random) a cron jobs
+// (denní push digest, týdenní email) v testech nepotřebujeme.
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Zahradní tracker běží na portu ${PORT}`);
+    if (push) push.startDailyCron();
+    if (email && email.isConfigured()) {
+      email.startWeeklyCron();
+    } else if (email) {
+      console.log('[email] Modul načten, ale GMAIL_FROM/GMAIL_APP_PASSWORD chybí — cron neaktivní.');
+    }
+  });
+}
+
+module.exports = app;
