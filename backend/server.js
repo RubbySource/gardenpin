@@ -70,6 +70,21 @@ if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
 }
 
+// API-2: centrální validace číselných path ID. Express app.param spustí middleware
+// před jakýmkoli handlerem s daným pojmenovaným parametrem — tj. neplatné/nesymbolové ID
+// (např. /api/gardens/abc/pins) skončí 400 JSON, ne tichým prázdným SQL výsledkem.
+// Token params (:token = sdílení/pozvánky) jsou stringové UUIDy, tady se nevalidují.
+function validateNumericParam(req, res, next, value) {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n <= 0) {
+    return res.status(400).json({ error: 'Neplatné ID' });
+  }
+  next();
+}
+for (const name of ['id', 'bedId', 'pinId', 'memberId', 'photoId', 'issueId']) {
+  app.param(name, validateNumericParam);
+}
+
 // ---------- Helper: compute next_due for a task ----------
 function computeNextDue(task) {
   if (task.specific_date) return task.specific_date;
@@ -145,9 +160,6 @@ app.get('/api/gardens', (req, res) => {
 // Stejný shape jako řádek z listu (vč. pin_count/task_count/urgent_count), takže frontend nepotřebuje speciální mapper.
 app.get('/api/gardens/:id', (req, res) => {
   const id = Number(req.params.id);
-  if (!Number.isInteger(id) || id <= 0) {
-    return res.status(400).json({ error: 'Neplatné ID' });
-  }
   const today = new Date().toISOString().slice(0, 10);
   const row = db
     .prepare(
