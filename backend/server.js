@@ -141,6 +141,28 @@ app.get('/api/gardens', (req, res) => {
   res.json(rows);
 });
 
+// API-1: detail jedné zahrady (sjednocení API contractu — předtím se musel detail brát filtrováním /api/gardens).
+// Stejný shape jako řádek z listu (vč. pin_count/task_count/urgent_count), takže frontend nepotřebuje speciální mapper.
+app.get('/api/gardens/:id', (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: 'Neplatné ID' });
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const row = db
+    .prepare(
+      `SELECT g.*,
+        (SELECT COUNT(*) FROM pins WHERE garden_id = g.id) AS pin_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id) AS task_count,
+        (SELECT COUNT(*) FROM tasks t JOIN pins p ON p.id = t.pin_id WHERE p.garden_id = g.id AND t.next_due <= ?) AS urgent_count
+       FROM gardens g
+       WHERE g.id = ?`,
+    )
+    .get(today, id);
+  if (!row) return res.status(404).json({ error: 'Zahrada nenalezena' });
+  res.json(row);
+});
+
 app.post('/api/gardens', upload.single('image'), async (req, res) => {
   const name = req.body.name || 'Nová zahrada';
   const imagePath = req.file ? '/uploads/' + req.file.filename : null;
@@ -3392,6 +3414,13 @@ app.get('/api/export', (req, res) => {
   res.setHeader('Content-Disposition', 'attachment; filename="zahradni-tracker-export.json"');
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(data, null, 2));
+});
+
+// ======================= API 404 (JSON) =======================
+// API-1: jakákoliv neznámá /api/* cesta musí vrátit JSON { error }, ne Express HTML "Cannot GET …".
+// SPA fallback níže neobsluhuje /api ani /uploads, takže by jinak request spadl do default 404 handleru.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint nenalezen', path: req.originalUrl });
 });
 
 // ======================= SPA fallback =======================
