@@ -10,4 +10,3 @@ backend/.env
 *.log
 *.timestamp-*.mjs
 *.bak
-cloudflared.exe
