@@ -1605,15 +1605,13 @@ app.post('/api/tasks/:id/done', (req, res) => {
   if (task.specific_date) {
     if (task.recurring && task.recurrence_pattern === 'yearly') {
       // Yearly recurring: posunout specific_date o rok dopředu
+      // TASK-3: po done resetuj snoozes počítadlo + undo zálohu (nová instance = čistý stav)
       const d = new Date(task.specific_date);
       d.setFullYear(d.getFullYear() + 1);
       const newDate = d.toISOString().slice(0, 10);
-      db.prepare('UPDATE tasks SET last_done=?, specific_date=?, next_due=? WHERE id=?').run(
-        today,
-        newDate,
-        newDate,
-        id,
-      );
+      db.prepare(
+        'UPDATE tasks SET last_done=?, specific_date=?, next_due=?, snoozes=0, prev_specific_date=NULL, prev_next_due=NULL WHERE id=?',
+      ).run(today, newDate, newDate, id);
       return res.json({ ...db.prepare('SELECT * FROM tasks WHERE id = ?').get(id), streak });
     }
     // One-time task: delete after completion
@@ -1621,14 +1619,20 @@ app.post('/api/tasks/:id/done', (req, res) => {
     return res.json({ ok: true, removed: true, streak });
   }
   // Recurring: update last_done and compute next
+  // TASK-3: reset snoozes + prev_* (nová instance recurring úkolu = čistý stav)
   const next_due = computeNextDue({ ...task, last_done: today });
-  db.prepare('UPDATE tasks SET last_done=?, next_due=? WHERE id=?').run(today, next_due, id);
+  db.prepare(
+    'UPDATE tasks SET last_done=?, next_due=?, snoozes=0, prev_specific_date=NULL, prev_next_due=NULL WHERE id=?',
+  ).run(today, next_due, id);
   res.json({ ...db.prepare('SELECT * FROM tasks WHERE id = ?').get(id), streak });
 });
 
 // Odložit úkol o N dní nebo na konkrétní datum.
 // Body: { days?: number, until?: 'YYYY-MM-DD' } — jeden z těchto musí přijít.
 // Aplikace: posun next_due a (pokud existuje) specific_date. Last_done se nemění.
+// TASK-3: před UPDATE uložíme původní specific_date/next_due do prev_* (záloha pro
+// 1-step undo) a inkrementujeme snoozes počítadlo. Frontend ukáže badge "odloženo ×N"
+// + tlačítko "Vrátit odložení". Undo viz POST /api/tasks/:id/unsnooze.
 // Vrací aktualizovaný task.
 app.post('/api/tasks/:id/snooze', (req, res) => {
   const id = req.params.id;
@@ -1649,11 +1653,36 @@ app.post('/api/tasks/:id/snooze', (req, res) => {
     return res.status(400).json({ error: 'Zadej days (1–365) nebo until (YYYY-MM-DD)' });
   }
 
+  const newSnoozes = (task.snoozes || 0) + 1;
   if (task.specific_date) {
-    db.prepare('UPDATE tasks SET specific_date=?, next_due=? WHERE id=?').run(newDate, newDate, id);
+    db.prepare(
+      'UPDATE tasks SET specific_date=?, next_due=?, snoozes=?, prev_specific_date=?, prev_next_due=? WHERE id=?',
+    ).run(newDate, newDate, newSnoozes, task.specific_date, task.next_due, id);
   } else {
-    db.prepare('UPDATE tasks SET next_due=? WHERE id=?').run(newDate, id);
+    db.prepare(
+      'UPDATE tasks SET next_due=?, snoozes=?, prev_specific_date=?, prev_next_due=? WHERE id=?',
+    ).run(newDate, newSnoozes, task.specific_date, task.next_due, id);
   }
+  res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+});
+
+// TASK-3: Vrátit poslední odložení (1-step undo). Vrátí specific_date/next_due
+// na zálohu v prev_* sloupcích, vyčistí je a dekrementuje snoozes počítadlo.
+// 400 pokud nikdy nesnoozeno (prev_* obojí null). Sloupec snoozes je decremenován
+// jen pro tento úkol — historie přechozích snoozů (×3 → undo → ×2) zachována.
+app.post('/api/tasks/:id/unsnooze', (req, res) => {
+  const id = req.params.id;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return res.status(404).json({ error: 'Úkol nenalezen' });
+  // 1-step undo: bez prev_* nelze vrátit (nemáme co restorovat). Frontend
+  // skrývá tlačítko podle stejné podmínky.
+  if (task.prev_specific_date == null && task.prev_next_due == null) {
+    return res.status(400).json({ error: 'Není co vrátit — úkol nebyl odložen' });
+  }
+  const nextSnoozes = Math.max(0, (task.snoozes || 0) - 1);
+  db.prepare(
+    'UPDATE tasks SET specific_date=?, next_due=?, snoozes=?, prev_specific_date=NULL, prev_next_due=NULL WHERE id=?',
+  ).run(task.prev_specific_date, task.prev_next_due, nextSnoozes, id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
 });
 

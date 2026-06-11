@@ -975,7 +975,14 @@
     "customDate": "Vlastný dátum",
     "customDateLabel": "Vlastný dátum:",
     "snooze": "Odložiť",
-    "snoozed": "⏰ Odložené"
+    "snoozed": "⏰ Odložené",
+    "undo": "↩️ Vrátiť odloženie",
+    "undone": "↩️ Odloženie vrátené",
+    "undoFailed": "Nepodarilo sa vrátiť odloženie",
+    "countBadge_one": "odložené ×{{count}}",
+    "countBadge_few": "odložené ×{{count}}",
+    "countBadge_many": "odložené ×{{count}}",
+    "countBadge_other": "odložené ×{{count}}"
   },
   "taskRow": {
     "swipeComplete": "Posuňte →",

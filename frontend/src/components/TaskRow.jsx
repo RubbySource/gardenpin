@@ -1,7 +1,7 @@
 // Swipovatelný řádek úkolu (iOS Reminders styl) — náhrada za smazaný TaskItem.jsx.
 // Akce: swipe vpravo = hotovo (zelená), swipe vlevo = smazat (červená),
 // trailing tlačítko = odložit (action-sheet). Tap na obsah otevře detail místa.
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from './Icon.jsx';
 import SnoozeButton from './SnoozeButton.jsx';
@@ -11,6 +11,8 @@ import PhenologyHint from './PhenologyHint.jsx';
 import CareHistoryHint from './CareHistoryHint.jsx';
 import IdealDayHint from './IdealDayHint.jsx';
 import { useSwipeActions } from '../hooks/useSwipeActions.js';
+import { api } from '../api.js';
+import { toast } from '../App.jsx';
 import { dueBadge, taskLabel, taskIconName } from '../utils.js';
 
 export default function TaskRow({
@@ -36,6 +38,25 @@ export default function TaskRow({
   const iconName = taskIconName(task.task_type);
   const overlayDir = drag < 0 ? 'left' : drag > 0 ? 'right' : '';
   const canSnooze = task.next_due || task.specific_date;
+  // TASK-3: undo dostupné jen pokud backend má zálohu posledního termínu.
+  // snoozes počítadlo je informativní (badge "odloženo ×N").
+  const canUndoSnooze = task.prev_specific_date != null || task.prev_next_due != null;
+  const snoozeCount = task.snoozes || 0;
+  const [undoBusy, setUndoBusy] = useState(false);
+  const handleUndoSnooze = async (e) => {
+    e.stopPropagation();
+    if (undoBusy) return;
+    setUndoBusy(true);
+    try {
+      await api.unsnoozeTask(task.id);
+      toast(t('snooze.undone'));
+      onSnoozed?.();
+    } catch (err) {
+      toast(t('snooze.undoFailed') + ': ' + err.message);
+    } finally {
+      setUndoBusy(false);
+    }
+  };
 
   return (
     <div className="task-swipe-cell">
@@ -91,6 +112,11 @@ export default function TaskRow({
               ) : null}
               {task.specific_date ? <span className="badge">{t('taskRow.once')}</span> : null}
               <span className="badge type">{taskLabel(task.task_type)}</span>
+              {snoozeCount > 0 && (
+                <span className="badge snoozed" title={t('snooze.countBadge', { count: snoozeCount })}>
+                  ⏰ {t('snooze.countBadge', { count: snoozeCount })}
+                </span>
+              )}
               {task.assignee_name && (
                 <span className="badge assignee" style={{ '--assignee-color': task.assignee_color || '#7BA889' }}>
                   👤 {task.assignee_name}
@@ -111,12 +137,24 @@ export default function TaskRow({
           </div>
         </div>
       </div>
-      {canSnooze && (
+      {(canSnooze || canUndoSnooze) && (
         <div
           className="task-snooze-layer"
           style={{ opacity: swiping ? 0 : 1, pointerEvents: swiping ? 'none' : 'auto' }}
         >
-          <SnoozeButton task={task} onSnoozed={onSnoozed} sheet />
+          {canUndoSnooze && (
+            <button
+              type="button"
+              className="task-undo-snooze-btn"
+              onClick={handleUndoSnooze}
+              disabled={undoBusy}
+              title={t('snooze.undo')}
+              aria-label={t('snooze.undo')}
+            >
+              ↩️
+            </button>
+          )}
+          {canSnooze && <SnoozeButton task={task} onSnoozed={onSnoozed} sheet />}
         </div>
       )}
     </div>

@@ -1213,6 +1213,7 @@ input[type="range"]::-moz-range-thumb {
   right: 8px;
   display: flex;
   align-items: center;
+  gap: 4px;
   z-index: 3;
   transition: opacity 160ms var(--ios-ease);
 }
@@ -1226,6 +1227,57 @@ input[type="range"]::-moz-range-thumb {
 .task-snooze-layer .snooze-btn:hover {
   background: var(--forest-soft);
   color: var(--ios-accent-hover);
+}
+
+/* TASK-3: undo tlačítko (vrátit poslední odložení) + snoozed badge */
+.task-undo-snooze-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ios-fill);
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ios-accent);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 120ms var(--ios-ease), transform 120ms var(--ios-ease);
+}
+.task-undo-snooze-btn:hover {
+  background: var(--forest-soft);
+}
+.task-undo-snooze-btn:active {
+  transform: scale(0.92);
+}
+.task-undo-snooze-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Když je v trailing layer i undo i snooze, je potřeba větší pravý padding na řádku
+   (jinak by tlačítka přepadla přes obsah). Default `has-trailing` = jen snooze = 46px. */
+.task-swipe-cell:has(.task-undo-snooze-btn) .ios-task-row.has-trailing { padding-right: 86px; }
+
+.badge.snoozed {
+  background: rgba(228, 156, 78, 0.16);
+  color: #b06820;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+@media (prefers-color-scheme: dark) {
+  .badge.snoozed {
+    background: rgba(228, 156, 78, 0.22);
+    color: #f0b878;
+  }
+  .task-undo-snooze-btn {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .task-undo-snooze-btn:hover {
+    background: rgba(123, 168, 137, 0.18);
+  }
 }
 
 /* ---------- Mrazové varování na řádku úkolu (frost.js / FrostWarning.jsx) ---------- */

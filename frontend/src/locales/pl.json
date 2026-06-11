@@ -976,7 +976,14 @@
     "customDate": "Własna data",
     "customDateLabel": "Własna data:",
     "snooze": "Odłóż",
-    "snoozed": "⏰ Odłożono"
+    "snoozed": "⏰ Odłożono",
+    "undo": "↩️ Cofnij odłożenie",
+    "undone": "↩️ Odłożenie cofnięte",
+    "undoFailed": "Nie udało się cofnąć odłożenia",
+    "countBadge_one": "odłożono ×{{count}}",
+    "countBadge_few": "odłożono ×{{count}}",
+    "countBadge_many": "odłożono ×{{count}}",
+    "countBadge_other": "odłożono ×{{count}}"
   },
   "taskRow": {
     "swipeComplete": "Przesuń →",

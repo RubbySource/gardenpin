@@ -885,7 +885,12 @@
     "customDate": "Custom date",
     "customDateLabel": "Custom date:",
     "snooze": "Snooze",
-    "snoozed": "⏰ Snoozed"
+    "snoozed": "⏰ Snoozed",
+    "undo": "↩️ Undo snooze",
+    "undone": "↩️ Snooze reverted",
+    "undoFailed": "Could not revert snooze",
+    "countBadge_one": "snoozed ×{{count}}",
+    "countBadge_other": "snoozed ×{{count}}"
   },
   "taskRow": {
     "swipeComplete": "Swipe →",

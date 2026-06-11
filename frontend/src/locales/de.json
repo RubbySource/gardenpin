@@ -885,7 +885,12 @@
     "customDate": "Eigenes Datum",
     "customDateLabel": "Eigenes Datum:",
     "snooze": "Verschieben",
-    "snoozed": "⏰ Verschoben"
+    "snoozed": "⏰ Verschoben",
+    "undo": "↩️ Verschieben rückgängig",
+    "undone": "↩️ Verschieben rückgängig gemacht",
+    "undoFailed": "Verschieben konnte nicht rückgängig gemacht werden",
+    "countBadge_one": "×{{count}} verschoben",
+    "countBadge_other": "×{{count}} verschoben"
   },
   "taskRow": {
     "swipeComplete": "Wischen →",

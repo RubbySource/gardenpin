@@ -153,6 +153,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     }),
+  // TASK-3: vrátit poslední odložení úkolu (restoruje specific_date/next_due
+  // z prev_* zálohy + dekrementuje snoozes počítadlo).
+  unsnoozeTask: (id) =>
+    jsonFetch(`/api/tasks/${id}/unsnooze`, { method: 'POST' }),
 
   // History (zápis vzniká serverstranně jako vedlejší efekt dokončení úkolu)
   listHistory: () => jsonFetch('/api/history'),

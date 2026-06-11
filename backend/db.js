@@ -264,6 +264,13 @@ try { db.exec('ALTER TABLE tasks ADD COLUMN recurring INTEGER DEFAULT 0'); } cat
 try { db.exec('ALTER TABLE tasks ADD COLUMN recurrence_pattern TEXT'); } catch {}
 // Spolupráce — přiřazení úkolu členovi + atribuce splnění
 try { db.exec('ALTER TABLE tasks ADD COLUMN assigned_to INTEGER'); } catch {}
+// TASK-3: počítadlo odložení + záloha předchozího termínu pro 1-step undo
+// (vrátit poslední snooze). snoozes se inkrementuje při každém POST /snooze,
+// dekrementuje při unsnooze; resetuje se na 0 při done. prev_* jsou poslední
+// hodnoty před snoozem — null = nelze undo (nikdy nesnoozeno, nebo už undone).
+try { db.exec('ALTER TABLE tasks ADD COLUMN snoozes INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE tasks ADD COLUMN prev_specific_date TEXT'); } catch {}
+try { db.exec('ALTER TABLE tasks ADD COLUMN prev_next_due TEXT'); } catch {}
 try { db.exec('ALTER TABLE care_history ADD COLUMN member_id INTEGER'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN stripe_customer_id TEXT'); } catch {}
