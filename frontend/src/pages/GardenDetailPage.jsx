@@ -106,6 +106,11 @@ export default function GardenDetailPage() {
   // Onboarding overlay pro polygon editor — ukáže se jen poprvé, dokud user neklikne "Rozumím".
   // Stav přežije remount, ale ne reload (žije v localStorage).
   const [polygonOnboardingOpen, setPolygonOnboardingOpen] = useState(false);
+  // FEAT-5: hledání pinu na mapě (accent + case insensitive)
+  const [pinSearch, setPinSearch] = useState('');
+  const [pinSearchOpen, setPinSearchOpen] = useState(false);
+  const pinSearchInputRef = useRef(null);
+  const pinSearchWrapRef = useRef(null);
 
   const load = async () => {
     try {
@@ -514,6 +519,20 @@ export default function GardenDetailPage() {
     };
   }, [menuOpen]);
 
+  // FEAT-5: zavřít dropdown výsledků hledání při kliknutí mimo. Highlight/dim na pinech
+  // řídí jen `pinSearch` (string), takže klik na pin nezavírá filtr — to dělá až klik
+  // na výsledek nebo Esc.
+  useEffect(() => {
+    if (!pinSearchOpen) return;
+    const onDown = (e) => {
+      if (pinSearchWrapRef.current && !pinSearchWrapRef.current.contains(e.target)) {
+        setPinSearchOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [pinSearchOpen]);
+
   // Rychlé statistiky pro záložku Statistiky
   const TABS = [
     { key: 'map', label: t('gardenDetail.tabMap') },
@@ -523,6 +542,21 @@ export default function GardenDetailPage() {
   const tabIdx = TABS.findIndex((t) => t.key === tab);
   const plantCount = pins.filter((p) => p.plant_name).length;
   const photoCount = pins.filter((p) => p.photo_path).length;
+  // FEAT-5: realtime filtr pinů na mapě — accent + case insensitive match přes name/plant_name.
+  // Když je query prázdné, žádný pin se nezvýrazňuje ani neztlumí (běžné chování).
+  const normalizedPinQuery = (pinSearch || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .trim();
+  const pinSearchMatches = normalizedPinQuery
+    ? pins.filter((p) => {
+        const name = (p.name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        const plant = (p.plant_name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        return name.includes(normalizedPinQuery) || plant.includes(normalizedPinQuery);
+      })
+    : [];
+  const pinSearchMatchIds = new Set(pinSearchMatches.map((p) => p.id));
   // Plocha zahrady z uloženého polygonu (pokud máme měřítko ze záhonu)
   const gardenAreaM2 = (() => {
     const poly = parsePolygon(garden?.garden_polygon);
@@ -650,6 +684,116 @@ export default function GardenDetailPage() {
         </div>
       ) : (
         <>
+          {/* FEAT-5: Hledání pinu na mapě — zobrazí se jen když je co prohledávat */}
+          {pins.length > 1 && (
+            <div className="gd-search" ref={pinSearchWrapRef}>
+              <div className={`gd-search-input-wrap${pinSearch ? ' has-query' : ''}`}>
+                <svg
+                  className="gd-search-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+                <input
+                  ref={pinSearchInputRef}
+                  type="search"
+                  className="gd-search-input"
+                  value={pinSearch}
+                  onChange={(e) => { setPinSearch(e.target.value); setPinSearchOpen(true); }}
+                  onFocus={() => setPinSearchOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      if (pinSearch) {
+                        setPinSearch('');
+                        setPinSearchOpen(false);
+                      } else {
+                        e.currentTarget.blur();
+                        setPinSearchOpen(false);
+                      }
+                    } else if (e.key === 'Enter' && pinSearchMatches.length > 0) {
+                      e.preventDefault();
+                      setEditingPinId(pinSearchMatches[0].id);
+                      setPinSearch('');
+                      setPinSearchOpen(false);
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  placeholder={t('gardenDetail.pinSearchPlaceholder')}
+                  aria-label={t('gardenDetail.pinSearchPlaceholder')}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                {pinSearch && (
+                  <button
+                    type="button"
+                    className="gd-search-clear"
+                    onClick={() => { setPinSearch(''); setPinSearchOpen(false); pinSearchInputRef.current?.focus(); }}
+                    aria-label={t('gardenDetail.pinSearchClear')}
+                    title={t('gardenDetail.pinSearchClear')}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              {pinSearchOpen && normalizedPinQuery && (
+                <div className="gd-search-results" role="listbox">
+                  {pinSearchMatches.length === 0 ? (
+                    <div className="gd-search-empty">
+                      {t('gardenDetail.pinSearchEmpty', { query: pinSearch })}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="gd-search-results-head">
+                        {t('gardenDetail.pinSearchResultsCount', { count: pinSearchMatches.length })}
+                      </div>
+                      {pinSearchMatches.slice(0, 8).map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className="gd-search-result"
+                          role="option"
+                          onClick={() => {
+                            setEditingPinId(p.id);
+                            setPinSearch('');
+                            setPinSearchOpen(false);
+                          }}
+                        >
+                          <span
+                            className="gd-search-result-dot"
+                            style={{ background: p.color || '#4a7c3a' }}
+                            aria-hidden="true"
+                          />
+                          <span className="gd-search-result-text">
+                            <span className="gd-search-result-name">{p.name}</span>
+                            {p.plant_name ? (
+                              <span className="gd-search-result-plant">{p.plant_name}</span>
+                            ) : (
+                              <span className="gd-search-result-plant muted">
+                                {t('gardenDetail.pinSearchNoPlant')}
+                              </span>
+                            )}
+                          </span>
+                          <Icon name="chevronRight" size={14} stroke={2.4} />
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* MAP — vždy nahoře */}
           <div className="card gd-map-card">
             <div
@@ -766,15 +910,18 @@ export default function GardenDetailPage() {
                 // FEAT-1: spočti bad sousedy jednou per render (memoization by tu pinům daly
                 // celkem O(n²) — pro běžný počet pinů to v pohodě stíhá realtime).
                 const badCount = countBadCompanions(p, pins);
+                // FEAT-5: search highlight/dim — aktivní jen když user hledá
+                const isSearchMatch = normalizedPinQuery && pinSearchMatchIds.has(p.id);
+                const isSearchDim = normalizedPinQuery && !pinSearchMatchIds.has(p.id);
                 return (
                   <div
                     key={p.id}
-                    className="pin"
+                    className={`pin${isSearchMatch ? ' search-match' : ''}${isSearchDim ? ' search-dim' : ''}`}
                     style={{
                       left: `${pos.x}%`,
                       top: `${pos.y}%`,
                       cursor: isDragging ? 'grabbing' : 'grab',
-                      zIndex: isDragging ? 50 : 10,
+                      zIndex: isDragging ? 50 : isSearchMatch ? 30 : 10,
                       userSelect: 'none',
                       touchAction: 'none',
                     }}
