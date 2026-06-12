@@ -128,7 +128,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 8,
+    id: 8, category: 'vegetables',
     nameCz: 'Dýně hokkaidó',
     nameLat: 'Cucurbita maxima',
     soil: 'Výživná, humózní, teplá',
@@ -295,7 +295,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 18,
+    id: 18, category: 'vegetables',
     nameCz: 'Mangold',
     nameLat: 'Beta vulgaris var. cicla',
     soil: 'Výživná, humózní',
@@ -365,7 +365,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 22,
+    id: 22, category: 'fruits',
     nameCz: 'Malina',
     nameLat: 'Rubus idaeus',
     soil: 'Humózní, propustná, mírně kyselá pH 6–6,5',
@@ -384,7 +384,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 23,
+    id: 23, category: 'fruits',
     nameCz: 'Borůvka',
     nameLat: 'Vaccinium corymbosum',
     soil: 'Výrazně kyselá, rašelinová, pH 4–5',
@@ -402,7 +402,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 24,
+    id: 24, category: 'fruits',
     nameCz: 'Rybíz červený',
     nameLat: 'Ribes rubrum',
     soil: 'Výživná, humózní',
@@ -420,7 +420,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 25,
+    id: 25, category: 'fruits',
     nameCz: 'Angrešt',
     nameLat: 'Ribes uva-crispa',
     soil: 'Propustná, humózní',
@@ -438,7 +438,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 26,
+    id: 26, category: 'fruits',
     nameCz: 'Ostružina',
     nameLat: 'Rubus fruticosus',
     soil: 'Humózní, propustná',
@@ -707,7 +707,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 42,
+    id: 42, category: 'shrubs',
     nameCz: 'Šeřík',
     nameLat: 'Syringa vulgaris',
     soil: 'Propustná, mírně zásaditá, pH 6,5–7,5',
@@ -760,7 +760,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 45,
+    id: 45, category: 'annuals',
     nameCz: 'Begónie hlíznatá',
     nameLat: 'Begonia × tuberhybrida',
     soil: 'Lehká, propustná, humózní',
@@ -795,7 +795,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 47,
+    id: 47, category: 'annuals',
     nameCz: 'Slunečnice',
     nameLat: 'Helianthus annuus',
     soil: 'Výživná, propustná',
@@ -845,7 +845,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 50,
+    id: 50, category: 'annuals',
     nameCz: 'Petúnie',
     nameLat: 'Petunia',
     soil: 'Propustná, středně výživná',
@@ -862,7 +862,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 51,
+    id: 51, category: 'annuals',
     nameCz: 'Lobelka',
     nameLat: 'Lobelia erinus',
     soil: 'Propustná, humózní',
@@ -981,7 +981,7 @@ export const PLANT_DATABASE = [
 
   // ==================== KEŘE A STROMY ====================
   {
-    id: 58,
+    id: 58, category: 'shrubs',
     nameCz: 'Buxus (zimostráz)',
     nameLat: 'Buxus sempervirens',
     soil: 'Vápnatá, propustná, humózní',
@@ -998,7 +998,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 59,
+    id: 59, category: 'shrubs',
     nameCz: 'Pěnišník (Rododendron)',
     nameLat: 'Rhododendron',
     soil: 'Rašelinová, kyselá, pH 4,5–5,5, propustná',
@@ -1063,7 +1063,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 63,
+    id: 63, category: 'shrubs',
     nameCz: 'Líska obecná',
     nameLat: 'Corylus avellana',
     soil: 'Humózní, propustná, pH 6–7',
@@ -1181,7 +1181,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 70,
+    id: 70, category: 'ornamental',
     nameCz: 'Kontryhel (Alchemilla)',
     nameLat: 'Alchemilla mollis',
     soil: 'Humózní, propustná, mírně vlhká',
@@ -1297,7 +1297,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 77,
+    id: 77, category: 'ornamental',
     nameCz: 'Kosatec (Iris)',
     nameLat: 'Iris germanica',
     soil: 'Propustná, neutrální až alkalická',
@@ -1330,7 +1330,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 79,
+    id: 79, category: 'ornamental',
     nameCz: 'Denivka (Hemerocallis)',
     nameLat: 'Hemerocallis',
     soil: 'Humózní, propustná, průměrná',
@@ -1413,7 +1413,7 @@ export const PLANT_DATABASE = [
     ],
   },
   {
-    id: 84,
+    id: 84, category: 'ornamental',
     nameCz: 'Echinacea (třapatka)',
     nameLat: 'Echinacea purpurea',
     soil: 'Propustná, suchá až průměrná',
@@ -2226,14 +2226,7 @@ export const PLANT_DATABASE = [
       { month: 5, label: 'Vysadit po mrazech', type: 'protection' },
       { month: 7, label: 'Pravidelná sklizeň mladých plodů', type: 'harvest' },
     ] },
-  { id: 193, nameCz: 'Dýně Hokkaido', nameLat: "Cucurbita maxima 'Hokkaido'", category: 'vegetables',
-    description: 'Drobná oranžová dýně s ořechovou chutí a jedlou kůrou. Skvělá na polévky a pečení.',
-    light: 'Plné slunce', water: 'Hojná', height: '30-50 cm (popínavá)', zone: '4-10',
-    tasks: [
-      { month: 5, label: 'Vysadit po mrazech', type: 'protection' },
-      { month: 7, label: 'Mulčování slámou pod plody', type: 'mulching' },
-      { month: 9, label: 'Sklizeň při dřevnatění stopky', type: 'harvest' },
-    ] },
+
   { id: 194, nameCz: 'Dýně máslová', nameLat: 'Cucurbita moschata', category: 'vegetables',
     description: 'Dýně butternut — hruškovitá s oranžovou dužinou. Velmi sladká, skladovatelná.',
     light: 'Plné slunce', water: 'Hojná', height: '30-50 cm (popínavá)', zone: '4-10',
@@ -2312,13 +2305,7 @@ export const PLANT_DATABASE = [
       { month: 7, label: 'Hnojení dusíkem', type: 'fertilizing' },
       { month: 11, label: 'Sklizeň po mrazu (sladší chuť)', type: 'harvest' },
     ] },
-  { id: 204, nameCz: 'Mangold', nameLat: 'Beta vulgaris subsp. cicla', category: 'vegetables',
-    description: 'Listová zelenina s barevnými řapíky (žluté, červené, bílé). Sklízejí se vnější listy.',
-    light: 'Polostín', water: 'Mírná', height: '40-60 cm', zone: '3-10',
-    tasks: [
-      { month: 4, label: 'Přímý výsev do záhonu', type: 'protection' },
-      { month: 6, label: 'Postupná sklizeň vnějších listů', type: 'harvest' },
-    ] },
+
   { id: 205, nameCz: 'Špenát Matador', nameLat: "Spinacia oleracea 'Matador'", category: 'vegetables',
     description: 'Spolehlivá odrůda špenátu pro jarní i podzimní výsev. Pomalu vystřeluje květní stvoly.',
     light: 'Polostín', water: 'Mírná', height: '20-30 cm', zone: '3-9',
@@ -2481,14 +2468,7 @@ export const PLANT_DATABASE = [
     ] },
 
   // ==================== OKRASNÉ KEŘE ====================
-  { id: 223, nameCz: 'Šeřík obecný', nameLat: 'Syringa vulgaris', category: 'shrubs',
-    description: 'Vonný keř s pyramidálními květenstvími v květnu. Klasická česká okrasná dřevina, voní intenzivně po celé zahradě.',
-    light: 'Plné slunce', water: 'Mírná', height: '200-400 cm', zone: '3-7',
-    tasks: [
-      { month: 6, label: 'Zastřihnout odkvetlá květenství', type: 'pruning' },
-      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
-      { month: 2, label: 'Prořezat staré výhony u země', type: 'pruning' },
-    ] },
+
   { id: 224, nameCz: 'Hortenzie velkokvětá', nameLat: 'Hydrangea macrophylla', category: 'shrubs',
     description: 'Bohatě kvetoucí keř s kulovitými růžovými, modrými nebo bílými květy v létě. Barva závisí na pH půdy — v kyselé modrá, v zásadité růžová.',
     light: 'Polostín', water: 'Hojná', height: '100-200 cm', zone: '5-9',
@@ -2512,20 +2492,8 @@ export const PLANT_DATABASE = [
       { month: 4, label: 'Řez odkvetlých výhonů (hned po odkvětu)', type: 'pruning' },
       { month: 3, label: 'Odstranit přestárlé výhony u země', type: 'pruning' },
     ] },
-  { id: 227, nameCz: 'Pustoryl věncový', nameLat: 'Philadelphus coronarius', category: 'shrubs',
-    description: 'Vonný keř s krémově bílými květy v červnu — voní jako pomerančovník. Velmi odolný a dlouhověký.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '200-300 cm', zone: '4-8',
-    tasks: [
-      { month: 7, label: 'Řez po odkvětu', type: 'pruning' },
-      { month: 3, label: 'Prořídit přestárlé větve', type: 'pruning' },
-    ] },
-  { id: 228, nameCz: 'Tavolník van Houttei', nameLat: 'Spiraea x vanhouttei', category: 'shrubs',
-    description: 'Rozložitý keř s převislými větvemi pokrytými bílými květy v květnu. Klasická parková a hřbitovní dřevina.',
-    light: 'Plné slunce', water: 'Mírná', height: '150-200 cm', zone: '3-8',
-    tasks: [
-      { month: 6, label: 'Řez po odkvětu (zachovat tvar)', type: 'pruning' },
-      { month: 3, label: 'Prořídit nejstarší výhony u země', type: 'pruning' },
-    ] },
+
+
   { id: 229, nameCz: 'Pámelník bílý', nameLat: 'Symphoricarpos albus', category: 'shrubs',
     description: 'Houževnatý keř s drobnými růžovými květy a později nápadnými bílými kuličkovými plody. Snáší stín i městské podmínky.',
     light: 'Polostín až stín', water: 'Mírná', height: '100-200 cm', zone: '3-7',
@@ -2541,20 +2509,8 @@ export const PLANT_DATABASE = [
       { month: 9, label: 'Sklizeň bobulí', type: 'harvest' },
       { month: 2, label: 'Zimní řez (lze zmladit u země)', type: 'pruning' },
     ] },
-  { id: 231, nameCz: 'Líska obecná', nameLat: 'Corylus avellana', category: 'shrubs',
-    description: 'Velký keř s jedlými oříšky. Kvete v únoru zlatými jehnědami — důležitý zdroj časného pylu pro včely.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-500 cm', zone: '4-8',
-    tasks: [
-      { month: 2, label: 'Zimní řez (prosvětlit korunu)', type: 'pruning' },
-      { month: 9, label: 'Sklizeň oříšků', type: 'harvest' },
-    ] },
-  { id: 232, nameCz: 'Dřín obecný', nameLat: 'Cornus mas', category: 'shrubs',
-    description: 'Žlutě kvetoucí keř/strom velmi brzy na jaře (únor-březen). Červené plody na podzim — jedlé, kyselé, na marmelády a likéry.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '300-500 cm', zone: '4-8',
-    tasks: [
-      { month: 3, label: 'Lehký tvarovací řez', type: 'pruning' },
-      { month: 9, label: 'Sklizeň plodů (na marmelády, džemy)', type: 'harvest' },
-    ] },
+
+
   { id: 233, nameCz: 'Svída krvavá', nameLat: 'Cornus sanguinea', category: 'shrubs',
     description: 'Keř s nápadně červenými výhony v zimě. Krásný kontrast proti sněhu, oblíbený v zimních zahradách.',
     light: 'Plné slunce až polostín', water: 'Mírná', height: '200-400 cm', zone: '4-8',
@@ -2575,14 +2531,7 @@ export const PLANT_DATABASE = [
       { month: 5, label: 'Řez po odkvětu', type: 'pruning' },
       { month: 11, label: 'Mulčování kůrou', type: 'mulching' },
     ] },
-  { id: 236, nameCz: 'Pěnišník', nameLat: 'Rhododendron', category: 'shrubs',
-    description: 'Stálezelený keř s velkými barevnými květy v květnu. Vyžaduje kyselou půdu (rašelinu) a polostínné chráněné místo.',
-    light: 'Polostín', water: 'Hojná', height: '100-300 cm', zone: '5-8',
-    tasks: [
-      { month: 6, label: 'Odstranit odkvetlá květenství (vylomit)', type: 'pruning' },
-      { month: 4, label: 'Přihnojit hnojivem pro rododendrony', type: 'fertilizing' },
-      { month: 11, label: 'Mulčování kůrou nebo rašelinou', type: 'mulching' },
-    ] },
+
   { id: 237, nameCz: 'Vřes obecný', nameLat: 'Calluna vulgaris', category: 'shrubs',
     description: 'Nízký stálezelený keřík s drobnými růžovými, fialovými nebo bílými květy od srpna do října. Vyžaduje kyselou půdu.',
     light: 'Plné slunce', water: 'Mírná', height: '30-60 cm', zone: '4-7',
@@ -2627,22 +2576,8 @@ export const PLANT_DATABASE = [
       { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
       { month: 4, label: 'Mulčování', type: 'mulching' },
     ] },
-  { id: 243, nameCz: 'Rybíz červený', nameLat: 'Ribes rubrum', category: 'fruits',
-    description: 'Tradiční keř s průsvitnými červenými hrozny. Sladko-kyselé bobule v červenci, dobrý na rosolí a sušení.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '100-150 cm', zone: '3-7',
-    tasks: [
-      { month: 7, label: 'Sklizeň plodů', type: 'harvest' },
-      { month: 2, label: 'Zimní řez — vyřezat 4-5leté větve', type: 'pruning' },
-      { month: 3, label: 'Přihnojit', type: 'fertilizing' },
-    ] },
-  { id: 244, nameCz: 'Angrešt', nameLat: 'Ribes uva-crispa', category: 'fruits',
-    description: 'Trnitý keř s velkými zelenými, žlutými nebo červenými bobulemi. Sklizeň červen-červenec, vhodný na kompoty a koláče.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '80-150 cm', zone: '3-8',
-    tasks: [
-      { month: 6, label: 'Sklizeň plodů', type: 'harvest' },
-      { month: 2, label: 'Zimní řez (prosvětlit)', type: 'pruning' },
-      { month: 5, label: 'Kontrola amerického padlí angreštového', type: 'protection' },
-    ] },
+
+
   { id: 245, nameCz: 'Aronie', nameLat: 'Aronia melanocarpa', category: 'fruits',
     description: 'Houževnatý keř s černými bobulemi bohatými na antioxidanty. Bílé květy na jaře, krásné podzimní zbarvení listů.',
     light: 'Plné slunce', water: 'Mírná', height: '100-200 cm', zone: '3-8',
@@ -2651,15 +2586,7 @@ export const PLANT_DATABASE = [
       { month: 3, label: 'Jarní řez (vyřezat staré výhony)', type: 'pruning' },
       { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
     ] },
-  { id: 246, nameCz: 'Borůvka zahradní', nameLat: 'Vaccinium corymbosum', category: 'fruits',
-    description: 'Vyšší kanadská borůvka s velkými sladkými bobulemi. Vyžaduje kyselou půdu (rašelinu) — bez ní neroste.',
-    light: 'Plné slunce až polostín', water: 'Hojná', height: '100-200 cm', zone: '3-8',
-    tasks: [
-      { month: 7, label: 'Sklizeň plodů', type: 'harvest' },
-      { month: 3, label: 'Přihnojit hnojivem pro rododendrony', type: 'fertilizing' },
-      { month: 4, label: 'Mulčování borovicovými jehličinami nebo kůrou', type: 'mulching' },
-      { month: 2, label: 'Zimní řez starých výhonů', type: 'pruning' },
-    ] },
+
   { id: 247, nameCz: 'Rakytník řešetlákový', nameLat: 'Hippophae rhamnoides', category: 'fruits',
     description: 'Trnitý keř s oranžovými bobulemi velmi bohatými na vitamín C. Pozor: dvojdomá rostlina — nutno sázet samce i samici.',
     light: 'Plné slunce', water: 'Nízká', height: '200-400 cm', zone: '3-8',
@@ -2687,14 +2614,7 @@ export const PLANT_DATABASE = [
       { month: 6, label: 'Odstranit odkvetlé květy', type: 'pruning' },
       { month: 11, label: 'Mulčování kořenového balu', type: 'mulching' },
     ] },
-  { id: 250, nameCz: 'Kosatec německý', nameLat: 'Iris germanica', category: 'ornamental',
-    description: 'Klasický kosatec s mohutnými oddenky. Kvete v květnu-červnu v bohaté paletě barev. Sucho-milovný, snadná péče.',
-    light: 'Plné slunce', water: 'Nízká', height: '60-100 cm', zone: '3-9',
-    tasks: [
-      { month: 7, label: 'Dělení a přesazení po odkvětu', type: 'pruning' },
-      { month: 6, label: 'Odstranit odkvetlé květy', type: 'pruning' },
-      { month: 11, label: 'Sříznout listy do tvaru V (asi 15 cm)', type: 'pruning' },
-    ] },
+
   { id: 251, nameCz: 'Kosatec sibiřský', nameLat: 'Iris sibirica', category: 'ornamental',
     description: 'Drobnější kosatec se štíhlými stvoly a modrofialovými květy. Snáší vlhkou půdu — dobrý k jezírku.',
     light: 'Plné slunce až polostín', water: 'Mírná', height: '60-90 cm', zone: '3-8',
@@ -2702,22 +2622,8 @@ export const PLANT_DATABASE = [
       { month: 9, label: 'Dělení velkých trsů', type: 'pruning' },
       { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
     ] },
-  { id: 252, nameCz: 'Denivka', nameLat: 'Hemerocallis', category: 'ornamental',
-    description: 'Trvalka s lilijovitými květy. Každý květ vydrží jen jeden den, ale rostlina kvete týdny. Velmi nenáročná.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '40-100 cm', zone: '3-9',
-    tasks: [
-      { month: 4, label: 'Dělení velkých trsů na jaře', type: 'pruning' },
-      { month: 7, label: 'Odstranit odkvetlé stvoly', type: 'pruning' },
-      { month: 3, label: 'Přihnojit kompostem', type: 'fertilizing' },
-    ] },
-  { id: 253, nameCz: 'Třapatka nachová', nameLat: 'Echinacea purpurea', category: 'ornamental',
-    description: 'Trvalka s velkými růžovo-fialovými květy s prominentním středem. Kvete od července do října. Léčivá, oblíbená u motýlů.',
-    light: 'Plné slunce', water: 'Mírná', height: '70-120 cm', zone: '3-9',
-    tasks: [
-      { month: 4, label: 'Dělení trsů na jaře', type: 'pruning' },
-      { month: 8, label: 'Sklizeň květů pro sušení (čaj)', type: 'harvest' },
-      { month: 11, label: 'Nechat semenné hlavy pro ptáky přes zimu', type: 'protection' },
-    ] },
+
+
   { id: 254, nameCz: 'Třapatka zářivá', nameLat: 'Rudbeckia fulgida', category: 'ornamental',
     description: 'Trvalka se žlutými okvětními lístky a černým středem. Tvoří kompaktní trsy, kvete srpen-říjen, krásně oživuje pozdní léto.',
     light: 'Plné slunce', water: 'Mírná', height: '50-80 cm', zone: '3-9',
@@ -2754,13 +2660,7 @@ export const PLANT_DATABASE = [
       { month: 3, label: 'Odstranit staré poškozené listy', type: 'pruning' },
       { month: 9, label: 'Přihnojit kompostem', type: 'fertilizing' },
     ] },
-  { id: 259, nameCz: 'Bergenie srdčitá', nameLat: 'Bergenia cordifolia', category: 'ornamental',
-    description: 'Stálezelená trvalka s velkými kožovitými listy a růžovými květy v dubnu. Listy se na podzim zbarvují do červena.',
-    light: 'Polostín', water: 'Mírná', height: '30-50 cm', zone: '3-8',
-    tasks: [
-      { month: 5, label: 'Odstranit odkvetlé stvoly', type: 'pruning' },
-      { month: 4, label: 'Dělení starých trsů', type: 'pruning' },
-    ] },
+
   { id: 260, nameCz: 'Hosta', nameLat: 'Hosta', category: 'ornamental',
     description: 'Stinná trvalka s ozdobnými listy v různých odstínech zelené, modré, žluté i bílo-zelené. Klasika polostínových záhonů.',
     light: 'Polostín až stín', water: 'Hojná', height: '30-80 cm', zone: '3-9',
@@ -2769,13 +2669,7 @@ export const PLANT_DATABASE = [
       { month: 4, label: 'Dělení velkých trsů', type: 'pruning' },
       { month: 11, label: 'Sříznout zaschlé listy', type: 'pruning' },
     ] },
-  { id: 261, nameCz: 'Kontryhel měkký', nameLat: 'Alchemilla mollis', category: 'ornamental',
-    description: 'Trvalka s charakteristickými oválnými listy zachycujícími rosu v drobné kuličky. Drobné žlutozelené květy v červnu-červenci.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '30-50 cm', zone: '3-8',
-    tasks: [
-      { month: 7, label: 'Sříznout odkvetlé části (chrání proti samovýsevu)', type: 'pruning' },
-      { month: 4, label: 'Dělení trsů', type: 'pruning' },
-    ] },
+
   { id: 262, nameCz: 'Zvonek broskvolistý', nameLat: 'Campanula persicifolia', category: 'ornamental',
     description: 'Vytrvalý zvonek s modrými nebo bílými zvonkovitými květy v červnu-červenci. Snáší polostín, vhodný do venkovských zahrad.',
     light: 'Plné slunce až polostín', water: 'Mírná', height: '60-100 cm', zone: '3-8',
@@ -2800,22 +2694,8 @@ export const PLANT_DATABASE = [
       { month: 6, label: 'Pravidelně odstraňovat odkvetlé květy', type: 'pruning' },
       { month: 10, label: 'Před mrazem přenést do chladné místnosti pro přezimování', type: 'protection' },
     ] },
-  { id: 265, nameCz: 'Petúnie', nameLat: 'Petunia x hybrida', category: 'annuals',
-    description: 'Trumpetovitá letnička s pestrými květy v celé paletě barev. Klasika do truhlíků i záhonů, kvete od května do října.',
-    light: 'Plné slunce', water: 'Mírná', height: '20-40 cm', zone: '9-11',
-    tasks: [
-      { month: 5, label: 'Vysadit do truhlíků', type: 'protection' },
-      { month: 6, label: 'Týdně hnojit (slabě, často)', type: 'fertilizing' },
-      { month: 7, label: 'Odstřihnout přerostlé výhony pro nový růst', type: 'pruning' },
-    ] },
-  { id: 266, nameCz: 'Begónie hlíznatá', nameLat: 'Begonia x tuberhybrida', category: 'annuals',
-    description: 'Letnička pro stín a polostín s velkými růžemi podobnými květy. Hlízy lze přezimovat a použít znovu příští rok.',
-    light: 'Polostín', water: 'Mírná', height: '20-40 cm', zone: '9-11',
-    tasks: [
-      { month: 3, label: 'Předpěstovat hlízy v chladném skleníku/parapetu', type: 'protection' },
-      { month: 5, label: 'Vysadit na stinné místo po mrazech', type: 'protection' },
-      { month: 10, label: 'Vykopat hlízy a uskladnit v chladu (rašelina)', type: 'protection' },
-    ] },
+
+
   { id: 267, nameCz: 'Surfinie', nameLat: "Petunia 'Surfinia'", category: 'annuals',
     description: 'Bohatě převislá petúnie pro závěsné koše. Snáší dešťové počasí lépe než klasická petúnie, kvete velmi vydatně.',
     light: 'Plné slunce', water: 'Hojná', height: '30-80 cm (převislá)', zone: '9-11',
@@ -2831,13 +2711,7 @@ export const PLANT_DATABASE = [
       { month: 5, label: 'Vysadit po mrazech', type: 'protection' },
       { month: 7, label: 'Sříznout přerostlé výhony pro nový květ', type: 'pruning' },
     ] },
-  { id: 269, nameCz: 'Lobelka', nameLat: 'Lobelia erinus', category: 'annuals',
-    description: 'Nízká letnička s drobnými modrými, fialovými nebo bílými květy. Klasická „modř" do truhlíků a závěsných košů.',
-    light: 'Polostín', water: 'Mírná', height: '10-25 cm', zone: '9-11',
-    tasks: [
-      { month: 5, label: 'Vysadit do truhlíků a košů', type: 'protection' },
-      { month: 7, label: 'Sříznout pro druhou vlnu kvetení', type: 'pruning' },
-    ] },
+
   { id: 270, nameCz: 'Aksamitník vzpřímený', nameLat: 'Tagetes erecta', category: 'annuals',
     description: 'Žlutě či oranžově kvetoucí letnička. Vůně odpuzuje škůdce — ideální vysazovat mezi zeleninu jako přirozená ochrana.',
     light: 'Plné slunce', water: 'Mírná', height: '30-80 cm', zone: '9-11',
@@ -2862,14 +2736,7 @@ export const PLANT_DATABASE = [
       { month: 8, label: 'Pravidelně odstraňovat odkvetlé květy', type: 'pruning' },
       { month: 9, label: 'Sběr semen', type: 'harvest' },
     ] },
-  { id: 273, nameCz: 'Slunečnice roční', nameLat: 'Helianthus annuus', category: 'annuals',
-    description: 'Vysoká letnička s obřími žlutými květy otáčejícími se za sluncem. Sklizeň jedlých semen na podzim.',
-    light: 'Plné slunce', water: 'Hojná', height: '100-300 cm', zone: '4-10',
-    tasks: [
-      { month: 5, label: 'Přímý výsev po mrazech', type: 'protection' },
-      { month: 7, label: 'Vázat vysoké stvoly k oporám', type: 'protection' },
-      { month: 9, label: 'Sklizeň semen po vyzrání', type: 'harvest' },
-    ] },
+
 
   // ==================== ŽIVÉ PLOTY A STROMY ====================
   { id: 274, nameCz: 'Habr obecný', nameLat: 'Carpinus betulus', category: 'trees',
@@ -2886,15 +2753,7 @@ export const PLANT_DATABASE = [
       { month: 6, label: 'Řez živého plotu', type: 'pruning' },
       { month: 9, label: 'Druhý formovací řez', type: 'pruning' },
     ] },
-  { id: 276, nameCz: 'Buxus zimostráz', nameLat: 'Buxus sempervirens', category: 'shrubs',
-    description: 'Klasický stálezelený keř pro nízké živé ploty a tvarování. POZOR: silně ohrožen zavíječem buxusovým a houbovou nekrózou — vyžaduje pravidelnou kontrolu.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '50-300 cm', zone: '5-9',
-    tasks: [
-      { month: 6, label: 'První tvarovací řez', type: 'pruning' },
-      { month: 8, label: 'Druhý řez', type: 'pruning' },
-      { month: 5, label: 'Kontrola zavíječe buxusového', type: 'protection' },
-      { month: 7, label: 'Druhá kontrola zavíječe', type: 'protection' },
-    ] },
+
   { id: 277, nameCz: 'Cesmína ostrolistá', nameLat: 'Ilex aquifolium', category: 'shrubs',
     description: 'Stálezelený keř s lesklými ostnitými listy a červenými bobulemi v zimě. Vánoční symbol, krásné větvičky na výzdobu.',
     light: 'Polostín', water: 'Mírná', height: '200-500 cm', zone: '6-9',
@@ -2915,12 +2774,7 @@ export const PLANT_DATABASE = [
     tasks: [
       { month: 7, label: 'Letní řez (zimní řez způsobuje mízotok)', type: 'pruning' },
     ] },
-  { id: 280, nameCz: 'Bříza bělokorá', nameLat: 'Betula pendula', category: 'trees',
-    description: 'Štíhlý strom s charakteristickou bílou borkou a převislými větvemi. Klasika české krajiny, vhodná do skupinových výsadeb.',
-    light: 'Plné slunce', water: 'Mírná', height: '1500-2500 cm', zone: '3-7',
-    tasks: [
-      { month: 7, label: 'Letní řez (zimní způsobuje silný mízotok)', type: 'pruning' },
-    ] },
+
   { id: 281, nameCz: 'Pajasan žláznatý', nameLat: 'Ailanthus altissima', category: 'trees',
     description: 'POZOR: INVAZIVNÍ druh v ČR, NEdoporučuje se vysazovat. Pokud již roste, je třeba ho aktivně potlačovat — rychle se šíří kořenovými výmladky.',
     light: 'Plné slunce', water: 'Nízká', height: '1500-2500 cm', zone: '5-9',
@@ -2975,16 +2829,7 @@ export const PLANT_DATABASE = [
     ] },
 
   // ==================== DROBNÉ OVOCE — DOPLNĚNÍ ====================
-  { id: 287, nameCz: 'Maliník červený', nameLat: 'Rubus idaeus', category: 'fruits',
-    description: 'Klasický keř s červenými aromatickými plody. Rozlišuje se na letní (plodí na loňských výhonech) a podzimní (plodí na letošních) — způsob řezu se liší.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '150-200 cm', zone: '3-8',
-    tasks: [
-      { month: 7, label: 'Sklizeň plodů letních odrůd', type: 'harvest' },
-      { month: 9, label: 'Sklizeň plodů podzimních odrůd', type: 'harvest' },
-      { month: 11, label: 'Letní odrůdy: vyřezat odplozené výhony', type: 'pruning' },
-      { month: 3, label: 'Podzimní odrůdy: sříznout vše k zemi', type: 'pruning' },
-      { month: 4, label: 'Mulčování (kompost, sláma)', type: 'mulching' },
-    ] },
+
   { id: 288, nameCz: 'Maliník žlutý', nameLat: "Rubus idaeus 'Fallgold'", category: 'fruits',
     description: 'Žluto-oranžové sladké maliny s velmi jemnou chutí. Méně známá ale výnosná podzimní odrůda. Plody se nepoznají kosi tak dobře — výhoda pro pěstitele.',
     light: 'Plné slunce', water: 'Mírná', height: '150-180 cm', zone: '4-8',
@@ -2993,15 +2838,7 @@ export const PLANT_DATABASE = [
       { month: 3, label: 'Sříznout všechny výhony k zemi (podzimní typ)', type: 'pruning' },
       { month: 4, label: 'Mulčování kompostem', type: 'mulching' },
     ] },
-  { id: 289, nameCz: 'Ostružiník křovitý', nameLat: 'Rubus fruticosus', category: 'fruits',
-    description: 'Trnitý keř s černými aromatickými plody. Velmi výnosný, ale ostnité výhony vyžadují opatrnost. Sklizeň od srpna do října.',
-    light: 'Plné slunce až polostín', water: 'Mírná', height: '150-250 cm', zone: '4-8',
-    tasks: [
-      { month: 8, label: 'Sklizeň plodů (postupně)', type: 'harvest' },
-      { month: 11, label: 'Vyřezat odplozené výhony u země', type: 'pruning' },
-      { month: 3, label: 'Přivázat mladé výhony k drátěnce', type: 'protection' },
-      { month: 4, label: 'Přihnojit kompostem', type: 'fertilizing' },
-    ] },
+
   { id: 290, nameCz: 'Ostružiník beztrnný', nameLat: "Rubus fruticosus 'Thornfree'", category: 'fruits',
     description: 'Bezostnitá kulturní odrůda ostružiníku — bezpečné sklizení i pro děti. Velké sladké černé plody, výnos srovnatelný s trnitými.',
     light: 'Plné slunce', water: 'Mírná', height: '200-300 cm', zone: '5-8',
