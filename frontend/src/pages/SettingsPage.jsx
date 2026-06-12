@@ -330,37 +330,41 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="settings-sep" />
+          {(premium === null || premium.is_premium || premium.configured) && (
+            <>
+              <div className="settings-sep" />
 
-          {premium === null ? (
-            <div className="settings-row">
-              <RowIcon color="#FF9500">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
-              </RowIcon>
-              <span className="settings-row-label">{t('settings.premium')}</span>
-              <span className="settings-row-value">{t('settings.loadingShort')}</span>
-            </div>
-          ) : premium.is_premium ? (
-            <div className="settings-row">
-              <RowIcon color="#34C759">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
-              </RowIcon>
-              <span className="settings-row-label">{t('settings.premiumActive')}</span>
-              <span className="settings-row-value" style={{ color: 'var(--ios-green)', fontWeight: 600 }}>{t('settings.premiumActiveValue')}</span>
-            </div>
-          ) : (
-            <button
-              className="settings-row"
-              onClick={handleUpgrade}
-              disabled={premiumBusy || !premium.configured}
-            >
-              <RowIcon color="#FF9500">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
-              </RowIcon>
-              <span className="settings-row-label">{t('settings.upgradeToPremium')}</span>
-              <span className="settings-row-value">{premium.configured ? t('settings.premiumPrice') : t('settings.unavailable')}</span>
-              {premium.configured && <span className="settings-row-chevron">›</span>}
-            </button>
+              {premium === null ? (
+                <div className="settings-row">
+                  <RowIcon color="#FF9500">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
+                  </RowIcon>
+                  <span className="settings-row-label">{t('settings.premium')}</span>
+                  <span className="settings-row-value">{t('settings.loadingShort')}</span>
+                </div>
+              ) : premium.is_premium ? (
+                <div className="settings-row">
+                  <RowIcon color="#34C759">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
+                  </RowIcon>
+                  <span className="settings-row-label">{t('settings.premiumActive')}</span>
+                  <span className="settings-row-value" style={{ color: 'var(--ios-green)', fontWeight: 600 }}>{t('settings.premiumActiveValue')}</span>
+                </div>
+              ) : (
+                <button
+                  className="settings-row"
+                  onClick={handleUpgrade}
+                  disabled={premiumBusy}
+                >
+                  <RowIcon color="#FF9500">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17l-6.9 3.6 1.6-6.9L1.4 9.1l7-.6L12 2z" /></svg>
+                  </RowIcon>
+                  <span className="settings-row-label">{t('settings.upgradeToPremium')}</span>
+                  <span className="settings-row-value">{t('settings.premiumPrice')}</span>
+                  <span className="settings-row-chevron">›</span>
+                </button>
+              )}
+            </>
           )}
         </div>
         <div className="settings-group-foot">{t('settings.accountFoot')}</div>
