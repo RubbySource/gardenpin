@@ -111,6 +111,9 @@ export default function GardenDetailPage() {
   const [pinSearchOpen, setPinSearchOpen] = useState(false);
   const pinSearchInputRef = useRef(null);
   const pinSearchWrapRef = useRef(null);
+  // UX-MAP: jednorázový auto-scroll na shluk pinů po otevření zahrady,
+  // aby uživatel nemusel ručně rolovat dolů, když jsou piny v dolní části fotky.
+  const hasFitToPinsRef = useRef(false);
 
   const load = async () => {
     try {
@@ -138,7 +141,61 @@ export default function GardenDetailPage() {
 
   useEffect(() => {
     load();
+    hasFitToPinsRef.current = false;
   }, [id]);
+
+  // UX-MAP: po načtení zahrady vycentruj viewport na shluk pinů.
+  // Bez tohoto se mapa otevře na původním scroll pozici (často horní třetina fotky =
+  // prázdná obloha/koruny stromů) a uživatel musí ručně scrollovat dolů k pinům.
+  // Spustíme jen jednou per garden ID — ne při každém pin dragu / state update.
+  useEffect(() => {
+    if (loading) return;
+    if (tab !== 'map') return;
+    if (!garden || !garden.image_path) return;
+    if (!pins || pins.length === 0) return;
+    if (hasFitToPinsRef.current) return;
+    // Deep link ?pin=N otevírá rovnou modal s pin detailem — auto-scroll
+    // by skrolloval na pozadí modal scroll-locku, zbytečné.
+    if (editingPinId) return;
+
+    let attempts = 0;
+    let rafId = null;
+    const tryFit = () => {
+      const el = mapRef.current;
+      if (!el) {
+        if (attempts++ < 30) { rafId = requestAnimationFrame(tryFit); }
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      // Mapa ještě nemá výšku (aspectRatio chybí + img se načítá) — zkus znova.
+      if (rect.height < 80) {
+        if (attempts++ < 30) { rafId = requestAnimationFrame(tryFit); }
+        return;
+      }
+      const xs = pins.map((p) => p.x);
+      const ys = pins.map((p) => p.y);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const centerYPct = (minY + maxY) / 2;
+      // Absolutní Y středu shluku na stránce
+      const mapTopAbs = rect.top + window.scrollY;
+      const clusterAbsY = mapTopAbs + (centerYPct / 100) * rect.height;
+      // Pokud je shluk už uvnitř středních ~40 % viewportu, nic neděláme
+      // (vyhneme se rušivému scrollu, když je stránka v pohodě).
+      const viewportCenter = window.scrollY + window.innerHeight / 2;
+      if (Math.abs(clusterAbsY - viewportCenter) < window.innerHeight * 0.2) {
+        hasFitToPinsRef.current = true;
+        return;
+      }
+      const targetTop = clusterAbsY - window.innerHeight / 2;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const clamped = Math.max(0, Math.min(targetTop, maxScroll));
+      window.scrollTo({ top: clamped, behavior: 'smooth' });
+      hasFitToPinsRef.current = true;
+    };
+    rafId = requestAnimationFrame(tryFit);
+    return () => { if (rafId) cancelAnimationFrame(rafId); };
+  }, [loading, tab, garden, pins, editingPinId]);
 
   // Deep link: /zahrada/:id?pin=<pinId> otevře daný pin v detailu (shareLink z PinDetail).
   // Query param vyčistíme, aby uživatel mohl ručně zavřít detail bez automatického znovuotevření.
